@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0.0",
+	"FriendlyName": "TsubasamusuUnrealAssist",
+	"Description": "",
+	"Category": "TSUBASAMUSU",
+	"CreatedBy": "tsubasamusu",
+	"CreatedByURL": "https://tsubasamusu.com",
+	"DocsURL": "https://github.com/tsubasamusu/TsubasamusuUnrealAssist",
+	"MarketplaceURL": "",
+	"SupportURL": "https://tsubasamusu.com",
+	"CanContainContent": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "TsubasamusuUnrealAssist",
+			"Type": "Editor",
+			"LoadingPhase": "Default"
+		}
+	]
+}
