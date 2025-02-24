@@ -27,7 +27,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "CoreUObject",
             "Engine",
             "Slate",
-            "SlateCore"
+            "SlateCore",
+            "Blutility"
         });
 
         DynamicallyLoadedModuleNames.AddRange(new string[] { });
