@@ -5,32 +5,34 @@
 #include "Internationalization/Culture.h"
 #include "InternationalizationSettingsModel.h"
 #include "Settings/EditorStyleSettings.h"
+#include "BlueprintEditorSettings.h"
 
 void FTsubasamusuEditorSettingsUtilty::SetupEditorSettingsForTsubasamusu()
 {
     SetupLoadingSavingSettings();
     SetupStyleSettings();
-    SetupGraphSettings();
+    SetupGraphEditorSettings();
     SetupInternationalizationSettings();
+    SetupBlueprintEditorSettings();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupLoadingSavingSettings()
 {
-    UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetMutableDefault<UEditorLoadingSavingSettings>();
+    UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetSettingsChecked<UEditorLoadingSavingSettings>();
 
     EditorLoadingSavingSettings->bAutoSaveEnable = false;
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupStyleSettings()
 {
-    UEditorStyleSettings* EditorStyleSettings = GetMutableDefault<UEditorStyleSettings>();
+    UEditorStyleSettings* EditorStyleSettings = GetSettingsChecked<UEditorStyleSettings>();
 
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
 }
 
-void FTsubasamusuEditorSettingsUtilty::SetupGraphSettings()
+void FTsubasamusuEditorSettingsUtilty::SetupGraphEditorSettings()
 {
-    UGraphEditorSettings* GraphEditorSettings = GetMutableDefault<UGraphEditorSettings>();
+    UGraphEditorSettings* GraphEditorSettings = GetSettingsChecked<UGraphEditorSettings>();
 
     GraphEditorSettings->bShowCommentBubbleWhenZoomedOut = true;
     GraphEditorSettings->DefaultCommentNodeTitleColor = FLinearColor::Black;
@@ -38,11 +40,18 @@ void FTsubasamusuEditorSettingsUtilty::SetupGraphSettings()
 
 void FTsubasamusuEditorSettingsUtilty::SetupInternationalizationSettings()
 {
-    UInternationalizationSettingsModel* InternationalizationSettingsModel = GetMutableDefault<UInternationalizationSettingsModel>();
+    UInternationalizationSettingsModel* InternationalizationSettingsModel = GetSettingsChecked<UInternationalizationSettingsModel>();
 
     FInternationalization::Get().SetCurrentLanguageAndLocale(TEXT("en"));
 
     InternationalizationSettingsModel->SetShouldUseLocalizedNodeAndPinNames(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedNumericInput(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedPropertyNames(false);
+}
+
+void FTsubasamusuEditorSettingsUtilty::SetupBlueprintEditorSettings()
+{
+    UBlueprintEditorSettings* BlueprintEditorSettings = GetSettingsChecked<UBlueprintEditorSettings>();
+
+    BlueprintEditorSettings->bSpawnDefaultBlueprintNodes = false;
 }

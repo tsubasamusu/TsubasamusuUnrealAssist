@@ -11,6 +11,21 @@ public:
 
 	static void SetupLoadingSavingSettings();
 	static void SetupStyleSettings();
-	static void SetupGraphSettings();
+	static void SetupGraphEditorSettings();
 	static void SetupInternationalizationSettings();
+	static void SetupBlueprintEditorSettings();
+
+	template<typename T>
+	static T* GetSettingsChecked()
+	{
+		static_assert(TIsDerivedFrom<T, UObject>::Value, "T must be a subclass of UObject.");
+
+		T* MutableDefault = GetMutableDefault<T>();
+
+		UObject* Settings = Cast<UObject>(MutableDefault);
+
+		check(IsValid(Settings));
+
+		return MutableDefault;
+	}
 };
