@@ -23,6 +23,9 @@ void FTsubasamusuEditorSettingsUtilty::SetupLoadingSavingSettings()
     UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetSettingsChecked<UEditorLoadingSavingSettings>();
 
     EditorLoadingSavingSettings->bAutoSaveEnable = false;
+    EditorLoadingSavingSettings->RestoreOpenAssetTabsOnRestart = ERestoreOpenAssetTabsMethod::NeverRestore;
+
+    EditorLoadingSavingSettings->PostEditChange();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupStyleSettings()
@@ -30,6 +33,8 @@ void FTsubasamusuEditorSettingsUtilty::SetupStyleSettings()
     UEditorStyleSettings* EditorStyleSettings = GetSettingsChecked<UEditorStyleSettings>();
 
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
+
+    EditorStyleSettings->PostEditChange();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupGraphEditorSettings()
@@ -38,6 +43,8 @@ void FTsubasamusuEditorSettingsUtilty::SetupGraphEditorSettings()
 
     GraphEditorSettings->bShowCommentBubbleWhenZoomedOut = true;
     GraphEditorSettings->DefaultCommentNodeTitleColor = FLinearColor::Black;
+
+    GraphEditorSettings->PostEditChange();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupInternationalizationSettings()
@@ -49,6 +56,8 @@ void FTsubasamusuEditorSettingsUtilty::SetupInternationalizationSettings()
     InternationalizationSettingsModel->SetShouldUseLocalizedNodeAndPinNames(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedNumericInput(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedPropertyNames(false);
+
+    InternationalizationSettingsModel->PostEditChange();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupBlueprintEditorSettings()
@@ -57,6 +66,8 @@ void FTsubasamusuEditorSettingsUtilty::SetupBlueprintEditorSettings()
 
     BlueprintEditorSettings->bSpawnDefaultBlueprintNodes = false;
     BlueprintEditorSettings->bFavorPureCastNodes = true;
+
+    BlueprintEditorSettings->PostEditChange();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupOutputLogSettings()
@@ -64,4 +75,6 @@ void FTsubasamusuEditorSettingsUtilty::SetupOutputLogSettings()
     UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
 
     OutputLogSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
+
+    OutputLogSettings->PostEditChange();
 }
