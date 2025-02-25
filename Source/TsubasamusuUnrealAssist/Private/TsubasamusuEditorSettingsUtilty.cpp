@@ -6,6 +6,7 @@
 #include "InternationalizationSettingsModel.h"
 #include "Settings/EditorStyleSettings.h"
 #include "BlueprintEditorSettings.h"
+#include "OutputLogSettings.h"
 
 void FTsubasamusuEditorSettingsUtilty::SetupEditorSettingsForTsubasamusu()
 {
@@ -14,6 +15,7 @@ void FTsubasamusuEditorSettingsUtilty::SetupEditorSettingsForTsubasamusu()
     SetupGraphEditorSettings();
     SetupInternationalizationSettings();
     SetupBlueprintEditorSettings();
+    SetupOutputLogSettings();
 }
 
 void FTsubasamusuEditorSettingsUtilty::SetupLoadingSavingSettings()
@@ -54,4 +56,12 @@ void FTsubasamusuEditorSettingsUtilty::SetupBlueprintEditorSettings()
     UBlueprintEditorSettings* BlueprintEditorSettings = GetSettingsChecked<UBlueprintEditorSettings>();
 
     BlueprintEditorSettings->bSpawnDefaultBlueprintNodes = false;
+    BlueprintEditorSettings->bFavorPureCastNodes = true;
+}
+
+void FTsubasamusuEditorSettingsUtilty::SetupOutputLogSettings()
+{
+    UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
+
+    OutputLogSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
 }

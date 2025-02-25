@@ -21,7 +21,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
 			"Blutility",
 			"GraphEditor",
 			"InternationalizationSettings",
-            "BlueprintGraph"
+            "BlueprintGraph",
+            "OutputLog"
         });
 	}
 }

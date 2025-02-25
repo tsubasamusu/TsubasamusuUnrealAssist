@@ -14,6 +14,7 @@ public:
 	static void SetupGraphEditorSettings();
 	static void SetupInternationalizationSettings();
 	static void SetupBlueprintEditorSettings();
+	static void SetupOutputLogSettings();
 
 	template<typename T>
 	static T* GetSettingsChecked()
