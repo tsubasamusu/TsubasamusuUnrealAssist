@@ -22,7 +22,10 @@ public class TsubasamusuUnrealAssist : ModuleRules
 			"GraphEditor",
 			"InternationalizationSettings",
             "BlueprintGraph",
-            "OutputLog"
+            "OutputLog",
+            "Slate",
+            "SlateCore",
+            "InputCore"
         });
 	}
 }
