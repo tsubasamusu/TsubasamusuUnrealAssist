@@ -9,82 +9,80 @@ class TSUBASAMUSUUNREALASSIST_API SGraphNodePlayerCharacter : public SGraphNode
 {
 public:
 
-	/**
-	 * The resizable window zone the user is interacting with
-	 */
+	/** ユーザーが操作しているリサイズ可能なウィンドウゾーン */
 	enum EResizableWindowZone
 	{
-		CRWZ_NotInWindow		= 0,
-		CRWZ_InWindow			= 1,
-		CRWZ_RightBorder		= 2,
-		CRWZ_BottomBorder		= 3,
-		CRWZ_BottomRightBorder	= 4,
-		CRWZ_LeftBorder			= 5,
-		CRWZ_TopBorder			= 6,
-		CRWZ_TopLeftBorder		= 7,
-		CRWZ_TopRightBorder		= 8,
-		CRWZ_BottomLeftBorder	= 9,
-		CRWZ_TitleBar			= 10,
+		NotInWindow,
+		InWindow,
+		RightBorder,
+		BottomBorder,
+		BottomRightBorder,
+		LeftBorder,
+		TopBorder,
+		TopLeftBorder,
+		TopRightBorder,
+		BottomLeftBorder,
+		TitleBar,
 	};
 
 	//~ Begin SWidget Interface
-	virtual FReply OnMouseMove( const FGeometry& MyGeometry, const FPointerEvent& MouseEvent ) override;
-	virtual void OnMouseEnter( const FGeometry& MyGeometry, const FPointerEvent& MouseEvent ) override;
-	virtual void OnMouseLeave( const FPointerEvent& MouseEvent ) override;
-	virtual FReply OnMouseButtonDown( const FGeometry& MyGeometry, const FPointerEvent& MouseEvent ) override;
-	virtual FReply OnMouseButtonUp( const FGeometry& MyGeometry, const FPointerEvent& MouseEvent ) override;
-	virtual FCursorReply OnCursorQuery( const FGeometry& MyGeometry, const FPointerEvent& CursorEvent ) const override;
+	virtual FReply OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual void OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
+	virtual FReply OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual FReply OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
+	virtual FCursorReply OnCursorQuery(const FGeometry& MyGeometry, const FPointerEvent& CursorEvent) const override;
 	//~ End SWidget Interface
 	
 protected:
 
-	/** Find the current window zone the mouse is in */
+	/** マウスが現在いるウィンドウゾーンを探す */
 	virtual EResizableWindowZone FindMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
-	/** @return true if the current window zone is considered a selection area */
-	bool InSelectionArea() const { return InSelectionArea(MouseZone); }
+	/** @return 現在のウィンドウゾーンが選択領域とみなされる場合 true */
+	bool InSelectionArea() const;
 
-	/** @return true if the passed zone is a selection area */
-	bool InSelectionArea(EResizableWindowZone InZone) const;
+	/** @return 通過したゾーンが選択領域である場合 true */
+	static bool InSelectionArea(const EResizableWindowZone InMouseZone);
 
-	/** Function to store anchor point before resizing the node. The node will be anchored to this point when resizing happens*/
+	/** ノードのサイズを変更する前にアンカーポイントを保存する関数。ノードのリサイズ時にこの点にアンカーされる。*/
 	void InitNodeAnchorPoint();
 
-	/** Function to fetch the corrected node position based on anchor point*/
+	/** アンカーポイントに基づいて補正されたノードの位置を取得する関数 */
 	FVector2D GetCorrectedNodePosition() const;
 
-	/** Get the current titlebar size */
+	/** 現在のタイトルバーのサイズを取得する */
 	virtual float GetTitleBarHeight() const;
 
-	/** Return smallest desired node size */
+	/** 希望するノードの最小サイズを返す */
 	virtual FVector2D GetNodeMinimumSize() const;
 
-	/** Return largest desired node size */
+	/** 希望するノードの最大サイズを返す */
 	virtual FVector2D GetNodeMaximumSize() const;
 
-	//** Return slate rect border for hit testing */
+	//** ヒットテスト用に FSlateRect を返す */
 	virtual FSlateRect GetHitTestingBorder() const;
 
 protected:
 
-	/** The non snapped size of the node for fluid resizing */
+	/** 流体リサイズ用のノードのスナップしないサイズ */
 	FVector2D DragSize;
 
-	/** The desired size of the node set during a drag */
+	/** ドラッグ中に設定されるノードの希望サイズ */
 	FVector2D UserSize;
 
-	/** The original size of the node while resizing */
+	/** サイズ変更時のノードの元のサイズ */
 	FVector2D StoredUserSize;
 
-	/** The resize transaction */
+	/** サイズ変更トランザクション */
 	TSharedPtr<FScopedTransaction> ResizeTransactionPtr;
 
-	/** Anchor point used to correct node position on resizing the node*/
+	/** ノードのサイズ変更時にノードの位置を修正するためのアンカーポイント */
 	FVector2D NodeAnchorPoint;
 
-	/** The current window zone the mouse is in */
+	/** マウスが現在いるウィンドウゾーン */
 	EResizableWindowZone MouseZone;
 
-	/** If true the user is actively dragging the node */
+	/** trueの場合、ユーザーはノードをアクティブにドラッグしている */
 	bool bUserIsDragging;
 };
