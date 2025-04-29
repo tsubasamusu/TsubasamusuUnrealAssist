@@ -37,16 +37,16 @@ public:
 	virtual FReply OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
 	virtual FReply OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
 	virtual FCursorReply OnCursorQuery(const FGeometry& MyGeometry, const FPointerEvent& CursorEvent) const override;
-	virtual FReply OnMouseButtonDoubleClick( const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent ) override;
+	virtual FReply OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-	virtual FReply OnDrop( const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent ) override;
-	virtual void OnDragEnter( const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent ) override;
+	virtual FReply OnDrop(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent) override;
+	virtual void OnDragEnter(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent) override;
 	//~ End SWidget Interface
 	
 	//~ Begin SNodePanel::SNode Interface
 	virtual const FSlateBrush* GetShadowBrush(bool bSelected) const override;
 	virtual void GetOverlayBrushes(bool bSelected, const FVector2D WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const override;
-	virtual bool ShouldAllowCulling() const override { return true; }
+	virtual bool ShouldAllowCulling() const override;
 	virtual int32 GetSortDepth() const override;
 	virtual void EndUserInteraction() const override;
 	virtual FString GetNodeComment() const override;
@@ -58,18 +58,18 @@ public:
 
 	//~ Begin SGraphNode Interface
 	virtual bool IsNameReadOnly() const override;
-	virtual FSlateColor GetCommentColor() const override { return GetCommentBodyColor(); }
+	virtual FSlateColor GetCommentColor() const override;
 	//~ End SGraphNode Interface
 
-	void Construct( const FArguments& InArgs, UEdGraphNode_Comment* InNode );
+	void Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode);
 
-	/** return if the node can be selected, by pointing given location */
-	virtual bool CanBeSelected( const FVector2D& MousePositionInNode ) const override;
+	/** 指定された場所を指してノードが選択可能かどうかを返す */
+	virtual bool CanBeSelected(const FVector2D& MousePositionInNode) const override;
 
-	/** return size of the title bar */
+	/** タイトルバーのサイズを返す */
 	virtual FVector2D GetDesiredSizeForMarquee() const override;
 
-	/** return rect of the title bar */
+	/** タイトルバーの FSlateRect を返す */
 	virtual FSlateRect GetTitleRect() const override;
 
 protected:
@@ -106,25 +106,25 @@ protected:
 	virtual void PopulateMetaTag(class FGraphNodeMetaData* TagMeta) const override;
 
 	/**
-	 * Helper method to update selection state of comment and any nodes 'contained' within it
-	 * @param bSelected	If true comment is being selected, false otherwise
-	 * @param bUpdateNodesUnderComment If true then force the rebuild of the list of nodes under the comment
+	 * コメントとその中に含まれるノードの選択状態を更新するヘルパーメソッド
+	 * @param bIsSelected コメントが選択されている場合は true、そうでない場合は false
+	 * @param bUpdateNodesUnderComment もし true なら、コメント下のノードのリストを強制的に再構築する
 	 */
-	void HandleSelection(bool bIsSelected, bool bUpdateNodesUnderComment = false) const;
+	void HandleSelection(const bool bIsSelected, const bool bUpdateNodesUnderComment = false) const;
 
-	/** Helper function to determine if a node is under this comment widget or not */
+	/** ノードがこのコメントウィジェットの下にあるかどうかを判定するヘルパー関数 */
 	virtual bool IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const;
 
-	/** called when user is moving the comment node */
+	/** ユーザーがコメントノードを移動するときに呼び出される */
 	virtual void MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty = true) override;
 
-	/** @return the color to tint the comment body */
+	/** @return コメント本文の色 */
 	FSlateColor GetCommentBodyColor() const;
 
-	/** @return the color to tint the title bar */
+	/** @return タイトルバーの色 */
 	FSlateColor GetCommentTitleBarColor() const;
 
-	/** @return the color to tint the comment bubble */
+	/** @return コメントバブルの色 */
 	FSlateColor GetCommentBubbleColor() const;
 
 	/** 流体リサイズ用のノードのスナップしないサイズ */
@@ -148,32 +148,32 @@ protected:
 	/** trueの場合、ユーザーはノードをアクティブにドラッグしている */
 	bool bUserIsDragging;
 	
-	/** cached comment title */
+	/** キャッシュされたコメントタイトル */
 	FString CachedCommentTitle;
 
-	/** cached font size */
+	/** キャッシュされたフォントサイズ */
 	int32 CachedFontSize;
 
-	/** Was the bubble desired to be visible last frame? */
+	/** 最後のフレームでバブルが見えることが望まれていたのか？ */
 	mutable bool bCachedBubbleVisibility;
 
 private:
 	
-	/** Returns the width to wrap the text of the comment at */
+	/** コメントのテキストを折り返す幅を返す */
 	float GetWrapAt() const;
 
-	/** The comment bubble widget (used when zoomed out) */
+	/** ズームアウト時に使用するコメントバブルウィジェット */
 	TSharedPtr<SCommentBubble> CommentBubble;
 
-	/** The current selection state of the comment */
+	/** コメントの現在の選択状態 */
 	mutable bool bIsSelected;
 
-	/** the title bar, needed to obtain it's height */
+	/** タイトルバーの高さを取得するために必要なタイトルバー */
 	TSharedPtr<SBorder> TitleBarBorder;
 
-	/** cached comment title */
+	/** キャッシュされたコメントタイトルの幅 */
 	int32 CachedWidth;
 
-	/** Local copy of the comment style */
+	/** コメントスタイルのローカルコピー */
 	FInlineEditableTextBlockStyle CommentStyle;
 };
