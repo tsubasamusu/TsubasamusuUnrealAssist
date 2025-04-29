@@ -25,16 +25,16 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 
 void FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory()
 {
-	TsubasamusuNodeFactory = MakeShared<FTsubasamusuNodeFactory>();
+	TsubasamusuNodeFactoryPtr = MakeShared<FTsubasamusuNodeFactory>();
 
-	FEdGraphUtilities::RegisterVisualNodeFactory(TsubasamusuNodeFactory);
+	FEdGraphUtilities::RegisterVisualNodeFactory(TsubasamusuNodeFactoryPtr);
 }
 
 void FTsubasamusuUnrealAssistModule::UnregisterTsubasamusuNodeFactory()
 {
-	FEdGraphUtilities::UnregisterVisualNodeFactory(TsubasamusuNodeFactory);
+	FEdGraphUtilities::UnregisterVisualNodeFactory(TsubasamusuNodeFactoryPtr);
 
-	TsubasamusuNodeFactory.Reset();
+	TsubasamusuNodeFactoryPtr.Reset();
 }
 
 #undef LOCTEXT_NAMESPACE

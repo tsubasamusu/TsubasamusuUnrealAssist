@@ -17,5 +17,5 @@ private:
 	void RegisterTsubasamusuNodeFactory();
 	void UnregisterTsubasamusuNodeFactory();
 
-	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactory;
+	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactoryPtr;
 };
