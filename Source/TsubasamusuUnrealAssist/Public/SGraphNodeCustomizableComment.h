@@ -8,10 +8,10 @@
 class SCommentBubble;
 class UEdGraphNode_Comment;
 
-class TSUBASAMUSUUNREALASSIST_API SGraphNodePlayerCharacter : public SGraphNode
+class TSUBASAMUSUUNREALASSIST_API SGraphNodeCustomizableComment : public SGraphNode
 {
 public:
-	SLATE_BEGIN_ARGS(SGraphNodePlayerCharacter){}
+	SLATE_BEGIN_ARGS(SGraphNodeCustomizableComment){}
 	SLATE_END_ARGS()
 
 	/** ユーザーが操作しているリサイズ可能なウィンドウゾーン */

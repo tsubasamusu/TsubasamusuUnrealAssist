@@ -1,8 +1,8 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
-#include "PlayerCharacterNodeFactory.h"
-#include "TsubasamusuEditorSettingsUtilty.h"
+#include "TsubasamusuNodeFactory.h"
+#include "TsubasamusuEditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 #define TUA_IS_ENABLED (!IS_MONOLITHIC && !UE_BUILD_SHIPPING && !UE_BUILD_TEST && !UE_GAME && !UE_SERVER)
@@ -10,31 +10,31 @@
 void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 #if TUA_IS_ENABLED
-	//FTsubasamusuEditorSettingsUtilty::SetupEditorSettingsForTsubasamusu();
+	//FTsubasamusuEditorSettingsUtility::SetupEditorSettingsForTsubasamusu();
 
-	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterPlayerCharacterNodeFactory);
+	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory);
 #endif
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 #if TUA_IS_ENABLED
-	UnregisterPlayerCharacterNodeFactory();
+	UnregisterTsubasamusuNodeFactory();
 #endif
 }
 
-void FTsubasamusuUnrealAssistModule::RegisterPlayerCharacterNodeFactory()
+void FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory()
 {
-	PlayerCharacterNodeFactory = MakeShared<FPlayerCharacterNodeFactory>();
+	TsubasamusuNodeFactory = MakeShared<FTsubasamusuNodeFactory>();
 
-	FEdGraphUtilities::RegisterVisualNodeFactory(PlayerCharacterNodeFactory);
+	FEdGraphUtilities::RegisterVisualNodeFactory(TsubasamusuNodeFactory);
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterPlayerCharacterNodeFactory()
+void FTsubasamusuUnrealAssistModule::UnregisterTsubasamusuNodeFactory()
 {
-	FEdGraphUtilities::UnregisterVisualNodeFactory(PlayerCharacterNodeFactory);
+	FEdGraphUtilities::UnregisterVisualNodeFactory(TsubasamusuNodeFactory);
 
-	PlayerCharacterNodeFactory.Reset();
+	TsubasamusuNodeFactory.Reset();
 }
 
 #undef LOCTEXT_NAMESPACE

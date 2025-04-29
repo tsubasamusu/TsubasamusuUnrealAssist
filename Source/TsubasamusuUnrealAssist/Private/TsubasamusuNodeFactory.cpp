@@ -1,16 +1,16 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "PlayerCharacterNodeFactory.h"
+#include "TsubasamusuNodeFactory.h"
 #include "EdGraphNode_Comment.h"
-#include "SGraphNodePlayerCharacter.h"
+#include "SGraphNodeCustomizableComment.h"
 
-TSharedPtr<SGraphNode> FPlayerCharacterNodeFactory::CreateNode(class UEdGraphNode* Node) const
+TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(class UEdGraphNode* Node) const
 {
     UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(Node);
 
     if (IsValid(CommentNode))
     {
-        return SNew(SGraphNodePlayerCharacter, CommentNode);
+        return SNew(SGraphNodeCustomizableComment, CommentNode);
     }
     
     return nullptr;

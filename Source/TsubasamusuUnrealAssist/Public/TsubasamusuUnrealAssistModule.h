@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FPlayerCharacterNodeFactory;
+class FTsubasamusuNodeFactory;
 
 class FTsubasamusuUnrealAssistModule : public IModuleInterface
 {
@@ -14,8 +14,8 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
-	void RegisterPlayerCharacterNodeFactory();
-	void UnregisterPlayerCharacterNodeFactory();
+	void RegisterTsubasamusuNodeFactory();
+	void UnregisterTsubasamusuNodeFactory();
 
-	TSharedPtr<FPlayerCharacterNodeFactory> PlayerCharacterNodeFactory;
+	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactory;
 };

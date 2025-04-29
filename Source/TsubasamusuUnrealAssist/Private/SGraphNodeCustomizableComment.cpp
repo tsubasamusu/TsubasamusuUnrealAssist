@@ -1,13 +1,13 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "SGraphNodePlayerCharacter.h"
+#include "SGraphNodeCustomizableComment.h"
 #include "EdGraphNode_Comment.h"
 #include "SCommentBubble.h"
 #include "SGraphPanel.h"
 #include "TutorialMetaData.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 
-namespace SGraphNodePlayerCharacterDefs
+namespace SGraphNodeCustomizableCommentDefs
 {
 	/** ウィンドウの境界線に対するヒット結果の境界線のサイズ */
 	static const FSlateRect HitResultBorderSize(10, 10, 10, 10);
@@ -34,17 +34,17 @@ namespace SGraphNodePlayerCharacterDefs
 	static const FSlateRect TitleBarOffset(13,8,-3,0);
 }
 
-bool SGraphNodePlayerCharacter::InSelectionArea() const
+bool SGraphNodeCustomizableComment::InSelectionArea() const
 {
 	return InSelectionArea(MouseZone);
 }
 
-bool SGraphNodePlayerCharacter::InSelectionArea(const EResizableWindowZone InMouseZone)
+bool SGraphNodeCustomizableComment::InSelectionArea(const EResizableWindowZone InMouseZone)
 {
 	return InMouseZone == RightBorder || InMouseZone == BottomBorder || InMouseZone == BottomRightBorder || InMouseZone == LeftBorder || InMouseZone == TopBorder || InMouseZone == TopLeftBorder || InMouseZone == TopRightBorder || InMouseZone == BottomLeftBorder;
 }
 
-void SGraphNodePlayerCharacter::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+void SGraphNodeCustomizableComment::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	//マウスがいるゾーンを決定する
 	if(!bUserIsDragging)
@@ -55,7 +55,7 @@ void SGraphNodePlayerCharacter::OnMouseEnter(const FGeometry& MyGeometry, const 
 	}
 }
 
-void SGraphNodePlayerCharacter::OnMouseLeave(const FPointerEvent& MouseEvent)
+void SGraphNodeCustomizableComment::OnMouseLeave(const FPointerEvent& MouseEvent)
 {
 	if(!bUserIsDragging)
 	{
@@ -65,7 +65,7 @@ void SGraphNodePlayerCharacter::OnMouseLeave(const FPointerEvent& MouseEvent)
 	}
 }
 
-FCursorReply SGraphNodePlayerCharacter::OnCursorQuery(const FGeometry& MyGeometry, const FPointerEvent& CursorEvent) const
+FCursorReply SGraphNodeCustomizableComment::OnCursorQuery(const FGeometry& MyGeometry, const FPointerEvent& CursorEvent) const
 {
 	if (MouseZone == RightBorder || MouseZone == LeftBorder)
 	{
@@ -95,7 +95,7 @@ FCursorReply SGraphNodePlayerCharacter::OnCursorQuery(const FGeometry& MyGeometr
 	return FCursorReply::Unhandled();
 }
 
-FReply SGraphNodePlayerCharacter::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+FReply SGraphNodeCustomizableComment::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (InSelectionArea() && MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && IsEditable.Get()) 
 	{
@@ -112,7 +112,7 @@ FReply SGraphNodePlayerCharacter::OnMouseButtonDown(const FGeometry& MyGeometry,
 	return FReply::Unhandled();
 }
 
-FReply SGraphNodePlayerCharacter::OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+FReply SGraphNodeCustomizableComment::OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && bUserIsDragging)
 	{
@@ -136,7 +136,7 @@ FReply SGraphNodePlayerCharacter::OnMouseButtonUp(const FGeometry& MyGeometry, c
 	return FReply::Unhandled();
 }
 
-FReply SGraphNodePlayerCharacter::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
+FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (bUserIsDragging)
 	{
@@ -237,7 +237,7 @@ FReply SGraphNodePlayerCharacter::OnMouseMove(const FGeometry& MyGeometry, const
 	return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
 }
 
-void SGraphNodePlayerCharacter::InitNodeAnchorPoint()
+void SGraphNodeCustomizableComment::InitNodeAnchorPoint()
 {
 	NodeAnchorPoint = GetPosition();
 	
@@ -255,7 +255,7 @@ void SGraphNodePlayerCharacter::InitNodeAnchorPoint()
 	}
 }
 
-FVector2D SGraphNodePlayerCharacter::GetCorrectedNodePosition() const
+FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePosition() const
 {
 	FVector2D CorrectedPos = NodeAnchorPoint;
 	
@@ -275,7 +275,7 @@ FVector2D SGraphNodePlayerCharacter::GetCorrectedNodePosition() const
 	return CorrectedPos;
 }
 
-SGraphNodePlayerCharacter::EResizableWindowZone SGraphNodePlayerCharacter::FindMouseZone(const FVector2D& LocalMouseCoordinates) const
+SGraphNodeCustomizableComment::EResizableWindowZone SGraphNodeCustomizableComment::FindMouseZone(const FVector2D& LocalMouseCoordinates) const
 {
 	EResizableWindowZone OutMouseZone = NotInWindow;
 	const FSlateRect HitResultBorderSize = GetHitTestingBorder();
@@ -342,27 +342,27 @@ SGraphNodePlayerCharacter::EResizableWindowZone SGraphNodePlayerCharacter::FindM
 	return OutMouseZone;
 }
 
-float SGraphNodePlayerCharacter::GetTitleBarHeight() const
+float SGraphNodeCustomizableComment::GetTitleBarHeight() const
 {
 	return TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
 }
 
-FVector2D SGraphNodePlayerCharacter::GetNodeMinimumSize() const
+FVector2D SGraphNodeCustomizableComment::GetNodeMinimumSize() const
 {
-	return SGraphNodePlayerCharacterDefs::MinNodeSize;
+	return SGraphNodeCustomizableCommentDefs::MinNodeSize;
 }
 
-FVector2D SGraphNodePlayerCharacter::GetNodeMaximumSize() const
+FVector2D SGraphNodeCustomizableComment::GetNodeMaximumSize() const
 {
 	return FVector2D(UserSize.X + 100, UserSize.Y + 100);
 }
 
-FSlateRect SGraphNodePlayerCharacter::GetHitTestingBorder() const
+FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorder() const
 {
-	return SGraphNodePlayerCharacterDefs::HitResultBorderSize;
+	return SGraphNodeCustomizableCommentDefs::HitResultBorderSize;
 }
 
-void SGraphNodePlayerCharacter::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
+void SGraphNodeCustomizableComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
 {
 	this->GraphNode = InNode;
 	this->bIsSelected = false;
@@ -389,7 +389,7 @@ void SGraphNodePlayerCharacter::Construct(const FArguments& InArgs, UEdGraphNode
 	bUserIsDragging = false;
 }
 
-void SGraphNodePlayerCharacter::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+void SGraphNodeCustomizableComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SGraphNode::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
@@ -421,32 +421,32 @@ void SGraphNodePlayerCharacter::Tick(const FGeometry& AllottedGeometry, const do
 	}
 }
 
-FReply SGraphNodePlayerCharacter::OnDrop(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
+FReply SGraphNodeCustomizableComment::OnDrop(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
 {
 	return FReply::Unhandled();
 }
 
-void SGraphNodePlayerCharacter::OnDragEnter(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
+void SGraphNodeCustomizableComment::OnDragEnter(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
 {
 
 }
 
-float SGraphNodePlayerCharacter::GetWrapAt() const
+float SGraphNodeCustomizableComment::GetWrapAt() const
 {
 	return CachedWidth - 32.0f;
 }
 
-bool SGraphNodePlayerCharacter::IsNameReadOnly() const
+bool SGraphNodeCustomizableComment::IsNameReadOnly() const
 {
 	return !IsEditable.Get() || SGraphNode::IsNameReadOnly();
 }
 
-FSlateColor SGraphNodePlayerCharacter::GetCommentColor() const
+FSlateColor SGraphNodeCustomizableComment::GetCommentColor() const
 {
 	return GetCommentBodyColor();
 }
 
-void SGraphNodePlayerCharacter::UpdateGraphNode()
+void SGraphNodeCustomizableComment::UpdateGraphNode()
 {
 	//コメントボックスにピンは無い
 	InputPins.Empty();
@@ -494,7 +494,7 @@ void SGraphNodePlayerCharacter::UpdateGraphNode()
 			SNew(SBorder)
 			.BorderImage(FAppStyle::GetBrush("Kismet.Comment.Background"))
 			.ColorAndOpacity(FLinearColor::White)
-			.BorderBackgroundColor(this, &SGraphNodePlayerCharacter::GetCommentBodyColor)
+			.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentBodyColor)
 			.Padding(FMargin(3.0f))
 			.AddMetaData<FGraphNodeMetaData>(TagMeta)
 			[
@@ -507,19 +507,19 @@ void SGraphNodePlayerCharacter::UpdateGraphNode()
 				[
 					SAssignNew(TitleBarBorder, SBorder)
 					.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
-					.BorderBackgroundColor(this, &SGraphNodePlayerCharacter::GetCommentTitleBarColor)
+					.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentTitleBarColor)
 					.Padding(FMargin(10,5,5,3))
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Center)
 					[
 						SAssignNew(InlineEditableText, SInlineEditableTextBlock)
 						.Style(&CommentStyle)
-						.Text(this, &SGraphNodePlayerCharacter::GetEditableNodeTitleAsText)
-						.OnVerifyTextChanged(this, &SGraphNodePlayerCharacter::OnVerifyNameTextChanged)
-						.OnTextCommitted(this, &SGraphNodePlayerCharacter::OnNameTextCommited)
-						.IsReadOnly(this, &SGraphNodePlayerCharacter::IsNameReadOnly)
-						.IsSelected(this, &SGraphNodePlayerCharacter::IsSelectedExclusively)
-						.WrapTextAt(this, &SGraphNodePlayerCharacter::GetWrapAt)
+						.Text(this, &SGraphNodeCustomizableComment::GetEditableNodeTitleAsText)
+						.OnVerifyTextChanged(this, &SGraphNodeCustomizableComment::OnVerifyNameTextChanged)
+						.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
+						.IsReadOnly(this, &SGraphNodeCustomizableComment::IsNameReadOnly)
+						.IsSelected(this, &SGraphNodeCustomizableComment::IsSelectedExclusively)
+						.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrapAt)
 						.MultiLine(true)
 						.ModiferKeyForNewLine(EModifierKey::Shift)
 					]
@@ -545,9 +545,9 @@ void SGraphNodePlayerCharacter::UpdateGraphNode()
 	//コメントバブルを作成する
 	CommentBubble = SNew(SCommentBubble)
 	.GraphNode(GraphNode)
-	.Text(this, &SGraphNodePlayerCharacter::GetNodeComment)
-	.OnTextCommitted(this, &SGraphNodePlayerCharacter::OnNameTextCommited)
-	.ColorAndOpacity(this, &SGraphNodePlayerCharacter::GetCommentBubbleColor)
+	.Text(this, &SGraphNodeCustomizableComment::GetNodeComment)
+	.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
+	.ColorAndOpacity(this, &SGraphNodeCustomizableComment::GetCommentBubbleColor)
 	.AllowPinning(true)
 	.EnableTitleBarBubble(false)
 	.EnableBubbleCtrls(false)
@@ -565,18 +565,18 @@ void SGraphNodePlayerCharacter::UpdateGraphNode()
 	];
 }
 
-FVector2D SGraphNodePlayerCharacter::ComputeDesiredSize(float) const
+FVector2D SGraphNodeCustomizableComment::ComputeDesiredSize(float) const
 {
 	return UserSize;
 }
 
-FString SGraphNodePlayerCharacter::GetNodeComment() const
+FString SGraphNodeCustomizableComment::GetNodeComment() const
 {
 	const FString Title = GetEditableNodeTitle();
 	return Title;
 }
 
-FReply SGraphNodePlayerCharacter::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
+FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
 {
 	//タイトルバー領域をダブルクリックしたら
 	if(FindMouseZone(InMyGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition())) == TitleBar && IsEditable.Get())
@@ -597,13 +597,13 @@ FReply SGraphNodePlayerCharacter::OnMouseButtonDoubleClick(const FGeometry& InMy
 	return FReply::Unhandled();
 }
 
-int32 SGraphNodePlayerCharacter::GetSortDepth() const
+int32 SGraphNodeCustomizableComment::GetSortDepth() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 	return CommentNode ? CommentNode->CommentDepth : -1;
 }
 
-void SGraphNodePlayerCharacter::HandleSelection(const bool bSelected, const bool bUpdateNodesUnderComment) const
+void SGraphNodeCustomizableComment::HandleSelection(const bool bSelected, const bool bUpdateNodesUnderComment) const
 {
 	const FVector2D NodeSize = GetDesiredSize();
 	
@@ -612,7 +612,7 @@ void SGraphNodePlayerCharacter::HandleSelection(const bool bSelected, const bool
 	{
 		if ((!this->bIsSelected && bSelected) || bUpdateNodesUnderComment)
 		{
-			const SGraphNodePlayerCharacter* Comment = const_cast<SGraphNodePlayerCharacter*> (this);
+			const SGraphNodeCustomizableComment* Comment = const_cast<SGraphNodeCustomizableComment*> (this);
 			UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 			
 			if (CommentNode)
@@ -640,7 +640,7 @@ void SGraphNodePlayerCharacter::HandleSelection(const bool bSelected, const bool
 	}
 }
 
-bool SGraphNodePlayerCharacter::IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const
+bool SGraphNodeCustomizableComment::IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const
 {
 	const FVector2D NodePosition = GetPosition();
 	const FVector2D NodeSize = GetDesiredSize();
@@ -653,13 +653,13 @@ bool SGraphNodePlayerCharacter::IsNodeUnderComment(UEdGraphNode_Comment* InComme
 	return FSlateRect::IsRectangleContained(CommentRect, NodeGeometryGraphSpace);
 }
 
-const FSlateBrush* SGraphNodePlayerCharacter::GetShadowBrush(bool bSelected) const
+const FSlateBrush* SGraphNodeCustomizableComment::GetShadowBrush(bool bSelected) const
 {
 	HandleSelection(bSelected);
 	return SGraphNode::GetShadowBrush(bSelected);
 }
 
-void SGraphNodePlayerCharacter::GetOverlayBrushes(bool bSelected, const FVector2D WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const
+void SGraphNodeCustomizableComment::GetOverlayBrushes(bool bSelected, const FVector2D WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const
 {
 	constexpr float Fudge = 3.0f;
 
@@ -674,12 +674,12 @@ void SGraphNodePlayerCharacter::GetOverlayBrushes(bool bSelected, const FVector2
 	return SGraphNode::GetOverlayBrushes(bSelected, WidgetSize, Brushes);
 }
 
-bool SGraphNodePlayerCharacter::ShouldAllowCulling() const
+bool SGraphNodeCustomizableComment::ShouldAllowCulling() const
 {
 	return true;
 }
 
-void SGraphNodePlayerCharacter::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, const bool bMarkDirty)
+void SGraphNodeCustomizableComment::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, const bool bMarkDirty)
 {
 	const FVector2D PositionDelta = NewPosition - GetPosition();
 	SGraphNode::MoveTo(NewPosition, NodeFilter, bMarkDirty);
@@ -713,7 +713,7 @@ void SGraphNodePlayerCharacter::MoveTo(const FVector2D& NewPosition, FNodeSet& N
 	}
 }
 
-void SGraphNodePlayerCharacter::EndUserInteraction() const
+void SGraphNodeCustomizableComment::EndUserInteraction() const
 {
 	//親ノードのコメントと子ノードのリストを見つける
 	const FVector2D NodeSize = GetDesiredSize();
@@ -726,7 +726,7 @@ void SGraphNodePlayerCharacter::EndUserInteraction() const
 		const TSharedPtr<SGraphPanel> Panel = GetOwnerPanel();
 		FChildren* PanelChildren = Panel->GetAllChildren();
 		const int32 NumChildren = PanelChildren->Num();
-		static FString SGraphNodePlayerCharacterType = "SGraphNodePlayerCharacter";
+		static FString SGraphNodeCustomizableCommentType = "SGraphNodeCustomizableComment";
 
 		for (int32 NodeIndex = 0; NodeIndex < NumChildren; ++NodeIndex)
 		{
@@ -747,14 +747,14 @@ void SGraphNodePlayerCharacter::EndUserInteraction() const
 			if (FSlateRect::DoRectanglesIntersect(CommentRect, NodeGeometryGraphSpace))
 			{
 				// GraphObject がコメントノードであることを確認したので、このダウンキャストはこの時点で有効であるはずである
-				const TSharedPtr<SGraphNodePlayerCharacter> CommentWidget = StaticCastSharedPtr<SGraphNodePlayerCharacter>(SomeNodeWidget);
+				const TSharedPtr<SGraphNodeCustomizableComment> CommentWidget = StaticCastSharedPtr<SGraphNodeCustomizableComment>(SomeNodeWidget);
 				CommentWidget->HandleSelection(CommentWidget->bIsSelected, true);
 			}
 		}
 	}
 }
 
-FSlateColor SGraphNodePlayerCharacter::GetCommentBodyColor() const
+FSlateColor SGraphNodeCustomizableComment::GetCommentBodyColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 
@@ -766,54 +766,54 @@ FSlateColor SGraphNodePlayerCharacter::GetCommentBodyColor() const
 	return FLinearColor::White;
 }
 
-FSlateColor SGraphNodePlayerCharacter::GetCommentTitleBarColor() const
+FSlateColor SGraphNodeCustomizableComment::GetCommentTitleBarColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 	
 	if (CommentNode)
 	{
-		const FLinearColor Color = CommentNode->CommentColor * SGraphNodePlayerCharacterDefs::TitleBarColorMultiplier;
+		const FLinearColor Color = CommentNode->CommentColor * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
 		return FLinearColor(Color.R, Color.G, Color.B);
 	}
 	
-	const FLinearColor Color = FLinearColor::White * SGraphNodePlayerCharacterDefs::TitleBarColorMultiplier;
+	const FLinearColor Color = FLinearColor::White * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
 	return FLinearColor(Color.R, Color.G, Color.B);
 }
 
-FSlateColor SGraphNodePlayerCharacter::GetCommentBubbleColor() const
+FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 	
 	if (CommentNode)
 	{
-		const FLinearColor Color = CommentNode->bColorCommentBubble ? CommentNode->CommentColor * SGraphNodePlayerCharacterDefs::TitleBarColorMultiplier : GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
+		const FLinearColor Color = CommentNode->bColorCommentBubble ? CommentNode->CommentColor * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier : GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
 		return FLinearColor(Color.R, Color.G, Color.B);
 	}
 	
-	const FLinearColor Color = FLinearColor::White * SGraphNodePlayerCharacterDefs::TitleBarColorMultiplier;
+	const FLinearColor Color = FLinearColor::White * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
 	return FLinearColor(Color.R, Color.G, Color.B);
 }
 
-bool SGraphNodePlayerCharacter::CanBeSelected(const FVector2D& MousePositionInNode) const
+bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const
 {
 	const EResizableWindowZone InMouseZone = FindMouseZone(MousePositionInNode);
 	return TitleBar == InMouseZone;
 }
 
-FVector2D SGraphNodePlayerCharacter::GetDesiredSizeForMarquee() const
+FVector2D SGraphNodeCustomizableComment::GetDesiredSizeForMarquee() const
 {
 	const float TitleBarHeight = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
 	return FVector2D(UserSize.X, TitleBarHeight);
 }
 
-FSlateRect SGraphNodePlayerCharacter::GetTitleRect() const
+FSlateRect SGraphNodeCustomizableComment::GetTitleRect() const
 {
 	const FVector2D NodePosition = GetPosition();
 	const FVector2D NodeSize  = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize() : GetDesiredSize();
-	return FSlateRect(NodePosition.X, NodePosition.Y, NodePosition.X + NodeSize.X, NodePosition.Y + NodeSize.Y) + SGraphNodePlayerCharacterDefs::TitleBarOffset;
+	return FSlateRect(NodePosition.X, NodePosition.Y, NodePosition.X + NodeSize.X, NodePosition.Y + NodeSize.Y) + SGraphNodeCustomizableCommentDefs::TitleBarOffset;
 }
 
-void SGraphNodePlayerCharacter::PopulateMetaTag(FGraphNodeMetaData* TagMeta) const
+void SGraphNodeCustomizableComment::PopulateMetaTag(FGraphNodeMetaData* TagMeta) const
 {
 	if (GraphNode != nullptr)
 	{
