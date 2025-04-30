@@ -107,6 +107,12 @@ protected:
 	void HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment = false) const;
 
 	void UpdateNodesUnderComment() const;
+
+	FVector2D GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const;
+
+	FVector2D GetSnappedNodeSize() const;
+
+	FVector2D GetDeltaMouseCoordinates(const FPointerEvent& InMouseEvent);
 	
 	/** ノードがこのコメントウィジェットの下にあるかどうかを判定するヘルパー関数 */
 	virtual bool IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const;

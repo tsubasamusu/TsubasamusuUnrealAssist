@@ -642,6 +642,68 @@ void SGraphNodeCustomizableComment::UpdateNodesUnderComment() const
 	}
 }
 
+FVector2D SGraphNodeCustomizableComment::GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const
+{
+	FVector2D DeltaNodeSize = InDeltaMouseCoordinates;
+
+	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
+	{
+		DeltaNodeSize = -DeltaNodeSize;
+	}
+	else if(MouseLocatedZone == TopRightBorder)
+	{
+		DeltaNodeSize.Y = -DeltaNodeSize.Y;
+	}
+	else if(MouseLocatedZone == BottomLeftBorder)
+	{
+		DeltaNodeSize.X = -DeltaNodeSize.X;
+	}
+
+	return DeltaNodeSize;
+}
+
+FVector2D SGraphNodeCustomizableComment::GetSnappedNodeSize() const
+{
+	const uint32 SnapGridSize = SNodePanel::GetSnapGridSize();
+	
+	FVector2D SnappedNodeSize;
+	
+	SnappedNodeSize.X = SnapGridSize * FMath::RoundToFloat(DragSize.X / SnapGridSize);
+	SnappedNodeSize.Y = SnapGridSize * FMath::RoundToFloat(DragSize.Y / SnapGridSize);
+
+	const FVector2D NodeMinSize = GetNodeMinimumSize();
+	const FVector2D NodeMaxSize = GetNodeMaximumSize();
+	
+	SnappedNodeSize.X = FMath::Min(SnappedNodeSize.X, NodeMaxSize.X);
+	SnappedNodeSize.X = FMath::Max(SnappedNodeSize.X, NodeMinSize.X);
+	
+	SnappedNodeSize.Y = FMath::Min(SnappedNodeSize.Y, NodeMaxSize.Y);
+	SnappedNodeSize.Y = FMath::Max(SnappedNodeSize.Y, NodeMinSize.Y);
+	
+	return SnappedNodeSize;
+}
+
+FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointerEvent& InMouseEvent)
+{
+	const FVector2D CurrentGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InMouseEvent.GetScreenSpacePosition());
+	const FVector2D LastGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InMouseEvent.GetLastScreenSpacePosition());
+	
+	const TSharedPtr<SWindow> OwnerWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
+	
+	FVector2D DeltaMouseCoordinates = (CurrentGraphSpaceMouseCoordinates - LastGraphSpaceMouseCoordinates) / (OwnerWindow.IsValid() ? OwnerWindow->GetDPIScaleFactor() : 1.0f);
+
+	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == RightBorder)
+	{
+		DeltaMouseCoordinates.Y = 0.0f;
+	}
+	else if(MouseLocatedZone == TopBorder || MouseLocatedZone == BottomBorder)
+	{
+		DeltaMouseCoordinates.X = 0.0f;
+	}
+
+	return DeltaMouseCoordinates;
+}
+
 bool SGraphNodeCustomizableComment::IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const
 {
 	const FVector2D NodePosition = GetPosition();
