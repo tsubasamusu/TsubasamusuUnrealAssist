@@ -92,8 +92,7 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonDown(const FGeometry& MyGeome
 		StoredUserSize = UserSize;
 		DragSize = UserSize;
 
-		//ノードのアンカーポイントを見つける
-		InitNodeAnchorPoint();
+		UpdateResizeAnchorPoint();
 
 		return FReply::Handled().CaptureMouse(SharedThis(this));
 	}
@@ -225,7 +224,7 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 	return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
 }
 
-void SGraphNodeCustomizableComment::InitNodeAnchorPoint()
+void SGraphNodeCustomizableComment::UpdateResizeAnchorPoint()
 {
 	NodeAnchorPoint = GetPosition();
 	
