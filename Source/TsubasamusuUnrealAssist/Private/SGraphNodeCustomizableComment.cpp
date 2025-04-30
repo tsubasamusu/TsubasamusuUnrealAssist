@@ -114,8 +114,8 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonUp(const FGeometry& MyGeometr
 
 		ResizeTransactionPtr.Reset();
 
-		//含まれる子ノードを更新する
-		HandleSelection(bIsSelected, true);
+		HandleSelection(bIsSelected);
+		UpdateNodesUnderComment();
 
 		return FReply::Handled().ReleaseMouseCapture();
 	}
@@ -590,30 +590,33 @@ int32 SGraphNodeCustomizableComment::GetSortDepth() const
 	return CommentNode ? CommentNode->CommentDepth : -1;
 }
 
-void SGraphNodeCustomizableComment::HandleSelection(const bool bSelected, const bool bUpdateNodesUnderComment) const
+void SGraphNodeCustomizableComment::HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment) const
 {
-	const FVector2D CommentNodeDesiredSize = GetDesiredSize();
-
-	if (CommentNodeDesiredSize.IsZero())
+	if (GetDesiredSize().IsZero())
 	{
 		return;
 	}
 	
-	if ((this->bIsSelected || !bSelected) && !bUpdateNodesUnderComment)
+	if ((this->bIsSelected || !bInIsSelected) && !bUpdateNodesUnderComment)
 	{
-		bIsSelected = bSelected;
+		bIsSelected = bInIsSelected;
 
 		return;
 	}
-	
+
+	UpdateNodesUnderComment();
+
+	bIsSelected = bInIsSelected;
+}
+
+void SGraphNodeCustomizableComment::UpdateNodesUnderComment() const
+{
 	const SGraphNodeCustomizableComment* CommentNodeWidget = const_cast<SGraphNodeCustomizableComment*>(this);
 	
 	UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 			
 	if (!CommentNode)
 	{
-		bIsSelected = bSelected;
-
 		return;
 	}
 	
@@ -632,8 +635,6 @@ void SGraphNodeCustomizableComment::HandleSelection(const bool bSelected, const 
 			CommentNode->AddNodeUnderComment(ChildNodeObject);
 		}
 	}
-	
-	bIsSelected = bSelected;
 }
 
 bool SGraphNodeCustomizableComment::IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const
@@ -744,7 +745,8 @@ void SGraphNodeCustomizableComment::EndUserInteraction() const
 			{
 				// GraphObject がコメントノードであることを確認したので、このダウンキャストはこの時点で有効であるはずである
 				const TSharedPtr<SGraphNodeCustomizableComment> CommentWidget = StaticCastSharedPtr<SGraphNodeCustomizableComment>(SomeNodeWidget);
-				CommentWidget->HandleSelection(CommentWidget->bIsSelected, true);
+				CommentWidget->HandleSelection(CommentWidget->bIsSelected);
+				UpdateNodesUnderComment();
 			}
 		}
 	}

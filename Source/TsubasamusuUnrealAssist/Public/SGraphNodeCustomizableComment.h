@@ -103,13 +103,10 @@ protected:
 	virtual void UpdateGraphNode() override;
 	virtual void PopulateMetaTag(class FGraphNodeMetaData* TagMeta) const override;
 
-	/**
-	 * コメントとその中に含まれるノードの選択状態を更新するヘルパーメソッド
-	 * @param bIsSelected コメントが選択されている場合は true、そうでない場合は false
-	 * @param bUpdateNodesUnderComment もし true なら、コメント下のノードのリストを強制的に再構築する
-	 */
-	void HandleSelection(const bool bIsSelected, const bool bUpdateNodesUnderComment = false) const;
+	void HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment = false) const;
 
+	void UpdateNodesUnderComment() const;
+	
 	/** ノードがこのコメントウィジェットの下にあるかどうかを判定するヘルパー関数 */
 	virtual bool IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const;
 
