@@ -592,39 +592,48 @@ int32 SGraphNodeCustomizableComment::GetSortDepth() const
 
 void SGraphNodeCustomizableComment::HandleSelection(const bool bSelected, const bool bUpdateNodesUnderComment) const
 {
-	const FVector2D NodeSize = GetDesiredSize();
-	
-	//コメントを有効な希望サイズにした後にのみ、これを実行したい
-	if(!NodeSize.IsZero())
-	{
-		if ((!this->bIsSelected && bSelected) || bUpdateNodesUnderComment)
-		{
-			const SGraphNodeCustomizableComment* Comment = const_cast<SGraphNodeCustomizableComment*> (this);
-			UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-			
-			if (CommentNode)
-			{
-				const TSharedPtr<SGraphPanel> Panel = Comment->GetOwnerPanel();
-				FChildren* PanelChildren = Panel->GetAllChildren();
-				const int32 NumChildren = PanelChildren->Num();
-				CommentNode->ClearNodesUnderComment();
+	const FVector2D CommentNodeDesiredSize = GetDesiredSize();
 
-				for (int32 NodeIndex = 0; NodeIndex < NumChildren; ++NodeIndex)
-				{
-					const TSharedRef<SGraphNode> SomeNodeWidget = StaticCastSharedRef<SGraphNode>(PanelChildren->GetChildAt(NodeIndex));
-					UObject* GraphObject = SomeNodeWidget->GetObjectBeingDisplayed();
-					if (GraphObject != CommentNode)
-					{
-						if (IsNodeUnderComment(CommentNode, SomeNodeWidget))
-						{
-							CommentNode->AddNodeUnderComment(GraphObject);
-						}
-					}
-				}
-			}
-		}
-		bIsSelected = bSelected;
+	if (CommentNodeDesiredSize.IsZero())
+	{
+		return;
 	}
+	
+	if ((this->bIsSelected || !bSelected) && !bUpdateNodesUnderComment)
+	{
+		bIsSelected = bSelected;
+
+		return;
+	}
+	
+	const SGraphNodeCustomizableComment* CommentNodeWidget = const_cast<SGraphNodeCustomizableComment*>(this);
+	
+	UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
+			
+	if (!CommentNode)
+	{
+		bIsSelected = bSelected;
+
+		return;
+	}
+	
+	FChildren* GraphPanelChildren = CommentNodeWidget->GetOwnerPanel()->GetAllChildren();
+	
+	CommentNode->ClearNodesUnderComment();
+
+	for (int32 i = 0; i < GraphPanelChildren->Num(); ++i)
+	{
+		const TSharedRef<SGraphNode> ChildNodeWidget = StaticCastSharedRef<SGraphNode>(GraphPanelChildren->GetChildAt(i));
+		
+		UObject* ChildNodeObject = ChildNodeWidget->GetObjectBeingDisplayed();
+		
+		if (ChildNodeObject != CommentNode && IsNodeUnderComment(CommentNode, ChildNodeWidget))
+		{
+			CommentNode->AddNodeUnderComment(ChildNodeObject);
+		}
+	}
+	
+	bIsSelected = bSelected;
 }
 
 bool SGraphNodeCustomizableComment::IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const
