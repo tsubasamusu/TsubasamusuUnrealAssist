@@ -12,20 +12,8 @@ namespace SGraphNodeCustomizableCommentDefs
 	/** ウィンドウの境界線に対するヒット結果の境界線のサイズ */
 	static const FSlateRect HitResultBorderSize(10, 10, 10, 10);
 
-	/** タイトルバーのデフォルトサイズ */
-	static constexpr float DefaultTitleBarHeight = 12.f;
-
 	/** ノードの最小サイズ */
 	static const FVector2D MinNodeSize(30.0f, 30.0f);
-
-	/** ノードの最大サイズ */
-	static const FVector2D MaxNodeSize(400.0f, 400.0f);
-
-	/** コメントの最小リサイズ幅 */
-	static constexpr float MinWidth = 30.0;
-
-	/** コメントの最小リサイズ高さ */
-	static constexpr float MinHeight = 30.0;
 
 	/** TitleBarColor = CommentColor * TitleBarColorMultiplier */
 	static constexpr float TitleBarColorMultiplier = 0.6f;
