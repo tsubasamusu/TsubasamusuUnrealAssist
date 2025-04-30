@@ -72,8 +72,9 @@ public:
 	virtual FSlateRect GetTitleRect() const override;
 
 protected:
+	
+	virtual ECustomizableCommentNodeZone FindMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const;
 
-	/** マウスが現在いるウィンドウゾーンを探す */
 	virtual ECustomizableCommentNodeZone FindMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
 	/** @return 現在のウィンドウゾーンが選択領域とみなされる場合 true */

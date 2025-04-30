@@ -36,9 +36,7 @@ void SGraphNodeCustomizableComment::OnMouseEnter(const FGeometry& MyGeometry, co
 {
 	if(!bUserIsDragging)
 	{
-		const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-		
-		MouseLocatedZone = FindMouseZone(LocalMouseCoordinates);
+		MouseLocatedZone = FindMouseZone(MyGeometry, MouseEvent);
 		
 		SNode::OnMouseEnter(MyGeometry, MouseEvent);
 	}
@@ -106,7 +104,6 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonUp(const FGeometry& MyGeometr
 	{
 		bUserIsDragging = false;
 
-		//ノードのサイズを変更する
 		UserSize.X = FMath::RoundToFloat(UserSize.X);
 		UserSize.Y = FMath::RoundToFloat(UserSize.Y);
 
@@ -115,6 +112,7 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonUp(const FGeometry& MyGeometr
 		ResizeTransactionPtr.Reset();
 
 		HandleSelection(bIsSelected);
+		
 		UpdateNodesUnderComment();
 
 		return FReply::Handled().ReleaseMouseCapture();
@@ -260,6 +258,13 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePosition() const
 	}
 
 	return CorrectedPos;
+}
+
+SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::FindMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const
+{
+	const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
+	
+	return  FindMouseZone(LocalMouseCoordinates);
 }
 
 SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::FindMouseZone(const FVector2D& LocalMouseCoordinates) const
@@ -566,7 +571,7 @@ FString SGraphNodeCustomizableComment::GetNodeComment() const
 FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
 {
 	//タイトルバー領域をダブルクリックしたら
-	if(FindMouseZone(InMyGeometry.AbsoluteToLocal(InMouseEvent.GetScreenSpacePosition())) == TitleBar && IsEditable.Get())
+	if(FindMouseZone(InMyGeometry, InMouseEvent) == TitleBar && IsEditable.Get())
 	{
 		//リネームを要求する
 		RequestRename();
