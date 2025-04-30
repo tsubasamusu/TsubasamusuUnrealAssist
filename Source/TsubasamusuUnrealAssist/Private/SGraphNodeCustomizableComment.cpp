@@ -24,7 +24,7 @@ namespace SGraphNodeCustomizableCommentDefs
 
 bool SGraphNodeCustomizableComment::InSelectionArea() const
 {
-	return InSelectionArea(MouseZone);
+	return InSelectionArea(MouseLocatedZone);
 }
 
 bool SGraphNodeCustomizableComment::InSelectionArea(const ECustomizableCommentNodeZone InMouseZone)
@@ -34,11 +34,12 @@ bool SGraphNodeCustomizableComment::InSelectionArea(const ECustomizableCommentNo
 
 void SGraphNodeCustomizableComment::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	//マウスがいるゾーンを決定する
 	if(!bUserIsDragging)
 	{
 		const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-		MouseZone = FindMouseZone(LocalMouseCoordinates);
+		
+		MouseLocatedZone = FindMouseZone(LocalMouseCoordinates);
+		
 		SNode::OnMouseEnter(MyGeometry, MouseEvent);
 	}
 }
@@ -47,35 +48,35 @@ void SGraphNodeCustomizableComment::OnMouseLeave(const FPointerEvent& MouseEvent
 {
 	if(!bUserIsDragging)
 	{
-		//マウスゾーンをリセットする
-		MouseZone = NotInWindow;
+		MouseLocatedZone = NotInNode;
+		
 		SNode::OnMouseLeave(MouseEvent);
 	}
 }
 
 FCursorReply SGraphNodeCustomizableComment::OnCursorQuery(const FGeometry& MyGeometry, const FPointerEvent& CursorEvent) const
 {
-	if (MouseZone == RightBorder || MouseZone == LeftBorder)
+	if (MouseLocatedZone == RightBorder || MouseLocatedZone == LeftBorder)
 	{
 		return FCursorReply::Cursor(EMouseCursor::ResizeLeftRight);
 	}
 	
-	if (MouseZone == BottomRightBorder || MouseZone == TopLeftBorder)
+	if (MouseLocatedZone == BottomRightBorder || MouseLocatedZone == TopLeftBorder)
 	{
 		return FCursorReply::Cursor(EMouseCursor::ResizeSouthEast);
 	}
 	
-	if (MouseZone == BottomBorder || MouseZone == TopBorder)
+	if (MouseLocatedZone == BottomBorder || MouseLocatedZone == TopBorder)
 	{
 		return FCursorReply::Cursor(EMouseCursor::ResizeUpDown);
 	}
 
-	if (MouseZone == BottomLeftBorder || MouseZone == TopRightBorder)
+	if (MouseLocatedZone == BottomLeftBorder || MouseLocatedZone == TopRightBorder)
 	{
 		return FCursorReply::Cursor(EMouseCursor::ResizeSouthWest);
 	}
 
-	if (MouseZone == TitleBar)
+	if (MouseLocatedZone == TitleBar)
 	{
 		return FCursorReply::Cursor(EMouseCursor::CardinalCross);
 	}
@@ -112,7 +113,6 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonUp(const FGeometry& MyGeometr
 
 		GetNodeObj()->ResizeNode(UserSize);
 
-		//リサイズトランザクションを終了する
 		ResizeTransactionPtr.Reset();
 
 		//含まれる子ノードを更新する
@@ -134,11 +134,11 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 		FVector2D Delta = (GraphSpaceCoordinates - OldGraphSpaceCoordinates) / (OwnerWindow.IsValid() ? OwnerWindow->GetDPIScaleFactor() : 1.0f);
 		
 		//リサイズ方向に基づくクランプデルタ値
-		if(MouseZone == LeftBorder || MouseZone == RightBorder)
+		if(MouseLocatedZone == LeftBorder || MouseLocatedZone == RightBorder)
 		{
 			Delta.Y = 0.0f;
 		}
-		else if(MouseZone == TopBorder || MouseZone == BottomBorder)
+		else if(MouseLocatedZone == TopBorder || MouseLocatedZone == BottomBorder)
 		{
 			Delta.X = 0.0f;
 		}
@@ -147,15 +147,15 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 		FVector2D DeltaNodeSize = Delta;
 
 		//リサイズ方向に基づいてノードサイズのデルタ値を変更する
-		if(MouseZone == LeftBorder || MouseZone == TopBorder || MouseZone == TopLeftBorder)
+		if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 		{
 			DeltaNodeSize = -DeltaNodeSize;
 		}
-		else if(MouseZone == TopRightBorder)
+		else if(MouseLocatedZone == TopRightBorder)
 		{
 			DeltaNodeSize.Y = -DeltaNodeSize.Y;
 		}
-		else if(MouseZone == BottomLeftBorder)
+		else if(MouseLocatedZone == BottomLeftBorder)
 		{
 			DeltaNodeSize.X = -DeltaNodeSize.X;
 		}
@@ -184,17 +184,17 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 		if(UserSize != SnappedSize)
 		{
 			//ノードの位置を変更する（上側と左側のサイズを変更する）
-			if(MouseZone != BottomBorder && MouseZone != RightBorder && MouseZone != BottomRightBorder)
+			if(MouseLocatedZone != BottomBorder && MouseLocatedZone != RightBorder && MouseLocatedZone != BottomRightBorder)
 			{
 				//グラフノードの位置を移動するデルタ値
 				DeltaNodePos = UserSize - SnappedSize;
 
 				//リサイズ方向に基づくクランプ位置のデルタ
-				if(MouseZone == BottomLeftBorder)
+				if(MouseLocatedZone == BottomLeftBorder)
 				{
 					DeltaNodePos.Y = 0.0f;
 				}
-				else if(MouseZone == TopRightBorder)
+				else if(MouseLocatedZone == TopRightBorder)
 				{
 					DeltaNodePos.X = 0.0f;
 				}
@@ -219,7 +219,7 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 	else
 	{
 		const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-		MouseZone = FindMouseZone(LocalMouseCoordinates);
+		MouseLocatedZone = FindMouseZone(LocalMouseCoordinates);
 	}
 	
 	return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
@@ -229,15 +229,15 @@ void SGraphNodeCustomizableComment::InitNodeAnchorPoint()
 {
 	NodeAnchorPoint = GetPosition();
 	
-	if(MouseZone == LeftBorder || MouseZone == TopBorder || MouseZone == TopLeftBorder)
+	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 	{
 		NodeAnchorPoint += UserSize;
 	}
-	else if(MouseZone == BottomLeftBorder)
+	else if(MouseLocatedZone == BottomLeftBorder)
 	{
 		NodeAnchorPoint.X += UserSize.X;
 	}
-	else if(MouseZone == TopRightBorder)
+	else if(MouseLocatedZone == TopRightBorder)
 	{
 		NodeAnchorPoint.Y += UserSize.Y;
 	}
@@ -247,15 +247,15 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePosition() const
 {
 	FVector2D CorrectedPos = NodeAnchorPoint;
 	
-	if(MouseZone == LeftBorder || MouseZone == TopBorder || MouseZone == TopLeftBorder)
+	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 	{
 		CorrectedPos -= UserSize;
 	}
-	else if(MouseZone == BottomLeftBorder)
+	else if(MouseLocatedZone == BottomLeftBorder)
 	{
 		CorrectedPos.X -= UserSize.X;
 	}
-	else if(MouseZone == TopRightBorder)
+	else if(MouseLocatedZone == TopRightBorder)
 	{
 		CorrectedPos.Y -= UserSize.Y;
 	}
@@ -373,7 +373,7 @@ void SGraphNodeCustomizableComment::Construct(const FArguments& InArgs, UEdGraph
 	//ComputeDesiredSize はレイアウトのスケールを無視するので、これを行うことができます
 	CacheDesiredSize(1.0f);
 
-	MouseZone = NotInWindow;
+	MouseLocatedZone = NotInNode;
 	bUserIsDragging = false;
 }
 

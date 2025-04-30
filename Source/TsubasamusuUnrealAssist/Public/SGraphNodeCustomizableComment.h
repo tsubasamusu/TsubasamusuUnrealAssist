@@ -141,10 +141,8 @@ protected:
 	/** ノードのサイズ変更時にノードの位置を修正するためのアンカーポイント */
 	FVector2D NodeAnchorPoint;
 
-	/** マウスが現在いるウィンドウゾーン */
-	EResizableWindowZone MouseZone;
+	ECustomizableCommentNodeZone MouseLocatedZone;
 
-	/** trueの場合、ユーザーはノードをアクティブにドラッグしている */
 	bool bUserIsDragging;
 	
 	/** キャッシュされたコメントタイトル */
