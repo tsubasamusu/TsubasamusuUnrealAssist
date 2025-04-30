@@ -14,11 +14,10 @@ public:
 	SLATE_BEGIN_ARGS(SGraphNodeCustomizableComment){}
 	SLATE_END_ARGS()
 
-	/** ユーザーが操作しているリサイズ可能なウィンドウゾーン */
-	enum EResizableWindowZone
+	enum ECustomizableCommentNodeZone
 	{
-		NotInWindow,
-		InWindow,
+		NotInNode,
+		InNode,
 		RightBorder,
 		BottomBorder,
 		BottomRightBorder,
@@ -75,13 +74,13 @@ public:
 protected:
 
 	/** マウスが現在いるウィンドウゾーンを探す */
-	virtual EResizableWindowZone FindMouseZone(const FVector2D& LocalMouseCoordinates) const;
+	virtual ECustomizableCommentNodeZone FindMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
 	/** @return 現在のウィンドウゾーンが選択領域とみなされる場合 true */
 	bool InSelectionArea() const;
 
 	/** @return 通過したゾーンが選択領域である場合 true */
-	static bool InSelectionArea(const EResizableWindowZone InMouseZone);
+	static bool InSelectionArea(const ECustomizableCommentNodeZone InMouseZone);
 
 	/** ノードのサイズを変更する前にアンカーポイントを保存する関数。ノードのリサイズ時にこの点にアンカーされる。*/
 	void InitNodeAnchorPoint();

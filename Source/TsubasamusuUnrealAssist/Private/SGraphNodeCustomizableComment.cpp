@@ -27,7 +27,7 @@ bool SGraphNodeCustomizableComment::InSelectionArea() const
 	return InSelectionArea(MouseZone);
 }
 
-bool SGraphNodeCustomizableComment::InSelectionArea(const EResizableWindowZone InMouseZone)
+bool SGraphNodeCustomizableComment::InSelectionArea(const ECustomizableCommentNodeZone InMouseZone)
 {
 	return InMouseZone == RightBorder || InMouseZone == BottomBorder || InMouseZone == BottomRightBorder || InMouseZone == LeftBorder || InMouseZone == TopBorder || InMouseZone == TopLeftBorder || InMouseZone == TopRightBorder || InMouseZone == BottomLeftBorder;
 }
@@ -263,9 +263,9 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePosition() const
 	return CorrectedPos;
 }
 
-SGraphNodeCustomizableComment::EResizableWindowZone SGraphNodeCustomizableComment::FindMouseZone(const FVector2D& LocalMouseCoordinates) const
+SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::FindMouseZone(const FVector2D& LocalMouseCoordinates) const
 {
-	EResizableWindowZone OutMouseZone = NotInWindow;
+	ECustomizableCommentNodeZone OutMouseZone = NotInNode;
 	const FSlateRect HitResultBorderSize = GetHitTestingBorder();
 	const FVector2D NodeSize = GetDesiredSize();
 
@@ -315,15 +315,15 @@ SGraphNodeCustomizableComment::EResizableWindowZone SGraphNodeCustomizableCommen
 	}
 	
 	//残りのフレームへのヒットテスト
-	if (OutMouseZone == NotInWindow)
+	if (OutMouseZone == NotInNode)
 	{
 		if (LocalMouseCoordinates.Y > HitResultBorderSize.Top) 
 		{
-			OutMouseZone = InWindow;
+			OutMouseZone = InNode;
 		}
 		else if (LocalMouseCoordinates.X > HitResultBorderSize.Left) 
 		{
-			OutMouseZone = InWindow;
+			OutMouseZone = InNode;
 		}
 	}
 	
@@ -784,7 +784,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const
 {
-	const EResizableWindowZone InMouseZone = FindMouseZone(MousePositionInNode);
+	const ECustomizableCommentNodeZone InMouseZone = FindMouseZone(MousePositionInNode);
 	return TitleBar == InMouseZone;
 }
 
