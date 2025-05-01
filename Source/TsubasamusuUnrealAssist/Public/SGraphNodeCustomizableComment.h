@@ -77,6 +77,10 @@ protected:
 	virtual void PopulateMetaTag(class FGraphNodeMetaData* TagMeta) const override;
 	//~ End SGraphNode Interface
 	
+	virtual FSlateColor GetCommentBodyColor() const;
+	virtual FSlateColor GetTitleBarColor() const;
+	virtual FSlateColor GetCommentBubbleColor() const;
+
 private:
 	
 	ECommentNodeZone GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const;
@@ -110,10 +114,6 @@ private:
 	bool IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const;
 
 	float GetWrappingTitleTextWidth() const;
-
-	FSlateColor GetCommentBodyColor() const;
-	FSlateColor GetTitleBarColor() const;
-	FSlateColor GetCommentBubbleColor() const;
 
 	FVector2D DragSize;
 	FVector2D UserSize;
