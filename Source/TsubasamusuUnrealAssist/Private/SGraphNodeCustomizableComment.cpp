@@ -22,14 +22,14 @@ namespace SGraphNodeCustomizableCommentDefs
 	static const FSlateRect TitleBarOffset(13,8,-3,0);
 }
 
-bool SGraphNodeCustomizableComment::InSelectionArea() const
+bool SGraphNodeCustomizableComment::MouseIsInSelectionZone() const
 {
-	return InSelectionArea(MouseLocatedZone);
+	return IsInSelectionZone(MouseLocatedZone);
 }
 
-bool SGraphNodeCustomizableComment::InSelectionArea(const ECommentNodeZone InMouseZone)
+bool SGraphNodeCustomizableComment::IsInSelectionZone(const ECommentNodeZone InCommentNodeZone)
 {
-	return InMouseZone == RightBorder || InMouseZone == BottomBorder || InMouseZone == BottomRightBorder || InMouseZone == LeftBorder || InMouseZone == TopBorder || InMouseZone == TopLeftBorder || InMouseZone == TopRightBorder || InMouseZone == BottomLeftBorder;
+	return InCommentNodeZone == RightBorder || InCommentNodeZone == BottomBorder || InCommentNodeZone == BottomRightBorder || InCommentNodeZone == LeftBorder || InCommentNodeZone == TopBorder || InCommentNodeZone == TopLeftBorder || InCommentNodeZone == TopRightBorder || InCommentNodeZone == BottomLeftBorder;
 }
 
 void SGraphNodeCustomizableComment::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
@@ -84,7 +84,7 @@ FCursorReply SGraphNodeCustomizableComment::OnCursorQuery(const FGeometry& MyGeo
 
 FReply SGraphNodeCustomizableComment::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	if (InSelectionArea() && MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && IsEditable.Get()) 
+	if (MouseIsInSelectionZone() && MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && IsEditable.Get()) 
 	{
 		bUserIsDragging = true;
 		StoredUserSize = UserSize;

@@ -82,8 +82,8 @@ private:
 	ECommentNodeZone GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const;
 	ECommentNodeZone GetMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
-	bool InSelectionArea() const;
-	static bool InSelectionArea(const ECommentNodeZone InMouseZone);
+	bool MouseIsInSelectionZone() const;
+	static bool IsInSelectionZone(const ECommentNodeZone InCommentNodeZone);
 
 	void UpdateAnchorPoint();
 
