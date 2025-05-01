@@ -308,25 +308,17 @@ FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorder() const
 
 void SGraphNodeCustomizableComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
 {
-	this->GraphNode = InNode;
-	this->bIsSelected = false;
+	GraphNode = InNode;
+	bIsSelected = false;
 
-	//アニメーションをセットアップする
-	ZoomCurve = SpawnAnim.AddCurve(0, 0.1f);
-	FadeCurve = SpawnAnim.AddCurve(0.15f, 0.15f);
-
-	//これらの値をキャッシュしておけば、次のティックにノードの再ビルドを強いられることはない
 	CachedCommentTitle = GetNodeComment();
 	CachedWidth = InNode->NodeWidth;
 
 	this->UpdateGraphNode();
 
-	//サイズを引き出す
 	UserSize.X = InNode->NodeWidth;
 	UserSize.Y = InNode->NodeHeight;
 
-	//希望するサイズをキャッシュし、正しくカリングできるようにする
-	//ComputeDesiredSize はレイアウトのスケールを無視するので、これを行うことができます
 	CacheDesiredSize(1.0f);
 
 	MouseLocatedZone = NotInNode;
