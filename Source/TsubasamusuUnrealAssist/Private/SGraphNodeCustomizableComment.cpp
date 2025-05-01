@@ -358,6 +358,14 @@ float SGraphNodeCustomizableComment::GetWrappingTitleTextWidth() const
 	return CachedWidth - 32.0f;
 }
 
+void SGraphNodeCustomizableComment::UpdateRenderTransform()
+{
+	const FSlateRenderTransform SlateRenderTransform = Concatenate(FScale2D(CachedCommentNodeScale), FQuat2D(FMath::DegreesToRadians(CachedCommentNodeAngle)), FVector2D::ZeroVector);
+
+	SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
+	SetRenderTransform(SlateRenderTransform);
+}
+
 bool SGraphNodeCustomizableComment::IsNameReadOnly() const
 {
 	return !IsEditable.Get() || SGraphNode::IsNameReadOnly();
@@ -795,8 +803,16 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 
 void SGraphNodeCustomizableComment::SetCommentNodeAngle(const float NewAngle)
 {
-	SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
-	SetRenderTransform(FSlateRenderTransform(FQuat2D(FMath::DegreesToRadians(NewAngle))));
+	CachedCommentNodeAngle = NewAngle;
+	
+	UpdateRenderTransform();
+}
+
+void SGraphNodeCustomizableComment::SetCommentNodeScale(const float NewScale)
+{
+	CachedCommentNodeScale = NewScale;
+	
+	UpdateRenderTransform();
 }
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const

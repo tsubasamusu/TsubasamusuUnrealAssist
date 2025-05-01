@@ -93,6 +93,7 @@ protected:
 	virtual FSlateColor GetCommentBubbleColor() const;
 
 	void SetCommentNodeAngle(const float NewAngle);
+	void SetCommentNodeScale(const float NewScale);
 	
 private:
 	
@@ -128,6 +129,8 @@ private:
 
 	float GetWrappingTitleTextWidth() const;
 
+	void UpdateRenderTransform();
+	
 	FVector2D DragSize;
 	FVector2D UserSize;
 	FVector2D StoredUserSize;
@@ -141,6 +144,8 @@ private:
 	FString CachedCommentTitle;
 	int32 CachedFontSize;
 	int32 CachedWidth;
+	float CachedCommentNodeAngle = 0.0f;
+	float CachedCommentNodeScale = 1.0f;
 	mutable bool bCachedBubbleVisibility;
 
 	mutable bool bIsSelected;
