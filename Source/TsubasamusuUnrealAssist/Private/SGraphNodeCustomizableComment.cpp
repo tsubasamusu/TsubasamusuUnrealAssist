@@ -846,20 +846,21 @@ FSlateRect SGraphNodeCustomizableComment::GetTitleRect() const
 
 void SGraphNodeCustomizableComment::PopulateMetaTag(FGraphNodeMetaData* TagMeta) const
 {
-	if (GraphNode != nullptr)
+	if (!IsValid(GraphNode))
 	{
-		//ブループリントの名前を名前にしたいなら、GUID からノードを見つける事が出来る
-		const UObject* Package = GraphNode->GetOutermost();
-		const UObject* LastOuter = GraphNode->GetOuter();
-		
-		while (LastOuter->GetOuter() != Package)
-		{
-			LastOuter = LastOuter->GetOuter();
-		}
-		
-		TagMeta->Tag = FName(*FString::Printf(TEXT("GraphNode_%s_%s"), *LastOuter->GetFullName(), *GraphNode->NodeGuid.ToString()));
-		TagMeta->OuterName = LastOuter->GetFullName();
-		TagMeta->GUID = GraphNode->NodeGuid;
-		TagMeta->FriendlyName = FString::Printf(TEXT("%s in %s"), *GraphNode->GetNodeTitle(ENodeTitleType::FullTitle).ToString(), *TagMeta->OuterName);
+		return;
 	}
+	
+	const UObject* Package = GraphNode->GetOutermost();
+	const UObject* LastOuter = GraphNode->GetOuter();
+		
+	while (LastOuter->GetOuter() != Package)
+	{
+		LastOuter = LastOuter->GetOuter();
+	}
+		
+	TagMeta->Tag = FName(*FString::Printf(TEXT("GraphNode_%s_%s"), *LastOuter->GetFullName(), *GraphNode->NodeGuid.ToString()));
+	TagMeta->OuterName = LastOuter->GetFullName();
+	TagMeta->GUID = GraphNode->NodeGuid;
+	TagMeta->FriendlyName = FString::Printf(TEXT("%s in %s"), *GraphNode->GetNodeTitle(ENodeTitleType::FullTitle).ToString(), *TagMeta->OuterName);
 }
