@@ -221,69 +221,69 @@ SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizab
 
 SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FVector2D& LocalMouseCoordinates) const
 {
-	ECustomizableCommentNodeZone OutMouseZone = NotInNode;
-	const FSlateRect HitResultBorderSize = GetHitTestingBorder();
-	const FVector2D NodeSize = GetDesiredSize();
+	ECustomizableCommentNodeZone MouseZone = NotInNode;
+	
+	const FSlateRect HitTestingSlateRect = GetHitTestingBorder();
+	
+	const FVector2D DesiredNodeSize = GetDesiredSize();
 
-	//掴むゾーンの位置でのヒットテスト
-	if (LocalMouseCoordinates.Y > NodeSize.Y - HitResultBorderSize.Bottom)
+	if (LocalMouseCoordinates.Y > DesiredNodeSize.Y - HitTestingSlateRect.Bottom)
 	{
-		OutMouseZone = BottomBorder;
+		MouseZone = BottomBorder;
 	}
-	else if (LocalMouseCoordinates.Y <= HitResultBorderSize.Top)
+	else if (LocalMouseCoordinates.Y <= HitTestingSlateRect.Top)
 	{
-		OutMouseZone = TopBorder;
+		MouseZone = TopBorder;
 	}
 	else if (LocalMouseCoordinates.Y <= GetTitleBarHeight())
 	{
-		OutMouseZone = TitleBar;
+		MouseZone = TitleBar;
 	}
 
-	if (LocalMouseCoordinates.X > NodeSize.X - HitResultBorderSize.Right)
+	if (LocalMouseCoordinates.X > DesiredNodeSize.X - HitTestingSlateRect.Right)
 	{
-		if (OutMouseZone == BottomBorder)
+		if (MouseZone == BottomBorder)
 		{
-			OutMouseZone = BottomRightBorder;
+			MouseZone = BottomRightBorder;
 		}
-		else if (OutMouseZone == TopBorder)
+		else if (MouseZone == TopBorder)
 		{
-			OutMouseZone = TopRightBorder;
+			MouseZone = TopRightBorder;
 		}
 		else
 		{
-			OutMouseZone = RightBorder;
+			MouseZone = RightBorder;
 		}
 	}
-	else if (LocalMouseCoordinates.X <= HitResultBorderSize.Left)
+	else if (LocalMouseCoordinates.X <= HitTestingSlateRect.Left)
 	{
-		if (OutMouseZone == TopBorder)
+		if (MouseZone == TopBorder)
 		{
-			OutMouseZone = TopLeftBorder;
+			MouseZone = TopLeftBorder;
 		}
-		else if (OutMouseZone == BottomBorder)
+		else if (MouseZone == BottomBorder)
 		{
-			OutMouseZone = BottomLeftBorder;
+			MouseZone = BottomLeftBorder;
 		}
 		else
 		{
-			OutMouseZone = LeftBorder;
+			MouseZone = LeftBorder;
 		}
 	}
 	
-	//残りのフレームへのヒットテスト
-	if (OutMouseZone == NotInNode)
+	if (MouseZone == NotInNode)
 	{
-		if (LocalMouseCoordinates.Y > HitResultBorderSize.Top) 
+		if (LocalMouseCoordinates.Y > HitTestingSlateRect.Top) 
 		{
-			OutMouseZone = InNode;
+			MouseZone = InNode;
 		}
-		else if (LocalMouseCoordinates.X > HitResultBorderSize.Left) 
+		else if (LocalMouseCoordinates.X > HitTestingSlateRect.Left) 
 		{
-			OutMouseZone = InNode;
+			MouseZone = InNode;
 		}
 	}
 	
-	return OutMouseZone;
+	return MouseZone;
 }
 
 float SGraphNodeCustomizableComment::GetTitleBarHeight() const
