@@ -343,11 +343,12 @@ void SGraphNodeCustomizableComment::Tick(const FGeometry& AllottedGeometry, cons
 		CachedWidth = CurrentWidth;
 	}
 
-	UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
+	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
 	
 	if (bCachedBubbleVisibility != CommentNode->bCommentBubbleVisible_InDetailsPanel)
 	{
 		CommentBubble->UpdateBubble();
+		
 		bCachedBubbleVisibility = CommentNode->bCommentBubbleVisible_InDetailsPanel;
 	}
 
