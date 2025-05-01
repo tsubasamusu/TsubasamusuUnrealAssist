@@ -123,101 +123,53 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonUp(const FGeometry& MyGeometr
 
 FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	if (bUserIsDragging)
+	if (!bUserIsDragging)
 	{
-		const FVector2D GraphSpaceCoordinates = NodeCoordToGraphCoord(MouseEvent.GetScreenSpacePosition());
-		const FVector2D OldGraphSpaceCoordinates = NodeCoordToGraphCoord(MouseEvent.GetLastScreenSpacePosition());
-		const TSharedPtr<SWindow> OwnerWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-		FVector2D Delta = (GraphSpaceCoordinates - OldGraphSpaceCoordinates) / (OwnerWindow.IsValid() ? OwnerWindow->GetDPIScaleFactor() : 1.0f);
+		MouseLocatedZone = FindMouseZone(MyGeometry, MouseEvent);
+	
+		return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
+	}
+	
+	const FVector2D DeltaNodeSize = GetDeltaNodeSize(GetDeltaMouseCoordinates(MouseEvent));
 		
-		//リサイズ方向に基づくクランプデルタ値
-		if(MouseLocatedZone == LeftBorder || MouseLocatedZone == RightBorder)
-		{
-			Delta.Y = 0.0f;
-		}
-		else if(MouseLocatedZone == TopBorder || MouseLocatedZone == BottomBorder)
-		{
-			Delta.X = 0.0f;
-		}
-
-		//ノードのデルタ値をリサイズする
-		FVector2D DeltaNodeSize = Delta;
-
-		//リサイズ方向に基づいてノードサイズのデルタ値を変更する
-		if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
-		{
-			DeltaNodeSize = -DeltaNodeSize;
-		}
-		else if(MouseLocatedZone == TopRightBorder)
-		{
-			DeltaNodeSize.Y = -DeltaNodeSize.Y;
-		}
-		else if(MouseLocatedZone == BottomLeftBorder)
-		{
-			DeltaNodeSize.X = -DeltaNodeSize.X;
-		}
+	DragSize.X += DeltaNodeSize.X;
+	DragSize.Y += DeltaNodeSize.Y;
 		
-		//フィルターなしのデルタを DragSize に適用する。
-		DragSize.X += DeltaNodeSize.X;
-		DragSize.Y += DeltaNodeSize.Y;
-		
-		//スナップを適用する
-		const uint32 SnapSize = SNodePanel::GetSnapGridSize();
-		FVector2D SnappedSize;
-		SnappedSize.X = SnapSize * FMath::RoundToFloat(DragSize.X/SnapSize);
-		SnappedSize.Y = SnapSize * FMath::RoundToFloat(DragSize.Y/SnapSize);
+	const FVector2D SnappedNodeSize = GetSnappedNodeSize();
+	
+	FVector2D DeltaNodePosition(0,0);
 
-		//最小／最大サイジングを実施する
-		const FVector2D MinSize = GetNodeMinimumSize();
-		SnappedSize.X = FMath::Max(SnappedSize.X, MinSize.X);
-		SnappedSize.Y = FMath::Max(SnappedSize.Y, MinSize.Y);
-
-		const FVector2D MaxSize = GetNodeMaximumSize();
-		SnappedSize.X = FMath::Min(SnappedSize.X, MaxSize.X);
-		SnappedSize.Y = FMath::Min(SnappedSize.Y, MaxSize.Y);
-
-		FVector2D DeltaNodePos(0,0);
-
-		if(UserSize != SnappedSize)
+	if(UserSize != SnappedNodeSize)
+	{
+		if(MouseLocatedZone != BottomBorder && MouseLocatedZone != RightBorder && MouseLocatedZone != BottomRightBorder)
 		{
-			//ノードの位置を変更する（上側と左側のサイズを変更する）
-			if(MouseLocatedZone != BottomBorder && MouseLocatedZone != RightBorder && MouseLocatedZone != BottomRightBorder)
+			DeltaNodePosition = UserSize - SnappedNodeSize;
+
+			if(MouseLocatedZone == BottomLeftBorder)
 			{
-				//グラフノードの位置を移動するデルタ値
-				DeltaNodePos = UserSize - SnappedSize;
-
-				//リサイズ方向に基づくクランプ位置のデルタ
-				if(MouseLocatedZone == BottomLeftBorder)
-				{
-					DeltaNodePos.Y = 0.0f;
-				}
-				else if(MouseLocatedZone == TopRightBorder)
-				{
-					DeltaNodePos.X = 0.0f;
-				}
+				DeltaNodePosition.Y = 0.0f;
 			}
+			else if(MouseLocatedZone == TopRightBorder)
+			{
+				DeltaNodePosition.X = 0.0f;
+			}
+		}
 			
-			UserSize = SnappedSize;
-			GraphNode->ResizeNode(UserSize);
-			DeltaNodePos = GetCorrectedNodePosition() - GetPosition();
-		}
-
-		if (!ResizeTransactionPtr.IsValid() && UserSize != StoredUserSize)
-		{
-			//サイズ変更トランザクションを開始する
-			//トランザクションはここで開始されるため、すべての MoveTo アクションが捕捉される
-			//トランザクションは作成されない。
-			ResizeTransactionPtr = MakeShareable(new FScopedTransaction(NSLOCTEXT("GraphEditor", "ResizeNodeAction", "Resize Node")));
-		}
-
-		FNodeSet NodeFilter;
-		SGraphNode::MoveTo(GetPosition() + DeltaNodePos, NodeFilter);
+		UserSize = SnappedNodeSize;
+		
+		GraphNode->ResizeNode(UserSize);
+		
+		DeltaNodePosition = GetCorrectedNodePosition() - GetPosition();
 	}
-	else
+
+	if (!ResizeTransactionPtr.IsValid() && UserSize != StoredUserSize)
 	{
-		const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
-		MouseLocatedZone = FindMouseZone(LocalMouseCoordinates);
+		// Start resize transaction
+		ResizeTransactionPtr = MakeShareable(new FScopedTransaction(NSLOCTEXT("GraphEditor", "ResizeNodeAction", "Resize Node")));
 	}
+
+	FNodeSet NodeFilter;
+	SGraphNode::MoveTo(GetPosition() + DeltaNodePosition, NodeFilter);
 	
 	return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
 }
