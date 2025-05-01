@@ -9,7 +9,11 @@ namespace GamingCommentNodeDefinitions
 {
 	static constexpr float GamingAnimationDuration = 1.0f;
 
+	static constexpr float ScalingAnimationDuration = 1.0f;
+
 	static constexpr float RotatingAnglePerSeconds = 720.0f;
+
+	static constexpr float MaxCommentNodeScale = 1.5f;
 }
 
 class TSUBASAMUSUUNREALASSIST_API SGraphNodeGamingComment : public SGraphNodeCustomizableComment
@@ -38,11 +42,12 @@ protected:
 private:
 
 	void UpdateGamingAnimationColor(const float InDeltaTime);
-	
+	void UpdateCommentNodeScale(const float InDeltaTime);
 	void UpdateCommentNodeAngle(const float InDeltaTime);
 	
 	FLinearColor GetGamingAnimationColor() const;
 	
 	float GamingAnimationElapsedSeconds;
+	float ScalingAnimationElapsedSeconds;
 	float CurrentCommentNodeAngle;
 };

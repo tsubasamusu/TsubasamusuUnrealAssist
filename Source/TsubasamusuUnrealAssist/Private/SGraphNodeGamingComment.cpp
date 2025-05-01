@@ -8,6 +8,7 @@ void SGraphNodeGamingComment::Tick(const FGeometry& AllottedGeometry, const doub
 
 	UpdateGamingAnimationColor(InDeltaTime);
 	UpdateCommentNodeAngle(InDeltaTime);
+	UpdateCommentNodeScale(InDeltaTime);
 }
 
 void SGraphNodeGamingComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
@@ -34,10 +35,21 @@ void SGraphNodeGamingComment::UpdateGamingAnimationColor(const float InDeltaTime
 {
 	GamingAnimationElapsedSeconds += InDeltaTime;
 	
-	if (GamingAnimationElapsedSeconds >= GamingCommentNodeDefinitions::GamingAnimationDuration)
+	if (GamingAnimationElapsedSeconds > GamingCommentNodeDefinitions::GamingAnimationDuration)
 	{
 		GamingAnimationElapsedSeconds = 0.0f;
 	}
+}
+
+void SGraphNodeGamingComment::UpdateCommentNodeScale(const float InDeltaTime)
+{
+	ScalingAnimationElapsedSeconds = FMath::Fmod(ScalingAnimationElapsedSeconds + InDeltaTime, GamingCommentNodeDefinitions::ScalingAnimationDuration);
+
+	const float Alpha = FMath::Sin(PI * ScalingAnimationElapsedSeconds / GamingCommentNodeDefinitions::ScalingAnimationDuration);
+
+	const float NewScale = FMath::Lerp(1.0f, GamingCommentNodeDefinitions::MaxCommentNodeScale, Alpha);
+
+	SetCommentNodeScale(NewScale);
 }
 
 void SGraphNodeGamingComment::UpdateCommentNodeAngle(const float InDeltaTime)
