@@ -796,15 +796,10 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBodyColor() const
 FSlateColor SGraphNodeCustomizableComment::GetCommentTitleBarColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
+
+	const FLinearColor TitleBarColor = (IsValid(CommentNode) ? CommentNode->CommentColor : FLinearColor::White) * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
 	
-	if (CommentNode)
-	{
-		const FLinearColor Color = CommentNode->CommentColor * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
-		return FLinearColor(Color.R, Color.G, Color.B);
-	}
-	
-	const FLinearColor Color = FLinearColor::White * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
-	return FLinearColor(Color.R, Color.G, Color.B);
+	return FLinearColor(TitleBarColor.R, TitleBarColor.G, TitleBarColor.B);
 }
 
 FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
