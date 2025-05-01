@@ -583,6 +583,19 @@ void SGraphNodeCustomizableComment::UpdateNodesUnderComment() const
 	}
 }
 
+UObject* SGraphNodeCustomizableComment::GetLastOuter() const
+{
+	const UObject* Package = GraphNode->GetOutermost();
+	UObject* LastOuter = GraphNode->GetOuter();
+	
+	while (LastOuter->GetOuter() != Package)
+	{
+		LastOuter = LastOuter->GetOuter();
+	}
+
+	return LastOuter;
+}
+
 FVector2D SGraphNodeCustomizableComment::GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const
 {
 	FVector2D DeltaNodeSize = InDeltaMouseCoordinates;
@@ -850,14 +863,8 @@ void SGraphNodeCustomizableComment::PopulateMetaTag(FGraphNodeMetaData* TagMeta)
 	{
 		return;
 	}
-	
-	const UObject* Package = GraphNode->GetOutermost();
-	const UObject* LastOuter = GraphNode->GetOuter();
-		
-	while (LastOuter->GetOuter() != Package)
-	{
-		LastOuter = LastOuter->GetOuter();
-	}
+
+	const UObject* LastOuter = GetLastOuter();
 		
 	TagMeta->Tag = FName(*FString::Printf(TEXT("GraphNode_%s_%s"), *LastOuter->GetFullName(), *GraphNode->NodeGuid.ToString()));
 	TagMeta->OuterName = LastOuter->GetFullName();

@@ -11,6 +11,7 @@ class UEdGraphNode_Comment;
 class TSUBASAMUSUUNREALASSIST_API SGraphNodeCustomizableComment : public SGraphNode
 {
 public:
+	
 	SLATE_BEGIN_ARGS(SGraphNodeCustomizableComment){}
 	SLATE_END_ARGS()
 
@@ -62,50 +63,47 @@ public:
 
 	void Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode);
 
-	/** 指定された場所を指してノードが選択可能かどうかを返す */
+	//~ Begin SNode Interface
 	virtual bool CanBeSelected(const FVector2D& MousePositionInNode) const override;
-
 	virtual FVector2D GetDesiredTitleBarSize() const override;
 
-	/** タイトルバーの FSlateRect を返す */
+	//~ Begin SGraphNode Interface
 	virtual FSlateRect GetTitleRect() const override;
-
+	//~ End SGraphNode Interface
+	
 protected:
+	
+	//~ Begin SGraphNode Interface
+	virtual void UpdateGraphNode() override;
+	virtual void PopulateMetaTag(class FGraphNodeMetaData* TagMeta) const override;
+	//~ End SGraphNode Interface
 	
 	virtual ECustomizableCommentNodeZone GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const;
 
 	virtual ECustomizableCommentNodeZone GetMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
-	/** @return 現在のウィンドウゾーンが選択領域とみなされる場合 true */
 	bool InSelectionArea() const;
 
-	/** @return 通過したゾーンが選択領域である場合 true */
 	static bool InSelectionArea(const ECustomizableCommentNodeZone InMouseZone);
 
 	void UpdateAnchorPoint();
 
 	FVector2D GetCorrectedNodePositionByAnchorPoint() const;
 
-	/** 現在のタイトルバーのサイズを取得する */
 	virtual float GetTitleBarHeight() const;
 
-	/** 希望するノードの最小サイズを返す */
 	virtual FVector2D GetNodeMinimumSize() const;
 
-	/** 希望するノードの最大サイズを返す */
 	virtual FVector2D GetNodeMaximumSize() const;
 
-	//** ヒットテスト用に FSlateRect を返す */
 	virtual FSlateRect GetHitTestingBorder() const;
-
-	//~ Begin SGraphNode Interface
-	virtual void UpdateGraphNode() override;
-	virtual void PopulateMetaTag(class FGraphNodeMetaData* TagMeta) const override;
 
 	void HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment = false) const;
 
 	void UpdateNodesUnderComment() const;
 
+	UObject* GetLastOuter() const;
+	
 	FVector2D GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const;
 
 	FVector2D GetSnappedNodeSize() const;
@@ -116,62 +114,45 @@ protected:
 	
 	virtual bool IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const;
 
-	/** ユーザーがコメントノードを移動するときに呼び出される */
 	virtual void MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty = true) override;
 
-	/** @return コメント本文の色 */
 	FSlateColor GetCommentBodyColor() const;
 
-	/** @return タイトルバーの色 */
 	FSlateColor GetCommentTitleBarColor() const;
 
-	/** @return コメントバブルの色 */
 	FSlateColor GetCommentBubbleColor() const;
 
-	/** 流体リサイズ用のノードのスナップしないサイズ */
 	FVector2D DragSize;
 
-	/** ドラッグ中に設定されるノードの希望サイズ */
 	FVector2D UserSize;
 
-	/** サイズ変更時のノードの元のサイズ */
 	FVector2D StoredUserSize;
 
-	/** サイズ変更トランザクション */
 	TSharedPtr<FScopedTransaction> ResizeTransactionPtr;
 
-	/** ノードのサイズ変更時にノードの位置を修正するためのアンカーポイント */
 	FVector2D NodeAnchorPoint;
 
 	ECustomizableCommentNodeZone MouseLocatedZone;
 
 	bool bUserIsDragging;
 	
-	/** キャッシュされたコメントタイトル */
 	FString CachedCommentTitle;
 
-	/** キャッシュされたフォントサイズ */
 	int32 CachedFontSize;
 
-	/** 最後のフレームでバブルが見えることが望まれていたのか？ */
 	mutable bool bCachedBubbleVisibility;
 
 private:
 	
 	float GetWrappingTitleTextWidth() const;
 
-	/** ズームアウト時に使用するコメントバブルウィジェット */
 	TSharedPtr<SCommentBubble> CommentBubble;
 
-	/** コメントの現在の選択状態 */
 	mutable bool bIsSelected;
 
-	/** タイトルバーの高さを取得するために必要なタイトルバー */
 	TSharedPtr<SBorder> TitleBarBorder;
 
-	/** キャッシュされたコメントタイトルの幅 */
 	int32 CachedWidth;
 
-	/** コメントスタイルのローカルコピー */
 	FInlineEditableTextBlockStyle CommentStyle;
 };
