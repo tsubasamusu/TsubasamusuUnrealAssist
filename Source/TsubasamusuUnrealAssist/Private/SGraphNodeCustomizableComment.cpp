@@ -9,7 +9,7 @@
 
 namespace CustomizableCommentNodeDefinitions
 {
-	static const FSlateRect HitResultBorderSize(10, 10, 10, 10);
+	static const FSlateRect HitTestingBorderRect(10, 10, 10, 10);
 
 	static const FVector2D MinNodeSize(30.0f, 30.0f);
 
@@ -299,7 +299,7 @@ FVector2D SGraphNodeCustomizableComment::GetNodeMaximumSize() const
 
 FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorderRect()
 {
-	return CustomizableCommentNodeDefinitions::HitResultBorderSize;
+	return CustomizableCommentNodeDefinitions::HitTestingBorderRect;
 }
 
 void SGraphNodeCustomizableComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
