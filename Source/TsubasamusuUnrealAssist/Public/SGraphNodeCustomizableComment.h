@@ -92,6 +92,8 @@ protected:
 	virtual FSlateColor GetTitleBarColor() const;
 	virtual FSlateColor GetCommentBubbleColor() const;
 
+	void SetCommentNodeAngle(const float NewAngle);
+	
 private:
 	
 	ECommentNodeZone GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const;
@@ -135,7 +137,8 @@ private:
 	
 	TSharedPtr<SCommentBubble> CommentBubble;
 	TSharedPtr<SBorder> TitleBarBorder;
-
+	TSharedPtr<SBorder> CommentNodeBorder;
+	
 	FString CachedCommentTitle;
 	int32 CachedFontSize;
 	int32 CachedWidth;
