@@ -287,7 +287,7 @@ float SGraphNodeCustomizableComment::GetTitleBarHeight() const
 	return TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetMinNodeSize() const
+FVector2D SGraphNodeCustomizableComment::GetMinNodeSize()
 {
 	return CustomizableCommentNodeDefinitions::MinNodeSize;
 }
@@ -510,7 +510,7 @@ int32 SGraphNodeCustomizableComment::GetSortDepth() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 	
-	return CommentNode ? CommentNode->CommentDepth : -1;
+	return IsValid(CommentNode) ? CommentNode->CommentDepth : -1;
 }
 
 void SGraphNodeCustomizableComment::HandleSelection(const bool bInIsSelected) const
@@ -536,13 +536,8 @@ void SGraphNodeCustomizableComment::UpdateNodesUnderComment() const
 {
 	const SGraphNodeCustomizableComment* CommentNodeWidget = const_cast<SGraphNodeCustomizableComment*>(this);
 	
-	UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
+	UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
 			
-	if (!CommentNode)
-	{
-		return;
-	}
-	
 	FChildren* GraphPanelChildren = CommentNodeWidget->GetOwnerPanel()->GetAllChildren();
 	
 	CommentNode->ClearNodesUnderComment();
@@ -692,12 +687,7 @@ void SGraphNodeCustomizableComment::MoveTo(const FVector2D& NewPosition, FNodeSe
 		return;
 	}
 	
-	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-	
-	if (!IsValid(CommentNode))
-	{
-		return;
-	}
+	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
 	
 	if (CommentNode->MoveMode != ECommentBoxMode::GroupMovement)
 	{

@@ -91,7 +91,7 @@ private:
 
 	float GetTitleBarHeight() const;
 
-	FVector2D GetMinNodeSize() const;
+	static FVector2D GetMinNodeSize();
 	FVector2D GetMaxNodeSize() const;
 
 	static FSlateRect GetHitTestingBorderRect();
