@@ -818,8 +818,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const
 {
-	const ECustomizableCommentNodeZone InMouseZone = GetMouseZone(MousePositionInNode);
-	return TitleBar == InMouseZone;
+	return GetMouseZone(MousePositionInNode) == TitleBar;
 }
 
 FVector2D SGraphNodeCustomizableComment::GetDesiredSizeForMarquee() const
