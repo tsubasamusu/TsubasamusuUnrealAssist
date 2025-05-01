@@ -7,18 +7,14 @@
 #include "TutorialMetaData.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 
-namespace SGraphNodeCustomizableCommentDefs
+namespace CustomizableCommentNodeDefinitions
 {
-	/** ウィンドウの境界線に対するヒット結果の境界線のサイズ */
 	static const FSlateRect HitResultBorderSize(10, 10, 10, 10);
 
-	/** ノードの最小サイズ */
 	static const FVector2D MinNodeSize(30.0f, 30.0f);
 
-	/** TitleBarColor = CommentColor * TitleBarColorMultiplier */
 	static constexpr float TitleBarColorMultiplier = 0.6f;
 
-	/** Titlebar Offset - taken from the widget borders in UpdateGraphNode */
 	static const FSlateRect TitleBarOffset(13,8,-3,0);
 }
 
@@ -293,7 +289,7 @@ float SGraphNodeCustomizableComment::GetTitleBarHeight() const
 
 FVector2D SGraphNodeCustomizableComment::GetNodeMinimumSize() const
 {
-	return SGraphNodeCustomizableCommentDefs::MinNodeSize;
+	return CustomizableCommentNodeDefinitions::MinNodeSize;
 }
 
 FVector2D SGraphNodeCustomizableComment::GetNodeMaximumSize() const
@@ -303,7 +299,7 @@ FVector2D SGraphNodeCustomizableComment::GetNodeMaximumSize() const
 
 FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorderRect()
 {
-	return SGraphNodeCustomizableCommentDefs::HitResultBorderSize;
+	return CustomizableCommentNodeDefinitions::HitResultBorderSize;
 }
 
 void SGraphNodeCustomizableComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
@@ -791,7 +787,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentTitleBarColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 
-	const FLinearColor TitleBarColor = (IsValid(CommentNode) ? CommentNode->CommentColor : FLinearColor::White) * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
+	const FLinearColor TitleBarColor = (IsValid(CommentNode) ? CommentNode->CommentColor : FLinearColor::White) * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 	
 	return FLinearColor(TitleBarColor.R, TitleBarColor.G, TitleBarColor.B);
 }
@@ -804,11 +800,11 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 
 	if (!IsValid(CommentNode))
 	{
-		CommentBubbleColor = FLinearColor::White * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
+		CommentBubbleColor = FLinearColor::White * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 	}
 	else if (CommentNode->bColorCommentBubble)
 	{
-		CommentBubbleColor = CommentNode->CommentColor * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
+		CommentBubbleColor = CommentNode->CommentColor * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 	}
 	else
 	{
@@ -835,7 +831,7 @@ FSlateRect SGraphNodeCustomizableComment::GetTitleRect() const
 	const FVector2D CommentNodePosition = GetPosition();
 	const FVector2D TitleBarSize = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize() : GetDesiredSize();
 	
-	return FSlateRect(CommentNodePosition.X, CommentNodePosition.Y, CommentNodePosition.X + TitleBarSize.X, CommentNodePosition.Y + TitleBarSize.Y) + SGraphNodeCustomizableCommentDefs::TitleBarOffset;
+	return FSlateRect(CommentNodePosition.X, CommentNodePosition.Y, CommentNodePosition.X + TitleBarSize.X, CommentNodePosition.Y + TitleBarSize.Y) + CustomizableCommentNodeDefinitions::TitleBarOffset;
 }
 
 void SGraphNodeCustomizableComment::PopulateMetaTag(FGraphNodeMetaData* TagMeta) const
