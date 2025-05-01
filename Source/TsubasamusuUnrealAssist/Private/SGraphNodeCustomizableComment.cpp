@@ -514,23 +514,19 @@ FString SGraphNodeCustomizableComment::GetNodeComment() const
 
 FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
 {
-	//タイトルバー領域をダブルクリックしたら
-	if(GetMouseZone(InMyGeometry, InMouseEvent) == TitleBar && IsEditable.Get())
+	if(GetMouseZone(InMyGeometry, InMouseEvent) != TitleBar || !IsEditable.Get())
 	{
-		//リネームを要求する
-		RequestRename();
-
-		//キーボードフォーカスを設定する
-		if(!HasKeyboardFocus())
-		{
-			FSlateApplication::Get().SetKeyboardFocus(SharedThis(this), EFocusCause::SetDirectly);
-		}
-
-		return FReply::Handled();
+		return FReply::Unhandled();
 	}
 	
-	//そうでなければ、コメントノードと重なったときにスプラインのインタラクションが機能するようにグラフに処理させる
-	return FReply::Unhandled();
+	RequestRename();
+
+	if(!HasKeyboardFocus())
+	{
+		FSlateApplication::Get().SetKeyboardFocus(SharedThis(this), EFocusCause::SetDirectly);
+	}
+
+	return FReply::Handled();
 }
 
 int32 SGraphNodeCustomizableComment::GetSortDepth() const
