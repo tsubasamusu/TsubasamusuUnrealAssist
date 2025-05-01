@@ -36,7 +36,7 @@ void SGraphNodeCustomizableComment::OnMouseEnter(const FGeometry& MyGeometry, co
 {
 	if(!bUserIsDragging)
 	{
-		MouseLocatedZone = FindMouseZone(MyGeometry, MouseEvent);
+		MouseLocatedZone = GetMouseZone(MyGeometry, MouseEvent);
 		
 		SNode::OnMouseEnter(MyGeometry, MouseEvent);
 	}
@@ -125,7 +125,7 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 {
 	if (!bUserIsDragging)
 	{
-		MouseLocatedZone = FindMouseZone(MyGeometry, MouseEvent);
+		MouseLocatedZone = GetMouseZone(MyGeometry, MouseEvent);
 	
 		return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
 	}
@@ -212,14 +212,14 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint()
 	return CorrectedNodePositionByAnchorPoint;
 }
 
-SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::FindMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const
+SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const
 {
 	const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
 	
-	return  FindMouseZone(LocalMouseCoordinates);
+	return  GetMouseZone(LocalMouseCoordinates);
 }
 
-SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::FindMouseZone(const FVector2D& LocalMouseCoordinates) const
+SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FVector2D& LocalMouseCoordinates) const
 {
 	ECustomizableCommentNodeZone OutMouseZone = NotInNode;
 	const FSlateRect HitResultBorderSize = GetHitTestingBorder();
@@ -523,7 +523,7 @@ FString SGraphNodeCustomizableComment::GetNodeComment() const
 FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
 {
 	//タイトルバー領域をダブルクリックしたら
-	if(FindMouseZone(InMyGeometry, InMouseEvent) == TitleBar && IsEditable.Get())
+	if(GetMouseZone(InMyGeometry, InMouseEvent) == TitleBar && IsEditable.Get())
 	{
 		//リネームを要求する
 		RequestRename();
@@ -813,7 +813,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const
 {
-	const ECustomizableCommentNodeZone InMouseZone = FindMouseZone(MousePositionInNode);
+	const ECustomizableCommentNodeZone InMouseZone = GetMouseZone(MousePositionInNode);
 	return TitleBar == InMouseZone;
 }
 

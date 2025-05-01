@@ -73,9 +73,9 @@ public:
 
 protected:
 	
-	virtual ECustomizableCommentNodeZone FindMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const;
+	virtual ECustomizableCommentNodeZone GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const;
 
-	virtual ECustomizableCommentNodeZone FindMouseZone(const FVector2D& LocalMouseCoordinates) const;
+	virtual ECustomizableCommentNodeZone GetMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
 	/** @return 現在のウィンドウゾーンが選択領域とみなされる場合 true */
 	bool InSelectionArea() const;
