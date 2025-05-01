@@ -385,45 +385,28 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentColor() const
 
 void SGraphNodeCustomizableComment::UpdateGraphNode()
 {
-	//コメントボックスにピンは無い
+	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
+
 	InputPins.Empty();
 	OutputPins.Empty();
 
-	//標準的なボックスモデルも避ける
 	RightNodeBox.Reset();
 	LeftNodeBox.Reset();
 
-	//コメントバブルを見せるべきかどうか
-	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
 	bCachedBubbleVisibility = CommentNode->bCommentBubbleVisible_InDetailsPanel;
-
-	//このノードのタグを設定する
-	FString TagName;
-
-	//ブループリントの名前を名前にしたいなら、GUID からノードを見つける事が出来る
-	UObject* Package = GraphNode->GetOutermost();
-	UObject* LastOuter = GraphNode->GetOuter();
-	
-	while (LastOuter->GetOuter() != Package)
-	{
-		LastOuter = LastOuter->GetOuter();
-	}
-	
-	TagName = FString::Printf(TEXT("GraphNode,%s,%s"), *LastOuter->GetFullName(), *GraphNode->NodeGuid.ToString());
+	CachedFontSize = CommentNode->GetFontSize();
 
 	SetupErrorReporting();
 
-	//このノードにメタタグを設定する
 	FGraphNodeMetaData TagMeta(TEXT("Graphnode"));
 	PopulateMetaTag(&TagMeta);
-
-	CachedFontSize = CommentNode->GetFontSize();
 
 	CommentStyle = FAppStyle::Get().GetWidgetStyle<FInlineEditableTextBlockStyle>("Graph.CommentBlock.TitleInlineEditableText");
 	CommentStyle.EditableTextBoxStyle.TextStyle.Font.Size = CachedFontSize;
 	CommentStyle.TextStyle.Font.Size = CachedFontSize;
 
-	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
+	ContentScale.Bind(this, &SGraphNode::GetContentScale);
+	
 	this->GetOrAddSlot(ENodeZone::Center)
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Fill)
@@ -472,14 +455,12 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Fill)
 				[
-					//ノードのコンテンツの領域
 					SNew(SBorder)
 					.BorderImage(FAppStyle::GetBrush("NoBorder"))
 				]
 			]
 		];
 
-	//コメントバブルを作成する
 	CommentBubble = SNew(SCommentBubble)
 	.GraphNode(GraphNode)
 	.Text(this, &SGraphNodeCustomizableComment::GetNodeComment)
