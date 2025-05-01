@@ -112,6 +112,8 @@ protected:
 	FVector2D GetSnappedNodeSize() const;
 
 	FVector2D GetDeltaMouseCoordinates(const FPointerEvent& InMouseEvent);
+
+	static FSlateRect GetNodeRect(TSharedRef<const SGraphNode> InNodeWidget);
 	
 	virtual bool IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const;
 

@@ -645,6 +645,7 @@ FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointer
 	return DeltaMouseCoordinates;
 }
 
+FSlateRect SGraphNodeCustomizableComment::GetNodeRect(TSharedRef<const SGraphNode> InNodeWidget)
 {
 	const FVector2D NodePosition = GetPosition();
 	const FVector2D NodeSize = GetDesiredSize();
@@ -652,10 +653,16 @@ FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointer
 
 	const FVector2D InNodePosition = InNodeWidget->GetPosition();
 	const FVector2D InNodeSize = InNodeWidget->GetDesiredSize();
+	const FVector2D NodePosition = InNodeWidget->GetPosition();
+	const FVector2D DesiredNodeSize = InNodeWidget->GetDesiredSize();
+	
+	return FSlateRect(NodePosition.X, NodePosition.Y, NodePosition.X + DesiredNodeSize.X, NodePosition.Y + DesiredNodeSize.Y);
+}
 
 	const FSlateRect NodeGeometryGraphSpace(InNodePosition.X, InNodePosition.Y, InNodePosition.X + InNodeSize.X, InNodePosition.Y + InNodeSize.Y);
 	return FSlateRect::IsRectangleContained(CommentRect, NodeGeometryGraphSpace);
 bool SGraphNodeCustomizableComment::IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const
+{
 }
 
 const FSlateBrush* SGraphNodeCustomizableComment::GetShadowBrush(bool bSelected) const
