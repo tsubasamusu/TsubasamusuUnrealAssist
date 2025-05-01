@@ -65,8 +65,7 @@ public:
 	/** 指定された場所を指してノードが選択可能かどうかを返す */
 	virtual bool CanBeSelected(const FVector2D& MousePositionInNode) const override;
 
-	/** タイトルバーのサイズを返す */
-	virtual FVector2D GetDesiredSizeForMarquee() const override;
+	virtual FVector2D GetDesiredTitleBarSize() const override;
 
 	/** タイトルバーの FSlateRect を返す */
 	virtual FSlateRect GetTitleRect() const override;

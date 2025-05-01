@@ -829,9 +829,10 @@ bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePosition
 	return GetMouseZone(MousePositionInNode) == TitleBar;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetDesiredSizeForMarquee() const
+FVector2D SGraphNodeCustomizableComment::GetDesiredTitleBarSize() const
 {
 	const float TitleBarHeight = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
+	
 	return FVector2D(UserSize.X, TitleBarHeight);
 }
 
