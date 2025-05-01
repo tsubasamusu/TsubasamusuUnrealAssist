@@ -137,7 +137,6 @@ private:
 	
 	TSharedPtr<SCommentBubble> CommentBubble;
 	TSharedPtr<SBorder> TitleBarBorder;
-	TSharedPtr<SBorder> CommentNodeBorder;
 	
 	FString CachedCommentTitle;
 	int32 CachedFontSize;
