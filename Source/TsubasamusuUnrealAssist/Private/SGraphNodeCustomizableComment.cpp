@@ -838,9 +838,10 @@ FVector2D SGraphNodeCustomizableComment::GetDesiredTitleBarSize() const
 
 FSlateRect SGraphNodeCustomizableComment::GetTitleRect() const
 {
-	const FVector2D NodePosition = GetPosition();
-	const FVector2D NodeSize  = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize() : GetDesiredSize();
-	return FSlateRect(NodePosition.X, NodePosition.Y, NodePosition.X + NodeSize.X, NodePosition.Y + NodeSize.Y) + SGraphNodeCustomizableCommentDefs::TitleBarOffset;
+	const FVector2D CommentNodePosition = GetPosition();
+	const FVector2D TitleBarSize = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize() : GetDesiredSize();
+	
+	return FSlateRect(CommentNodePosition.X, CommentNodePosition.Y, CommentNodePosition.X + TitleBarSize.X, CommentNodePosition.Y + TitleBarSize.Y) + SGraphNodeCustomizableCommentDefs::TitleBarOffset;
 }
 
 void SGraphNodeCustomizableComment::PopulateMetaTag(FGraphNodeMetaData* TagMeta) const
