@@ -368,7 +368,7 @@ void SGraphNodeCustomizableComment::OnDragEnter(const FGeometry& MyGeometry, con
 
 }
 
-float SGraphNodeCustomizableComment::GetWrapAt() const
+float SGraphNodeCustomizableComment::GetWrappingTitleTextWidth() const
 {
 	return CachedWidth - 32.0f;
 }
@@ -456,7 +456,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 						.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
 						.IsReadOnly(this, &SGraphNodeCustomizableComment::IsNameReadOnly)
 						.IsSelected(this, &SGraphNodeCustomizableComment::IsSelectedExclusively)
-						.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrapAt)
+						.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrappingTitleTextWidth)
 						.MultiLine(true)
 						.ModiferKeyForNewLine(EModifierKey::Shift)
 					]

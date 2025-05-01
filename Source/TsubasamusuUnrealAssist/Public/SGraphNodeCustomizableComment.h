@@ -158,8 +158,7 @@ protected:
 
 private:
 	
-	/** コメントのテキストを折り返す幅を返す */
-	float GetWrapAt() const;
+	float GetWrappingTitleTextWidth() const;
 
 	/** ズームアウト時に使用するコメントバブルウィジェット */
 	TSharedPtr<SCommentBubble> CommentBubble;
