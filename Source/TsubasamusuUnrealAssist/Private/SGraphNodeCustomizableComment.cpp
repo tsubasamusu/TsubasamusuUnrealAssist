@@ -785,7 +785,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBodyColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 
-	if (CommentNode)
+	if (IsValid(CommentNode))
 	{
 		return CommentNode->CommentColor;
 	}
