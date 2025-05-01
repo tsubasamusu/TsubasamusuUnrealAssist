@@ -746,43 +746,38 @@ void SGraphNodeCustomizableComment::MoveTo(const FVector2D& NewPosition, FNodeSe
 
 void SGraphNodeCustomizableComment::EndUserInteraction() const
 {
-	//親ノードのコメントと子ノードのリストを見つける
-	const FVector2D NodeSize = GetDesiredSize();
-	
-	if(!NodeSize.IsZero())
+	if(GetDesiredSize().IsZero())
 	{
-		const FVector2D NodePosition = GetPosition();
-		const FSlateRect CommentRect(NodePosition.X, NodePosition.Y, NodePosition.X + NodeSize.X, NodePosition.Y + NodeSize.Y);
+		return;
+	}
+	
+	const FSlateRect CommentNodeRect = GetNodeRect(SharedThis(this));
+	
+	FChildren* GraphPanelChildren = GetOwnerPanel()->GetAllChildren();
 
-		const TSharedPtr<SGraphPanel> Panel = GetOwnerPanel();
-		FChildren* PanelChildren = Panel->GetAllChildren();
-		const int32 NumChildren = PanelChildren->Num();
-		static FString SGraphNodeCustomizableCommentType = "SGraphNodeCustomizableComment";
+	for (int32 i = 0; i < GraphPanelChildren->Num(); ++i)
+	{
+		const TSharedPtr<SGraphNode> ChildNodeWidget = StaticCastSharedRef<SGraphNode>(GraphPanelChildren->GetChildAt(i));
 
-		for (int32 NodeIndex = 0; NodeIndex < NumChildren; ++NodeIndex)
-		{
-			const TSharedPtr<SGraphNode> SomeNodeWidget = StaticCastSharedRef<SGraphNode>(PanelChildren->GetChildAt(NodeIndex));
-
-			const UObject* GraphObject = SomeNodeWidget->GetObjectBeingDisplayed();
+		const UObject* ChildNodeObject = ChildNodeWidget->GetObjectBeingDisplayed();
 			
-			if (!GraphObject->IsA<UEdGraphNode_Comment>())
-			{
-				continue;
-			}
-
-			const FVector2D SomeNodePosition = SomeNodeWidget->GetPosition();
-			const FVector2D SomeNodeSize = SomeNodeWidget->GetDesiredSize();
-
-			const FSlateRect NodeGeometryGraphSpace(SomeNodePosition.X, SomeNodePosition.Y, SomeNodePosition.X + SomeNodeSize.X, SomeNodePosition.Y + SomeNodeSize.Y);
-
-			if (FSlateRect::DoRectanglesIntersect(CommentRect, NodeGeometryGraphSpace))
-			{
-				// GraphObject がコメントノードであることを確認したので、このダウンキャストはこの時点で有効であるはずである
-				const TSharedPtr<SGraphNodeCustomizableComment> CommentWidget = StaticCastSharedPtr<SGraphNodeCustomizableComment>(SomeNodeWidget);
-				CommentWidget->HandleSelection(CommentWidget->bIsSelected);
-				UpdateNodesUnderComment();
-			}
+		if (!ChildNodeObject->IsA<UEdGraphNode_Comment>())
+		{
+			continue;
 		}
+
+		const FSlateRect ChildNodeRect = GetNodeRect(ChildNodeWidget.ToSharedRef());
+		
+		if (!FSlateRect::DoRectanglesIntersect(CommentNodeRect, ChildNodeRect))
+		{
+			continue;
+		}
+		
+		const TSharedPtr<SGraphNodeCustomizableComment> CommentNodeWidget = StaticCastSharedPtr<SGraphNodeCustomizableComment>(ChildNodeWidget);
+		
+		CommentNodeWidget->HandleSelection(CommentNodeWidget->bIsSelected);
+
+		UpdateNodesUnderComment();
 	}
 }
 
