@@ -159,7 +159,7 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 		
 		GraphNode->ResizeNode(UserSize);
 		
-		DeltaNodePosition = GetCorrectedNodePosition() - GetPosition();
+		DeltaNodePosition = GetCorrectedNodePositionByAnchorPoint() - GetPosition();
 	}
 
 	if (!ResizeTransactionPtr.IsValid() && UserSize != StoredUserSize)
@@ -192,24 +192,24 @@ void SGraphNodeCustomizableComment::UpdateAnchorPoint()
 	}
 }
 
-FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePosition() const
+FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint() const
 {
-	FVector2D CorrectedPos = NodeAnchorPoint;
+	FVector2D CorrectedNodePositionByAnchorPoint = NodeAnchorPoint;
 	
 	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 	{
-		CorrectedPos -= UserSize;
+		CorrectedNodePositionByAnchorPoint -= UserSize;
 	}
 	else if(MouseLocatedZone == BottomLeftBorder)
 	{
-		CorrectedPos.X -= UserSize.X;
+		CorrectedNodePositionByAnchorPoint.X -= UserSize.X;
 	}
 	else if(MouseLocatedZone == TopRightBorder)
 	{
-		CorrectedPos.Y -= UserSize.Y;
+		CorrectedNodePositionByAnchorPoint.Y -= UserSize.Y;
 	}
 
-	return CorrectedPos;
+	return CorrectedNodePositionByAnchorPoint;
 }
 
 SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::FindMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const

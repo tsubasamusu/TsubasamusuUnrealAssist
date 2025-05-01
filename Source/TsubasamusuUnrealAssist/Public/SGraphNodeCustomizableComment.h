@@ -85,8 +85,7 @@ protected:
 
 	void UpdateAnchorPoint();
 
-	/** アンカーポイントに基づいて補正されたノードの位置を取得する関数 */
-	FVector2D GetCorrectedNodePosition() const;
+	FVector2D GetCorrectedNodePositionByAnchorPoint() const;
 
 	/** 現在のタイトルバーのサイズを取得する */
 	virtual float GetTitleBarHeight() const;
