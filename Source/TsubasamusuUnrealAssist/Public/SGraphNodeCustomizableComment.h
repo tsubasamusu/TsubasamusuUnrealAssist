@@ -113,8 +113,7 @@ protected:
 
 	FVector2D GetDeltaMouseCoordinates(const FPointerEvent& InMouseEvent);
 	
-	/** ノードがこのコメントウィジェットの下にあるかどうかを判定するヘルパー関数 */
-	virtual bool IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const;
+	virtual bool IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const;
 
 	/** ユーザーがコメントノードを移動するときに呼び出される */
 	virtual void MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty = true) override;

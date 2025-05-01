@@ -532,6 +532,7 @@ FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& 
 int32 SGraphNodeCustomizableComment::GetSortDepth() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
+	
 	return CommentNode ? CommentNode->CommentDepth : -1;
 }
 
@@ -575,7 +576,7 @@ void SGraphNodeCustomizableComment::UpdateNodesUnderComment() const
 		
 		UObject* ChildNodeObject = ChildNodeWidget->GetObjectBeingDisplayed();
 		
-		if (ChildNodeObject != CommentNode && IsNodeUnderComment(CommentNode, ChildNodeWidget))
+		if (ChildNodeObject != CommentNode && IsNodeUnderComment(ChildNodeWidget))
 		{
 			CommentNode->AddNodeUnderComment(ChildNodeObject);
 		}
@@ -644,7 +645,6 @@ FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointer
 	return DeltaMouseCoordinates;
 }
 
-bool SGraphNodeCustomizableComment::IsNodeUnderComment(UEdGraphNode_Comment* InCommentNode, const TSharedRef<SGraphNode> InNodeWidget) const
 {
 	const FVector2D NodePosition = GetPosition();
 	const FVector2D NodeSize = GetDesiredSize();
@@ -655,11 +655,13 @@ bool SGraphNodeCustomizableComment::IsNodeUnderComment(UEdGraphNode_Comment* InC
 
 	const FSlateRect NodeGeometryGraphSpace(InNodePosition.X, InNodePosition.Y, InNodePosition.X + InNodeSize.X, InNodePosition.Y + InNodeSize.Y);
 	return FSlateRect::IsRectangleContained(CommentRect, NodeGeometryGraphSpace);
+bool SGraphNodeCustomizableComment::IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const
 }
 
 const FSlateBrush* SGraphNodeCustomizableComment::GetShadowBrush(bool bSelected) const
 {
 	HandleSelection(bSelected);
+	
 	return SGraphNode::GetShadowBrush(bSelected);
 }
 
