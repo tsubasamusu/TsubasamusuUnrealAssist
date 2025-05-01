@@ -7,17 +7,6 @@
 #include "TutorialMetaData.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 
-namespace CustomizableCommentNodeDefinitions
-{
-	static const FSlateRect HitTestingBorderRect(10, 10, 10, 10);
-
-	static const FVector2D MinNodeSize(30.0f, 30.0f);
-
-	static constexpr float TitleBarColorMultiplier = 0.6f;
-
-	static const FSlateRect TitleBarOffset(13,8,-3,0);
-}
-
 bool SGraphNodeCustomizableComment::MouseIsInSelectionZone() const
 {
 	return IsInSelectionZone(MouseLocatedZone);

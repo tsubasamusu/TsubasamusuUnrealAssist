@@ -8,6 +8,17 @@
 class SCommentBubble;
 class UEdGraphNode_Comment;
 
+namespace CustomizableCommentNodeDefinitions
+{
+	static const FSlateRect HitTestingBorderRect(10, 10, 10, 10);
+
+	static const FVector2D MinNodeSize(30.0f, 30.0f);
+
+	static constexpr float TitleBarColorMultiplier = 0.6f;
+
+	static const FSlateRect TitleBarOffset(13,8,-3,0);
+}
+
 class TSUBASAMUSUUNREALASSIST_API SGraphNodeCustomizableComment : public SGraphNode
 {
 public:
