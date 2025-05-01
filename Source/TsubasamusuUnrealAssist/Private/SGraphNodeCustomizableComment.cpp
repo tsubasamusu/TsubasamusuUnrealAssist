@@ -223,7 +223,7 @@ SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::G
 {
 	ECommentNodeZone MouseZone = NotInNode;
 	
-	const FSlateRect HitTestingSlateRect = GetHitTestingBorder();
+	const FSlateRect HitTestingSlateRect = GetHitTestingBorderRect();
 	
 	const FVector2D DesiredNodeSize = GetDesiredSize();
 
@@ -301,7 +301,7 @@ FVector2D SGraphNodeCustomizableComment::GetNodeMaximumSize() const
 	return FVector2D(UserSize.X + 100, UserSize.Y + 100);
 }
 
-FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorder() const
+FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorderRect()
 {
 	return SGraphNodeCustomizableCommentDefs::HitResultBorderSize;
 }

@@ -94,7 +94,7 @@ private:
 	FVector2D GetNodeMinimumSize() const;
 	FVector2D GetNodeMaximumSize() const;
 
-	FSlateRect GetHitTestingBorder() const;
+	static FSlateRect GetHitTestingBorderRect();
 	static FSlateRect GetNodeRect(TSharedRef<const SGraphNode> InNodeWidget);
 	
 	void HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment = false) const;
