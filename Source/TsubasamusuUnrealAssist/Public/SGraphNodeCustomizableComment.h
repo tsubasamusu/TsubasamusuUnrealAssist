@@ -83,7 +83,7 @@ protected:
 	/** @return 通過したゾーンが選択領域である場合 true */
 	static bool InSelectionArea(const ECustomizableCommentNodeZone InMouseZone);
 
-	void UpdateResizeAnchorPoint();
+	void UpdateAnchorPoint();
 
 	/** アンカーポイントに基づいて補正されたノードの位置を取得する関数 */
 	FVector2D GetCorrectedNodePosition() const;
