@@ -509,8 +509,7 @@ FVector2D SGraphNodeCustomizableComment::ComputeDesiredSize(float) const
 
 FString SGraphNodeCustomizableComment::GetNodeComment() const
 {
-	const FString Title = GetEditableNodeTitle();
-	return Title;
+	return GetEditableNodeTitle();
 }
 
 FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
