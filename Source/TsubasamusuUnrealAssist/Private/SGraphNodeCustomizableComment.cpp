@@ -680,6 +680,7 @@ void SGraphNodeCustomizableComment::GetOverlayBrushes(bool bSelected, const FVec
 	HandleBrush.OverlayOffset.Y = WidgetSize.Y - HandleBrush.Brush->ImageSize.Y - Fudge;
 
 	Brushes.Add(HandleBrush);
+	
 	return SGraphNode::GetOverlayBrushes(bSelected, WidgetSize, Brushes);
 }
 
@@ -690,35 +691,56 @@ bool SGraphNodeCustomizableComment::ShouldAllowCulling() const
 
 void SGraphNodeCustomizableComment::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, const bool bMarkDirty)
 {
-	const FVector2D PositionDelta = NewPosition - GetPosition();
+	const FVector2D DeltaPosition = NewPosition - GetPosition();
+	
 	SGraphNode::MoveTo(NewPosition, NodeFilter, bMarkDirty);
 	
-	//シフトキーのどちらかが押されているときは、ノートの内容をドラッグしないでください。
-	const FModifierKeysState KeysState = FSlateApplication::Get().GetModifierKeys();
+	const FModifierKeysState ModifierKeysState = FSlateApplication::Get().GetModifierKeys();
 	
-	if(!KeysState.IsShiftDown())
+	if(ModifierKeysState.IsShiftDown())
 	{
-		const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-		if (CommentNode && CommentNode->MoveMode == ECommentBoxMode::GroupMovement)
-		{
-			//コメントに触れているが選択はされていないノードを更新する
-			//選択されたノードは、通常の選択コードの一部として移動される
-			const TSharedPtr<SGraphPanel> Panel = GetOwnerPanel();
+		return;
+	}
+	
+	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
+	
+	if (!IsValid(CommentNode))
+	{
+		return;
+	}
+	
+	if (CommentNode->MoveMode != ECommentBoxMode::GroupMovement)
+	{
+		return;
+	}
+	
+	const TSharedPtr<SGraphPanel> OwnerGraphPanel = GetOwnerPanel();
 
-			for (FCommentNodeSet::TConstIterator NodeIt(CommentNode->GetNodesUnderComment()); NodeIt; ++NodeIt)
-			{
-				if (UEdGraphNode* Node = Cast<UEdGraphNode>(*NodeIt))
-				{
-					if (!Panel->SelectionManager.IsNodeSelected(Node) && !NodeFilter.Find(Node->DEPRECATED_NodeWidget.Pin()))
-					{
-						NodeFilter.Add(Node->DEPRECATED_NodeWidget.Pin());
-						Node->Modify(bMarkDirty);
-						Node->NodePosX += PositionDelta.X;
-						Node->NodePosY += PositionDelta.Y;
-					}
-				}
-			}
+	for (FCommentNodeSet::TConstIterator NodeIterator(CommentNode->GetNodesUnderComment()); NodeIterator; ++NodeIterator)
+	{
+		UEdGraphNode* NodeUnderComment = Cast<UEdGraphNode>(*NodeIterator);
+		
+		if (!IsValid(NodeUnderComment))
+		{
+			continue;
 		}
+		
+		if (OwnerGraphPanel->SelectionManager.IsNodeSelected(NodeUnderComment))
+		{
+			continue;
+		}
+
+		if (NodeFilter.Find(NodeUnderComment->DEPRECATED_NodeWidget.Pin()))
+		{
+			continue;
+		}
+		
+		NodeFilter.Add(NodeUnderComment->DEPRECATED_NodeWidget.Pin());
+		
+		NodeUnderComment->Modify(bMarkDirty);
+		
+		NodeUnderComment->NodePosX += DeltaPosition.X;
+		NodeUnderComment->NodePosY += DeltaPosition.Y;
 	}
 }
 
