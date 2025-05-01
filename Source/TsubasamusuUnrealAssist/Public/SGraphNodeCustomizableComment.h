@@ -79,7 +79,7 @@ protected:
 	
 private:
 	
-	ECommentNodeZone GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const;
+	ECommentNodeZone GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const;
 	ECommentNodeZone GetMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
 	bool MouseIsInSelectionZone() const;
@@ -91,19 +91,19 @@ private:
 
 	float GetTitleBarHeight() const;
 
-	FVector2D GetNodeMinimumSize() const;
-	FVector2D GetNodeMaximumSize() const;
+	FVector2D GetMinNodeSize() const;
+	FVector2D GetMaxNodeSize() const;
 
 	static FSlateRect GetHitTestingBorderRect();
 	static FSlateRect GetNodeRect(TSharedRef<const SGraphNode> InNodeWidget);
 	
-	void HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment = false) const;
+	void HandleSelection(const bool bInIsSelected) const;
 
 	void UpdateNodesUnderComment() const;
 
 	UObject* GetLastOuter() const;
 	
-	FVector2D GetDeltaMouseCoordinates(const FPointerEvent& InMouseEvent);
+	FVector2D GetDeltaMouseCoordinates(const FPointerEvent& InPointerEvent);
 	FVector2D GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const;
 	FVector2D GetSnappedNodeSize() const;
 
@@ -112,7 +112,7 @@ private:
 	float GetWrappingTitleTextWidth() const;
 
 	FSlateColor GetCommentBodyColor() const;
-	FSlateColor GetCommentTitleBarColor() const;
+	FSlateColor GetTitleBarColor() const;
 	FSlateColor GetCommentBubbleColor() const;
 
 	FVector2D DragSize;
@@ -126,11 +126,10 @@ private:
 	TSharedPtr<SBorder> TitleBarBorder;
 
 	FString CachedCommentTitle;
-	
 	int32 CachedFontSize;
 	int32 CachedWidth;
-	
 	mutable bool bCachedBubbleVisibility;
+
 	mutable bool bIsSelected;
 	bool bUserIsDragging;
 	

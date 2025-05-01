@@ -208,9 +208,9 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint()
 	return CorrectedNodePositionByAnchorPoint;
 }
 
-SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const
+SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const
 {
-	const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
+	const FVector2D LocalMouseCoordinates = InGeometry.AbsoluteToLocal(InPointerEvent.GetScreenSpacePosition());
 	
 	return  GetMouseZone(LocalMouseCoordinates);
 }
@@ -287,12 +287,12 @@ float SGraphNodeCustomizableComment::GetTitleBarHeight() const
 	return TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetNodeMinimumSize() const
+FVector2D SGraphNodeCustomizableComment::GetMinNodeSize() const
 {
 	return CustomizableCommentNodeDefinitions::MinNodeSize;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetNodeMaximumSize() const
+FVector2D SGraphNodeCustomizableComment::GetMaxNodeSize() const
 {
 	return FVector2D(UserSize.X + 100, UserSize.Y + 100);
 }
@@ -423,7 +423,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 				[
 					SAssignNew(TitleBarBorder, SBorder)
 					.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
-					.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentTitleBarColor)
+					.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetTitleBarColor)
 					.Padding(FMargin(10,5,5,3))
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Center)
@@ -513,14 +513,14 @@ int32 SGraphNodeCustomizableComment::GetSortDepth() const
 	return CommentNode ? CommentNode->CommentDepth : -1;
 }
 
-void SGraphNodeCustomizableComment::HandleSelection(const bool bInIsSelected, const bool bUpdateNodesUnderComment) const
+void SGraphNodeCustomizableComment::HandleSelection(const bool bInIsSelected) const
 {
 	if (GetDesiredSize().IsZero())
 	{
 		return;
 	}
 	
-	if ((this->bIsSelected || !bInIsSelected) && !bUpdateNodesUnderComment)
+	if (bIsSelected || !bInIsSelected)
 	{
 		bIsSelected = bInIsSelected;
 
@@ -602,8 +602,8 @@ FVector2D SGraphNodeCustomizableComment::GetSnappedNodeSize() const
 	SnappedNodeSize.X = SnapGridSize * FMath::RoundToFloat(DragSize.X / SnapGridSize);
 	SnappedNodeSize.Y = SnapGridSize * FMath::RoundToFloat(DragSize.Y / SnapGridSize);
 
-	const FVector2D NodeMinSize = GetNodeMinimumSize();
-	const FVector2D NodeMaxSize = GetNodeMaximumSize();
+	const FVector2D NodeMinSize = GetMinNodeSize();
+	const FVector2D NodeMaxSize = GetMaxNodeSize();
 	
 	SnappedNodeSize.X = FMath::Min(SnappedNodeSize.X, NodeMaxSize.X);
 	SnappedNodeSize.X = FMath::Max(SnappedNodeSize.X, NodeMinSize.X);
@@ -614,10 +614,10 @@ FVector2D SGraphNodeCustomizableComment::GetSnappedNodeSize() const
 	return SnappedNodeSize;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointerEvent& InMouseEvent)
+FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointerEvent& InPointerEvent)
 {
-	const FVector2D CurrentGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InMouseEvent.GetScreenSpacePosition());
-	const FVector2D LastGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InMouseEvent.GetLastScreenSpacePosition());
+	const FVector2D CurrentGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InPointerEvent.GetScreenSpacePosition());
+	const FVector2D LastGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InPointerEvent.GetLastScreenSpacePosition());
 	
 	const TSharedPtr<SWindow> OwnerWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
 	
@@ -783,7 +783,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBodyColor() const
 	return FLinearColor::White;
 }
 
-FSlateColor SGraphNodeCustomizableComment::GetCommentTitleBarColor() const
+FSlateColor SGraphNodeCustomizableComment::GetTitleBarColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
 
