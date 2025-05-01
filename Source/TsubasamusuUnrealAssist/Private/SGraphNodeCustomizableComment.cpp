@@ -805,15 +805,23 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentTitleBarColor() const
 FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 {
 	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-	
-	if (CommentNode)
+
+	FLinearColor CommentBubbleColor;
+
+	if (!IsValid(CommentNode))
 	{
-		const FLinearColor Color = CommentNode->bColorCommentBubble ? CommentNode->CommentColor * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier : GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
-		return FLinearColor(Color.R, Color.G, Color.B);
+		CommentBubbleColor = FLinearColor::White * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
+	}
+	else if (CommentNode->bColorCommentBubble)
+	{
+		CommentBubbleColor = CommentNode->CommentColor * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
+	}
+	else
+	{
+		CommentBubbleColor = GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
 	}
 	
-	const FLinearColor Color = FLinearColor::White * SGraphNodeCustomizableCommentDefs::TitleBarColorMultiplier;
-	return FLinearColor(Color.R, Color.G, Color.B);
+	return FLinearColor(CommentBubbleColor.R, CommentBubbleColor.G, CommentBubbleColor.B);
 }
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const
