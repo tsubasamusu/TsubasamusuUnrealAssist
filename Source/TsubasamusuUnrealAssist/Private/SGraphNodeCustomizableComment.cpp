@@ -27,7 +27,7 @@ bool SGraphNodeCustomizableComment::InSelectionArea() const
 	return InSelectionArea(MouseLocatedZone);
 }
 
-bool SGraphNodeCustomizableComment::InSelectionArea(const ECustomizableCommentNodeZone InMouseZone)
+bool SGraphNodeCustomizableComment::InSelectionArea(const ECommentNodeZone InMouseZone)
 {
 	return InMouseZone == RightBorder || InMouseZone == BottomBorder || InMouseZone == BottomRightBorder || InMouseZone == LeftBorder || InMouseZone == TopBorder || InMouseZone == TopLeftBorder || InMouseZone == TopRightBorder || InMouseZone == BottomLeftBorder;
 }
@@ -212,16 +212,16 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint()
 	return CorrectedNodePositionByAnchorPoint;
 }
 
-SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const
+SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) const
 {
 	const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
 	
 	return  GetMouseZone(LocalMouseCoordinates);
 }
 
-SGraphNodeCustomizableComment::ECustomizableCommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FVector2D& LocalMouseCoordinates) const
+SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FVector2D& LocalMouseCoordinates) const
 {
-	ECustomizableCommentNodeZone MouseZone = NotInNode;
+	ECommentNodeZone MouseZone = NotInNode;
 	
 	const FSlateRect HitTestingSlateRect = GetHitTestingBorder();
 	
