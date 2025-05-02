@@ -38,7 +38,7 @@ void SGraphNodeGamingComment::UpdateCommentNodeColor(const float InDeltaTime)
 
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
-	if (ColorAnimationElapsedSeconds > TsubasamusuUnrealAssistSettings->ColorAnimationDuration)
+	if (ColorAnimationElapsedSeconds > TsubasamusuUnrealAssistSettings->GamingColorAnimationDuration)
 	{
 		ColorAnimationElapsedSeconds = 0.0f;
 	}
@@ -48,11 +48,11 @@ void SGraphNodeGamingComment::UpdateCommentNodeScale(const float InDeltaTime)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
-	ScaleAnimationElapsedSeconds = FMath::Fmod(ScaleAnimationElapsedSeconds + InDeltaTime, TsubasamusuUnrealAssistSettings->ScaleAnimationDuration);
+	ScaleAnimationElapsedSeconds = FMath::Fmod(ScaleAnimationElapsedSeconds + InDeltaTime, TsubasamusuUnrealAssistSettings->GamingScaleAnimationDuration);
 
-	const float Alpha = FMath::Sin(PI * ScaleAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->ScaleAnimationDuration);
+	const float Alpha = FMath::Sin(PI * ScaleAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->GamingScaleAnimationDuration);
 
-	const float NewScale = FMath::Lerp(1.0f, TsubasamusuUnrealAssistSettings->MaxCommentNodeScale, Alpha);
+	const float NewScale = FMath::Lerp(1.0f, TsubasamusuUnrealAssistSettings->MaxGamingCommentNodeScale, Alpha);
 
 	SetCommentNodeScale(NewScale);
 }
@@ -61,7 +61,7 @@ void SGraphNodeGamingComment::UpdateCommentNodeAngle(const float InDeltaTime)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
-	CurrentCommentNodeAngle += InDeltaTime * TsubasamusuUnrealAssistSettings->RotatingAnglePerSeconds;
+	CurrentCommentNodeAngle += InDeltaTime * TsubasamusuUnrealAssistSettings->GamingCommentNodeRotatingAnglePerSeconds;
 
 	SetCommentNodeAngle(CurrentCommentNodeAngle);
 }
@@ -70,7 +70,7 @@ FLinearColor SGraphNodeGamingComment::GetDesiredGamingColor() const
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
-	const float Hue = (ColorAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->ColorAnimationDuration) * 255.0f;
+	const float Hue = (ColorAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->GamingColorAnimationDuration) * 255.0f;
 
 	return FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue), 255.0f, 255.0f);
 }

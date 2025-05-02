@@ -18,17 +18,17 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;
 	
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds"))
-	float ColorAnimationDuration;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Color Animation Duration"))
+	float GamingColorAnimationDuration;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds"))
-	float ScaleAnimationDuration;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Scale Animation Duration"))
+	float GamingScaleAnimationDuration;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "DegreesPerSecond"))
-	float RotatingAnglePerSeconds;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "DegreesPerSecond", DisplayName = "Rotating Angle Per Seconds"))
+	float GamingCommentNodeRotatingAnglePerSeconds;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node")
-	float MaxCommentNodeScale;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (DisplayName = "Max Node Scale"))
+	float MaxGamingCommentNodeScale;
 	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };

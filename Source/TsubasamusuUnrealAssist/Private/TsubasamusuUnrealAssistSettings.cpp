@@ -7,10 +7,10 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 {
 	CommentNodeType = ECommentNodeType::Normal;
 	
-	ColorAnimationDuration = 1.0f;
-	ScaleAnimationDuration = 1.0f;
-	RotatingAnglePerSeconds = 720.0f;
-	MaxCommentNodeScale = 1.5f;
+	GamingColorAnimationDuration = 1.0f;
+	GamingScaleAnimationDuration = 1.0f;
+	GamingCommentNodeRotatingAnglePerSeconds = 720.0f;
+	MaxGamingCommentNodeScale = 1.5f;
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
