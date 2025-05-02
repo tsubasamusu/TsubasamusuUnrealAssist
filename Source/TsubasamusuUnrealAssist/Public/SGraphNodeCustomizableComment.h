@@ -17,6 +17,8 @@ namespace CustomizableCommentNodeDefinitions
 	static constexpr float TitleBarColorMultiplier = 0.6f;
 
 	static const FSlateRect TitleBarOffset(13,8,-3,0);
+
+	static const FMargin TitleBarPadding(10, 5, 5, 3);
 }
 
 class TSUBASAMUSUUNREALASSIST_API SGraphNodeCustomizableComment : public SGraphNode
@@ -94,6 +96,9 @@ protected:
 	
 	virtual EVisibility GetCommentTextVisibility() const;
 	virtual EVisibility GetCommentBubbleVisibility() const;
+
+	virtual int32 GetCommentFontSize() const;
+	virtual FMargin GetTitleBarPadding() const;
 
 	void SetCommentNodeAngle(const float NewAngle);
 	void SetCommentNodeScale(const float NewScale);

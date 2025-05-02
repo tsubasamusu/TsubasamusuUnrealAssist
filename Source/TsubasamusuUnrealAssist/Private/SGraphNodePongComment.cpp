@@ -33,3 +33,13 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Collapsed;
 }
+
+int32 SGraphNodePongComment::GetCommentFontSize() const
+{
+	return 18 * UTsubasamusuUnrealAssistSettings::GetSettingsChecked()->PongCommentFontScale;
+}
+
+FMargin SGraphNodePongComment::GetTitleBarPadding() const
+{
+	return FMargin(0, 0, 0, 0);
+}

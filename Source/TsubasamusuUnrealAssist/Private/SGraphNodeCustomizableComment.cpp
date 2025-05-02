@@ -337,7 +337,7 @@ void SGraphNodeCustomizableComment::Tick(const FGeometry& AllottedGeometry, cons
 		bCachedBubbleVisibility = CommentNode->bCommentBubbleVisible_InDetailsPanel;
 	}
 
-	if (CachedFontSize != CommentNode->GetFontSize())
+	if (CachedFontSize != GetCommentFontSize())
 	{
 		UpdateGraphNode();
 	}
@@ -387,7 +387,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 	LeftNodeBox.Reset();
 
 	bCachedBubbleVisibility = CommentNode->bCommentBubbleVisible_InDetailsPanel;
-	CachedFontSize = CommentNode->GetFontSize();
+	CachedFontSize = GetCommentFontSize();
 
 	SetupErrorReporting();
 
@@ -421,7 +421,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 					SAssignNew(TitleBarBorder, SBorder)
 					.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
 					.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetTitleBarColor)
-					.Padding(FMargin(10,5,5,3))
+					.Padding(this, &SGraphNodeCustomizableComment::GetTitleBarPadding)
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Center)
 					[
@@ -820,6 +820,18 @@ EVisibility SGraphNodeCustomizableComment::GetCommentTextVisibility() const
 EVisibility SGraphNodeCustomizableComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Visible;
+}
+
+int32 SGraphNodeCustomizableComment::GetCommentFontSize() const
+{
+	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
+
+	return CommentNode->FontSize;
+}
+
+FMargin SGraphNodeCustomizableComment::GetTitleBarPadding() const
+{
+	return CustomizableCommentNodeDefinitions::TitleBarPadding;
 }
 
 void SGraphNodeCustomizableComment::SetCommentNodeAngle(const float NewAngle)
