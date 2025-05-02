@@ -18,16 +18,16 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;
 	
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Color Animation Duration"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Color Animation Duration", ClampMin = "0.0"))
 	float GamingColorAnimationDuration;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Scale Animation Duration"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Scale Animation Duration", ClampMin = "0.0"))
 	float GamingScaleAnimationDuration;
 
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "DegreesPerSecond", DisplayName = "Rotating Angle Per Seconds"))
 	float GamingCommentNodeRotatingAnglePerSeconds;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (DisplayName = "Max Node Scale"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (DisplayName = "Max Node Scale", ClampMin = "0.0"))
 	float MaxGamingCommentNodeScale;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "PONG Background Color"))
