@@ -147,7 +147,8 @@ private:
 	float CachedCommentNodeAngle = 0.0f;
 	float CachedCommentNodeScale = 1.0f;
 	mutable bool bCachedBubbleVisibility;
-
+	mutable bool bCachedShiftKeyIsDown;
+	
 	mutable bool bIsSelected;
 	bool bUserIsDragging;
 	

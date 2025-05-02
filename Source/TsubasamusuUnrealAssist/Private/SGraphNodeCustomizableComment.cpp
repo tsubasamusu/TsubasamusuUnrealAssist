@@ -681,7 +681,16 @@ void SGraphNodeCustomizableComment::MoveTo(const FVector2D& NewPosition, FNodeSe
 	
 	if(ModifierKeysState.IsShiftDown())
 	{
+		bCachedShiftKeyIsDown = true;
+		
 		return;
+	}
+
+	if (bCachedShiftKeyIsDown)
+	{
+		bCachedShiftKeyIsDown = false;
+		
+		UpdateNodesUnderComment();
 	}
 	
 	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
