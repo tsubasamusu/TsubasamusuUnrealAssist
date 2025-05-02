@@ -435,6 +435,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 						.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrappingTitleTextWidth)
 						.MultiLine(true)
 						.ModiferKeyForNewLine(EModifierKey::Shift)
+						.Visibility(this, &SGraphNodeCustomizableComment::GetCommentTextVisibility)
 					]
 				]
 				+SVerticalBox::Slot()
@@ -464,7 +465,8 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 	.EnableBubbleCtrls(false)
 	.GraphLOD(this, &SGraphNode::GetCurrentLOD)
 	.InvertLODCulling(true)
-	.IsGraphNodeHovered(this, &SGraphNode::IsHovered);
+	.IsGraphNodeHovered(this, &SGraphNode::IsHovered)
+	.Visibility(this, &SGraphNodeCustomizableComment::GetCommentBubbleVisibility);
 
 	GetOrAddSlot(ENodeZone::TopCenter)
 	.SlotOffset(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetOffset))
@@ -808,6 +810,16 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 	}
 	
 	return FLinearColor(CommentBubbleColor.R, CommentBubbleColor.G, CommentBubbleColor.B);
+}
+
+EVisibility SGraphNodeCustomizableComment::GetCommentTextVisibility() const
+{
+	return EVisibility::Visible;
+}
+
+EVisibility SGraphNodeCustomizableComment::GetCommentBubbleVisibility() const
+{
+	return EVisibility::Visible;
 }
 
 void SGraphNodeCustomizableComment::SetCommentNodeAngle(const float NewAngle)

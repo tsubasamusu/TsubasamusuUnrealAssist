@@ -91,6 +91,9 @@ protected:
 	virtual FSlateColor GetCommentBodyColor() const;
 	virtual FSlateColor GetTitleBarColor() const;
 	virtual FSlateColor GetCommentBubbleColor() const;
+	
+	virtual EVisibility GetCommentTextVisibility() const;
+	virtual EVisibility GetCommentBubbleVisibility() const;
 
 	void SetCommentNodeAngle(const float NewAngle);
 	void SetCommentNodeScale(const float NewScale);

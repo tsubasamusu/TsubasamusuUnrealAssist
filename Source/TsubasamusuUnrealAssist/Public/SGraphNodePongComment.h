@@ -19,4 +19,11 @@ public:
 	//~ End SWidget Interface
 	
 	void Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode);
+
+protected:
+
+	//~ Begin SGraphNodeCustomizableComment Interface
+	virtual EVisibility GetCommentTextVisibility() const override;
+	virtual EVisibility GetCommentBubbleVisibility() const override;
+	//~ End SGraphNodeCustomizableComment Interface
 };

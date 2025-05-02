@@ -23,3 +23,13 @@ void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Com
 {
 	SGraphNodeCustomizableComment::Construct(SGraphNodeCustomizableComment::FArguments(), InNode);
 }
+
+EVisibility SGraphNodePongComment::GetCommentTextVisibility() const
+{
+	return EVisibility::Hidden;
+}
+
+EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
+{
+	return EVisibility::Collapsed;
+}
