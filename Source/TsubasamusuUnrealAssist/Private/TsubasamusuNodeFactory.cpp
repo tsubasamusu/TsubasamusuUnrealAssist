@@ -24,7 +24,7 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(class UEdGraphNode* N
 		return nullptr;
 	case ECommentNodeType::Gaming:
 		return SNew(SGraphNodeGamingComment, CommentNode);
-	case ECommentNodeType::PONG:
+	case ECommentNodeType::Pong:
 		return SNew(SGraphNodePongComment, CommentNode);
 	default:
 		return nullptr;

@@ -8,5 +8,5 @@ enum class ECommentNodeType
 {
 	Normal,
 	Gaming,
-	PONG
+	Pong UMETA(DisplayName = "PONG")
 };
