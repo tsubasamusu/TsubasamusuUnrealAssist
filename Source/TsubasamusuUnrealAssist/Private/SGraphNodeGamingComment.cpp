@@ -1,6 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "SGraphNodeGamingComment.h"
+#include "EdGraphNode_Comment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
 void SGraphNodeGamingComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -17,21 +18,6 @@ void SGraphNodeGamingComment::Construct(const FArguments& InArgs, UEdGraphNode_C
 	SGraphNodeCustomizableComment::Construct(SGraphNodeCustomizableComment::FArguments(), InNode);
 }
 
-FSlateColor SGraphNodeGamingComment::GetCommentBodyColor() const
-{
-	return GetDesiredGamingColor();
-}
-
-FSlateColor SGraphNodeGamingComment::GetTitleBarColor() const
-{
-	return GetDesiredGamingColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
-}
-
-FSlateColor SGraphNodeGamingComment::GetCommentBubbleColor() const
-{
-	return GetDesiredGamingColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
-}
-
 void SGraphNodeGamingComment::UpdateCommentNodeColor(const float InDeltaTime)
 {
 	ColorAnimationElapsedSeconds += InDeltaTime;
@@ -42,6 +28,12 @@ void SGraphNodeGamingComment::UpdateCommentNodeColor(const float InDeltaTime)
 	{
 		ColorAnimationElapsedSeconds = 0.0f;
 	}
+	
+	const float Hue = (ColorAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->GamingColorAnimationDuration) * 255.0f;
+
+	UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
+
+	CommentNode->CommentColor = FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue), 255.0f, 255.0f);
 }
 
 void SGraphNodeGamingComment::UpdateCommentNodeScale(const float InDeltaTime)
@@ -64,13 +56,4 @@ void SGraphNodeGamingComment::UpdateCommentNodeAngle(const float InDeltaTime)
 	CurrentCommentNodeAngle += InDeltaTime * TsubasamusuUnrealAssistSettings->GamingCommentNodeRotatingAnglePerSeconds;
 
 	SetCommentNodeAngle(CurrentCommentNodeAngle);
-}
-
-FLinearColor SGraphNodeGamingComment::GetDesiredGamingColor() const
-{
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-	
-	const float Hue = (ColorAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->GamingColorAnimationDuration) * 255.0f;
-
-	return FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue), 255.0f, 255.0f);
 }

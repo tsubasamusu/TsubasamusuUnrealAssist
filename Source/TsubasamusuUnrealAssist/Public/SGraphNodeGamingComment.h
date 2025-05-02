@@ -20,21 +20,11 @@ public:
 	
 	void Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode);
 
-protected:
-
-	//~ Begin SGraphNodeCustomizableComment Interface
-	virtual FSlateColor GetCommentBodyColor() const override;
-	virtual FSlateColor GetTitleBarColor() const override;
-	virtual FSlateColor GetCommentBubbleColor() const override;
-	//~ End SGraphNodeCustomizableComment Interface
-	
 private:
 
 	void UpdateCommentNodeColor(const float InDeltaTime);
 	void UpdateCommentNodeScale(const float InDeltaTime);
 	void UpdateCommentNodeAngle(const float InDeltaTime);
-	
-	FLinearColor GetDesiredGamingColor() const;
 	
 	float ColorAnimationElapsedSeconds;
 	float ScaleAnimationElapsedSeconds;
