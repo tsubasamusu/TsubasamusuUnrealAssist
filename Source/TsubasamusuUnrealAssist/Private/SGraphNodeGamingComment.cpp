@@ -1,12 +1,13 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "SGraphNodeGamingComment.h"
+#include "TsubasamusuUnrealAssistSettings.h"
 
 void SGraphNodeGamingComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SGraphNodeCustomizableComment::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	UpdateGamingAnimationColor(InDeltaTime);
+	UpdateCommentNodeColor(InDeltaTime);
 	UpdateCommentNodeAngle(InDeltaTime);
 	UpdateCommentNodeScale(InDeltaTime);
 }
@@ -18,50 +19,58 @@ void SGraphNodeGamingComment::Construct(const FArguments& InArgs, UEdGraphNode_C
 
 FSlateColor SGraphNodeGamingComment::GetCommentBodyColor() const
 {
-	return GetGamingAnimationColor();
+	return GetDesiredGamingColor();
 }
 
 FSlateColor SGraphNodeGamingComment::GetTitleBarColor() const
 {
-	return GetGamingAnimationColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
+	return GetDesiredGamingColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 }
 
 FSlateColor SGraphNodeGamingComment::GetCommentBubbleColor() const
 {
-	return GetGamingAnimationColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
+	return GetDesiredGamingColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 }
 
-void SGraphNodeGamingComment::UpdateGamingAnimationColor(const float InDeltaTime)
+void SGraphNodeGamingComment::UpdateCommentNodeColor(const float InDeltaTime)
 {
-	GamingAnimationElapsedSeconds += InDeltaTime;
+	ColorAnimationElapsedSeconds += InDeltaTime;
+
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
-	if (GamingAnimationElapsedSeconds > GamingCommentNodeDefinitions::GamingAnimationDuration)
+	if (ColorAnimationElapsedSeconds > TsubasamusuUnrealAssistSettings->ColorAnimationDuration)
 	{
-		GamingAnimationElapsedSeconds = 0.0f;
+		ColorAnimationElapsedSeconds = 0.0f;
 	}
 }
 
 void SGraphNodeGamingComment::UpdateCommentNodeScale(const float InDeltaTime)
 {
-	ScalingAnimationElapsedSeconds = FMath::Fmod(ScalingAnimationElapsedSeconds + InDeltaTime, GamingCommentNodeDefinitions::ScalingAnimationDuration);
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	ScaleAnimationElapsedSeconds = FMath::Fmod(ScaleAnimationElapsedSeconds + InDeltaTime, TsubasamusuUnrealAssistSettings->ScaleAnimationDuration);
 
-	const float Alpha = FMath::Sin(PI * ScalingAnimationElapsedSeconds / GamingCommentNodeDefinitions::ScalingAnimationDuration);
+	const float Alpha = FMath::Sin(PI * ScaleAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->ScaleAnimationDuration);
 
-	const float NewScale = FMath::Lerp(1.0f, GamingCommentNodeDefinitions::MaxCommentNodeScale, Alpha);
+	const float NewScale = FMath::Lerp(1.0f, TsubasamusuUnrealAssistSettings->MaxCommentNodeScale, Alpha);
 
 	SetCommentNodeScale(NewScale);
 }
 
 void SGraphNodeGamingComment::UpdateCommentNodeAngle(const float InDeltaTime)
 {
-	CurrentCommentNodeAngle += InDeltaTime * GamingCommentNodeDefinitions::RotatingAnglePerSeconds;
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	CurrentCommentNodeAngle += InDeltaTime * TsubasamusuUnrealAssistSettings->RotatingAnglePerSeconds;
 
 	SetCommentNodeAngle(CurrentCommentNodeAngle);
 }
 
-FLinearColor SGraphNodeGamingComment::GetGamingAnimationColor() const
+FLinearColor SGraphNodeGamingComment::GetDesiredGamingColor() const
 {
-	const float Hue = (GamingAnimationElapsedSeconds / GamingCommentNodeDefinitions::GamingAnimationDuration) * 255.0f;
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	const float Hue = (ColorAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->ColorAnimationDuration) * 255.0f;
 
 	return FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue), 255.0f, 255.0f);
 }

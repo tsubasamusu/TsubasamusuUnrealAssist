@@ -5,18 +5,7 @@
 #include "CoreMinimal.h"
 #include "SGraphNodeCustomizableComment.h"
 
-namespace GamingCommentNodeDefinitions
-{
-	static constexpr float GamingAnimationDuration = 1.0f;
-
-	static constexpr float ScalingAnimationDuration = 1.0f;
-
-	static constexpr float RotatingAnglePerSeconds = 720.0f;
-
-	static constexpr float MaxCommentNodeScale = 1.5f;
-}
-
-class TSUBASAMUSUUNREALASSIST_API SGraphNodeGamingComment : public SGraphNodeCustomizableComment
+class TSUBASAMUSUUNREALASSIST_API SGraphNodeGamingComment final : public SGraphNodeCustomizableComment
 {
 	typedef SGraphNodeGamingComment Super;
 
@@ -41,13 +30,13 @@ protected:
 	
 private:
 
-	void UpdateGamingAnimationColor(const float InDeltaTime);
+	void UpdateCommentNodeColor(const float InDeltaTime);
 	void UpdateCommentNodeScale(const float InDeltaTime);
 	void UpdateCommentNodeAngle(const float InDeltaTime);
 	
-	FLinearColor GetGamingAnimationColor() const;
+	FLinearColor GetDesiredGamingColor() const;
 	
-	float GamingAnimationElapsedSeconds;
-	float ScalingAnimationElapsedSeconds;
+	float ColorAnimationElapsedSeconds;
+	float ScaleAnimationElapsedSeconds;
 	float CurrentCommentNodeAngle;
 };
