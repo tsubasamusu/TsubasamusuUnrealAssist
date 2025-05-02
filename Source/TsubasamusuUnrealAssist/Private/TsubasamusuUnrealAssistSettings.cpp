@@ -11,6 +11,8 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	GamingScaleAnimationDuration = 1.0f;
 	GamingCommentNodeRotatingAnglePerSeconds = 720.0f;
 	MaxGamingCommentNodeScale = 1.5f;
+
+	PongCommentNodeColor = FLinearColor::Black;
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()

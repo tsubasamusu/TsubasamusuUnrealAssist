@@ -30,5 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (DisplayName = "Max Node Scale"))
 	float MaxGamingCommentNodeScale;
 	
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "PONG Background Color"))
+	FLinearColor PongCommentNodeColor;
+	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };
