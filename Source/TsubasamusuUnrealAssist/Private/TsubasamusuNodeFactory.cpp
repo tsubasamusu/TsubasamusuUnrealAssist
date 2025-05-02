@@ -4,6 +4,7 @@
 #include "CommentNodeType.h"
 #include "EdGraphNode_Comment.h"
 #include "SGraphNodeGamingComment.h"
+#include "SGraphNodePongComment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
 TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(class UEdGraphNode* Node) const
@@ -24,7 +25,7 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(class UEdGraphNode* N
 	case ECommentNodeType::Gaming:
 		return SNew(SGraphNodeGamingComment, CommentNode);
 	case ECommentNodeType::PONG:
-		return nullptr;
+		return SNew(SGraphNodePongComment, CommentNode);
 	default:
 		return nullptr;
 	}
