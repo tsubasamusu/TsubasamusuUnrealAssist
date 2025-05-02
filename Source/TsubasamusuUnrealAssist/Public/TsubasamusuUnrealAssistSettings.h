@@ -17,4 +17,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, config, Category = CommentNode)
 	ECommentNodeType CommentNodeType;
+
+	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };

@@ -7,3 +7,12 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 {
 	CommentNodeType = ECommentNodeType::Normal;
 }
+
+UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
+{
+	UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
+
+	check(Settings);
+
+	return Settings;
+}
