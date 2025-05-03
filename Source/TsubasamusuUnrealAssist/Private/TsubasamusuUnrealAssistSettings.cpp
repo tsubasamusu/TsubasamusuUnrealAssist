@@ -13,7 +13,6 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	MaxGamingCommentNodeScale = 1.5f;
 
 	PongCommentNodeColor = FLinearColor::Black;
-	PongCommentFontScale = 1.0f;
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
