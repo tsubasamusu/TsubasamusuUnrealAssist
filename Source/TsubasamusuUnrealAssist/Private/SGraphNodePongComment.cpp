@@ -39,6 +39,9 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 
 FReply SGraphNodePongComment::OnClickedButton()
 {
+	ChangePlayButtonImage(bIsPlaying);
+	ChangePlayButtonToolTipText(bIsPlaying);
+	
 	if (bIsPlaying)
 	{
 		StopGame();
@@ -71,3 +74,22 @@ void SGraphNodePongComment::StopGame()
 {
 }
 
+void SGraphNodePongComment::ChangePlayButtonImage(const bool bChangeToStartImage) const
+{
+	if (PlayButtonImage.IsValid())
+	{
+		const FSlateBrush* NewImage = bChangeToStartImage ? GetStartIcon() : GetStopIcon();
+		
+		PlayButtonImage->SetImage(NewImage);
+	}
+}
+
+void SGraphNodePongComment::ChangePlayButtonToolTipText(const bool bChangeToStartToolTipText) const
+{
+	if (PlayButton.IsValid())
+	{
+		const FText NewToolTipText = FText::FromString(bChangeToStartToolTipText ? TEXT("Start game") : TEXT("Stop game"));
+		
+		PlayButton->SetToolTipText(NewToolTipText);
+	}
+}

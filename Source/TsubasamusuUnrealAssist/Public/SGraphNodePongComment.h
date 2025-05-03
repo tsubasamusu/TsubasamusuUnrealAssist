@@ -41,5 +41,11 @@ private:
 	void StartGame();
 	void StopGame();
 
+	void ChangePlayButtonImage(const bool bChangeToStartImage) const;
+	void ChangePlayButtonToolTipText(const bool bChangeToStartToolTipText) const;
+	
 	bool bIsPlaying;
+
+	TSharedPtr<SButton> PlayButton;
+	TSharedPtr<SImage> PlayButtonImage;
 };
