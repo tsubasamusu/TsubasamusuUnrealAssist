@@ -35,3 +35,14 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Collapsed;
 }
+
+const FSlateBrush* SGraphNodePongComment::GetStartIcon()
+{
+	return FAppStyle::Get().GetBrush(TEXT("Animation.Forward"));
+}
+
+const FSlateBrush* SGraphNodePongComment::GetStopIcon()
+{
+	return FAppStyle::Get().GetBrush(TEXT("Animation.Pause"));
+}
+

@@ -30,4 +30,9 @@ protected:
 	virtual EVisibility GetCommentTextVisibility() const override;
 	virtual EVisibility GetCommentBubbleVisibility() const override;
 	//~ End SGraphNodeCustomizableComment Interface
+
+private:
+
+	const static FSlateBrush* GetStartIcon();
+	const static FSlateBrush* GetStopIcon();
 };
