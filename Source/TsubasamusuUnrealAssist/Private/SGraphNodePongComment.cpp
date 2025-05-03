@@ -1,7 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "SGraphNodePongComment.h"
-#include "EdGraphNode_Comment.h"
 #include "SGraphNodeCustomizableComment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
@@ -11,11 +10,9 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
-	UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
-	
-	if (CommentNode->CommentColor != TsubasamusuUnrealAssistSettings->PongCommentNodeColor)
+	if (GetCommentNodeColor() != TsubasamusuUnrealAssistSettings->PongCommentNodeColor)
 	{
-		CommentNode->CommentColor = TsubasamusuUnrealAssistSettings->PongCommentNodeColor;
+		SetCommentNodeColor(TsubasamusuUnrealAssistSettings->PongCommentNodeColor);
 	}
 }
 

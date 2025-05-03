@@ -373,7 +373,7 @@ bool SGraphNodeCustomizableComment::IsNameReadOnly() const
 
 FSlateColor SGraphNodeCustomizableComment::GetCommentColor() const
 {
-	return GetCommentBodyColor();
+	return GetCommentNodeColor();
 }
 
 void SGraphNodeCustomizableComment::UpdateGraphNode()
@@ -694,23 +694,9 @@ void SGraphNodeCustomizableComment::EndUserInteraction() const
 	}
 }
 
-FSlateColor SGraphNodeCustomizableComment::GetCommentBodyColor() const
-{
-	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-
-	if (IsValid(CommentNode))
-	{
-		return CommentNode->CommentColor;
-	}
-	
-	return FLinearColor::White;
-}
-
 FSlateColor SGraphNodeCustomizableComment::GetTitleBarColor() const
 {
-	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-
-	const FLinearColor TitleBarColor = (IsValid(CommentNode) ? CommentNode->CommentColor : FLinearColor::White) * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
+	const FLinearColor TitleBarColor = GetCommentNodeColor().GetSpecifiedColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 	
 	return FLinearColor(TitleBarColor.R, TitleBarColor.G, TitleBarColor.B);
 }
@@ -727,7 +713,7 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentBubbleColor() const
 	}
 	else if (CommentNode->bColorCommentBubble)
 	{
-		CommentBubbleColor = CommentNode->CommentColor * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
+		CommentBubbleColor = GetCommentNodeColor().GetSpecifiedColor() * CustomizableCommentNodeDefinitions::TitleBarColorMultiplier;
 	}
 	else
 	{
@@ -756,7 +742,7 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 		SNew(SBorder)
 		.BorderImage(FAppStyle::GetBrush("Kismet.Comment.Background"))
 		.ColorAndOpacity(FLinearColor::White)
-		.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentBodyColor)
+		.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentNodeColor)
 		.Padding(FMargin(3.0f))
 		.AddMetaData<FGraphNodeMetaData>(InGraphNodeMetaData)
 		[
@@ -839,6 +825,20 @@ void SGraphNodeCustomizableComment::SetCommentNodeScale(const float NewScale)
 	CachedCommentNodeScale = NewScale;
 	
 	UpdateRenderTransform();
+}
+
+void SGraphNodeCustomizableComment::SetCommentNodeColor(const FLinearColor& NewCommentNodeColor) const
+{
+	UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
+
+	CommentNode->CommentColor = NewCommentNodeColor;
+}
+
+FSlateColor SGraphNodeCustomizableComment::GetCommentNodeColor() const
+{
+	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
+
+	return CommentNode->CommentColor;
 }
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const

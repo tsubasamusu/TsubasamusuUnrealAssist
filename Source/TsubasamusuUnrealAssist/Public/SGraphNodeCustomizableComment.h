@@ -90,10 +90,6 @@ protected:
 	virtual void PopulateMetaTag(class FGraphNodeMetaData* TagMeta) const override;
 	//~ End SGraphNode Interface
 	
-	virtual FSlateColor GetCommentBodyColor() const;
-	virtual FSlateColor GetTitleBarColor() const;
-	virtual FSlateColor GetCommentBubbleColor() const;
-	
 	virtual EVisibility GetCommentTextVisibility() const;
 	virtual EVisibility GetCommentBubbleVisibility() const;
 
@@ -101,12 +97,18 @@ protected:
 
 	void SetCommentNodeAngle(const float NewAngle);
 	void SetCommentNodeScale(const float NewScale);
+
+	void SetCommentNodeColor(const FLinearColor& NewCommentNodeColor) const;
+	FSlateColor GetCommentNodeColor() const;
 	
 private:
 	
 	ECommentNodeZone GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const;
 	ECommentNodeZone GetMouseZone(const FVector2D& LocalMouseCoordinates) const;
 
+	FSlateColor GetTitleBarColor() const;
+	FSlateColor GetCommentBubbleColor() const;
+	
 	bool MouseIsInSelectionZone() const;
 	static bool IsInSelectionZone(const ECommentNodeZone InCommentNodeZone);
 

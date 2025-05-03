@@ -1,7 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "SGraphNodeGamingComment.h"
-#include "EdGraphNode_Comment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
 void SGraphNodeGamingComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -31,9 +30,7 @@ void SGraphNodeGamingComment::UpdateCommentNodeColor(const float InDeltaTime)
 	
 	const float Hue = (ColorAnimationElapsedSeconds / TsubasamusuUnrealAssistSettings->GamingColorAnimationDuration) * 255.0f;
 
-	UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
-
-	CommentNode->CommentColor = FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue), 255.0f, 255.0f);
+	SetCommentNodeColor(FLinearColor::MakeFromHSV8(static_cast<uint8>(Hue), 255.0f, 255.0f));
 }
 
 void SGraphNodeGamingComment::UpdateCommentNodeScale(const float InDeltaTime)
