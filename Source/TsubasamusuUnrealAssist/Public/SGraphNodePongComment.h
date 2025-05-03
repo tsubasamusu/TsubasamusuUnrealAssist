@@ -31,6 +31,8 @@ protected:
 	virtual EVisibility GetCommentBubbleVisibility() const override;
 	virtual EMouseCursor::Type GetTitleBarMouseCursor() const override;
 	virtual FSlateColor GetCommentNodeColor() const override;
+	virtual FLinearColor GetTitleBarLineColor() const override;
+	virtual float GetTitleBarLineOpacity() const override;
 	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData) override;
 	//~ End SGraphNodeCustomizableComment Interface
 

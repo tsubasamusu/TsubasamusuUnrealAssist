@@ -13,10 +13,6 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
 {
 	SGraphNodeCustomizableComment::Construct(SGraphNodeCustomizableComment::FArguments(), InNode);
-
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-	
-	CachedUiColor = TsubasamusuUnrealAssistSettings->PongUiColor;
 }
 
 bool SGraphNodePongComment::CanBeSelected(const FVector2D& MousePositionInNode) const
@@ -54,6 +50,16 @@ FSlateColor SGraphNodePongComment::GetCommentNodeColor() const
 	SetCommentNodeColor(TsubasamusuUnrealAssistSettings->PongCommentNodeColor);
 
 	return TsubasamusuUnrealAssistSettings->PongCommentNodeColor;
+}
+
+FLinearColor SGraphNodePongComment::GetTitleBarLineColor() const
+{
+	return GetDesiredUiColor().GetSpecifiedColor();
+}
+
+float SGraphNodePongComment::GetTitleBarLineOpacity() const
+{
+	return 1.0f;
 }
 
 void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)
