@@ -757,25 +757,39 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 			.AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Top)
+			.Padding(0)
 			[
 				SAssignNew(TitleBarBorder, SBorder)
 				.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
 				.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetTitleBarColor)
-				.Padding(FMargin(10,5,5,3))
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Center)
+				.Padding(0)
 				[
-					SAssignNew(InlineEditableText, SInlineEditableTextBlock)
-					.Style(&CommentStyle)
-					.Text(this, &SGraphNodeCustomizableComment::GetEditableNodeTitleAsText)
-					.OnVerifyTextChanged(this, &SGraphNodeCustomizableComment::OnVerifyNameTextChanged)
-					.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
-					.IsReadOnly(this, &SGraphNodeCustomizableComment::IsNameReadOnly)
-					.IsSelected(this, &SGraphNodeCustomizableComment::IsSelectedExclusively)
-					.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrappingTitleTextWidth)
-					.MultiLine(true)
-					.ModiferKeyForNewLine(EModifierKey::Shift)
-					.Visibility(this, &SGraphNodeCustomizableComment::GetCommentTextVisibility)
+					SAssignNew(TitleBarOverlay, SOverlay)
+					+ SOverlay::Slot()
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Center)
+					.Padding(0)
+					[
+						SNew(SBox)
+						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Center)
+						.Padding(FMargin(10,5,5,3))
+						[
+							SAssignNew(InlineEditableText, SInlineEditableTextBlock)
+							.Style(&CommentStyle)
+							.Text(this, &SGraphNodeCustomizableComment::GetEditableNodeTitleAsText)
+							.OnVerifyTextChanged(this, &SGraphNodeCustomizableComment::OnVerifyNameTextChanged)
+							.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
+							.IsReadOnly(this, &SGraphNodeCustomizableComment::IsNameReadOnly)
+							.IsSelected(this, &SGraphNodeCustomizableComment::IsSelectedExclusively)
+							.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrappingTitleTextWidth)
+							.MultiLine(true)
+							.ModiferKeyForNewLine(EModifierKey::Shift)
+							.Visibility(this, &SGraphNodeCustomizableComment::GetCommentTextVisibility)
+						]
+					]
 				]
 			]
 			+SVerticalBox::Slot()
@@ -794,7 +808,7 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 			]
 		]
 	];
-
+	
 	CommentBubble = SNew(SCommentBubble)
 	.GraphNode(GraphNode)
 	.Text(this, &SGraphNodeCustomizableComment::GetNodeComment)
@@ -844,6 +858,11 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentNodeColor() const
 	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
 
 	return CommentNode->CommentColor;
+}
+
+TSharedPtr<SOverlay> SGraphNodeCustomizableComment::GetTitleBarOverlay() const
+{
+	return TitleBarOverlay;
 }
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const

@@ -102,6 +102,8 @@ protected:
 
 	void SetCommentNodeColor(const FLinearColor& NewCommentNodeColor) const;
 	FSlateColor GetCommentNodeColor() const;
+
+	TSharedPtr<SOverlay> GetTitleBarOverlay() const; 
 	
 private:
 	
@@ -151,6 +153,7 @@ private:
 	
 	TSharedPtr<SCommentBubble> CommentBubble;
 	TSharedPtr<SBorder> TitleBarBorder;
+	TSharedPtr<SOverlay> TitleBarOverlay;
 	
 	FString CachedCommentTitle;
 	int32 CachedFontSize;
