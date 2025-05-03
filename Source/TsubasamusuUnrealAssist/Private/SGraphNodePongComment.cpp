@@ -57,6 +57,11 @@ FLinearColor SGraphNodePongComment::GetTitleBarLineColor() const
 	return GetDesiredUiColor().GetSpecifiedColor();
 }
 
+FText SGraphNodePongComment::GetCommentNodeToolTipText() const
+{
+	return FText::GetEmpty();
+}
+
 float SGraphNodePongComment::GetTitleBarLineOpacity() const
 {
 	return 1.0f;

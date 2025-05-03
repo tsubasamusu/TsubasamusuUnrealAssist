@@ -765,8 +765,8 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 		.AddMetaData<FGraphNodeMetaData>(InGraphNodeMetaData)
 		[
 			SNew(SVerticalBox)
-			.ToolTipText(this, &SGraphNode::GetNodeTooltip)
-			+SVerticalBox::Slot()
+			.ToolTipText(this, &SGraphNodeCustomizableComment::GetCommentNodeToolTipText)
+			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Top)
@@ -805,13 +805,13 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 					]
 				]
 			]
-			+SVerticalBox::Slot()
+			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(1.0f)
 			[
 				ErrorReporting->AsWidget()
 			]
-			+SVerticalBox::Slot()
+			+ SVerticalBox::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.MaxHeight(3)
@@ -844,6 +844,11 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 	[
 		CommentBubble.ToSharedRef()
 	];
+}
+
+FText SGraphNodeCustomizableComment::GetCommentNodeToolTipText() const
+{
+	return GetNodeTooltip();
 }
 
 void SGraphNodeCustomizableComment::SetCommentNodeAngle(const float NewAngle)

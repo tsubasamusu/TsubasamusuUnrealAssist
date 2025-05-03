@@ -100,12 +100,13 @@ protected:
 	
 	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData);
 
+	virtual FText GetCommentNodeToolTipText() const;
+	
 	virtual FSlateColor GetCommentNodeColor() const;
 	void SetCommentNodeColor(const FLinearColor& NewCommentNodeColor) const;
 	
 	void SetCommentNodeAngle(const float NewAngle);
 	void SetCommentNodeScale(const float NewScale);
-
 
 	TSharedPtr<SOverlay> GetTitleBarOverlay() const; 
 	
@@ -158,6 +159,7 @@ private:
 	TSharedPtr<SCommentBubble> CommentBubble;
 	TSharedPtr<SBorder> TitleBarBorder;
 	TSharedPtr<SOverlay> TitleBarOverlay;
+	TSharedPtr<SOverlay> CommentNodeContentOverlay;
 	
 	FString CachedCommentTitle;
 	int32 CachedFontSize;
