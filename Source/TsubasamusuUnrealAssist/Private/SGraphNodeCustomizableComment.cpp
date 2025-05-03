@@ -61,7 +61,7 @@ FCursorReply SGraphNodeCustomizableComment::OnCursorQuery(const FGeometry& MyGeo
 
 	if (MouseLocatedZone == TitleBar)
 	{
-		return FCursorReply::Cursor(EMouseCursor::CardinalCross);
+		return FCursorReply::Cursor(GetTitleBarMouseCursor());
 	}
 
 	return FCursorReply::Unhandled();
@@ -731,6 +731,11 @@ EVisibility SGraphNodeCustomizableComment::GetCommentTextVisibility() const
 EVisibility SGraphNodeCustomizableComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Visible;
+}
+
+EMouseCursor::Type SGraphNodeCustomizableComment::GetTitleBarMouseCursor() const
+{
+	return EMouseCursor::CardinalCross;
 }
 
 void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)

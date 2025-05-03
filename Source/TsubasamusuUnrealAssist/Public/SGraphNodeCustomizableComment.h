@@ -93,6 +93,8 @@ protected:
 	virtual EVisibility GetCommentTextVisibility() const;
 	virtual EVisibility GetCommentBubbleVisibility() const;
 
+	virtual EMouseCursor::Type GetTitleBarMouseCursor() const;
+	
 	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData);
 
 	void SetCommentNodeAngle(const float NewAngle);
