@@ -14,11 +14,22 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 	{
 		SetCommentNodeColor(TsubasamusuUnrealAssistSettings->PongCommentNodeColor);
 	}
+
+	if (CachedUiColor != TsubasamusuUnrealAssistSettings->PongUiColor)
+	{
+		SetAllUiColor(TsubasamusuUnrealAssistSettings->PongUiColor);
+
+		CachedUiColor = TsubasamusuUnrealAssistSettings->PongUiColor;
+	}
 }
 
 void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
 {
 	SGraphNodeCustomizableComment::Construct(SGraphNodeCustomizableComment::FArguments(), InNode);
+
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	CachedUiColor = TsubasamusuUnrealAssistSettings->PongUiColor;
 }
 
 bool SGraphNodePongComment::CanBeSelected(const FVector2D& MousePositionInNode) const

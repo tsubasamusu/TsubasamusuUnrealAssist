@@ -47,8 +47,10 @@ private:
 	void SetAllUiColor(const FSlateColor& NewColor) const;
 	void SetPlayButtonImageColor(const FSlateColor& NewColor) const;
 	
-	bool bIsPlaying;
-
 	TSharedPtr<SButton> PlayButton;
 	TSharedPtr<SImage> PlayButtonImage;
+	
+	bool bIsPlaying;
+
+	FLinearColor CachedUiColor;
 };
