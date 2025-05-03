@@ -29,6 +29,5 @@ protected:
 	//~ Begin SGraphNodeCustomizableComment Interface
 	virtual EVisibility GetCommentTextVisibility() const override;
 	virtual EVisibility GetCommentBubbleVisibility() const override;
-	virtual FMargin GetTitleBarPadding() const override;
 	//~ End SGraphNodeCustomizableComment Interface
 };

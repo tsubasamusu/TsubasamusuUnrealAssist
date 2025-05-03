@@ -38,8 +38,3 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Collapsed;
 }
-
-FMargin SGraphNodePongComment::GetTitleBarPadding() const
-{
-	return FMargin(0, 0, 0, 0);
-}

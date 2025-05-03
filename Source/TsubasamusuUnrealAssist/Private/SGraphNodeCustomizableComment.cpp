@@ -421,7 +421,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 					SAssignNew(TitleBarBorder, SBorder)
 					.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
 					.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetTitleBarColor)
-					.Padding(this, &SGraphNodeCustomizableComment::GetTitleBarPadding)
+					.Padding(FMargin(10,5,5,3))
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Center)
 					[
@@ -820,11 +820,6 @@ EVisibility SGraphNodeCustomizableComment::GetCommentTextVisibility() const
 EVisibility SGraphNodeCustomizableComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Visible;
-}
-
-FMargin SGraphNodeCustomizableComment::GetTitleBarPadding() const
-{
-	return CustomizableCommentNodeDefinitions::TitleBarPadding;
 }
 
 void SGraphNodeCustomizableComment::SetCommentNodeAngle(const float NewAngle)
