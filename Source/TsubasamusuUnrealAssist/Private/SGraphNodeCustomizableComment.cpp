@@ -337,7 +337,7 @@ void SGraphNodeCustomizableComment::Tick(const FGeometry& AllottedGeometry, cons
 		bCachedBubbleVisibility = CommentNode->bCommentBubbleVisible_InDetailsPanel;
 	}
 
-	if (CachedFontSize != GetCommentFontSize())
+	if (CachedFontSize != CommentNode->GetFontSize())
 	{
 		UpdateGraphNode();
 	}
@@ -387,7 +387,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 	LeftNodeBox.Reset();
 
 	bCachedBubbleVisibility = CommentNode->bCommentBubbleVisible_InDetailsPanel;
-	CachedFontSize = GetCommentFontSize();
+	CachedFontSize = CommentNode->GetFontSize();
 
 	SetupErrorReporting();
 
@@ -820,13 +820,6 @@ EVisibility SGraphNodeCustomizableComment::GetCommentTextVisibility() const
 EVisibility SGraphNodeCustomizableComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Visible;
-}
-
-int32 SGraphNodeCustomizableComment::GetCommentFontSize() const
-{
-	const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(GraphNode);
-
-	return CommentNode->FontSize;
 }
 
 FMargin SGraphNodeCustomizableComment::GetTitleBarPadding() const

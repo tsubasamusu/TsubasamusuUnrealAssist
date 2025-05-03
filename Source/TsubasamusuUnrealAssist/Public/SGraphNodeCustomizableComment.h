@@ -97,7 +97,6 @@ protected:
 	virtual EVisibility GetCommentTextVisibility() const;
 	virtual EVisibility GetCommentBubbleVisibility() const;
 
-	virtual int32 GetCommentFontSize() const;
 	virtual FMargin GetTitleBarPadding() const;
 
 	void SetCommentNodeAngle(const float NewAngle);
