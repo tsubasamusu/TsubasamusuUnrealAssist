@@ -34,6 +34,18 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 	return EVisibility::Collapsed;
 }
 
+EMouseCursor::Type SGraphNodePongComment::GetTitleBarMouseCursor() const
+{
+	if (PlayButton.IsValid())
+	{
+		if (PlayButton->IsHovered())
+		{
+			return EMouseCursor::Default;
+		}
+	}
+	
+	return EMouseCursor::CardinalCross;
+}
 
 FSlateColor SGraphNodePongComment::GetCommentNodeColor() const
 {
