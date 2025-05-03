@@ -355,7 +355,7 @@ void SGraphNodeCustomizableComment::OnDragEnter(const FGeometry& MyGeometry, con
 
 float SGraphNodeCustomizableComment::GetWrappingTitleTextWidth() const
 {
-	return CachedWidth - 32.0f;
+	return FMath::Max(0.f, CachedWidth - 32.0f);
 }
 
 void SGraphNodeCustomizableComment::UpdateRenderTransform()
