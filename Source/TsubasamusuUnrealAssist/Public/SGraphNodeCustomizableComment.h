@@ -97,11 +97,12 @@ protected:
 	
 	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData);
 
+	virtual FSlateColor GetCommentNodeColor() const;
+	void SetCommentNodeColor(const FLinearColor& NewCommentNodeColor) const;
+	
 	void SetCommentNodeAngle(const float NewAngle);
 	void SetCommentNodeScale(const float NewScale);
 
-	void SetCommentNodeColor(const FLinearColor& NewCommentNodeColor) const;
-	FSlateColor GetCommentNodeColor() const;
 
 	TSharedPtr<SOverlay> GetTitleBarOverlay() const; 
 	

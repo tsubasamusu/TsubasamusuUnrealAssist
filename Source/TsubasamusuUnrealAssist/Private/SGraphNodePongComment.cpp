@@ -8,13 +8,6 @@
 void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SGraphNodeCustomizableComment::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-	
-	if (GetCommentNodeColor() != TsubasamusuUnrealAssistSettings->PongCommentNodeColor)
-	{
-		SetCommentNodeColor(TsubasamusuUnrealAssistSettings->PongCommentNodeColor);
-	}
 }
 
 void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
@@ -41,6 +34,15 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 	return EVisibility::Collapsed;
 }
 
+
+FSlateColor SGraphNodePongComment::GetCommentNodeColor() const
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
+	SetCommentNodeColor(TsubasamusuUnrealAssistSettings->PongCommentNodeColor);
+
+	return TsubasamusuUnrealAssistSettings->PongCommentNodeColor;
+}
 
 void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)
 {
