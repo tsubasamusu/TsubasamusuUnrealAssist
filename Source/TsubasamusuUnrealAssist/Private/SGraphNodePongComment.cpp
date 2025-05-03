@@ -15,13 +15,6 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 	{
 		SetCommentNodeColor(TsubasamusuUnrealAssistSettings->PongCommentNodeColor);
 	}
-
-	if (CachedUiColor != TsubasamusuUnrealAssistSettings->PongUiColor)
-	{
-		SetAllUiColor(TsubasamusuUnrealAssistSettings->PongUiColor);
-
-		CachedUiColor = TsubasamusuUnrealAssistSettings->PongUiColor;
-	}
 }
 
 void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
@@ -60,25 +53,55 @@ void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& In
 	.VAlign(VAlign_Fill)
 	.Padding(0, 3, 0, 3)
 	[
-		SNew(SScaleBox)
-		.Stretch(EStretch::ScaleToFitY)
+		SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
 		[
-			SAssignNew(PlayButton, SButton)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.ContentPadding(0)
-			.ButtonStyle(FAppStyle::Get(), "NoBorder")
-			.OnClicked(this, &SGraphNodePongComment::OnClickedButton)
+			SNew(SScaleBox)
+			.Stretch(EStretch::ScaleToFitY)
 			[
-				SAssignNew(PlayButtonImage, SImage)
+				SNew(STextBlock)
+				.Text(this, &SGraphNodePongComment::GetLeftScoreText)
+				.ColorAndOpacity(this, &SGraphNodePongComment::GetDesiredUiColor)
+			]
+		]
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Fill)
+		.AutoWidth()
+		[
+			SNew(SScaleBox)
+			.Stretch(EStretch::ScaleToFitY)
+			[
+				SAssignNew(PlayButton, SButton)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				.ContentPadding(0)
+				.ButtonStyle(FAppStyle::Get(), "NoBorder")
+				.OnClicked(this, &SGraphNodePongComment::OnClickedButton)
+				[
+					SAssignNew(PlayButtonImage, SImage)
+					.ColorAndOpacity(this, &SGraphNodePongComment::GetDesiredUiColor)
+				]
+			]
+		]
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SScaleBox)
+			.Stretch(EStretch::ScaleToFitY)
+			[
+				SNew(STextBlock)
+				.Text(this, &SGraphNodePongComment::GetRightScoreText)
+				.ColorAndOpacity(this, &SGraphNodePongComment::GetDesiredUiColor)
 			]
 		]
 	];
 
 	ChangePlayButtonImage(true);
 	ChangePlayButtonToolTipText(true);
-
-	SetAllUiColor(TsubasamusuUnrealAssistSettings->PongUiColor);
 }
 
 FReply SGraphNodePongComment::OnClickedButton()
@@ -138,17 +161,11 @@ void SGraphNodePongComment::ChangePlayButtonToolTipText(const bool bChangeToStar
 	}
 }
 
-void SGraphNodePongComment::SetAllUiColor(const FSlateColor& NewColor) const
+FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
 {
-	SetPlayButtonImageColor(NewColor);
-}
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 
-void SGraphNodePongComment::SetPlayButtonImageColor(const FSlateColor& NewColor) const
-{
-	if (PlayButtonImage.IsValid())
-	{
-		PlayButtonImage->SetColorAndOpacity(NewColor);
-	}
+	return TsubasamusuUnrealAssistSettings->PongUiColor;
 }
 
 FText SGraphNodePongComment::GetLeftScoreText() const

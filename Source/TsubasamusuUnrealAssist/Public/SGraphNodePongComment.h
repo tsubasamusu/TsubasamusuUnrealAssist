@@ -45,9 +45,8 @@ private:
 	void ChangePlayButtonImage(const bool bChangeToStartImage) const;
 	void ChangePlayButtonToolTipText(const bool bChangeToStartToolTipText) const;
 
-	void SetAllUiColor(const FSlateColor& NewColor) const;
-	void SetPlayButtonImageColor(const FSlateColor& NewColor) const;
-
+	FSlateColor GetDesiredUiColor() const;
+	
 	FText GetLeftScoreText() const;
 	FText GetRightScoreText() const;
 	
