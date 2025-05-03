@@ -97,6 +97,8 @@ protected:
 	virtual EVisibility GetCommentTextVisibility() const;
 	virtual EVisibility GetCommentBubbleVisibility() const;
 
+	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData);
+
 	void SetCommentNodeAngle(const float NewAngle);
 	void SetCommentNodeScale(const float NewScale);
 	

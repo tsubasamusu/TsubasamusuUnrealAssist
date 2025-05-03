@@ -391,8 +391,8 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 
 	SetupErrorReporting();
 
-	FGraphNodeMetaData TagMeta(TEXT("Graphnode"));
-	PopulateMetaTag(&TagMeta);
+	FGraphNodeMetaData GraphNodeMetaData(TEXT("Graphnode"));
+	PopulateMetaTag(&GraphNodeMetaData);
 
 	CommentStyle = FAppStyle::Get().GetWidgetStyle<FInlineEditableTextBlockStyle>("Graph.CommentBlock.TitleInlineEditableText");
 	CommentStyle.EditableTextBoxStyle.TextStyle.Font.Size = CachedFontSize;
@@ -400,82 +400,7 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 
 	ContentScale.Bind(this, &SGraphNode::GetContentScale);
 
-	this->GetOrAddSlot(ENodeZone::Center)
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
-		[
-			SNew(SBorder)
-			.BorderImage(FAppStyle::GetBrush("Kismet.Comment.Background"))
-			.ColorAndOpacity(FLinearColor::White)
-			.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentBodyColor)
-			.Padding(FMargin(3.0f))
-			.AddMetaData<FGraphNodeMetaData>(TagMeta)
-			[
-				SNew(SVerticalBox)
-				.ToolTipText(this, &SGraphNode::GetNodeTooltip)
-				+SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Top)
-				[
-					SAssignNew(TitleBarBorder, SBorder)
-					.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
-					.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetTitleBarColor)
-					.Padding(FMargin(10,5,5,3))
-					.HAlign(HAlign_Fill)
-					.VAlign(VAlign_Center)
-					[
-						SAssignNew(InlineEditableText, SInlineEditableTextBlock)
-						.Style(&CommentStyle)
-						.Text(this, &SGraphNodeCustomizableComment::GetEditableNodeTitleAsText)
-						.OnVerifyTextChanged(this, &SGraphNodeCustomizableComment::OnVerifyNameTextChanged)
-						.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
-						.IsReadOnly(this, &SGraphNodeCustomizableComment::IsNameReadOnly)
-						.IsSelected(this, &SGraphNodeCustomizableComment::IsSelectedExclusively)
-						.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrappingTitleTextWidth)
-						.MultiLine(true)
-						.ModiferKeyForNewLine(EModifierKey::Shift)
-						.Visibility(this, &SGraphNodeCustomizableComment::GetCommentTextVisibility)
-					]
-				]
-				+SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(1.0f)
-				[
-					ErrorReporting->AsWidget()
-				]
-				+SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Fill)
-				[
-					SNew(SBorder)
-					.BorderImage(FAppStyle::GetBrush("NoBorder"))
-				]
-			]
-		];
-
-	CommentBubble = SNew(SCommentBubble)
-	.GraphNode(GraphNode)
-	.Text(this, &SGraphNodeCustomizableComment::GetNodeComment)
-	.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
-	.ColorAndOpacity(this, &SGraphNodeCustomizableComment::GetCommentBubbleColor)
-	.AllowPinning(true)
-	.EnableTitleBarBubble(false)
-	.EnableBubbleCtrls(false)
-	.GraphLOD(this, &SGraphNode::GetCurrentLOD)
-	.InvertLODCulling(true)
-	.IsGraphNodeHovered(this, &SGraphNode::IsHovered)
-	.Visibility(this, &SGraphNodeCustomizableComment::GetCommentBubbleVisibility);
-
-	GetOrAddSlot(ENodeZone::TopCenter)
-	.SlotOffset(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetOffset))
-	.SlotSize(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetSize))
-	.AllowScaling(TAttribute<bool>(CommentBubble.Get(), &SCommentBubble::IsScalingAllowed))
-	.VAlign(VAlign_Top)
-	[
-		CommentBubble.ToSharedRef()
-	];
+	CreateCommentNodeWidget(GraphNodeMetaData);
 }
 
 FVector2D SGraphNodeCustomizableComment::ComputeDesiredSize(float) const
@@ -820,6 +745,86 @@ EVisibility SGraphNodeCustomizableComment::GetCommentTextVisibility() const
 EVisibility SGraphNodeCustomizableComment::GetCommentBubbleVisibility() const
 {
 	return EVisibility::Visible;
+}
+
+void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)
+{
+	GetOrAddSlot(ENodeZone::Center)
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Fill)
+	[
+		SNew(SBorder)
+		.BorderImage(FAppStyle::GetBrush("Kismet.Comment.Background"))
+		.ColorAndOpacity(FLinearColor::White)
+		.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetCommentBodyColor)
+		.Padding(FMargin(3.0f))
+		.AddMetaData<FGraphNodeMetaData>(InGraphNodeMetaData)
+		[
+			SNew(SVerticalBox)
+			.ToolTipText(this, &SGraphNode::GetNodeTooltip)
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Top)
+			[
+				SAssignNew(TitleBarBorder, SBorder)
+				.BorderImage(FAppStyle::GetBrush("Graph.Node.TitleBackground"))
+				.BorderBackgroundColor(this, &SGraphNodeCustomizableComment::GetTitleBarColor)
+				.Padding(FMargin(10,5,5,3))
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Center)
+				[
+					SAssignNew(InlineEditableText, SInlineEditableTextBlock)
+					.Style(&CommentStyle)
+					.Text(this, &SGraphNodeCustomizableComment::GetEditableNodeTitleAsText)
+					.OnVerifyTextChanged(this, &SGraphNodeCustomizableComment::OnVerifyNameTextChanged)
+					.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
+					.IsReadOnly(this, &SGraphNodeCustomizableComment::IsNameReadOnly)
+					.IsSelected(this, &SGraphNodeCustomizableComment::IsSelectedExclusively)
+					.WrapTextAt(this, &SGraphNodeCustomizableComment::GetWrappingTitleTextWidth)
+					.MultiLine(true)
+					.ModiferKeyForNewLine(EModifierKey::Shift)
+					.Visibility(this, &SGraphNodeCustomizableComment::GetCommentTextVisibility)
+				]
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(1.0f)
+			[
+				ErrorReporting->AsWidget()
+			]
+			+SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SBorder)
+				.BorderImage(FAppStyle::GetBrush("NoBorder"))
+			]
+		]
+	];
+
+	CommentBubble = SNew(SCommentBubble)
+	.GraphNode(GraphNode)
+	.Text(this, &SGraphNodeCustomizableComment::GetNodeComment)
+	.OnTextCommitted(this, &SGraphNodeCustomizableComment::OnNameTextCommited)
+	.ColorAndOpacity(this, &SGraphNodeCustomizableComment::GetCommentBubbleColor)
+	.AllowPinning(true)
+	.EnableTitleBarBubble(false)
+	.EnableBubbleCtrls(false)
+	.GraphLOD(this, &SGraphNode::GetCurrentLOD)
+	.InvertLODCulling(true)
+	.IsGraphNodeHovered(this, &SGraphNode::IsHovered)
+	.Visibility(this, &SGraphNodeCustomizableComment::GetCommentBubbleVisibility);
+
+	GetOrAddSlot(ENodeZone::TopCenter)
+	.SlotOffset(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetOffset))
+	.SlotSize(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetSize))
+	.AllowScaling(TAttribute<bool>(CommentBubble.Get(), &SCommentBubble::IsScalingAllowed))
+	.VAlign(VAlign_Top)
+	[
+		CommentBubble.ToSharedRef()
+	];
 }
 
 void SGraphNodeCustomizableComment::SetCommentNodeAngle(const float NewAngle)
