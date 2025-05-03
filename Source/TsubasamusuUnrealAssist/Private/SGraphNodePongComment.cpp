@@ -70,9 +70,71 @@ float SGraphNodePongComment::GetTitleBarLineOpacity() const
 void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)
 {
 	SGraphNodeCustomizableComment::CreateCommentNodeWidget(InGraphNodeMetaData);
+
+	CreateTitleBarAreaWidget();
+	CreatePlayAreaWidget();
+}
+
+FReply SGraphNodePongComment::OnClickedButton()
+{
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	ChangePlayButtonImage(bIsPlaying);
+	ChangePlayButtonToolTipText(bIsPlaying);
 	
+	if (bIsPlaying)
+	{
+		StopGame();
+	}
+	else
+	{
+		StartGame();
+	}
+
+	bIsPlaying = !bIsPlaying;
+
+	return FReply::Handled();
+}
+
+const FSlateBrush* SGraphNodePongComment::GetStartIcon()
+{
+	return FAppStyle::Get().GetBrush(TEXT("Animation.Forward"));
+}
+
+const FSlateBrush* SGraphNodePongComment::GetStopIcon()
+{
+	return FAppStyle::Get().GetBrush(TEXT("Animation.Pause"));
+}
+
+void SGraphNodePongComment::StartGame()
+{
+}
+
+void SGraphNodePongComment::StopGame()
+{
+}
+
+void SGraphNodePongComment::ChangePlayButtonImage(const bool bChangeToStartImage) const
+{
+	if (PlayButtonImage.IsValid())
+	{
+		const FSlateBrush* NewImage = bChangeToStartImage ? GetStartIcon() : GetStopIcon();
+		
+		PlayButtonImage->SetImage(NewImage);
+	}
+}
+
+void SGraphNodePongComment::ChangePlayButtonToolTipText(const bool bChangeToStartToolTipText) const
+{
+	if (PlayButton.IsValid())
+	{
+		const FText NewToolTipText = FText::FromString(bChangeToStartToolTipText ? TEXT("Start game") : TEXT("Stop game"));
+		
+		PlayButton->SetToolTipText(NewToolTipText);
+	}
+}
+
+void SGraphNodePongComment::CreateTitleBarAreaWidget()
+{
 	GetTitleBarOverlay()->AddSlot()
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
@@ -129,61 +191,8 @@ void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& In
 	ChangePlayButtonToolTipText(true);
 }
 
-FReply SGraphNodePongComment::OnClickedButton()
+void SGraphNodePongComment::CreatePlayAreaWidget()
 {
-	ChangePlayButtonImage(bIsPlaying);
-	ChangePlayButtonToolTipText(bIsPlaying);
-	
-	if (bIsPlaying)
-	{
-		StopGame();
-	}
-	else
-	{
-		StartGame();
-	}
-
-	bIsPlaying = !bIsPlaying;
-
-	return FReply::Handled();
-}
-
-const FSlateBrush* SGraphNodePongComment::GetStartIcon()
-{
-	return FAppStyle::Get().GetBrush(TEXT("Animation.Forward"));
-}
-
-const FSlateBrush* SGraphNodePongComment::GetStopIcon()
-{
-	return FAppStyle::Get().GetBrush(TEXT("Animation.Pause"));
-}
-
-void SGraphNodePongComment::StartGame()
-{
-}
-
-void SGraphNodePongComment::StopGame()
-{
-}
-
-void SGraphNodePongComment::ChangePlayButtonImage(const bool bChangeToStartImage) const
-{
-	if (PlayButtonImage.IsValid())
-	{
-		const FSlateBrush* NewImage = bChangeToStartImage ? GetStartIcon() : GetStopIcon();
-		
-		PlayButtonImage->SetImage(NewImage);
-	}
-}
-
-void SGraphNodePongComment::ChangePlayButtonToolTipText(const bool bChangeToStartToolTipText) const
-{
-	if (PlayButton.IsValid())
-	{
-		const FText NewToolTipText = FText::FromString(bChangeToStartToolTipText ? TEXT("Start game") : TEXT("Stop game"));
-		
-		PlayButton->SetToolTipText(NewToolTipText);
-	}
 }
 
 FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
