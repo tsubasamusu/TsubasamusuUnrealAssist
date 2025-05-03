@@ -24,6 +24,11 @@ void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Com
 	SGraphNodeCustomizableComment::Construct(SGraphNodeCustomizableComment::FArguments(), InNode);
 }
 
+bool SGraphNodePongComment::CanBeSelected(const FVector2D& MousePositionInNode) const
+{
+	return true;
+}
+
 EVisibility SGraphNodePongComment::GetCommentTextVisibility() const
 {
 	return EVisibility::Hidden;
