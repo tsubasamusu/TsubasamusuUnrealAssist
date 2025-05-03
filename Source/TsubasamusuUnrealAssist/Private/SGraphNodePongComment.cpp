@@ -36,6 +36,23 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 	return EVisibility::Collapsed;
 }
 
+
+FReply SGraphNodePongComment::OnClickedButton()
+{
+	if (bIsPlaying)
+	{
+		StopGame();
+	}
+	else
+	{
+		StartGame();
+	}
+
+	bIsPlaying = !bIsPlaying;
+
+	return FReply::Handled();
+}
+
 const FSlateBrush* SGraphNodePongComment::GetStartIcon()
 {
 	return FAppStyle::Get().GetBrush(TEXT("Animation.Forward"));
@@ -44,5 +61,13 @@ const FSlateBrush* SGraphNodePongComment::GetStartIcon()
 const FSlateBrush* SGraphNodePongComment::GetStopIcon()
 {
 	return FAppStyle::Get().GetBrush(TEXT("Animation.Pause"));
+}
+
+void SGraphNodePongComment::StartGame()
+{
+}
+
+void SGraphNodePongComment::StopGame()
+{
 }
 

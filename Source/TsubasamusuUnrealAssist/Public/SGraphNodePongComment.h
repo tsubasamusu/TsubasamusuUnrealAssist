@@ -35,4 +35,11 @@ private:
 
 	const static FSlateBrush* GetStartIcon();
 	const static FSlateBrush* GetStopIcon();
+
+	FReply OnClickedButton();
+	
+	void StartGame();
+	void StopGame();
+
+	bool bIsPlaying;
 };
