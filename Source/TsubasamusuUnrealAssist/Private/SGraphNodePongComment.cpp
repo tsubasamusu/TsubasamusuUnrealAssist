@@ -3,6 +3,7 @@
 #include "SGraphNodePongComment.h"
 #include "SGraphNodeCustomizableComment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
+#include "Widgets/Layout/SScaleBox.h"
 
 void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
@@ -47,6 +48,38 @@ EVisibility SGraphNodePongComment::GetCommentBubbleVisibility() const
 	return EVisibility::Collapsed;
 }
 
+
+void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)
+{
+	SGraphNodeCustomizableComment::CreateCommentNodeWidget(InGraphNodeMetaData);
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	GetTitleBarOverlay()->AddSlot()
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Fill)
+	.Padding(0, 3, 0, 3)
+	[
+		SNew(SScaleBox)
+		.Stretch(EStretch::ScaleToFitY)
+		[
+			SAssignNew(PlayButton, SButton)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.ContentPadding(0)
+			.ButtonStyle(FAppStyle::Get(), "NoBorder")
+			.OnClicked(this, &SGraphNodePongComment::OnClickedButton)
+			[
+				SAssignNew(PlayButtonImage, SImage)
+			]
+		]
+	];
+
+	ChangePlayButtonImage(true);
+	ChangePlayButtonToolTipText(true);
+
+	SetAllUiColor(TsubasamusuUnrealAssistSettings->PongUiColor);
+}
 
 FReply SGraphNodePongComment::OnClickedButton()
 {

@@ -29,6 +29,7 @@ protected:
 	//~ Begin SGraphNodeCustomizableComment Interface
 	virtual EVisibility GetCommentTextVisibility() const override;
 	virtual EVisibility GetCommentBubbleVisibility() const override;
+	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData) override;
 	//~ End SGraphNodeCustomizableComment Interface
 
 private:
