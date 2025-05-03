@@ -33,5 +33,8 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "PONG Background Color"))
 	FLinearColor PongCommentNodeColor;
 	
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "PONG UI Color"))
+	FLinearColor PongUiColor;
+	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };
