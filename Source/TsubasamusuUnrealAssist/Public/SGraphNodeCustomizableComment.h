@@ -94,6 +94,9 @@ protected:
 	virtual EVisibility GetCommentBubbleVisibility() const;
 
 	virtual EMouseCursor::Type GetTitleBarMouseCursor() const;
+
+	virtual FLinearColor GetTitleBarLineColor() const;
+	virtual float GetTitleBarLineOpacity() const;
 	
 	virtual void CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData);
 

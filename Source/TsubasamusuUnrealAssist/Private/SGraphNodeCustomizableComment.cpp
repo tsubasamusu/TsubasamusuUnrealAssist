@@ -5,6 +5,7 @@
 #include "SCommentBubble.h"
 #include "SGraphPanel.h"
 #include "TutorialMetaData.h"
+#include "Widgets/Colors/SColorBlock.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 
 bool SGraphNodeCustomizableComment::MouseIsInSelectionZone() const
@@ -738,8 +739,20 @@ EMouseCursor::Type SGraphNodeCustomizableComment::GetTitleBarMouseCursor() const
 	return EMouseCursor::CardinalCross;
 }
 
+FLinearColor SGraphNodeCustomizableComment::GetTitleBarLineColor() const
+{
+	return FLinearColor::White;
+}
+
+float SGraphNodeCustomizableComment::GetTitleBarLineOpacity() const
+{
+	return 0.f;
+}
+
 void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)
 {
+	const float TitleBarLineOpacity = GetTitleBarLineOpacity();
+	
 	GetOrAddSlot(ENodeZone::Center)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
@@ -799,12 +812,13 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 				ErrorReporting->AsWidget()
 			]
 			+SVerticalBox::Slot()
-			.AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
+			.MaxHeight(3)
 			[
-				SNew(SBorder)
-				.BorderImage(FAppStyle::GetBrush("NoBorder"))
+				SNew(SColorBlock)
+				.RenderOpacity(TitleBarLineOpacity)
+				.Color(this, &SGraphNodeCustomizableComment::GetTitleBarLineColor)
 			]
 		]
 	];
