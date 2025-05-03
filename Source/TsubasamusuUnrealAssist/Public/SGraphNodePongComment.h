@@ -47,9 +47,15 @@ private:
 
 	void SetAllUiColor(const FSlateColor& NewColor) const;
 	void SetPlayButtonImageColor(const FSlateColor& NewColor) const;
+
+	FText GetLeftScoreText() const;
+	FText GetRightScoreText() const;
 	
 	TSharedPtr<SButton> PlayButton;
 	TSharedPtr<SImage> PlayButtonImage;
+
+	int32 LeftScore;
+	int32 RightScore;
 	
 	bool bIsPlaying;
 

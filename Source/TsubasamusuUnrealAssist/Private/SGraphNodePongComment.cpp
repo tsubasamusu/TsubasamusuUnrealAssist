@@ -150,3 +150,13 @@ void SGraphNodePongComment::SetPlayButtonImageColor(const FSlateColor& NewColor)
 		PlayButtonImage->SetColorAndOpacity(NewColor);
 	}
 }
+
+FText SGraphNodePongComment::GetLeftScoreText() const
+{
+	return FText::FromString(FString::FromInt(LeftScore));
+}
+
+FText SGraphNodePongComment::GetRightScoreText() const
+{
+	return FText::FromString(FString::FromInt(RightScore));
+}
