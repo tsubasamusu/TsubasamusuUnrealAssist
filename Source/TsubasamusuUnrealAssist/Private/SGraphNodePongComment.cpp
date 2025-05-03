@@ -93,3 +93,16 @@ void SGraphNodePongComment::ChangePlayButtonToolTipText(const bool bChangeToStar
 		PlayButton->SetToolTipText(NewToolTipText);
 	}
 }
+
+void SGraphNodePongComment::SetAllUiColor(const FSlateColor& NewColor) const
+{
+	SetPlayButtonImageColor(NewColor);
+}
+
+void SGraphNodePongComment::SetPlayButtonImageColor(const FSlateColor& NewColor) const
+{
+	if (PlayButtonImage.IsValid())
+	{
+		PlayButtonImage->SetColorAndOpacity(NewColor);
+	}
+}
