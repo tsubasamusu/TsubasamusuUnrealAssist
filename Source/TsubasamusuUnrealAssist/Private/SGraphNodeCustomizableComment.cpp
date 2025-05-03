@@ -812,6 +812,7 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 				ErrorReporting->AsWidget()
 			]
 			+ SVerticalBox::Slot()
+			.AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.MaxHeight(3)
@@ -819,6 +820,12 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 				SNew(SColorBlock)
 				.RenderOpacity(TitleBarLineOpacity)
 				.Color(this, &SGraphNodeCustomizableComment::GetTitleBarLineColor)
+			]
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			[
+				SAssignNew(CommentNodeContentOverlay, SOverlay)
 			]
 		]
 	];
@@ -882,6 +889,11 @@ FSlateColor SGraphNodeCustomizableComment::GetCommentNodeColor() const
 TSharedPtr<SOverlay> SGraphNodeCustomizableComment::GetTitleBarOverlay() const
 {
 	return TitleBarOverlay;
+}
+
+TSharedPtr<SOverlay> SGraphNodeCustomizableComment::GetCommentNodeContentOverlay() const
+{
+	return CommentNodeContentOverlay;
 }
 
 bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const

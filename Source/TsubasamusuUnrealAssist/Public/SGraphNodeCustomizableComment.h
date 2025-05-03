@@ -109,6 +109,7 @@ protected:
 	void SetCommentNodeScale(const float NewScale);
 
 	TSharedPtr<SOverlay> GetTitleBarOverlay() const; 
+	TSharedPtr<SOverlay> GetCommentNodeContentOverlay() const; 
 	
 private:
 	
