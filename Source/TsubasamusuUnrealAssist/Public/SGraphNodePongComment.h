@@ -56,6 +56,8 @@ private:
 	void CreateScrollBars();
 	
 	FSlateColor GetDesiredUiColor() const;
+
+	FVector2D GetPlayAreaSize() const;
 	
 	FText GetLeftScoreText() const;
 	FText GetRightScoreText() const;

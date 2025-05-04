@@ -247,6 +247,14 @@ FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
 	return TsubasamusuUnrealAssistSettings->PongUiColor;
 }
 
+
+FVector2D SGraphNodePongComment::GetPlayAreaSize() const
+{
+	const FVector2D CommentNodeDesiredSize = GetDesiredSize();
+	
+	return FVector2D(CommentNodeDesiredSize.X, CommentNodeDesiredSize.Y - GetTitleBarHeight());
+}
+
 FText SGraphNodePongComment::GetLeftScoreText() const
 {
 	return FText::FromString(FString::FromInt(LeftScore));
