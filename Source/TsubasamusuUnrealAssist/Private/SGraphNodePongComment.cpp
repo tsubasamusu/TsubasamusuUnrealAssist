@@ -481,6 +481,16 @@ bool SGraphNodePongComment::BallIsInPlayArea() const
 	return true;
 }
 
+FSlateRect SGraphNodePongComment::GetBallImageRect() const
+{
+	if (BallImage.IsValid())
+	{
+		return GetAbsoluteRect(BallImage->GetCachedGeometry());
+	}
+
+	return FSlateRect();
+}
+
 FSlateRect SGraphNodePongComment::GetAbsoluteRect(const FGeometry& InFGeometry)
 {
 	const FVector2D TopLeft = InFGeometry.LocalToAbsolute(FVector2D::ZeroVector);
