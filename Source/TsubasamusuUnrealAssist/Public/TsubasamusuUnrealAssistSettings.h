@@ -42,5 +42,8 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Slider Length Multiplier", ClampMin = "0.0", ClampMax = "1.0"))
 	float PongSliderLengthMultiplier;
 
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Ball Speed", ClampMin = "0.0"))
+	float PongBallSpeed;
+
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };

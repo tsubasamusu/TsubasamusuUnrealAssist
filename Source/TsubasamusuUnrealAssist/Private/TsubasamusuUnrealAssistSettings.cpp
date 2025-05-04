@@ -16,6 +16,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	PongUiColor = FLinearColor::White;
 	PongBallImageSize = FVector2D(30.0f, 30.0f);
 	PongSliderLengthMultiplier = 0.3f;
+	PongBallSpeed = 100.0f;
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
