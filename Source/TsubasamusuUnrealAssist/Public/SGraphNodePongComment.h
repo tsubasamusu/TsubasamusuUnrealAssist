@@ -74,8 +74,9 @@ private:
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
-	void MoveBall(const FVector2D& NormalizedDirection, const float InDeltaTime);
 	FVector2D GetReflectedBallDirection(const EOverflowBallSide InOverflowBallSide) const;
+	
+	void MoveBall(const FVector2D& MovementDirection, const float InDeltaTime);
 	
 	void SetBallPosition(const FVector2D& NewBallPosition);
 	FVector2D GetBallPosition() const;

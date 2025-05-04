@@ -367,7 +367,6 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
-void SGraphNodePongComment::MoveBall(const FVector2D& NormalizedDirection, const float InDeltaTime)
 FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EOverflowBallSide InOverflowBallSide) const
 {
 	FVector2D ReflectedBallDirection = CachedBallMovementDirection;  
@@ -392,12 +391,24 @@ FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EOverflowBallSi
 	return ReflectedBallDirection;
 }
 
+void SGraphNodePongComment::MoveBall(const FVector2D& MovementDirection, const float InDeltaTime)
 {
+	if (!BallImage.IsValid())
+	{
+		return;
+	}
+
+	FVector2D NewDirection = BallIsInPlayArea() ? MovementDirection : GetReflectedBallDirection(GetOverflowBallSide());
+
+	NewDirection.Normalize();
+	
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 
-	const FVector2D DesiredBallOffset = NormalizedDirection * TsubasamusuUnrealAssistSettings->PongBallSpeed * InDeltaTime;
+	const FVector2D DesiredBallOffset = NewDirection * TsubasamusuUnrealAssistSettings->PongBallSpeed * InDeltaTime;
 
 	SetBallPosition(GetBallPosition() + DesiredBallOffset);
+
+	CachedBallMovementDirection = NewDirection;
 }
 
 void SGraphNodePongComment::SetBallPosition(const FVector2D& NewBallPosition)
