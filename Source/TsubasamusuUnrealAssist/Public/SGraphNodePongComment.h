@@ -69,6 +69,8 @@ private:
 	
 	void SetBallPosition(const FVector2D& NewBallPosition);
 	FVector2D GetBallPosition() const;
+
+	FVector2D GetLocalBallCoordinates() const;
 	
 	FVector2D GetPlayAreaSize() const;
 	

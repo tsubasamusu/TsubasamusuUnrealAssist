@@ -386,6 +386,16 @@ FVector2D SGraphNodePongComment::GetBallPosition() const
 	return FVector2D(CachedBallPadding.Left, CachedBallPadding.Bottom);
 }
 
+FVector2D SGraphNodePongComment::GetLocalBallCoordinates() const
+{
+	const FVector2D BallPosition = GetBallPosition();
+	
+	const float LocalBallCoordinatesX = (GetDesiredSize().X / 2) + BallPosition.X;
+	const float LocalBallCoordinatesY = (GetPlayAreaSize().Y / 2) + GetTitleBarHeight() - BallPosition.Y;
+	
+	return FVector2D(LocalBallCoordinatesX, LocalBallCoordinatesY);
+}
+
 FVector2D SGraphNodePongComment::GetPlayAreaSize() const
 {
 	const FVector2D CommentNodeDesiredSize = GetDesiredSize();
