@@ -9,6 +9,15 @@
 void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SGraphNodeCustomizableComment::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	if (CachedUiColor != TsubasamusuUnrealAssistSettings->PongUiColor)
+	{
+		CachedUiColor = TsubasamusuUnrealAssistSettings->PongUiColor;
+
+		SetScrollBarStyle(GetDesiredScrollBarStyle());
+	}
 }
 
 void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
@@ -239,6 +248,8 @@ void SGraphNodePongComment::CreateScrollBars()
 		.AlwaysShowScrollbar(true)
 		.Thickness(FVector2D(8.0f, 8.0f))
 	];
+
+	SetScrollBarStyle(GetDesiredScrollBarStyle());
 }
 
 void SGraphNodePongComment::CreateScrollBoxes()
@@ -300,6 +311,32 @@ FOptionalSize SGraphNodePongComment::GetDesiredScrollBoxHeight() const
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 
 	return FOptionalSize(GetPlayAreaSize().Y * (1 / TsubasamusuUnrealAssistSettings->PongSliderLengthMultiplier));
+}
+
+FScrollBarStyle SGraphNodePongComment::GetDesiredScrollBarStyle()
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
+	const FSlateColorBrush DesiredScrollBarImage = FSlateColorBrush(TsubasamusuUnrealAssistSettings->PongUiColor);
+	
+	FScrollBarStyle DesiredScrollBarStyle = FScrollBarStyle();
+	
+	DesiredScrollBarStyle.SetNormalThumbImage(DesiredScrollBarImage);
+	DesiredScrollBarStyle.SetHoveredThumbImage(DesiredScrollBarImage);
+	DesiredScrollBarStyle.SetDraggedThumbImage(DesiredScrollBarImage);
+
+	return DesiredScrollBarStyle;
+}
+
+void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle)
+{
+	if (RightScrollBar.IsValid() && LeftScrollBar.IsValid())
+	{
+		CachedScrollBarStyle = NewScrollBarStyle;
+		
+		RightScrollBar->SetStyle(&CachedScrollBarStyle);
+		LeftScrollBar->SetStyle(&CachedScrollBarStyle);
+	}
 }
 
 FVector2D SGraphNodePongComment::GetPlayAreaSize() const

@@ -57,9 +57,11 @@ private:
 	void CreateScrollBoxes();
 	
 	FSlateColor GetDesiredUiColor() const;
-
 	FOptionalSize GetDesiredScrollBoxHeight() const;
+	static FScrollBarStyle GetDesiredScrollBarStyle();
 
+	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
+	
 	FVector2D GetPlayAreaSize() const;
 	
 	FText GetLeftScoreText() const;
@@ -77,4 +79,5 @@ private:
 	bool bIsPlaying;
 
 	FLinearColor CachedUiColor;
+	FScrollBarStyle CachedScrollBarStyle;
 };
