@@ -356,7 +356,7 @@ void SGraphNodeCustomizableComment::OnDragEnter(const FGeometry& MyGeometry, con
 
 float SGraphNodeCustomizableComment::GetWrappingTitleTextWidth() const
 {
-	return FMath::Max(0.f, CachedWidth - 32.0f);
+	return FMath::Max(0.0f, CachedWidth - 32.0f);
 }
 
 void SGraphNodeCustomizableComment::UpdateRenderTransform()
@@ -746,7 +746,7 @@ FLinearColor SGraphNodeCustomizableComment::GetTitleBarLineColor() const
 
 float SGraphNodeCustomizableComment::GetTitleBarLineOpacity() const
 {
-	return 0.f;
+	return 0.0f;
 }
 
 void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMetaData& InGraphNodeMetaData)

@@ -1,6 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "SGraphNodePongComment.h"
+#include "SDottedLine.h"
 #include "SGraphNodeCustomizableComment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
@@ -193,6 +194,17 @@ void SGraphNodePongComment::CreateTitleBarAreaWidget()
 
 void SGraphNodePongComment::CreatePlayAreaWidget()
 {
+	GetCommentNodeContentOverlay()->AddSlot()
+	.HAlign(HAlign_Center)
+	.VAlign(VAlign_Fill)
+	[
+		SNew(SDottedLine)
+		.Thickness(3.0f)
+		.OneCycleLength(8.0f)
+		.DottedRatio(0.5f)
+		.Color(this, &SGraphNodePongComment::GetDesiredUiColor)
+		.Orientation(Orient_Vertical)
+	];
 }
 
 FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
