@@ -369,30 +369,6 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
-FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EBallSide InOverflowBallSide) const
-{
-	FVector2D ReflectedBallDirection = CachedBallMovementDirection;  
-
-	if (InOverflowBallSide == EBallSide::Right && CachedBallMovementDirection.X > 0.0f)
-	{
-		ReflectedBallDirection.X *= -1.0f;
-	}
-	else if (InOverflowBallSide == EBallSide::Left && CachedBallMovementDirection.X < 0.0f)
-	{
-		ReflectedBallDirection.X *= -1.0f;
-	}
-	if (InOverflowBallSide == EBallSide::Top && CachedBallMovementDirection.Y > 0.0f)
-	{
-		ReflectedBallDirection.Y *= -1.0f;
-	}
-	else if (InOverflowBallSide == EBallSide::Bottom && CachedBallMovementDirection.Y < 0.0f)
-	{
-		ReflectedBallDirection.Y *= -1.0f;
-	}
-	
-	return ReflectedBallDirection;
-}
-
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection() const
 {
 	if (CachedBallMovementDirection.IsZero())
