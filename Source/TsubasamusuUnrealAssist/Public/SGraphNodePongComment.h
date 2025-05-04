@@ -53,6 +53,7 @@ private:
 	void CreateTitleBarAreaWidget();
 	void CreatePlayAreaWidget();
 	void CreateCenterDottedLine();
+	void CreateScrollBars();
 	
 	FSlateColor GetDesiredUiColor() const;
 	
@@ -62,6 +63,9 @@ private:
 	TSharedPtr<SButton> PlayButton;
 	TSharedPtr<SImage> PlayButtonImage;
 
+	TSharedPtr<SScrollBar> LeftScrollBar;
+	TSharedPtr<SScrollBar> RightScrollBar;
+	
 	int32 LeftScore;
 	int32 RightScore;
 	

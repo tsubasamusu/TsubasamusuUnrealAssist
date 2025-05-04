@@ -195,6 +195,7 @@ void SGraphNodePongComment::CreateTitleBarAreaWidget()
 void SGraphNodePongComment::CreatePlayAreaWidget()
 {
 	CreateCenterDottedLine();
+	CreateScrollBars();
 }
 
 void SGraphNodePongComment::CreateCenterDottedLine()
@@ -209,6 +210,33 @@ void SGraphNodePongComment::CreateCenterDottedLine()
 		.DottedRatio(0.5f)
 		.Color(this, &SGraphNodePongComment::GetDesiredUiColor)
 		.Orientation(Orient_Vertical)
+	];
+}
+
+void SGraphNodePongComment::CreateScrollBars()
+{
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	
+	PlayAreaOverlay->AddSlot()
+	.HAlign(HAlign_Right)
+	.VAlign(VAlign_Fill)
+	.Padding(0.0f, 3.0f, 10.0f, 3.0f)
+	[
+		SAssignNew(RightScrollBar, SScrollBar)
+		.Orientation(Orient_Vertical)
+		.AlwaysShowScrollbar(true)
+		.Thickness(FVector2D(8.0f, 8.0f))
+	];
+	
+	PlayAreaOverlay->AddSlot()
+	.HAlign(HAlign_Left)
+	.VAlign(VAlign_Fill)
+	.Padding(10.0f, 3.0f, 0.0f, 3.0f)
+	[
+		SAssignNew(LeftScrollBar, SScrollBar)
+		.Orientation(Orient_Vertical)
+		.AlwaysShowScrollbar(true)
+		.Thickness(FVector2D(8.0f, 8.0f))
 	];
 }
 
