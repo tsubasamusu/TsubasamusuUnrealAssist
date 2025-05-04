@@ -14,6 +14,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 
 	PongCommentNodeColor = FLinearColor::Black;
 	PongUiColor = FLinearColor::White;
+	PongBallImageSize = FVector2D(30.0f, 30.0f);
 	PongSliderLengthMultiplier = 0.3f;
 }
 
