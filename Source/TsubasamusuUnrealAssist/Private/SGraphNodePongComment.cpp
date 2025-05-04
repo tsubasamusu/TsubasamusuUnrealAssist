@@ -481,6 +481,16 @@ bool SGraphNodePongComment::BallIsInPlayArea() const
 	return true;
 }
 
+bool SGraphNodePongComment::BallIsInScrollBarThumb(const TSharedPtr<SScrollBar> InScrollBar) const
+{
+	if (BallImage.IsValid())
+	{
+		return FSlateRect::DoRectanglesIntersect(GetBallImageRect(), GetScrollBarThumbRect(InScrollBar));
+	}
+	
+	return false;
+}
+
 FSlateRect SGraphNodePongComment::GetBallImageRect() const
 {
 	if (BallImage.IsValid())
