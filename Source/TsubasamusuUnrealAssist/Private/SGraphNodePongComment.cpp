@@ -196,6 +196,7 @@ void SGraphNodePongComment::CreatePlayAreaWidget()
 {
 	CreateCenterDottedLine();
 	CreateScrollBars();
+	CreateScrollBoxes();
 }
 
 void SGraphNodePongComment::CreateCenterDottedLine()
@@ -240,6 +241,53 @@ void SGraphNodePongComment::CreateScrollBars()
 	];
 }
 
+void SGraphNodePongComment::CreateScrollBoxes()
+{
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	
+	PlayAreaOverlay->AddSlot()
+	.HAlign(HAlign_Center)
+	.VAlign(VAlign_Top)
+	[
+		SNew(SBox)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		.WidthOverride(0.0f)
+		[
+			SNew(SScrollBox)
+			.Orientation(Orient_Vertical)
+			.ExternalScrollbar(LeftScrollBar)
+			.WheelScrollMultiplier(0.0f)
+			+ SScrollBox::Slot()
+			[
+				SNew(SBox)
+				.HeightOverride(this, &SGraphNodePongComment::GetDesiredScrollBoxHeight)
+			]
+		]
+	];
+
+	PlayAreaOverlay->AddSlot()
+	.HAlign(HAlign_Center)
+	.VAlign(VAlign_Top)
+	[
+		SNew(SBox)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		.WidthOverride(0.0f)
+		[
+			SNew(SScrollBox)
+			.Orientation(Orient_Vertical)
+			.ExternalScrollbar(RightScrollBar)
+			.WheelScrollMultiplier(0.0f)
+			+ SScrollBox::Slot()
+			[
+				SNew(SBox)
+				.HeightOverride(this, &SGraphNodePongComment::GetDesiredScrollBoxHeight)
+			]
+		]
+	];
+}
+
 FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
@@ -247,6 +295,12 @@ FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
 	return TsubasamusuUnrealAssistSettings->PongUiColor;
 }
 
+FOptionalSize SGraphNodePongComment::GetDesiredScrollBoxHeight() const
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
+	return FOptionalSize(GetPlayAreaSize().Y * (1 / TsubasamusuUnrealAssistSettings->PongSliderLengthMultiplier));
+}
 
 FVector2D SGraphNodePongComment::GetPlayAreaSize() const
 {

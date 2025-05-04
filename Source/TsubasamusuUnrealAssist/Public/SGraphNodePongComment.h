@@ -54,8 +54,11 @@ private:
 	void CreatePlayAreaWidget();
 	void CreateCenterDottedLine();
 	void CreateScrollBars();
+	void CreateScrollBoxes();
 	
 	FSlateColor GetDesiredUiColor() const;
+
+	FOptionalSize GetDesiredScrollBoxHeight() const;
 
 	FVector2D GetPlayAreaSize() const;
 	
