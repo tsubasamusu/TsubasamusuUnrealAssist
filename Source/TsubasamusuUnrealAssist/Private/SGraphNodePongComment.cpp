@@ -466,6 +466,26 @@ EBallSide SGraphNodePongComment::GetOverflowPlayAreaBallSide() const
 	return EBallSide::None;
 }
 
+EBallSide SGraphNodePongComment::GetHitScrollBarThumbBallSide() const
+{
+	if (!BallImage.IsValid() || !RightScrollBar.IsValid() || !LeftScrollBar.IsValid())
+	{
+		return EBallSide::None;
+	}
+
+	if (BallIsInScrollBarThumb(LeftScrollBar))
+	{
+		return EBallSide::Left;
+	}
+	
+	if (BallIsInScrollBarThumb(RightScrollBar))
+	{
+		return EBallSide::Right;
+	}
+
+	return EBallSide::None;
+}
+
 bool SGraphNodePongComment::BallIsInPlayArea() const
 {
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();

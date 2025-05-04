@@ -85,6 +85,7 @@ private:
 
 	bool BallIsInPlayArea() const;
 	EBallSide GetOverflowPlayAreaBallSide() const;
+	EBallSide GetHitScrollBarThumbBallSide() const;
 	
 	bool BallIsInScrollBarThumb(const TSharedPtr<SScrollBar> InScrollBar) const;
 
