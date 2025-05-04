@@ -396,6 +396,20 @@ FVector2D SGraphNodePongComment::GetLocalBallCoordinates() const
 	return FVector2D(LocalBallCoordinatesX, LocalBallCoordinatesY);
 }
 
+bool SGraphNodePongComment::BallIsInPlayArea() const
+{
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	
+	if (BallImage.IsValid() && PlayAreaOverlay.IsValid())
+	{
+		const FSlateRect BallRect = GetAbsoluteRect(BallImage->GetCachedGeometry());
+		const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay->GetCachedGeometry());
+
+		return FSlateRect::IsRectangleContained(PlayAreaRect, BallRect);
+	}
+
+	return true;
+}
 
 FSlateRect SGraphNodePongComment::GetAbsoluteRect(const FGeometry& InFGeometry)
 {

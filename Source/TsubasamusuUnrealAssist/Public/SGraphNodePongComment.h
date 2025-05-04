@@ -72,6 +72,7 @@ private:
 
 	FVector2D GetLocalBallCoordinates() const;
 
+	bool BallIsInPlayArea() const;
 	static FSlateRect GetAbsoluteRect(const FGeometry& InFGeometry);
 	
 	FVector2D GetPlayAreaSize() const;
