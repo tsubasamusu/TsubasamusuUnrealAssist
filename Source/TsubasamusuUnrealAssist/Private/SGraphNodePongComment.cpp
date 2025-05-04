@@ -367,23 +367,23 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
-FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EOverflowBallSide InOverflowBallSide) const
+FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EBallSide InOverflowBallSide) const
 {
 	FVector2D ReflectedBallDirection = CachedBallMovementDirection;  
 
-	if (InOverflowBallSide == EOverflowBallSide::Right && CachedBallMovementDirection.X > 0.0f)
+	if (InOverflowBallSide == EBallSide::Right && CachedBallMovementDirection.X > 0.0f)
 	{
 		ReflectedBallDirection.X *= -1.0f;
 	}
-	else if (InOverflowBallSide == EOverflowBallSide::Left && CachedBallMovementDirection.X < 0.0f)
+	else if (InOverflowBallSide == EBallSide::Left && CachedBallMovementDirection.X < 0.0f)
 	{
 		ReflectedBallDirection.X *= -1.0f;
 	}
-	if (InOverflowBallSide == EOverflowBallSide::Top && CachedBallMovementDirection.Y > 0.0f)
+	if (InOverflowBallSide == EBallSide::Top && CachedBallMovementDirection.Y > 0.0f)
 	{
 		ReflectedBallDirection.Y *= -1.0f;
 	}
-	else if (InOverflowBallSide == EOverflowBallSide::Bottom && CachedBallMovementDirection.Y < 0.0f)
+	else if (InOverflowBallSide == EBallSide::Bottom && CachedBallMovementDirection.Y < 0.0f)
 	{
 		ReflectedBallDirection.Y *= -1.0f;
 	}
@@ -398,7 +398,7 @@ void SGraphNodePongComment::MoveBall(const FVector2D& MovementDirection, const f
 		return;
 	}
 
-	FVector2D NewDirection = BallIsInPlayArea() ? MovementDirection : GetReflectedBallDirection(GetOverflowBallSide());
+	FVector2D NewDirection = BallIsInPlayArea() ? MovementDirection : GetReflectedBallDirection(GetOverflowPlayAreaBallSide());
 
 	NewDirection.Normalize();
 	
@@ -431,13 +431,13 @@ FVector2D SGraphNodePongComment::GetLocalBallCoordinates() const
 	return FVector2D(LocalBallCoordinatesX, LocalBallCoordinatesY);
 }
 
-EOverflowBallSide SGraphNodePongComment::GetOverflowBallSide() const
+EBallSide SGraphNodePongComment::GetOverflowPlayAreaBallSide() const
 {
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
 	
 	if (!BallImage.IsValid() || !PlayAreaOverlay.IsValid())
 	{
-		return EOverflowBallSide::None;
+		return EBallSide::None;
 	}
 	
 	const FSlateRect BallRect = GetAbsoluteRect(BallImage->GetCachedGeometry());
@@ -445,25 +445,25 @@ EOverflowBallSide SGraphNodePongComment::GetOverflowBallSide() const
 
 	if (BallRect.Left < PlayAreaRect.Left)
 	{
-		return EOverflowBallSide::Left;
+		return EBallSide::Left;
 	}
 	
 	if (BallRect.Right > PlayAreaRect.Right)
 	{
-		return EOverflowBallSide::Right;
+		return EBallSide::Right;
 	}
 
 	if (BallRect.Top < PlayAreaRect.Top)
 	{
-		return EOverflowBallSide::Top;
+		return EBallSide::Top;
 	}
 
 	if (BallRect.Bottom > PlayAreaRect.Bottom)
 	{
-		return EOverflowBallSide::Bottom;
+		return EBallSide::Bottom;
 	}
 	
-	return EOverflowBallSide::None;
+	return EBallSide::None;
 }
 
 bool SGraphNodePongComment::BallIsInPlayArea() const

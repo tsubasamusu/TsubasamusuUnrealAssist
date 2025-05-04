@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "SGraphNodeCustomizableComment.h"
 
-enum class EOverflowBallSide : uint8
+enum class EBallSide : uint8
 {
 	None,
 	Left,
@@ -74,7 +74,7 @@ private:
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
-	FVector2D GetReflectedBallDirection(const EOverflowBallSide InOverflowBallSide) const;
+	FVector2D GetReflectedBallDirection(const EBallSide InOverflowBallSide) const;
 	
 	void MoveBall(const FVector2D& MovementDirection, const float InDeltaTime);
 	
@@ -83,8 +83,8 @@ private:
 
 	FVector2D GetLocalBallCoordinates() const;
 
-	EOverflowBallSide GetOverflowBallSide() const;
 	bool BallIsInPlayArea() const;
+	EBallSide GetOverflowPlayAreaBallSide() const;
 	
 	bool BallIsInScrollBarThumb(const TSharedPtr<SScrollBar> InScrollBar) const;
 
