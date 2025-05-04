@@ -55,10 +55,12 @@ private:
 	void CreateCenterDottedLine();
 	void CreateScrollBars();
 	void CreateScrollBoxes();
+	void CreateBallImage();
 	
 	FSlateColor GetDesiredUiColor() const;
 	FOptionalSize GetDesiredScrollBoxHeight() const;
 	static FScrollBarStyle GetDesiredScrollBarStyle();
+	TOptional<FVector2D> GetDesiredBallImageSize() const;
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 	
@@ -68,7 +70,9 @@ private:
 	FText GetRightScoreText() const;
 	
 	TSharedPtr<SButton> PlayButton;
+	
 	TSharedPtr<SImage> PlayButtonImage;
+	TSharedPtr<SImage> BallImage;
 
 	TSharedPtr<SScrollBar> LeftScrollBar;
 	TSharedPtr<SScrollBar> RightScrollBar;

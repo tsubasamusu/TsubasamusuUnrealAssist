@@ -206,6 +206,7 @@ void SGraphNodePongComment::CreatePlayAreaWidget()
 	CreateCenterDottedLine();
 	CreateScrollBars();
 	CreateScrollBoxes();
+	CreateBallImage();
 }
 
 void SGraphNodePongComment::CreateCenterDottedLine()
@@ -299,6 +300,19 @@ void SGraphNodePongComment::CreateScrollBoxes()
 	];
 }
 
+void SGraphNodePongComment::CreateBallImage()
+{
+	GetCommentNodeContentOverlay()->AddSlot()
+	.HAlign(HAlign_Center)
+	.VAlign(VAlign_Center)
+	[
+		SAssignNew(BallImage, SImage)
+		.Image(FAppStyle::Get().GetBrush(TEXT("UnrealCircle.Thick")))
+		.ColorAndOpacity(this, &SGraphNodePongComment::GetDesiredUiColor)
+		.DesiredSizeOverride(this, &SGraphNodePongComment::GetDesiredBallImageSize)
+	];
+}
+
 FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
@@ -326,6 +340,13 @@ FScrollBarStyle SGraphNodePongComment::GetDesiredScrollBarStyle()
 	DesiredScrollBarStyle.SetDraggedThumbImage(DesiredScrollBarImage);
 
 	return DesiredScrollBarStyle;
+}
+
+TOptional<FVector2D> SGraphNodePongComment::GetDesiredBallImageSize() const
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
+	return TsubasamusuUnrealAssistSettings->PongBallImageSize;
 }
 
 void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle)
