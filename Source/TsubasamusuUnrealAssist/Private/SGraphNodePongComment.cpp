@@ -368,6 +368,30 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 }
 
 void SGraphNodePongComment::MoveBall(const FVector2D& NormalizedDirection, const float InDeltaTime)
+FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EOverflowBallSide InOverflowBallSide) const
+{
+	FVector2D ReflectedBallDirection = CachedBallMovementDirection;  
+
+	if (InOverflowBallSide == EOverflowBallSide::Right && CachedBallMovementDirection.X > 0.0f)
+	{
+		ReflectedBallDirection.X *= -1.0f;
+	}
+	else if (InOverflowBallSide == EOverflowBallSide::Left && CachedBallMovementDirection.X < 0.0f)
+	{
+		ReflectedBallDirection.X *= -1.0f;
+	}
+	if (InOverflowBallSide == EOverflowBallSide::Top && CachedBallMovementDirection.Y > 0.0f)
+	{
+		ReflectedBallDirection.Y *= -1.0f;
+	}
+	else if (InOverflowBallSide == EOverflowBallSide::Bottom && CachedBallMovementDirection.Y < 0.0f)
+	{
+		ReflectedBallDirection.Y *= -1.0f;
+	}
+	
+	return ReflectedBallDirection;
+}
+
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 

@@ -75,6 +75,7 @@ private:
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
 	void MoveBall(const FVector2D& NormalizedDirection, const float InDeltaTime);
+	FVector2D GetReflectedBallDirection(const EOverflowBallSide InOverflowBallSide) const;
 	
 	void SetBallPosition(const FVector2D& NewBallPosition);
 	FVector2D GetBallPosition() const;
@@ -106,4 +107,5 @@ private:
 	FLinearColor CachedUiColor;
 	FScrollBarStyle CachedScrollBarStyle;
 	FMargin CachedBallPadding;
+	FVector2D CachedBallMovementDirection;
 };
