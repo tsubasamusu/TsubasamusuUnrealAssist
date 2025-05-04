@@ -85,7 +85,9 @@ private:
 
 	EOverflowBallSide GetOverflowBallSide() const;
 	bool BallIsInPlayArea() const;
+	
 	static FSlateRect GetAbsoluteRect(const FGeometry& InFGeometry);
+	static FSlateRect GetScrollBarThumbRect(const TSharedPtr<SScrollBar> InScrollBar);
 	
 	FVector2D GetPlayAreaSize() const;
 	
