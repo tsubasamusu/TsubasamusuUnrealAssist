@@ -396,6 +396,41 @@ FVector2D SGraphNodePongComment::GetLocalBallCoordinates() const
 	return FVector2D(LocalBallCoordinatesX, LocalBallCoordinatesY);
 }
 
+EOverflowBallSide SGraphNodePongComment::GetOverflowBallSide() const
+{
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	
+	if (!BallImage.IsValid() || !PlayAreaOverlay.IsValid())
+	{
+		return EOverflowBallSide::None;
+	}
+	
+	const FSlateRect BallRect = GetAbsoluteRect(BallImage->GetCachedGeometry());
+	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay->GetCachedGeometry());
+
+	if (BallRect.Left < PlayAreaRect.Left)
+	{
+		return EOverflowBallSide::Left;
+	}
+	
+	if (BallRect.Right > PlayAreaRect.Right)
+	{
+		return EOverflowBallSide::Right;
+	}
+
+	if (BallRect.Top < PlayAreaRect.Top)
+	{
+		return EOverflowBallSide::Top;
+	}
+
+	if (BallRect.Bottom > PlayAreaRect.Bottom)
+	{
+		return EOverflowBallSide::Bottom;
+	}
+	
+	return EOverflowBallSide::None;
+}
+
 bool SGraphNodePongComment::BallIsInPlayArea() const
 {
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();

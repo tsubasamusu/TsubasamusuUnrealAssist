@@ -81,6 +81,7 @@ private:
 
 	FVector2D GetLocalBallCoordinates() const;
 
+	EOverflowBallSide GetOverflowBallSide() const;
 	bool BallIsInPlayArea() const;
 	static FSlateRect GetAbsoluteRect(const FGeometry& InFGeometry);
 	
