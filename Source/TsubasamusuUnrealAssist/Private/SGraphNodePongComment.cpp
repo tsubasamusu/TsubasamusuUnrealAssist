@@ -18,6 +18,8 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 
 		SetScrollBarStyle(GetDesiredScrollBarStyle());
 	}
+
+	MoveBall(GetDesiredBallMovementDirection(), InDeltaTime);
 }
 
 void SGraphNodePongComment::Construct(const FArguments& InArgs, UEdGraphNode_Comment* InNode)
@@ -389,6 +391,57 @@ FVector2D SGraphNodePongComment::GetReflectedBallDirection(const EBallSide InOve
 	}
 	
 	return ReflectedBallDirection;
+}
+
+FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection() const
+{
+	if (CachedBallMovementDirection.IsZero())
+	{
+		FVector2D InitialBallMovementDirection = FVector2D(1.0f, 1.0f);
+
+		InitialBallMovementDirection.Normalize();
+		
+		return InitialBallMovementDirection;
+	}
+
+	FVector2D DesiredBallMovementDirection = CachedBallMovementDirection;  
+
+	if (BallIsInPlayArea())
+	{
+		if (BallIsInScrollBarThumb(RightScrollBar) && CachedBallMovementDirection.X > 0.0f)
+		{
+			DesiredBallMovementDirection.X *= -1.0f;
+		}
+		else if (BallIsInScrollBarThumb(LeftScrollBar) && CachedBallMovementDirection.X < 0.0f)
+		{
+			DesiredBallMovementDirection.X *= -1.0f;
+		}
+	}
+	else
+	{
+		const EBallSide OverflowPlayAreaBallSide = GetOverflowPlayAreaBallSide();
+	
+		if (OverflowPlayAreaBallSide == EBallSide::Right && CachedBallMovementDirection.X > 0.0f)
+		{
+			DesiredBallMovementDirection.X *= -1.0f;
+		}
+		else if (OverflowPlayAreaBallSide == EBallSide::Left && CachedBallMovementDirection.X < 0.0f)
+		{
+			DesiredBallMovementDirection.X *= -1.0f;
+		}
+		if (OverflowPlayAreaBallSide == EBallSide::Top && CachedBallMovementDirection.Y > 0.0f)
+		{
+			DesiredBallMovementDirection.Y *= -1.0f;
+		}
+		else if (OverflowPlayAreaBallSide == EBallSide::Bottom && CachedBallMovementDirection.Y < 0.0f)
+		{
+			DesiredBallMovementDirection.Y *= -1.0f;
+		}
+	}
+
+	DesiredBallMovementDirection.Normalize();
+	
+	return DesiredBallMovementDirection;
 }
 
 void SGraphNodePongComment::MoveBall(const FVector2D& MovementDirection, const float InDeltaTime)
