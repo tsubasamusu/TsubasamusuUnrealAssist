@@ -87,7 +87,6 @@ void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& In
 
 FReply SGraphNodePongComment::OnClickedButton()
 {
-	
 	ChangePlayButtonImage(bIsPlaying);
 	ChangePlayButtonToolTipText(bIsPlaying);
 	
@@ -117,10 +116,12 @@ const FSlateBrush* SGraphNodePongComment::GetStopIcon()
 
 void SGraphNodePongComment::StartGame()
 {
+	
 }
 
 void SGraphNodePongComment::StopGame()
 {
+	
 }
 
 void SGraphNodePongComment::ChangePlayButtonImage(const bool bChangeToStartImage) const
@@ -305,6 +306,7 @@ void SGraphNodePongComment::CreateBallImage()
 	GetCommentNodeContentOverlay()->AddSlot()
 	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Center)
+	.Padding(TAttribute<FMargin>::Create(TAttribute<FMargin>::FGetter::CreateSP(this, &SGraphNodePongComment::GetDesiredBallPadding)))
 	[
 		SAssignNew(BallImage, SImage)
 		.Image(FAppStyle::Get().GetBrush(TEXT("UnrealCircle.Thick")))
@@ -349,6 +351,11 @@ TOptional<FVector2D> SGraphNodePongComment::GetDesiredBallImageSize() const
 	return TsubasamusuUnrealAssistSettings->PongBallImageSize;
 }
 
+FMargin SGraphNodePongComment::GetDesiredBallPadding() const
+{
+	return CachedBallPadding;
+}
+
 void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle)
 {
 	if (RightScrollBar.IsValid() && LeftScrollBar.IsValid())
@@ -358,6 +365,25 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 		RightScrollBar->SetStyle(&CachedScrollBarStyle);
 		LeftScrollBar->SetStyle(&CachedScrollBarStyle);
 	}
+}
+
+void SGraphNodePongComment::MoveBall(const FVector2D& NormalizedDirection, const float InDeltaTime)
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
+	const FVector2D DesiredBallOffset = NormalizedDirection * TsubasamusuUnrealAssistSettings->PongBallSpeed * InDeltaTime;
+
+	SetBallPosition(GetBallPosition() + DesiredBallOffset);
+}
+
+void SGraphNodePongComment::SetBallPosition(const FVector2D& NewBallPosition)
+{
+	CachedBallPadding = FMargin(NewBallPosition.X, 0.0f, 0.0f, NewBallPosition.Y);
+}
+
+FVector2D SGraphNodePongComment::GetBallPosition() const
+{
+	return FVector2D(CachedBallPadding.Left, CachedBallPadding.Bottom);
 }
 
 FVector2D SGraphNodePongComment::GetPlayAreaSize() const

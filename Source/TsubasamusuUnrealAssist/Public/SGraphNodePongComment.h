@@ -61,8 +61,14 @@ private:
 	FOptionalSize GetDesiredScrollBoxHeight() const;
 	static FScrollBarStyle GetDesiredScrollBarStyle();
 	TOptional<FVector2D> GetDesiredBallImageSize() const;
+	FMargin GetDesiredBallPadding() const;
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
+
+	void MoveBall(const FVector2D& NormalizedDirection, const float InDeltaTime);
+	
+	void SetBallPosition(const FVector2D& NewBallPosition);
+	FVector2D GetBallPosition() const;
 	
 	FVector2D GetPlayAreaSize() const;
 	
@@ -84,4 +90,5 @@ private:
 
 	FLinearColor CachedUiColor;
 	FScrollBarStyle CachedScrollBarStyle;
+	FMargin CachedBallPadding;
 };
