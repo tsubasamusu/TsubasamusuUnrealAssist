@@ -94,6 +94,8 @@ private:
 	static FSlateRect GetScrollBarThumbRect(const TSharedPtr<SScrollBar> InScrollBar);
 	
 	FVector2D GetPlayAreaSize() const;
+
+	void SetBallImageVisibility(const bool bNewVisibility) const;
 	
 	FText GetLeftScoreText() const;
 	FText GetRightScoreText() const;

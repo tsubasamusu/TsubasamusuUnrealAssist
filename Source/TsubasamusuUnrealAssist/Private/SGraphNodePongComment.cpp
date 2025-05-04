@@ -574,6 +574,14 @@ FVector2D SGraphNodePongComment::GetPlayAreaSize() const
 	return FVector2D(CommentNodeDesiredSize.X, CommentNodeDesiredSize.Y - GetTitleBarHeight());
 }
 
+void SGraphNodePongComment::SetBallImageVisibility(const bool bNewVisibility) const
+{
+	if (BallImage.IsValid())
+	{
+		BallImage->SetVisibility(bNewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+	}
+}
+
 FText SGraphNodePongComment::GetLeftScoreText() const
 {
 	return FText::FromString(FString::FromInt(LeftScore));
