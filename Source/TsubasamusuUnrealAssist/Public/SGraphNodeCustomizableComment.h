@@ -111,6 +111,8 @@ protected:
 	TSharedPtr<SOverlay> GetTitleBarOverlay() const; 
 	TSharedPtr<SOverlay> GetCommentNodeContentOverlay() const; 
 	
+	float GetTitleBarHeight() const;
+
 private:
 	
 	ECommentNodeZone GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const;
@@ -125,9 +127,7 @@ private:
 	void UpdateAnchorPoint();
 
 	FVector2D GetCorrectedNodePositionByAnchorPoint() const;
-
-	float GetTitleBarHeight() const;
-
+	
 	static FVector2D GetMinNodeSize();
 	FVector2D GetMaxNodeSize() const;
 
