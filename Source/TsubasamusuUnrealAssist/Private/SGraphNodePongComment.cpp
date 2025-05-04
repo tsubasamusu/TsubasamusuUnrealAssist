@@ -397,18 +397,14 @@ void SGraphNodePongComment::MoveBall(const FVector2D& MovementDirection, const f
 	{
 		return;
 	}
-
-	FVector2D NewDirection = BallIsInPlayArea() ? MovementDirection : GetReflectedBallDirection(GetOverflowPlayAreaBallSide());
-
-	NewDirection.Normalize();
 	
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 
-	const FVector2D DesiredBallOffset = NewDirection * TsubasamusuUnrealAssistSettings->PongBallSpeed * InDeltaTime;
+	const FVector2D DesiredBallOffset = MovementDirection * TsubasamusuUnrealAssistSettings->PongBallSpeed * InDeltaTime;
 
 	SetBallPosition(GetBallPosition() + DesiredBallOffset);
 
-	CachedBallMovementDirection = NewDirection;
+	CachedBallMovementDirection = MovementDirection;
 }
 
 void SGraphNodePongComment::SetBallPosition(const FVector2D& NewBallPosition)

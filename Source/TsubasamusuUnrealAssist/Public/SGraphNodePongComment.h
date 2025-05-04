@@ -83,10 +83,10 @@ private:
 
 	FVector2D GetLocalBallCoordinates() const;
 
-	bool BallIsInPlayArea() const;
 	EBallSide GetOverflowPlayAreaBallSide() const;
 	EBallSide GetHitScrollBarThumbBallSide() const;
 	
+	bool BallIsInPlayArea() const;
 	bool BallIsInScrollBarThumb(const TSharedPtr<SScrollBar> InScrollBar) const;
 
 	FSlateRect GetBallImageRect() const;
