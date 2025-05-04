@@ -5,6 +5,15 @@
 #include "CoreMinimal.h"
 #include "SGraphNodeCustomizableComment.h"
 
+enum class EOverflowBallSide : uint8
+{
+	None,
+	Left,
+	Right,
+	Top,
+	Bottom
+};
+
 class TSUBASAMUSUUNREALASSIST_API SGraphNodePongComment final : public SGraphNodeCustomizableComment
 {
 	typedef SGraphNodePongComment Super;
