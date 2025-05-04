@@ -52,6 +52,7 @@ private:
 
 	void CreateTitleBarAreaWidget();
 	void CreatePlayAreaWidget();
+	void CreateCenterDottedLine();
 	
 	FSlateColor GetDesiredUiColor() const;
 	

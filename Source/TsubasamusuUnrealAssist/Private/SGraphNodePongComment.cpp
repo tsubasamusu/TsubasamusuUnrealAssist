@@ -194,6 +194,11 @@ void SGraphNodePongComment::CreateTitleBarAreaWidget()
 
 void SGraphNodePongComment::CreatePlayAreaWidget()
 {
+	CreateCenterDottedLine();
+}
+
+void SGraphNodePongComment::CreateCenterDottedLine()
+{
 	GetCommentNodeContentOverlay()->AddSlot()
 	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Fill)
