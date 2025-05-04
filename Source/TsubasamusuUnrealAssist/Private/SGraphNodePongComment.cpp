@@ -396,6 +396,15 @@ FVector2D SGraphNodePongComment::GetLocalBallCoordinates() const
 	return FVector2D(LocalBallCoordinatesX, LocalBallCoordinatesY);
 }
 
+
+FSlateRect SGraphNodePongComment::GetAbsoluteRect(const FGeometry& InFGeometry)
+{
+	const FVector2D TopLeft = InFGeometry.LocalToAbsolute(FVector2D::ZeroVector);
+	const FVector2D BottomRight = InFGeometry.LocalToAbsolute(InFGeometry.GetLocalSize());
+	
+	return FSlateRect(TopLeft.X, TopLeft.Y, BottomRight.X, BottomRight.Y);
+}
+
 FVector2D SGraphNodePongComment::GetPlayAreaSize() const
 {
 	const FVector2D CommentNodeDesiredSize = GetDesiredSize();
