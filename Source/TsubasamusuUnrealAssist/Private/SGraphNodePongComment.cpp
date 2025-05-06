@@ -401,11 +401,7 @@ FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
 	
 	if (CachedBallMovementDirection.IsZero())
 	{
-		FVector2D InitialBallMovementDirection = FVector2D(1.0f, 1.0f);
-
-		InitialBallMovementDirection.Normalize();
-		
-		return InitialBallMovementDirection;
+		return GetDesiredInitialBallMovementDirection();
 	}
 
 	FVector2D DesiredBallMovementDirection = CachedBallMovementDirection;  
@@ -446,6 +442,17 @@ FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
 	DesiredBallMovementDirection.Normalize();
 	
 	return DesiredBallMovementDirection;
+}
+
+FVector2D SGraphNodePongComment::GetDesiredInitialBallMovementDirection() const
+{
+	const float DirectionX = bLeftIsLastScoredPlayer ? 1.0f : -1.0f;
+	const float DirectionY = FMath::RandBool() ? 1.0f : -1.0f;
+
+	FVector2D Direction = FVector2D(DirectionX, DirectionY);
+	Direction.Normalize();
+
+	return Direction;
 }
 
 void SGraphNodePongComment::MoveBall(const FVector2D& MovementDirection, const float InDeltaTime)
@@ -625,12 +632,16 @@ bool SGraphNodePongComment::GameIsInInterval() const
 void SGraphNodePongComment::OnLeftScored()
 {
 	LeftScore++;
+	bLeftIsLastScoredPlayer = true;
+	
 	OnSomeoneScored();
 }
 
 void SGraphNodePongComment::OnRightScored()
 {
 	RightScore++;
+	bLeftIsLastScoredPlayer = false;
+	
 	OnSomeoneScored();
 }
 
