@@ -436,6 +436,13 @@ void SGraphNodePongComment::MoveBall(const FVector2D& MovementDirection, const f
 	CachedBallMovementDirection = MovementDirection;
 }
 
+void SGraphNodePongComment::ResetBallPosition()
+{
+	SetBallPosition(FVector2D::ZeroVector);
+	
+	CachedBallMovementDirection = FVector2D::ZeroVector;
+}
+
 void SGraphNodePongComment::SetBallPosition(const FVector2D& NewBallPosition)
 {
 	CachedBallPadding = FMargin(NewBallPosition.X, 0.0f, 0.0f, NewBallPosition.Y);

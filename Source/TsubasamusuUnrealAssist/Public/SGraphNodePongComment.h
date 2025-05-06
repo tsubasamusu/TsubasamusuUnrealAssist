@@ -77,7 +77,8 @@ private:
 	FVector2D GetDesiredBallMovementDirection() const;
 	
 	void MoveBall(const FVector2D& MovementDirection, const float InDeltaTime);
-	
+
+	void ResetBallPosition();
 	void SetBallPosition(const FVector2D& NewBallPosition);
 	FVector2D GetBallPosition() const;
 
