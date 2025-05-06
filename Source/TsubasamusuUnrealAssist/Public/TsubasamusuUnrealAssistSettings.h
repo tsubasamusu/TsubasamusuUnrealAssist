@@ -45,8 +45,11 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Ball Speed", ClampMin = "0.0"))
 	float PongBallSpeed;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (Units = "Seconds", DisplayName = "Interval Seconds", ClampMin = "0.0"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (Units = "Seconds", DisplayName = "Interval Seconds", ClampMin = "0.0", ToolTip = "The time between either player scoring and the ball being fired again."))
 	float PongIntervalSeconds;
-
+	
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (ToolTip = "Make the left scroll bar move automatically. You will not be able to control the left scroll bar."))
+	bool bMakeLeftScrollBarNPC;
+	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };

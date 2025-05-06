@@ -18,6 +18,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	PongSliderLengthMultiplier = 0.3f;
 	PongBallSpeed = 100.0f;
 	PongIntervalSeconds = 1.0f;
+	bMakeLeftScrollBarNPC = false;
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
