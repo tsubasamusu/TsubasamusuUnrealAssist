@@ -9,6 +9,8 @@
 void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SGraphNodeCustomizableComment::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	CachedDeltaTime = InDeltaTime;
 	
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	
@@ -19,6 +21,18 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 		SetScrollBarStyle(GetDesiredScrollBarStyle());
 	}
 
+	if (GameIsInInterval())
+	{
+		IntervalSeconds += InDeltaTime;
+
+		if (IntervalSeconds >= TsubasamusuUnrealAssistSettings->PongIntervalSeconds)
+		{
+			IntervalSeconds = 0.0f;
+			
+			SetBallImageVisibility(true);
+		}
+	}
+	
 	MoveBall(GetDesiredBallMovementDirection(), InDeltaTime);
 }
 
@@ -373,9 +387,14 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
-FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection() const
+FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
 {
 	if (!bIsPlaying)
+	{
+		return FVector2D::ZeroVector;
+	}
+
+	if (GameIsInInterval())
 	{
 		return FVector2D::ZeroVector;
 	}
@@ -408,11 +427,11 @@ FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection() const
 	
 		if (OverflowPlayAreaBallSide == EBallSide::Right && CachedBallMovementDirection.X > 0.0f)
 		{
-			DesiredBallMovementDirection.X *= -1.0f;
+			OnLeftScored();
 		}
 		else if (OverflowPlayAreaBallSide == EBallSide::Left && CachedBallMovementDirection.X < 0.0f)
 		{
-			DesiredBallMovementDirection.X *= -1.0f;
+			OnRightScored();
 		}
 		if (OverflowPlayAreaBallSide == EBallSide::Top && CachedBallMovementDirection.Y > 0.0f)
 		{
@@ -601,6 +620,26 @@ void SGraphNodePongComment::SetBallImageVisibility(const bool bNewVisibility) co
 bool SGraphNodePongComment::GameIsInInterval() const
 {
 	return IntervalSeconds > 0.0f;
+}
+
+void SGraphNodePongComment::OnLeftScored()
+{
+	LeftScore++;
+	OnSomeoneScored();
+}
+
+void SGraphNodePongComment::OnRightScored()
+{
+	RightScore++;
+	OnSomeoneScored();
+}
+
+void SGraphNodePongComment::OnSomeoneScored()
+{
+	ResetBallPosition();
+	SetBallImageVisibility(false);
+	
+	IntervalSeconds = CachedDeltaTime;
 }
 
 FText SGraphNodePongComment::GetLeftScoreText() const

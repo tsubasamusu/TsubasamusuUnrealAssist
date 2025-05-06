@@ -70,7 +70,7 @@ private:
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
-	FVector2D GetDesiredBallMovementDirection() const;
+	FVector2D GetDesiredBallMovementDirection();
 	
 	void MoveBall(const FVector2D& MovementDirection, const float InDeltaTime);
 
@@ -96,6 +96,10 @@ private:
 
 	bool GameIsInInterval() const;
 	
+	void OnLeftScored();
+	void OnRightScored();
+	void OnSomeoneScored();
+	
 	FText GetLeftScoreText() const;
 	FText GetRightScoreText() const;
 	
@@ -113,6 +117,7 @@ private:
 	bool bIsPlaying;
 	float IntervalSeconds;
 
+	float CachedDeltaTime;
 	FLinearColor CachedUiColor;
 	FScrollBarStyle CachedScrollBarStyle;
 	FMargin CachedBallPadding;
