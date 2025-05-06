@@ -94,9 +94,12 @@ private:
 	FVector2D GetPlayAreaSize() const;
 
 	void SetBallImageVisibility(const bool bNewVisibility) const;
-
-	bool GameIsInInterval() const;
 	
+	void SetLeftScrollBarEnabled(const bool bEnabled) const;
+	bool LeftScrollBarIsEnabled() const;
+	
+	bool GameIsInInterval() const;
+
 	void OnLeftScored();
 	void OnRightScored();
 	void OnSomeoneScored();

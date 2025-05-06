@@ -21,6 +21,11 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 		SetScrollBarStyle(GetDesiredScrollBarStyle());
 	}
 
+	if (LeftScrollBarIsEnabled() == TsubasamusuUnrealAssistSettings->bMakeLeftScrollBarNPC)
+	{
+		SetLeftScrollBarEnabled(!TsubasamusuUnrealAssistSettings->bMakeLeftScrollBarNPC);
+	}
+
 	if (GameIsInInterval())
 	{
 		IntervalSeconds += InDeltaTime;
@@ -248,17 +253,6 @@ void SGraphNodePongComment::CreateScrollBars()
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
 	
 	PlayAreaOverlay->AddSlot()
-	.HAlign(HAlign_Right)
-	.VAlign(VAlign_Fill)
-	.Padding(0.0f, 3.0f, 10.0f, 3.0f)
-	[
-		SAssignNew(RightScrollBar, SScrollBar)
-		.Orientation(Orient_Vertical)
-		.AlwaysShowScrollbar(true)
-		.Thickness(FVector2D(8.0f, 8.0f))
-	];
-	
-	PlayAreaOverlay->AddSlot()
 	.HAlign(HAlign_Left)
 	.VAlign(VAlign_Fill)
 	.Padding(10.0f, 3.0f, 0.0f, 3.0f)
@@ -269,6 +263,17 @@ void SGraphNodePongComment::CreateScrollBars()
 		.Thickness(FVector2D(8.0f, 8.0f))
 	];
 
+	PlayAreaOverlay->AddSlot()
+	.HAlign(HAlign_Right)
+	.VAlign(VAlign_Fill)
+	.Padding(0.0f, 3.0f, 10.0f, 3.0f)
+	[
+		SAssignNew(RightScrollBar, SScrollBar)
+		.Orientation(Orient_Vertical)
+		.AlwaysShowScrollbar(true)
+		.Thickness(FVector2D(8.0f, 8.0f))
+	];
+	
 	SetScrollBarStyle(GetDesiredScrollBarStyle());
 }
 
@@ -621,6 +626,24 @@ void SGraphNodePongComment::SetBallImageVisibility(const bool bNewVisibility) co
 	{
 		BallImage->SetVisibility(bNewVisibility ? EVisibility::Visible : EVisibility::Hidden);
 	}
+}
+
+void SGraphNodePongComment::SetLeftScrollBarEnabled(const bool bEnabled) const
+{
+	if (LeftScrollBar.IsValid())
+	{
+		LeftScrollBar->SetVisibility(bEnabled ? EVisibility::Visible : EVisibility::HitTestInvisible);
+	}
+}
+
+bool SGraphNodePongComment::LeftScrollBarIsEnabled() const
+{
+	if (LeftScrollBar.IsValid())
+	{
+		return LeftScrollBar->GetVisibility() == EVisibility::Visible;
+	}
+
+	return false;
 }
 
 bool SGraphNodePongComment::GameIsInInterval() const
