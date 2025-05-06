@@ -45,5 +45,8 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Ball Speed", ClampMin = "0.0"))
 	float PongBallSpeed;
 
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (Units = "Seconds", DisplayName = "Interval Seconds", ClampMin = "0.0"))
+	float PongIntervalSeconds;
+
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };

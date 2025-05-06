@@ -17,6 +17,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	PongBallImageSize = FVector2D(30.0f, 30.0f);
 	PongSliderLengthMultiplier = 0.3f;
 	PongBallSpeed = 100.0f;
+	PongIntervalSeconds = 1.0f;
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
