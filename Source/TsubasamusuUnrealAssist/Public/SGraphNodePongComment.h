@@ -54,7 +54,7 @@ private:
 	FReply OnClickedButton();
 	
 	void StartGame();
-	void StopGame();
+	void EndGame();
 
 	void ChangePlayButtonImage(const bool bChangeToStartImage) const;
 	void ChangePlayButtonToolTipText(const bool bChangeToStartToolTipText) const;

@@ -89,21 +89,38 @@ void SGraphNodePongComment::CreateCommentNodeWidget(const FGraphNodeMetaData& In
 
 FReply SGraphNodePongComment::OnClickedButton()
 {
-	ChangePlayButtonImage(bIsPlaying);
-	ChangePlayButtonToolTipText(bIsPlaying);
-	
 	if (bIsPlaying)
 	{
-		StopGame();
+		EndGame();
 	}
 	else
 	{
 		StartGame();
 	}
-
-	bIsPlaying = !bIsPlaying;
-
+	
 	return FReply::Handled();
+}
+
+void SGraphNodePongComment::StartGame()
+{
+	bIsPlaying = true;
+	
+	ChangePlayButtonImage(false);
+	ChangePlayButtonToolTipText(false);
+	SetBallImageVisibility(true);
+}
+
+void SGraphNodePongComment::EndGame()
+{
+	bIsPlaying = false;
+	
+	ResetBallPosition();
+	ChangePlayButtonImage(true);
+	ChangePlayButtonToolTipText(true);
+	SetBallImageVisibility(false);
+
+	LeftScore = 0;
+	RightScore = 0;
 }
 
 const FSlateBrush* SGraphNodePongComment::GetStartIcon()
@@ -114,16 +131,6 @@ const FSlateBrush* SGraphNodePongComment::GetStartIcon()
 const FSlateBrush* SGraphNodePongComment::GetStopIcon()
 {
 	return FAppStyle::Get().GetBrush(TEXT("Animation.Pause"));
-}
-
-void SGraphNodePongComment::StartGame()
-{
-	
-}
-
-void SGraphNodePongComment::StopGame()
-{
-	
 }
 
 void SGraphNodePongComment::ChangePlayButtonImage(const bool bChangeToStartImage) const
@@ -315,6 +322,8 @@ void SGraphNodePongComment::CreateBallImage()
 		.ColorAndOpacity(this, &SGraphNodePongComment::GetDesiredUiColor)
 		.DesiredSizeOverride(this, &SGraphNodePongComment::GetDesiredBallImageSize)
 	];
+
+	SetBallImageVisibility(false);
 }
 
 FSlateColor SGraphNodePongComment::GetDesiredUiColor() const
@@ -371,6 +380,11 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection() const
 {
+	if (!bIsPlaying)
+	{
+		return FVector2D::ZeroVector;
+	}
+	
 	if (CachedBallMovementDirection.IsZero())
 	{
 		FVector2D InitialBallMovementDirection = FVector2D(1.0f, 1.0f);
@@ -585,7 +599,7 @@ void SGraphNodePongComment::SetBallImageVisibility(const bool bNewVisibility) co
 {
 	if (BallImage.IsValid())
 	{
-		BallImage->SetVisibility(bNewVisibility ? EVisibility::Visible : EVisibility::Collapsed);
+		BallImage->SetVisibility(bNewVisibility ? EVisibility::Visible : EVisibility::Hidden);
 	}
 }
 
