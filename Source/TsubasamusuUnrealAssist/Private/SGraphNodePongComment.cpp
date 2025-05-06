@@ -599,13 +599,12 @@ FSlateRect SGraphNodePongComment::GetAbsoluteRect(const FGeometry& InFGeometry)
 FSlateRect SGraphNodePongComment::GetScrollBarThumbRect(const TSharedPtr<SScrollBar> InScrollBar)
 {
 	const FGeometry& ScrollBarGeometry = InScrollBar->GetCachedGeometry();
+	const FSlateRect ScrollBarRect = GetAbsoluteRect(ScrollBarGeometry);
 	
-	const float ScrollBarLength = ScrollBarGeometry.GetLocalSize().Y;
+	const float ScrollBarLength = ScrollBarRect.Bottom - ScrollBarRect.Top;
 	const float ThumbTopSpace = ScrollBarLength * InScrollBar->DistanceFromTop();
 	const float ThumbBottomSpace = ScrollBarLength * InScrollBar->DistanceFromBottom();
 	
-	const FSlateRect ScrollBarRect = GetAbsoluteRect(ScrollBarGeometry);
-
 	return FSlateRect(ScrollBarRect.Left, ScrollBarRect.Top + ThumbTopSpace, ScrollBarRect.Right, ScrollBarRect.Bottom - ThumbBottomSpace);
 }
 
