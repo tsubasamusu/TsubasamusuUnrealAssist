@@ -93,6 +93,8 @@ private:
 	FVector2D GetPlayAreaSize() const;
 
 	void SetBallImageVisibility(const bool bNewVisibility) const;
+
+	bool GameIsInInterval() const;
 	
 	FText GetLeftScoreText() const;
 	FText GetRightScoreText() const;
@@ -109,6 +111,7 @@ private:
 	int32 RightScore;
 	
 	bool bIsPlaying;
+	float IntervalSeconds;
 
 	FLinearColor CachedUiColor;
 	FScrollBarStyle CachedScrollBarStyle;

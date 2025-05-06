@@ -598,6 +598,11 @@ void SGraphNodePongComment::SetBallImageVisibility(const bool bNewVisibility) co
 	}
 }
 
+bool SGraphNodePongComment::GameIsInInterval() const
+{
+	return IntervalSeconds > 0.0f;
+}
+
 FText SGraphNodePongComment::GetLeftScoreText() const
 {
 	return FText::FromString(FString::FromInt(LeftScore));
