@@ -31,10 +31,6 @@ public:
 
 protected:
 
-	//~ Begin SNodePanel::SNode Interface
-	virtual bool CanBeSelected(const FVector2D& MousePositionInNode) const override;
-	//~ End SNodePanel::SNode Interface
-	
 	//~ Begin SGraphNodeCustomizableComment Interface
 	virtual EVisibility GetCommentTextVisibility() const override;
 	virtual EVisibility GetCommentBubbleVisibility() const override;
