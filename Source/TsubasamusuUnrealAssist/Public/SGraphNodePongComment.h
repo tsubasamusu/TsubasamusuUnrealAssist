@@ -88,7 +88,7 @@ private:
 	bool BallIsInScrollBarThumb(const TSharedPtr<SScrollBar> InScrollBar) const;
 
 	FSlateRect GetBallImageRect() const;
-	static FSlateRect GetAbsoluteRect(const FGeometry& InFGeometry);
+	static FSlateRect GetAbsoluteRect(const TSharedPtr<SWidget> InWidget);
 	static FSlateRect GetScrollBarThumbRect(const TSharedPtr<SScrollBar> InScrollBar);
 	
 	FVector2D GetPlayAreaSize() const;

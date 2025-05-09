@@ -512,8 +512,8 @@ EBallSide SGraphNodePongComment::GetOverflowPlayAreaBallSide() const
 		return EBallSide::None;
 	}
 	
-	const FSlateRect BallRect = GetAbsoluteRect(BallImage->GetCachedGeometry());
-	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay->GetCachedGeometry());
+	const FSlateRect BallRect = GetAbsoluteRect(BallImage);
+	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
 
 	if (BallRect.Left < PlayAreaRect.Left)
 	{
@@ -564,8 +564,8 @@ bool SGraphNodePongComment::BallIsInPlayArea() const
 	
 	if (BallImage.IsValid() && PlayAreaOverlay.IsValid())
 	{
-		const FSlateRect BallRect = GetAbsoluteRect(BallImage->GetCachedGeometry());
-		const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay->GetCachedGeometry());
+		const FSlateRect BallRect = GetAbsoluteRect(BallImage);
+		const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
 
 		return FSlateRect::IsRectangleContained(PlayAreaRect, BallRect);
 	}
@@ -587,24 +587,25 @@ FSlateRect SGraphNodePongComment::GetBallImageRect() const
 {
 	if (BallImage.IsValid())
 	{
-		return GetAbsoluteRect(BallImage->GetCachedGeometry());
+		return GetAbsoluteRect(BallImage);
 	}
 
 	return FSlateRect();
 }
 
-FSlateRect SGraphNodePongComment::GetAbsoluteRect(const FGeometry& InFGeometry)
+FSlateRect SGraphNodePongComment::GetAbsoluteRect(const TSharedPtr<SWidget> InWidget)
 {
-	const FVector2D TopLeft = InFGeometry.LocalToAbsolute(FVector2D::ZeroVector);
-	const FVector2D BottomRight = InFGeometry.LocalToAbsolute(InFGeometry.GetLocalSize());
+	const FGeometry& Geometry = InWidget->GetCachedGeometry();
+	
+	const FVector2D TopLeft = Geometry.LocalToAbsolute(FVector2D::ZeroVector);
+	const FVector2D BottomRight = Geometry.LocalToAbsolute(Geometry.GetLocalSize());
 	
 	return FSlateRect(TopLeft.X, TopLeft.Y, BottomRight.X, BottomRight.Y);
 }
 
 FSlateRect SGraphNodePongComment::GetScrollBarThumbRect(const TSharedPtr<SScrollBar> InScrollBar)
 {
-	const FGeometry& ScrollBarGeometry = InScrollBar->GetCachedGeometry();
-	const FSlateRect ScrollBarRect = GetAbsoluteRect(ScrollBarGeometry);
+	const FSlateRect ScrollBarRect = GetAbsoluteRect(InScrollBar);
 	
 	const float ScrollBarLength = ScrollBarRect.Bottom - ScrollBarRect.Top;
 	const float ThumbTopSpace = ScrollBarLength * InScrollBar->DistanceFromTop();
