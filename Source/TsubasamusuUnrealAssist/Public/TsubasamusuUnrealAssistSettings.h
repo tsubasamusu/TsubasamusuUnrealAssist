@@ -39,7 +39,7 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Ball Size"))
 	FVector2D PongBallImageSize;
 
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Slider Length Multiplier", ClampMin = "0.0", ClampMax = "1.0"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Slider Length Multiplier", ClampMin = "0.1", ClampMax = "1.0"))
 	float PongSliderLengthMultiplier;
 
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (DisplayName = "Ball Speed", ClampMin = "0.0"))
