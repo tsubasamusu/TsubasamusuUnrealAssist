@@ -83,8 +83,8 @@ private:
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
-	float GetPredictedBallHitPositionY() const;
-	float GetDesiredLeftScrollBarThumbPositionY() const;
+	FPredictedBallHitPositionData GetPredictedBallHitPositionData();
+	float GetDesiredLeftScrollBarThumbPositionY();
 	
 	void SetLeftScrollBarThumbPositionY(const float NewPositionY);
 	
@@ -148,5 +148,7 @@ private:
 	FLinearColor CachedUiColor;
 	FScrollBarStyle CachedScrollBarStyle;
 	FMargin CachedBallPadding;
+	FPredictedBallHitPositionData CachedPredictedBallHitPositionData;
+	
 	FVector2D CachedBallMovementDirection;
 };

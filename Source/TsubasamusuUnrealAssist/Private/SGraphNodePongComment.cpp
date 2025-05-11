@@ -26,7 +26,12 @@ void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double
 	{
 		SetLeftScrollBarEnabled(!TsubasamusuUnrealAssistSettings->bMakeLeftScrollBarNPC);
 	}
-
+	
+	if (TsubasamusuUnrealAssistSettings->bMakeLeftScrollBarNPC)
+	{
+		SetLeftScrollBarThumbPositionY(GetDesiredLeftScrollBarThumbPositionY());
+	}
+	
 	if (GameIsInInterval())
 	{
 		IntervalSeconds += InDeltaTime;
@@ -409,7 +414,7 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
-float SGraphNodePongComment::GetPredictedBallHitPositionY() const
+FPredictedBallHitPositionData SGraphNodePongComment::GetPredictedBallHitPositionData()
 {
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
 	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
@@ -453,10 +458,27 @@ float SGraphNodePongComment::GetPredictedBallHitPositionY() const
 		ReboundedBallPositionY += DoubledBallEdgeMovableRange.Y;
 	}
 
-	return BallEdgeMovableRange.Y - FMath::Abs(ReboundedBallPositionY - BallEdgeMovableRange.Y) + BallRadius.Y;
+	const float PredictedBallHitPositionY = BallEdgeMovableRange.Y - FMath::Abs(ReboundedBallPositionY - BallEdgeMovableRange.Y) + BallRadius.Y;
+	
+	const float LeftScrollBarThumbRightPositionX = LeftScrollBarThumbRect.Right - PlayAreaRect.Left;
+	const float DistanceX = CachedBallMovementDirection.X > 0.0f ? (BallEdgeMovableRange.X * 2.0f) - (BallLeftPosition.X - LeftScrollBarThumbRightPositionX) : BallLeftPosition.X - LeftScrollBarThumbRightPositionX;
+
+	const float DistanceBetweenBallAndThumb = UKismetMathLibrary::SafeDivide(FMath::Abs(DistanceX), FMath::Abs(NormalizedBallDirection.X));
+	
+	CachedPredictedBallHitPositionData.PredictedBallHitPositionY = PredictedBallHitPositionY;
+	CachedPredictedBallHitPositionData.CurrentDistanceBetweenBallAndThumb = DistanceBetweenBallAndThumb;
+
+	if (!CachedPredictedBallHitPositionData.bIsAlreadyInitialized)
+	{
+		CachedPredictedBallHitPositionData.BeginningDistanceBetweenBallAndThumb = DistanceBetweenBallAndThumb;
+		CachedPredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY = CachedLeftScrollBarThumbPositionY;
+		CachedPredictedBallHitPositionData.bIsAlreadyInitialized = true;
+	}
+
+	return CachedPredictedBallHitPositionData;
 }
 
-float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
+float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY()
 {
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
 	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
@@ -469,10 +491,17 @@ float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
 	
 	if (CachedBallMovementDirection.X > 0.0f)
 	{
+		CachedPredictedBallHitPositionData.bIsAlreadyInitialized = false;
+		
 		return CachedLeftScrollBarThumbPositionY;
 	}
 
-	return GetPredictedBallHitPositionY();
+	const FPredictedBallHitPositionData PredictedBallHitPositionData = GetPredictedBallHitPositionData();
+
+	const float Alpha = 1.0f - UKismetMathLibrary::SafeDivide(PredictedBallHitPositionData.CurrentDistanceBetweenBallAndThumb, PredictedBallHitPositionData.BeginningDistanceBetweenBallAndThumb);
+	const float DesiredLeftScrollBarThumbOffsetY = (PredictedBallHitPositionData.PredictedBallHitPositionY - PredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY) * Alpha;
+	
+	return DesiredLeftScrollBarThumbOffsetY + PredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY;
 }
 
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
