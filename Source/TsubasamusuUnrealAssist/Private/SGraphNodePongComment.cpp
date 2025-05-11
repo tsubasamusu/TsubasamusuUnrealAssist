@@ -394,29 +394,18 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 
 float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
 {
-	if (!BallImage.IsValid())
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
+	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaRect);
+
+	if (!bIsPlaying)
 	{
-		return 0.0f;
+		return PlayAreaSize.Y / 2.0f;
 	}
 
 	const FSlateRect BallRect = GetBallImageRect();
 	const FVector2D BallSize = GetWidgetRectSize(BallRect);
 	const FVector2D BallRadius = FVector2d(BallSize.X / 2.0f, BallSize.Y / 2.0f);
-	
-	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
-
-	if (!PlayAreaOverlay.IsValid())
-	{
-		return 0.0f;
-	}
-	
-	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
-	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaRect);
-
-	if (!LeftScrollBar.IsValid() || !RightScrollBar.IsValid())
-	{
-		return 0.0f;
-	}
 	
 	const FSlateRect LeftScrollBarThumbRect = GetScrollBarThumbRect(LeftScrollBar);
 	const FSlateRect RightScrollBarThumbRect = GetScrollBarThumbRect(RightScrollBar);
