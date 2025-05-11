@@ -381,6 +381,19 @@ FMargin SGraphNodePongComment::GetDesiredBallPadding() const
 	return CachedBallPadding;
 }
 
+void SGraphNodePongComment::SetLeftScrollBarThumbPositionY(const float NewPositionY) const
+{
+	const FSlateRect LeftScrollBarThumbRect = GetScrollBarThumbRect(LeftScrollBar);
+	const FVector2D LeftScrollBarThumbSize = GetWidgetRectSize(LeftScrollBarThumbRect);
+
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaOverlay);
+	
+	const float DesiredThumbTopSpaceFraction = (PlayAreaSize.Y - (NewPositionY + (LeftScrollBarThumbSize.Y / 2.0f))) / PlayAreaSize.Y;
+
+	LeftScrollBar->SetState(DesiredThumbTopSpaceFraction, LeftScrollBar->ThumbSizeFraction());
+}
+
 void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle)
 {
 	if (RightScrollBar.IsValid() && LeftScrollBar.IsValid())
