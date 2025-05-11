@@ -14,6 +14,19 @@ enum class EBallSide : uint8
 	Bottom
 };
 
+struct FPredictedBallHitPositionData
+{
+public:
+	
+	float CurrentDistanceBetweenBallAndThumb;
+	float BeginningDistanceBetweenBallAndThumb;
+	
+	float PredictedBallHitPositionY;
+	float BeginningLeftScrollBarThumbPositionY;
+	
+	bool bIsAlreadyInitialized;
+};
+
 class TSUBASAMUSUUNREALASSIST_API SGraphNodePongComment final : public SGraphNodeCustomizableComment
 {
 	typedef SGraphNodePongComment Super;
