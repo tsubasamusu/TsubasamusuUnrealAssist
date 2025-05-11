@@ -381,8 +381,10 @@ FMargin SGraphNodePongComment::GetDesiredBallPadding() const
 	return CachedBallPadding;
 }
 
-void SGraphNodePongComment::SetLeftScrollBarThumbPositionY(const float NewPositionY) const
+void SGraphNodePongComment::SetLeftScrollBarThumbPositionY(const float NewPositionY)
 {
+	CachedLeftScrollBarThumbPositionY = NewPositionY;
+	
 	const FSlateRect LeftScrollBarThumbRect = GetScrollBarThumbRect(LeftScrollBar);
 	const FVector2D LeftScrollBarThumbSize = GetWidgetRectSize(LeftScrollBarThumbRect);
 
@@ -405,16 +407,11 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
-float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
+float SGraphNodePongComment::GetPredictedBallHitPositionY() const
 {
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
 	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
 	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaRect);
-
-	if (!bIsPlaying)
-	{
-		return PlayAreaSize.Y / 2.0f;
-	}
 
 	const FSlateRect BallRect = GetBallImageRect();
 	const FVector2D BallSize = GetWidgetRectSize(BallRect);
@@ -455,6 +452,25 @@ float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
 	}
 
 	return BallEdgeMovableRange.Y - FMath::Abs(ReboundedBallPositionY - BallEdgeMovableRange.Y) + BallRadius.Y;
+}
+
+float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
+{
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
+	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaRect);
+
+	if (!bIsPlaying)
+	{
+		return PlayAreaSize.Y / 2.0f;
+	}
+	
+	if (CachedBallMovementDirection.X > 0.0f)
+	{
+		return CachedLeftScrollBarThumbPositionY;
+	}
+
+	return GetPredictedBallHitPositionY();
 }
 
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
@@ -509,9 +525,7 @@ FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
 		}
 	}
 
-	DesiredBallMovementDirection.Normalize();
-	
-	return DesiredBallMovementDirection;
+	return DesiredBallMovementDirection.GetSafeNormal();
 }
 
 FVector2D SGraphNodePongComment::GetDesiredInitialBallMovementDirection() const

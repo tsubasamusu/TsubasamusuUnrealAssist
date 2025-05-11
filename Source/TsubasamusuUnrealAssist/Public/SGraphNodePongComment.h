@@ -70,8 +70,10 @@ private:
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
+	float GetPredictedBallHitPositionY() const;
 	float GetDesiredLeftScrollBarThumbPositionY() const;
-	void SetLeftScrollBarThumbPositionY(const float NewPositionY) const;
+	
+	void SetLeftScrollBarThumbPositionY(const float NewPositionY);
 	
 	FVector2D GetDesiredBallMovementDirection();
 	FVector2D GetDesiredInitialBallMovementDirection() const;
@@ -128,6 +130,7 @@ private:
 	bool bIsPlaying;
 	float IntervalSeconds;
 
+	float CachedLeftScrollBarThumbPositionY;
 	float CachedDeltaTime;
 	FLinearColor CachedUiColor;
 	FScrollBarStyle CachedScrollBarStyle;
