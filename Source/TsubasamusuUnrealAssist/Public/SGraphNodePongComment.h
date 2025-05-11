@@ -141,7 +141,9 @@ private:
 
 	bool bRightIsLastScoredPlayer;
 	bool bIsPlaying;
+	
 	float IntervalSeconds;
+	float BeforeIntervalLeftScrollBarThumbPositionY;
 
 	float CachedLeftScrollBarThumbPositionY;
 	float CachedDeltaTime;

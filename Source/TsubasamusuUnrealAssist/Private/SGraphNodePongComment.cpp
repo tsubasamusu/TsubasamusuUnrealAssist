@@ -484,24 +484,44 @@ float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY()
 	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
 	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaRect);
 
+	const float DefaultLeftScrollBarThumbPositionY = PlayAreaSize.Y / 2.0f;
+	
 	if (!bIsPlaying)
 	{
-		return PlayAreaSize.Y / 2.0f;
+		return DefaultLeftScrollBarThumbPositionY;
 	}
+
+	if (GameIsInInterval())
+	{
+		const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
+		const float Alpha = UKismetMathLibrary::SafeDivide(IntervalSeconds, TsubasamusuUnrealAssistSettings->PongIntervalSeconds);
+		const float DesiredLeftScrollBarThumbOffsetY = (DefaultLeftScrollBarThumbPositionY - BeforeIntervalLeftScrollBarThumbPositionY) * Alpha;
+
+		return DesiredLeftScrollBarThumbOffsetY + BeforeIntervalLeftScrollBarThumbPositionY;
+	}
+
+	float DesiredLeftScrollBarThumbPositionY;
 	
 	if (CachedBallMovementDirection.X > 0.0f)
 	{
 		CachedPredictedBallHitPositionData.bIsAlreadyInitialized = false;
 		
-		return CachedLeftScrollBarThumbPositionY;
+		DesiredLeftScrollBarThumbPositionY = CachedLeftScrollBarThumbPositionY;
+	}
+	else
+	{
+		const FPredictedBallHitPositionData PredictedBallHitPositionData = GetPredictedBallHitPositionData();
+
+		const float Alpha = 1.0f - UKismetMathLibrary::SafeDivide(PredictedBallHitPositionData.CurrentDistanceBetweenBallAndThumb, PredictedBallHitPositionData.BeginningDistanceBetweenBallAndThumb);
+		const float DesiredLeftScrollBarThumbOffsetY = (PredictedBallHitPositionData.PredictedBallHitPositionY - PredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY) * Alpha;
+	
+		DesiredLeftScrollBarThumbPositionY = DesiredLeftScrollBarThumbOffsetY + PredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY;
 	}
 
-	const FPredictedBallHitPositionData PredictedBallHitPositionData = GetPredictedBallHitPositionData();
+	BeforeIntervalLeftScrollBarThumbPositionY = DesiredLeftScrollBarThumbPositionY;
 
-	const float Alpha = 1.0f - UKismetMathLibrary::SafeDivide(PredictedBallHitPositionData.CurrentDistanceBetweenBallAndThumb, PredictedBallHitPositionData.BeginningDistanceBetweenBallAndThumb);
-	const float DesiredLeftScrollBarThumbOffsetY = (PredictedBallHitPositionData.PredictedBallHitPositionY - PredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY) * Alpha;
-	
-	return DesiredLeftScrollBarThumbOffsetY + PredictedBallHitPositionData.BeginningLeftScrollBarThumbPositionY;
+	return DesiredLeftScrollBarThumbPositionY;
 }
 
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
