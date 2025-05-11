@@ -77,7 +77,7 @@ private:
 	
 	FSlateColor GetDesiredUiColor() const;
 	FOptionalSize GetDesiredScrollBoxHeight() const;
-	static FScrollBarStyle GetDesiredScrollBarStyle();
+	FScrollBarStyle GetDesiredScrollBarStyle() const;
 	TOptional<FVector2D> GetDesiredBallImageSize() const;
 	FMargin GetDesiredBallPadding() const;
 

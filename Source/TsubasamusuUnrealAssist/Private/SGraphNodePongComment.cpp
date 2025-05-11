@@ -361,11 +361,9 @@ FOptionalSize SGraphNodePongComment::GetDesiredScrollBoxHeight() const
 	return FOptionalSize(GetPlayAreaSize().Y * UKismetMathLibrary::SafeDivide(1.0f , TsubasamusuUnrealAssistSettings->PongSliderLengthMultiplier));
 }
 
-FScrollBarStyle SGraphNodePongComment::GetDesiredScrollBarStyle()
+FScrollBarStyle SGraphNodePongComment::GetDesiredScrollBarStyle() const
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-
-	const FSlateColorBrush DesiredScrollBarImage = FSlateColorBrush(TsubasamusuUnrealAssistSettings->PongUiColor);
+	const FSlateColorBrush DesiredScrollBarImage = FSlateColorBrush(GetDesiredUiColor());
 	
 	FScrollBarStyle DesiredScrollBarStyle = FScrollBarStyle();
 	
