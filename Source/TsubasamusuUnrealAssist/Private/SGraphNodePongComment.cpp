@@ -127,6 +127,7 @@ void SGraphNodePongComment::StartGame()
 void SGraphNodePongComment::EndGame()
 {
 	bIsPlaying = false;
+	bRightIsLastScoredPlayer = false;
 	
 	ResetBallPosition();
 	ChangePlayButtonImage(true);
@@ -530,7 +531,7 @@ FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
 
 FVector2D SGraphNodePongComment::GetDesiredInitialBallMovementDirection() const
 {
-	const float DirectionX = bLeftIsLastScoredPlayer ? 1.0f : -1.0f;
+	const float DirectionX = bRightIsLastScoredPlayer ? -1.0f : 1.0f;
 	const float DirectionY = FMath::RandBool() ? 1.0f : -1.0f;
 
 	FVector2D Direction = FVector2D(DirectionX, DirectionY);
@@ -746,7 +747,7 @@ bool SGraphNodePongComment::GameIsInInterval() const
 void SGraphNodePongComment::OnLeftScored()
 {
 	LeftScore++;
-	bLeftIsLastScoredPlayer = true;
+	bRightIsLastScoredPlayer = false;
 	
 	OnSomeoneScored();
 }
@@ -754,7 +755,7 @@ void SGraphNodePongComment::OnLeftScored()
 void SGraphNodePongComment::OnRightScored()
 {
 	RightScore++;
-	bLeftIsLastScoredPlayer = false;
+	bRightIsLastScoredPlayer = true;
 	
 	OnSomeoneScored();
 }

@@ -126,7 +126,7 @@ private:
 	int32 LeftScore;
 	int32 RightScore;
 
-	bool bLeftIsLastScoredPlayer;
+	bool bRightIsLastScoredPlayer;
 	bool bIsPlaying;
 	float IntervalSeconds;
 
