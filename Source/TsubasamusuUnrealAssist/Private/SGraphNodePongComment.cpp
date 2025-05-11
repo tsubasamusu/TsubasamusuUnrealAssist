@@ -418,40 +418,43 @@ float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
 
 	const FSlateRect BallRect = GetBallImageRect();
 	const FVector2D BallSize = GetWidgetRectSize(BallRect);
-	const FVector2D BallRadius = FVector2d(BallSize.X / 2.0f, BallSize.Y / 2.0f);
-	
+	const FVector2D BallRadius = BallSize / 2.0f;
+
 	const FSlateRect LeftScrollBarThumbRect = GetScrollBarThumbRect(LeftScrollBar);
 	const FSlateRect RightScrollBarThumbRect = GetScrollBarThumbRect(RightScrollBar);
-	
+
 	const float ActualBallMovableRangeX = PlayAreaSize.X - (LeftScrollBarThumbRect.Right - PlayAreaRect.Left) - (PlayAreaRect.Right - RightScrollBarThumbRect.Left);
 	const FVector2D ActualBallMovableRange = FVector2D(ActualBallMovableRangeX, PlayAreaSize.Y);
 	
-	float CurrentBallPositionX = (BallRect.Left + BallRadius.X) - PlayAreaRect.Left;
-	const float CurrentBallPositionY = PlayAreaRect.Bottom - (BallRect.Bottom - BallRadius.Y);
-	
-	const FVector2D BallCenterMovableRange = FVector2D(ActualBallMovableRange.X - BallSize.X, ActualBallMovableRange.Y - BallSize.Y);
-	const FVector2D DoubledBallCenterMovableRange = BallCenterMovableRange * 2.0f;
+	const float BallCenterPositionX = (BallRect.Left + BallRadius.X) - PlayAreaRect.Left;
+	const float BallCenterPositionY = PlayAreaRect.Bottom - (BallRect.Bottom - BallRadius.Y);
+	const FVector2D BallCenterPosition = FVector2D(BallCenterPositionX, BallCenterPositionY);
 
-	FVector2D NormalizedBallDirection = CachedBallMovementDirection.GetSafeNormal();
+	FVector2D BallLeftPosition = FVector2D(BallCenterPosition.X - BallRadius.X, BallCenterPosition.Y);
+	const FVector2D BallBottomPosition = FVector2D(BallCenterPosition.X, BallCenterPosition.Y - BallRadius.Y);
+
+	const FVector2D BallEdgeMovableRange = FVector2D(ActualBallMovableRange.X - BallSize.X, ActualBallMovableRange.Y - BallSize.Y);
+	const FVector2D DoubledBallEdgeMovableRange = BallEdgeMovableRange * 2.0f;
 	
+	FVector2D NormalizedBallDirection = CachedBallMovementDirection.GetSafeNormal();
+
 	if (NormalizedBallDirection.X > 0.0f)
 	{
-		CurrentBallPositionX = DoubledBallCenterMovableRange.X - CurrentBallPositionX;
+		BallLeftPosition.X = 2.0f * BallEdgeMovableRange.X - BallLeftPosition.X;
 		NormalizedBallDirection.X *= -1.0f;
 	}
 
-	const float BallDirectionTheta = FMath::Atan2(NormalizedBallDirection.Y, NormalizedBallDirection.X);
-	const float BallDirectionTangent = FMath::Tan(BallDirectionTheta);
-
-	const float NotReboundedBallPositionY = (CurrentBallPositionY - BallRadius.Y) + ((BallRadius.Y - CurrentBallPositionX) * BallDirectionTangent);
-	float ReboundedBallPositionY = FMath::Fmod(NotReboundedBallPositionY, DoubledBallCenterMovableRange.Y);
+	const float BallDirectionTangent = NormalizedBallDirection.Y / NormalizedBallDirection.X;
+	
+	const float NotReboundedBallPositionY = BallBottomPosition.Y - (BallLeftPosition.X * BallDirectionTangent);
+	float ReboundedBallPositionY = FMath::Fmod(NotReboundedBallPositionY, DoubledBallEdgeMovableRange.Y);
 	
 	if (ReboundedBallPositionY < 0.0f)
 	{
-		ReboundedBallPositionY += DoubledBallCenterMovableRange.Y;
+		ReboundedBallPositionY += DoubledBallEdgeMovableRange.Y;
 	}
 
-	return ActualBallMovableRange.Y - (BallRadius.Y + FMath::Abs(ReboundedBallPositionY - BallCenterMovableRange.Y));
+	return BallEdgeMovableRange.Y - FMath::Abs(ReboundedBallPositionY - BallEdgeMovableRange.Y) + BallRadius.Y;
 }
 
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
