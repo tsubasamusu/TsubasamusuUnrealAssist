@@ -4,6 +4,7 @@
 #include "SDottedLine.h"
 #include "SGraphNodeCustomizableComment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Widgets/Layout/SScaleBox.h"
 
 void SGraphNodePongComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -352,7 +353,7 @@ FOptionalSize SGraphNodePongComment::GetDesiredScrollBoxHeight() const
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 
-	return FOptionalSize(GetPlayAreaSize().Y * (1 / TsubasamusuUnrealAssistSettings->PongSliderLengthMultiplier));
+	return FOptionalSize(GetPlayAreaSize().Y * UKismetMathLibrary::SafeDivide(1.0f , TsubasamusuUnrealAssistSettings->PongSliderLengthMultiplier));
 }
 
 FScrollBarStyle SGraphNodePongComment::GetDesiredScrollBarStyle()
@@ -392,7 +393,7 @@ void SGraphNodePongComment::SetLeftScrollBarThumbPositionY(const float NewPositi
 	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
 	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaOverlay);
 	
-	const float DesiredThumbTopSpaceFraction = (PlayAreaSize.Y - (NewPositionY + (LeftScrollBarThumbSize.Y / 2.0f))) / PlayAreaSize.Y;
+	const float DesiredThumbTopSpaceFraction = UKismetMathLibrary::SafeDivide(PlayAreaSize.Y - (NewPositionY + (LeftScrollBarThumbSize.Y / 2.0f)), PlayAreaSize.Y);
 
 	LeftScrollBar->SetState(DesiredThumbTopSpaceFraction, LeftScrollBar->ThumbSizeFraction());
 }
@@ -441,8 +442,8 @@ float SGraphNodePongComment::GetPredictedBallHitPositionY() const
 		BallLeftPosition.X = 2.0f * BallEdgeMovableRange.X - BallLeftPosition.X;
 		NormalizedBallDirection.X *= -1.0f;
 	}
-
-	const float BallDirectionTangent = NormalizedBallDirection.Y / NormalizedBallDirection.X;
+	
+	const float BallDirectionTangent = UKismetMathLibrary::SafeDivide(NormalizedBallDirection.Y, NormalizedBallDirection.X);
 	
 	const float NotReboundedBallPositionY = BallBottomPosition.Y - (BallLeftPosition.X * BallDirectionTangent);
 	float ReboundedBallPositionY = FMath::Fmod(NotReboundedBallPositionY, DoubledBallEdgeMovableRange.Y);
