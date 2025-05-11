@@ -90,6 +90,9 @@ private:
 	FSlateRect GetBallImageRect() const;
 	static FSlateRect GetAbsoluteRect(const TSharedPtr<SWidget> InWidget);
 	static FSlateRect GetScrollBarThumbRect(const TSharedPtr<SScrollBar> InScrollBar);
+
+	static FVector2D GetWidgetRectSize(const TSharedPtr<SWidget> InWidget);
+	static FVector2D GetWidgetRectSize(const FSlateRect InWidgetRect);
 	
 	FVector2D GetPlayAreaSize() const;
 

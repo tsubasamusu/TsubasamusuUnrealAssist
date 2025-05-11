@@ -614,6 +614,18 @@ FSlateRect SGraphNodePongComment::GetScrollBarThumbRect(const TSharedPtr<SScroll
 	return FSlateRect(ScrollBarRect.Left, ScrollBarRect.Top + ThumbTopSpace, ScrollBarRect.Right, ScrollBarRect.Bottom - ThumbBottomSpace);
 }
 
+FVector2D SGraphNodePongComment::GetWidgetRectSize(const TSharedPtr<SWidget> InWidget)
+{
+	const FSlateRect WidgetRect = GetAbsoluteRect(InWidget);
+
+	return GetWidgetRectSize(WidgetRect);
+}
+
+FVector2D SGraphNodePongComment::GetWidgetRectSize(const FSlateRect InWidgetRect)
+{
+	return FVector2D(InWidgetRect.Right - InWidgetRect.Left, InWidgetRect.Bottom - InWidgetRect.Top);
+}
+
 FVector2D SGraphNodePongComment::GetPlayAreaSize() const
 {
 	const FVector2D CommentNodeDesiredSize = GetDesiredSize();
