@@ -70,6 +70,8 @@ private:
 
 	void SetScrollBarStyle(const FScrollBarStyle& NewScrollBarStyle);
 
+	float GetDesiredLeftScrollBarThumbPositionY() const;
+	
 	FVector2D GetDesiredBallMovementDirection();
 	FVector2D GetDesiredInitialBallMovementDirection() const;
 	

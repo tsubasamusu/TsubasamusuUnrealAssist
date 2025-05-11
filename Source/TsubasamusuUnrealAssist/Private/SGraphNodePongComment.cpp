@@ -392,6 +392,66 @@ void SGraphNodePongComment::SetScrollBarStyle(const FScrollBarStyle& NewScrollBa
 	}
 }
 
+float SGraphNodePongComment::GetDesiredLeftScrollBarThumbPositionY() const
+{
+	if (!BallImage.IsValid())
+	{
+		return 0.0f;
+	}
+
+	const FSlateRect BallRect = GetBallImageRect();
+	const FVector2D BallSize = GetWidgetRectSize(BallRect);
+	const FVector2D BallRadius = FVector2d(BallSize.X / 2.0f, BallSize.Y / 2.0f);
+	
+	const TSharedPtr<SOverlay> PlayAreaOverlay = GetCommentNodeContentOverlay();
+
+	if (!PlayAreaOverlay.IsValid())
+	{
+		return 0.0f;
+	}
+	
+	const FSlateRect PlayAreaRect = GetAbsoluteRect(PlayAreaOverlay);
+	const FVector2D PlayAreaSize = GetWidgetRectSize(PlayAreaRect);
+
+	if (!LeftScrollBar.IsValid() || !RightScrollBar.IsValid())
+	{
+		return 0.0f;
+	}
+	
+	const FSlateRect LeftScrollBarThumbRect = GetScrollBarThumbRect(LeftScrollBar);
+	const FSlateRect RightScrollBarThumbRect = GetScrollBarThumbRect(RightScrollBar);
+	
+	const float ActualBallMovableRangeX = PlayAreaSize.X - (LeftScrollBarThumbRect.Right - PlayAreaRect.Left) - (PlayAreaRect.Right - RightScrollBarThumbRect.Left);
+	const FVector2D ActualBallMovableRange = FVector2D(ActualBallMovableRangeX, PlayAreaSize.Y);
+	
+	float CurrentBallPositionX = (BallRect.Left + BallRadius.X) - PlayAreaRect.Left;
+	const float CurrentBallPositionY = PlayAreaRect.Bottom - (BallRect.Bottom - BallRadius.Y);
+	
+	const FVector2D BallCenterMovableRange = FVector2D(ActualBallMovableRange.X - BallSize.X, ActualBallMovableRange.Y - BallSize.Y);
+	const FVector2D DoubledBallCenterMovableRange = BallCenterMovableRange * 2.0f;
+
+	FVector2D NormalizedBallDirection = CachedBallMovementDirection.GetSafeNormal();
+	
+	if (NormalizedBallDirection.X > 0.0f)
+	{
+		CurrentBallPositionX = DoubledBallCenterMovableRange.X - CurrentBallPositionX;
+		NormalizedBallDirection.X *= -1.0f;
+	}
+
+	const float BallDirectionTheta = FMath::Atan2(NormalizedBallDirection.Y, NormalizedBallDirection.X);
+	const float BallDirectionTangent = FMath::Tan(BallDirectionTheta);
+
+	const float NotReboundedBallPositionY = (CurrentBallPositionY - BallRadius.Y) + ((BallRadius.Y - CurrentBallPositionX) * BallDirectionTangent);
+	float ReboundedBallPositionY = FMath::Fmod(NotReboundedBallPositionY, DoubledBallCenterMovableRange.Y);
+	
+	if (ReboundedBallPositionY < 0.0f)
+	{
+		ReboundedBallPositionY += DoubledBallCenterMovableRange.Y;
+	}
+
+	return ActualBallMovableRange.Y - (BallRadius.Y + FMath::Abs(ReboundedBallPositionY - BallCenterMovableRange.Y));
+}
+
 FVector2D SGraphNodePongComment::GetDesiredBallMovementDirection()
 {
 	if (!bIsPlaying)
