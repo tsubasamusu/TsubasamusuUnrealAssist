@@ -3,6 +3,7 @@
 #include "CreateArrayNodeUtility.h"
 #include "GraphEditorModule.h"
 #include "K2Node_CallFunction.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "FCreateArrayNodeUtility"
 
@@ -47,7 +48,58 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FM
 
 void FCreateArrayNodeUtility::CreateArrayNode(const UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
 {
+}
+
+FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const UEdGraph* InGraph)
+{
+	const TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+
+	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(SelectedNodes) + 200;
+	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(SelectedNodes);
+
+	return FIntPoint(DesiredArrayNodePositionX, DesiredArrayNodePositionY);
+}
+
+int32 FCreateArrayNodeUtility::GetNodesMaxPositionX(const TArray<UEdGraphNode*>& InNodes)
+{
+	int32 MaxPositionX = 0;
+
+	for (const UEdGraphNode* Node : InNodes)
+	{
+		if (!IsValid(Node))
+		{
+			continue;
+		}
+		
+		if (MaxPositionX == 0)
+		{
+			MaxPositionX = Node->NodePosX;
+
+			continue;
+		}
+
+		if (Node->NodePosX > MaxPositionX)
+		{
+			MaxPositionX = Node->NodePosX;
+		}
+	}
+
+	return MaxPositionX;
+}
+
+int32 FCreateArrayNodeUtility::GetNodesAveragePositionY(const TArray<UEdGraphNode*>& InNodes)
+{
+	int32 TotalPositionY = 0;
 	
+	for (const UEdGraphNode* Node : InNodes)
+	{
+		if (IsValid(Node))
+		{
+			TotalPositionY += Node->NodePosY;
+		}
+	}
+
+	return TotalPositionY / InNodes.Num();
 }
 
 TArray<UEdGraphNode*> FCreateArrayNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)

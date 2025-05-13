@@ -18,6 +18,10 @@ private:
 	static void AddCreateArrayNodeMenu(const UEdGraph* InGraph, FMenuBuilder& MenuBuilder, const TSharedPtr<FEdGraphPinType> ArrayNodePinType);
 
 	static void CreateArrayNode(const UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType);
+	static FIntPoint GetDesiredArrayNodePosition(const UEdGraph* InGraph);
+
+	static int32 GetNodesMaxPositionX(const TArray<UEdGraphNode*>& InNodes);
+	static int32 GetNodesAveragePositionY(const TArray<UEdGraphNode*>& InNodes);
 	
 	static TArray<UEdGraphNode*> GetSelectedNodes(const UEdGraph* InGraph);
 	static TArray<UEdGraphPin*> GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes);
