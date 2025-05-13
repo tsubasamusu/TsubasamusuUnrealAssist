@@ -2,8 +2,7 @@
 
 #include "CreateArrayNodeUtility.h"
 #include "GraphEditorModule.h"
-#include "K2Node_CallFunction.h"
-#include "Kismet2/BlueprintEditorUtils.h"
+#include "K2Node_MakeArray.h"
 
 #define LOCTEXT_NAMESPACE "FCreateArrayNodeUtility"
 
@@ -42,11 +41,11 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FM
 	
 	MenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([ArrayNodePinType, InGraph]()
 	{
-		CreateArrayNode(InGraph, ArrayNodePinType);
+		CreateArrayNode(const_cast<UEdGraph*>(InGraph), ArrayNodePinType);
 	})));
 }
 
-void FCreateArrayNodeUtility::CreateArrayNode(const UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
+void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
 {
 }
 
@@ -156,6 +155,22 @@ TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodesOutputPins(const TArray<UE
 	}
 
 	return OutputPins;
+}
+
+TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType)
+{
+	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
+	TArray<UEdGraphPin*> SpecificTypeOutputPins;
+
+	for (UEdGraphPin* NodeOutputPin : NodesOutputPins)
+	{
+		if (NodeOutputPin && NodeOutputPin->PinType == SpecificPinType)
+		{
+			SpecificTypeOutputPins.Add(NodeOutputPin);
+		}
+	}
+
+	return SpecificTypeOutputPins;
 }
 
 bool FCreateArrayNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
