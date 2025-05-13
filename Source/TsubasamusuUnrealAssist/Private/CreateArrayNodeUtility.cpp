@@ -37,7 +37,9 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FM
 	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Create Array Node");
 	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Create an array node with all selected nodes connected.");
 
-	MenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([ArrayNodePinType, InGraph]()
+	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
+	
+	MenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([ArrayNodePinType, InGraph]()
 	{
 		CreateArrayNode(InGraph, ArrayNodePinType);
 	})));
