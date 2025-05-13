@@ -1,9 +1,9 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
+#include "CreateArrayNodeUtility.h"
 #include "ISettingsModule.h"
 #include "TsubasamusuNodeFactory.h"
-#include "TsubasamusuEditorSettingsUtility.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
@@ -13,9 +13,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 #if TUA_IS_ENABLED
 	RegisterSettings();
-	
-	//FTsubasamusuEditorSettingsUtility::SetupEditorSettingsForTsubasamusu();
-
+	FCreateArrayNodeUtility::RegisterSelectedNodeMenu();
 	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory);
 #endif
 }
@@ -24,7 +22,6 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 #if TUA_IS_ENABLED
 	UnregisterTsubasamusuNodeFactory();
-
 	UnregisterSettings();
 #endif
 }

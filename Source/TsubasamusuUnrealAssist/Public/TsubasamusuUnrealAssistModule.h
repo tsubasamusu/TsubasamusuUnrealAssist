@@ -11,10 +11,12 @@ class FTsubasamusuNodeFactory;
 class FTsubasamusuUnrealAssistModule : public IModuleInterface
 {
 public:
+	
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
 private:
+	
 	void RegisterTsubasamusuNodeFactory();
 	void UnregisterTsubasamusuNodeFactory();
 
@@ -22,7 +24,7 @@ private:
 	void UnregisterSettings() const;
 
 	static ISettingsModule* GetSettingsModuleChecked();
-
+	
 	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactoryPtr;
 	
 	const FName SettingsContainerName = TEXT("Editor");
