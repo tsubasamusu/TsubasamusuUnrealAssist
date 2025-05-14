@@ -35,8 +35,8 @@ TSharedRef<FExtender> FCreateArrayNodeUtility::ExtendSelectedNodeMenu(TSharedRef
 
 void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FMenuBuilder& MenuBuilder, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
 {
-	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Create Array Node");
-	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Create an array node with all selected nodes connected.");
+	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
+	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
 	
