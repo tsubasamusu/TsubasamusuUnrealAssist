@@ -1,71 +1,64 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "AsyncActionReplaceReferences.h"
-#include "TsubasamusuLogUtility.h"
 #include "AssetDeleteModel.h"
+#include "TsubasamusuLogUtility.h"
 
-UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceReferences(const UObject* WorldContextObject, UObject* From, UObject* To)
+UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> From, TSoftObjectPtr<UObject> To)
 {
     if (!IsValid(WorldContextObject))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("WorldContextObject is not valid."));
-
+        FTsubasamusuLogUtility::LogError(TEXT("WorldContextObject is invalid."));
+        
         return nullptr;
     }
+    
+    UAsyncActionReplaceReferences* Action = NewObject<UAsyncActionReplaceReferences>();
 
-	UAsyncActionReplaceReferences* Action = NewObject<UAsyncActionReplaceReferences>();
+    Action->SourceAsset = From;
+    Action->DestinationAsset = To;
 
-	Action->SourceAsset = From;
-	Action->DestinationAsset = To;
+    Action->RegisterWithGameInstance(WorldContextObject);
 
-	Action->RegisterWithGameInstance(WorldContextObject);
-
-	return Action;
+    return Action;
 }
 
 void UAsyncActionReplaceReferences::Activate()
 {
-    if (!IsValid(SourceAsset))
-    {
-        FTsubasamusuLogUtility::LogError(TEXT("Source asset is not valid."));
+    LoadedSourceAsset = SourceAsset.IsValid()? SourceAsset.Get(): SourceAsset.LoadSynchronous();
+    LoadedDestinationAsset = DestinationAsset.IsValid()? DestinationAsset.Get() : DestinationAsset.LoadSynchronous();
 
+    if (!IsValid(LoadedSourceAsset) || !IsValid(LoadedDestinationAsset))
+    {
+        FTsubasamusuLogUtility::LogError(TEXT("Failed to load assets."));
+        
         OnCompleted(false);
 
         return;
     }
+    
+    constexpr float ScanSpan = 0.1f;
 
-    if (!IsValid(DestinationAsset))
-    {
-        FTsubasamusuLogUtility::LogError(TEXT("Destination asset is not valid."));
-
-        OnCompleted(false);
-
-        return;
-    }
-
-    const float ScanSpanSeconds = 0.1f;
-
-    const TArray<UObject*> SourceAssets = { SourceAsset };
-
+    const TArray<UObject*> SourceAssets = { LoadedSourceAsset };
     TSharedPtr<FAssetDeleteModel> AssetDeleteModel = MakeShared<FAssetDeleteModel>(SourceAssets);
+    
+    TSharedPtr<FAssetData> DestinationAssetData = MakeShared<FAssetData>(LoadedDestinationAsset);
 
-    TSharedPtr<FAssetData> DestinationAssetData = MakeShared<FAssetData>(DestinationAsset);
-
-    AssetDeleteModel->OnStateChanged().AddLambda([this, ScanSpanSeconds, AssetDeleteModel, DestinationAssetData](FAssetDeleteModel::EState NewState)
+    AssetDeleteModel->OnStateChanged().AddLambda([this, ScanSpan, AssetDeleteModel, DestinationAssetData](const FAssetDeleteModel::EState NewState)
+    {
+        if (NewState == FAssetDeleteModel::EState::Finished)
         {
-            if (NewState != FAssetDeleteModel::EState::Finished)
-            {
-                AssetDeleteModel->Tick(ScanSpanSeconds);
-
-                return;
-            }
-
             const bool bSucceeded = AssetDeleteModel->DoReplaceReferences(*DestinationAssetData);
 
             OnCompleted(bSucceeded);
-        });
 
-    AssetDeleteModel->Tick(ScanSpanSeconds);
+            return;
+        }
+        
+        AssetDeleteModel->Tick(ScanSpan);
+    });
+
+    AssetDeleteModel->Tick(ScanSpan);
 }
 
 void UAsyncActionReplaceReferences::OnCompleted(const bool bSucceeded)

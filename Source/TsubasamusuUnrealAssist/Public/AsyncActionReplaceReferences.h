@@ -14,22 +14,28 @@ class TSUBASAMUSUUNREALASSIST_API UAsyncActionReplaceReferences : public UEditor
 	GENERATED_BODY()
 
 public:
+	
 	UPROPERTY(BlueprintAssignable)
 	FOnCompletedReplaceReferences Completed;
 
 	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "TSUBASAMUSU|EditorUtility")
-	static UAsyncActionReplaceReferences* AsyncReplaceReferences(const UObject* WorldContextObject, UObject* From, UObject* To);
+	static UAsyncActionReplaceReferences* AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> From, TSoftObjectPtr<UObject> To);
 
-	void Activate() override;
+	virtual void Activate() override;
 
 private:
-	/* from */
+	
 	UPROPERTY()
-	UObject* SourceAsset;
+	TSoftObjectPtr<UObject> SourceAsset;
 
-	/* to */
 	UPROPERTY()
-	UObject* DestinationAsset;
+	TSoftObjectPtr<UObject> DestinationAsset;
+
+	UPROPERTY()
+	TObjectPtr<UObject> LoadedSourceAsset;
+
+	UPROPERTY()
+	TObjectPtr<UObject> LoadedDestinationAsset;
 
 	void OnCompleted(const bool bSucceeded);
 };
