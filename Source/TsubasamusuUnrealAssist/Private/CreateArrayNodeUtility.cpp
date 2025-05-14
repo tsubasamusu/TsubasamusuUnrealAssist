@@ -1,0 +1,312 @@
+// Copyright (c) 2025, tsubasamusu All rights reserved.
+
+#include "CreateArrayNodeUtility.h"
+#include "GraphEditorModule.h"
+#include "K2Node_MakeArray.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+
+#define LOCTEXT_NAMESPACE "FCreateArrayNodeUtility"
+
+void FCreateArrayNodeUtility::RegisterSelectedNodeMenu()
+{
+	FGraphEditorModule& GraphEditorModule = FModuleManager::LoadModuleChecked<FGraphEditorModule>("GraphEditor");
+
+	GraphEditorModule.GetAllGraphEditorContextMenuExtender().Add(FGraphEditorModule::FGraphEditorMenuExtender_SelectedNode::CreateStatic(ExtendSelectedNodeMenu));
+}
+
+TSharedRef<FExtender> FCreateArrayNodeUtility::ExtendSelectedNodeMenu(TSharedRef<FUICommandList> CommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging)
+{
+	TSharedRef<FExtender> Extender = MakeShared<FExtender>();
+
+	TSharedPtr<FEdGraphPinType> SelectedNodesOutputPinsCommonType = MakeShared<FEdGraphPinType>();
+
+	const TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+	
+	if (TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
+	{
+		Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([InGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
+		{
+			AddCreateArrayNodeMenu(InGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
+		}));
+	}
+	
+	return Extender;
+}
+
+void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FMenuBuilder& MenuBuilder, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
+{
+	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
+	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
+
+	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
+	
+	MenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([ArrayNodePinType, InGraph]()
+	{
+		CreateArrayNode(const_cast<UEdGraph*>(InGraph), ArrayNodePinType);
+	})));
+}
+
+void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
+{
+	if (!IsValid(InGraph))
+	{
+		return;
+	}
+	
+	const FText TransactionSessionName = LOCTEXT("CreateArrayNodeTransaction", "Create Array Node");
+	FScopedTransaction Transaction(TransactionSessionName);
+
+	InGraph->Modify();
+	
+	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(InGraph);
+	
+	if (IsValid(Blueprint))
+	{
+		Blueprint->Modify();
+	}
+	
+	const TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+	const TArray<UEdGraphPin*> SelectedNodesOutputPins = GetNodesOutputPins(SelectedNodes, *ArrayNodePinType);
+
+	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*InGraph);
+	
+	UK2Node_MakeArray* CreatedArrayNode = ArrayNodeCreator.CreateNode();
+	
+	if (!IsValid(CreatedArrayNode))
+	{
+		return;
+	}
+	
+	CreatedArrayNode->AllocateDefaultPins();
+
+	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InGraph);
+	CreatedArrayNode->NodePosX = DesiredArrayNodePosition.X;
+	CreatedArrayNode->NodePosY = DesiredArrayNodePosition.Y;
+
+	for (int32 i = 0; i < SelectedNodesOutputPins.Num() - 1; i++)
+	{
+		CreatedArrayNode->AddInputPin();
+	}
+
+	ArrayNodeCreator.Finalize();
+	
+	const TArray<UEdGraphPin*> CreatedArrayNodeInputPins = GetNodeInputPins(CreatedArrayNode);
+
+	for (UEdGraphPin* SelectedNodesOutputPin : SelectedNodesOutputPins)
+	{
+		if (!SelectedNodesOutputPin)
+		{
+			continue;
+		}
+
+		for (UEdGraphPin* CreatedArrayNodeInputPin : CreatedArrayNodeInputPins)
+		{
+			if (!CreatedArrayNodeInputPin || CreatedArrayNodeInputPin->HasAnyConnections())
+			{
+				continue;
+			}
+
+			if (InGraph->GetSchema()->TryCreateConnection(CreatedArrayNodeInputPin, SelectedNodesOutputPin))
+			{
+				break;
+			}
+		}
+	}
+	
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+}
+
+FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const UEdGraph* InGraph)
+{
+	const TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+
+	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(SelectedNodes) + 200;
+	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(SelectedNodes);
+
+	return FIntPoint(DesiredArrayNodePositionX, DesiredArrayNodePositionY);
+}
+
+int32 FCreateArrayNodeUtility::GetNodesMaxPositionX(const TArray<UEdGraphNode*>& InNodes)
+{
+	int32 MaxPositionX = 0;
+
+	for (const UEdGraphNode* Node : InNodes)
+	{
+		if (!IsValid(Node))
+		{
+			continue;
+		}
+		
+		if (MaxPositionX == 0)
+		{
+			MaxPositionX = Node->NodePosX;
+
+			continue;
+		}
+
+		if (Node->NodePosX > MaxPositionX)
+		{
+			MaxPositionX = Node->NodePosX;
+		}
+	}
+
+	return MaxPositionX;
+}
+
+int32 FCreateArrayNodeUtility::GetNodesAveragePositionY(const TArray<UEdGraphNode*>& InNodes)
+{
+	int32 TotalPositionY = 0;
+	
+	for (const UEdGraphNode* Node : InNodes)
+	{
+		if (IsValid(Node))
+		{
+			TotalPositionY += Node->NodePosY;
+		}
+	}
+
+	return TotalPositionY / InNodes.Num();
+}
+
+TArray<UEdGraphNode*> FCreateArrayNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
+{
+	TArray<UEdGraphNode*> SelectedNodes;
+
+	if (!IsValid(InGraph))
+	{
+		return SelectedNodes;
+	}
+	
+	const TSharedPtr<SGraphEditor> GraphEditor = SGraphEditor::FindGraphEditorForGraph(InGraph);
+
+	if (!GraphEditor.IsValid())
+	{
+		return SelectedNodes;
+	}
+
+	const FGraphPanelSelectionSet& SelectedNodesSet = GraphEditor->GetSelectedNodes();
+
+	for (UObject* SelectedObject : SelectedNodesSet)
+	{
+		UEdGraphNode* SelectedNode = Cast<UEdGraphNode>(SelectedObject);
+		
+		if (IsValid(SelectedNode))
+		{
+			SelectedNodes.Add(SelectedNode);
+		}
+	}
+	
+	return SelectedNodes;
+}
+
+TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes)
+{
+	TArray<UEdGraphPin*> OutputPins;
+
+	for (const UEdGraphNode* Node : InNodes)
+	{
+		if (!IsValid(Node))
+		{
+			continue;
+		}
+		
+		const TArray<UEdGraphPin*>& NodePins = Node->GetAllPins();
+
+		for (UEdGraphPin* NodePin : NodePins)
+		{
+			if (NodePin->Direction == EGPD_Output && !NodePin->GetDisplayName().IsEmpty())
+			{
+				OutputPins.Add(NodePin);
+			}
+		}
+	}
+
+	return OutputPins;
+}
+
+TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType)
+{
+	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
+	TArray<UEdGraphPin*> SpecificTypeOutputPins;
+
+	for (UEdGraphPin* NodeOutputPin : NodesOutputPins)
+	{
+		if (NodeOutputPin && NodeOutputPin->PinType == SpecificPinType)
+		{
+			SpecificTypeOutputPins.Add(NodeOutputPin);
+		}
+	}
+
+	return SpecificTypeOutputPins;
+}
+
+TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodeInputPins(const UEdGraphNode* InNode)
+{
+	TArray<UEdGraphPin*> NodeInputPins;
+
+	if (!IsValid(InNode))
+	{
+		return NodeInputPins;
+	}
+	
+	const TArray<UEdGraphPin*>& NodePins = InNode->GetAllPins();
+
+	for (UEdGraphPin* NodePin : NodePins)
+	{
+		if (NodePin->Direction == EGPD_Input)
+		{
+			NodeInputPins.Add(NodePin);
+		}
+	}
+
+	return NodeInputPins;
+}
+
+bool FCreateArrayNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
+{
+	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
+	
+	for (const UEdGraphPin* NodesOutputPin : NodesOutputPins)
+	{
+		int32 HavingSameTypeOutputPinsNodeCount = 0;
+		
+		for (const UEdGraphNode* Node : InNodes)
+		{
+			if (NodeHasSameTypeOutputPins(Node, NodesOutputPin->PinType))
+			{
+				HavingSameTypeOutputPinsNodeCount++;
+			}
+		}
+
+		if (HavingSameTypeOutputPinsNodeCount == InNodes.Num())
+		{
+			OutNodesOutputPinsCommonType = NodesOutputPin->PinType;
+			
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool FCreateArrayNodeUtility::NodeHasSameTypeOutputPins(const UEdGraphNode* InNode, const FEdGraphPinType& InPinType)
+{
+	if (!IsValid(InNode))
+	{
+		return false;
+	}
+	
+	const TArray<UEdGraphPin*>& NodePins = InNode->GetAllPins();
+
+	for (const UEdGraphPin* NodePin : NodePins)
+	{
+		if (NodePin->PinType == InPinType)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+#undef LOCTEXT_NAMESPACE
