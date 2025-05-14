@@ -3,6 +3,7 @@
 #include "CreateArrayNodeUtility.h"
 #include "GraphEditorModule.h"
 #include "K2Node_MakeArray.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "FCreateArrayNodeUtility"
 
@@ -47,6 +48,72 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FM
 
 void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
 {
+	if (!IsValid(InGraph))
+	{
+		return;
+	}
+	
+	const FText TransactionSessionName = LOCTEXT("CreateArrayNodeTransaction", "Create Array Node");
+	FScopedTransaction Transaction(TransactionSessionName);
+
+	InGraph->Modify();
+	
+	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(InGraph);
+	
+	if (IsValid(Blueprint))
+	{
+		Blueprint->Modify();
+	}
+	
+	const TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+	const TArray<UEdGraphPin*> SelectedNodesOutputPins = GetNodesOutputPins(SelectedNodes, *ArrayNodePinType);
+
+	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*InGraph);
+	
+	UK2Node_MakeArray* CreatedArrayNode = ArrayNodeCreator.CreateNode();
+	
+	if (!IsValid(CreatedArrayNode))
+	{
+		return;
+	}
+	
+	CreatedArrayNode->AllocateDefaultPins();
+
+	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InGraph);
+	CreatedArrayNode->NodePosX = DesiredArrayNodePosition.X;
+	CreatedArrayNode->NodePosY = DesiredArrayNodePosition.Y;
+
+	for (int32 i = 0; i < SelectedNodesOutputPins.Num() - 1; i++)
+	{
+		CreatedArrayNode->AddInputPin();
+	}
+
+	ArrayNodeCreator.Finalize();
+	
+	const TArray<UEdGraphPin*> CreatedArrayNodeInputPins = GetNodeInputPins(CreatedArrayNode);
+
+	for (UEdGraphPin* SelectedNodesOutputPin : SelectedNodesOutputPins)
+	{
+		if (!SelectedNodesOutputPin)
+		{
+			continue;
+		}
+
+		for (UEdGraphPin* CreatedArrayNodeInputPin : CreatedArrayNodeInputPins)
+		{
+			if (!CreatedArrayNodeInputPin || CreatedArrayNodeInputPin->HasAnyConnections())
+			{
+				continue;
+			}
+
+			if (InGraph->GetSchema()->TryCreateConnection(CreatedArrayNodeInputPin, SelectedNodesOutputPin))
+			{
+				break;
+			}
+		}
+	}
+	
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
 }
 
 FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const UEdGraph* InGraph)
