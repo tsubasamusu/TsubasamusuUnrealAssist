@@ -173,6 +173,28 @@ TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodesOutputPins(const TArray<UE
 	return SpecificTypeOutputPins;
 }
 
+TArray<UEdGraphPin*> FCreateArrayNodeUtility::GetNodeInputPins(const UEdGraphNode* InNode)
+{
+	TArray<UEdGraphPin*> NodeInputPins;
+
+	if (!IsValid(InNode))
+	{
+		return NodeInputPins;
+	}
+	
+	const TArray<UEdGraphPin*>& NodePins = InNode->GetAllPins();
+
+	for (UEdGraphPin* NodePin : NodePins)
+	{
+		if (NodePin->Direction == EGPD_Input)
+		{
+			NodeInputPins.Add(NodePin);
+		}
+	}
+
+	return NodeInputPins;
+}
+
 bool FCreateArrayNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
 {
 	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
