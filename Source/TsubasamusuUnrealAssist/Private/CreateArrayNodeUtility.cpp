@@ -35,15 +35,19 @@ TSharedRef<FExtender> FCreateArrayNodeUtility::ExtendSelectedNodeMenu(TSharedRef
 
 void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FMenuBuilder& MenuBuilder, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
 {
+	MenuBuilder.BeginSection(TEXT("TsubasamusuUnrealAssistSection"), LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist"));
+	
 	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
 	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
-	
+
 	MenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([ArrayNodePinType, InGraph]()
 	{
 		CreateArrayNode(const_cast<UEdGraph*>(InGraph), ArrayNodePinType);
 	})));
+	
+	MenuBuilder.EndSection();
 }
 
 void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
