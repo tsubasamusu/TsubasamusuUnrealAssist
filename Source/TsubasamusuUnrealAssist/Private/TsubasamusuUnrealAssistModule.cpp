@@ -1,8 +1,8 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
-#include "CreateArrayNodeUtility.h"
 #include "ISettingsModule.h"
+#include "SelectedNodeMenuExtender.h"
 #include "TsubasamusuNodeFactory.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
@@ -13,7 +13,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 #if TUA_IS_ENABLED
 	RegisterSettings();
-	FCreateArrayNodeUtility::RegisterSelectedNodeMenu();
+	FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
 	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory);
 #endif
 }
