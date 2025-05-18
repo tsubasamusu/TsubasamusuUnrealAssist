@@ -44,8 +44,9 @@ void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPt
 	}
 	
 	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
-	const TArray<UEdGraphPin*> SelectedNodesOutputPins = FGraphNodeUtility::GetNodesOutputPins(SelectedNodes, *ArrayNodePinType);
-
+	TArray<UEdGraphPin*> SelectedNodesOutputPins = FGraphNodeUtility::GetNodesOutputPins(SelectedNodes, *ArrayNodePinType);
+	FGraphNodeUtility::SortPinsByPositionY(SelectedNodesOutputPins);
+	
 	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*InGraph);
 	
 	UK2Node_MakeArray* CreatedArrayNode = ArrayNodeCreator.CreateNode();
