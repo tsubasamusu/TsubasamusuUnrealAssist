@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "SDottedLine.h"
+#include "Widget/SDottedLine.h"
 
 FVector2D SDottedLine::ComputeDesiredSize(float) const
 {

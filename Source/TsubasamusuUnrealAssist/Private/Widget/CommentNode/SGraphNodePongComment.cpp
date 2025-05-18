@@ -1,8 +1,8 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "SGraphNodePongComment.h"
-#include "SDottedLine.h"
-#include "SGraphNodeCustomizableComment.h"
+#include "Widget/CommentNode/SGraphNodePongComment.h"
+#include "Widget/SDottedLine.h"
+#include "Widget/CommentNode/SGraphNodeCustomizableComment.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Widgets/Layout/SScaleBox.h"
