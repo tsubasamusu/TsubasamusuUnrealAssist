@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "SGraphNodeCustomizableComment.h"
+#include "Widget/CommentNode/SGraphNodeCustomizableComment.h"
 #include "EdGraphNode_Comment.h"
 #include "SCommentBubble.h"
 #include "SGraphPanel.h"
