@@ -3,7 +3,7 @@
 ### Make Array
 When multiple nodes with output pins of the same type are selected and right-clicked, the “Make Array” menu appears, and selecting the menu creates a Make Array node with all of those output pins connected.
 
-<img width="500" src="https://github.com/user-attachments/assets/63e3bda2-a9a0-4743-b875-9de8b33bf1a5">
+<img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
 
 ## Blueprint Function Library for Editor Utilty
 ### Replace Assets References
