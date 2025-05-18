@@ -16,4 +16,7 @@ public:
 	static TArray<UEdGraphPin*> GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes);
 	static TArray<UEdGraphPin*> GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType);
 	static TArray<UEdGraphPin*> GetNodeInputPins(const UEdGraphNode* InNode);
+
+	static void SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins);
+	static FIntPoint GetPinPosition(const UEdGraphPin* InPin);
 };

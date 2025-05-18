@@ -2,6 +2,8 @@
 
 #include  "GraphNodeUtility.h"
 
+#include "TsubasamusuLogUtility.h"
+
 TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {
 	TArray<UEdGraphNode*> SelectedNodes;
@@ -141,4 +143,50 @@ TArray<UEdGraphPin*> FGraphNodeUtility::GetNodeInputPins(const UEdGraphNode* InN
 	}
 
 	return NodeInputPins;
+}
+
+void FGraphNodeUtility::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
+{
+	TArray<int32> OutPinsIndexes;
+	OutPinsIndexes.SetNum(OutPins.Num());
+
+	for (int32 i = 0; i < OutPinsIndexes.Num(); i++)
+	{
+		OutPinsIndexes[i] = i;
+	}
+
+	OutPinsIndexes.StableSort([&OutPins](const int32 FirstIndex, const int32 SecondIndex)
+	{
+		const int32 FirstPinPositionY = GetPinPosition(OutPins[FirstIndex]).Y;
+		const int32 SecondPinPositionY = GetPinPosition(OutPins[SecondIndex]).Y;
+		
+		return FirstPinPositionY < SecondPinPositionY;
+	});
+
+	TArray<UEdGraphPin*> SortedPins;
+	SortedPins.SetNum(OutPins.Num());
+	
+	for (int32 i = 0; i < SortedPins.Num(); i++)
+	{
+		SortedPins[i] = OutPins[OutPinsIndexes[i]];
+	}
+	
+	OutPins = SortedPins;
+}
+
+FIntPoint FGraphNodeUtility::GetPinPosition(const UEdGraphPin* InPin)
+{
+	if (!InPin)
+	{
+		return FIntPoint();
+	}
+
+	const UEdGraphNode* PinNode = InPin->GetOwningNode();
+
+	if (!IsValid(PinNode))
+	{
+		return FIntPoint();
+	}
+
+	return FIntPoint(PinNode->NodePosX, PinNode->NodePosY);
 }
