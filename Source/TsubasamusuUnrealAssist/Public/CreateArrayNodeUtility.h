@@ -8,11 +8,11 @@ class TSUBASAMUSUUNREALASSIST_API FCreateArrayNodeUtility
 {
 public:
 	
-	static void AddCreateArrayNodeMenu(const UEdGraph* InGraph, FMenuBuilder& MenuBuilder, const TSharedPtr<FEdGraphPinType> ArrayNodePinType);
+	static void AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType);
 
 private:
 	
-	static void CreateArrayNode(UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType);
+	static void CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType);
 	
 	static FIntPoint GetDesiredArrayNodePosition(const UEdGraph* InGraph);
 

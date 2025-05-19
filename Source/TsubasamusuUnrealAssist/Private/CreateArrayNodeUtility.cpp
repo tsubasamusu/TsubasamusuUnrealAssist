@@ -7,26 +7,26 @@
 
 #define LOCTEXT_NAMESPACE "FCreateArrayNodeUtility"
 
-void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const UEdGraph* InGraph, FMenuBuilder& MenuBuilder, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
+void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
-	MenuBuilder.BeginSection(TEXT("TsubasamusuUnrealAssistSection"), LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist"));
+	InMenuBuilder.BeginSection(TEXT("TsubasamusuUnrealAssistSection"), LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist"));
 	
 	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
 	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
 
-	MenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([ArrayNodePinType, InGraph]()
+	InMenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, ArrayNodePinType]()
 	{
-		CreateArrayNode(const_cast<UEdGraph*>(InGraph), ArrayNodePinType);
+		CreateArrayNode(InGraph, ArrayNodePinType);
 	})));
 	
-	MenuBuilder.EndSection();
+	InMenuBuilder.EndSection();
 }
 
-void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPtr<FEdGraphPinType> ArrayNodePinType)
+void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
-	if (!IsValid(InGraph))
+	if (!InGraph.IsValid())
 	{
 		return;
 	}
@@ -36,18 +36,18 @@ void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPt
 
 	InGraph->Modify();
 	
-	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(InGraph);
+	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(InGraph.Get());
 	
 	if (IsValid(Blueprint))
 	{
 		Blueprint->Modify();
 	}
 	
-	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
+	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph.Get());
 	TArray<UEdGraphPin*> SelectedNodesOutputPins = FGraphNodeUtility::GetNodesOutputPins(SelectedNodes, *ArrayNodePinType);
 	FGraphNodeUtility::SortPinsByPositionY(SelectedNodesOutputPins);
 	
-	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*InGraph);
+	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*InGraph.Get());
 	
 	UK2Node_MakeArray* CreatedArrayNode = ArrayNodeCreator.CreateNode();
 	
@@ -58,7 +58,7 @@ void FCreateArrayNodeUtility::CreateArrayNode(UEdGraph* InGraph, const TSharedPt
 	
 	CreatedArrayNode->AllocateDefaultPins();
 
-	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InGraph);
+	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InGraph.Get());
 	CreatedArrayNode->NodePosX = DesiredArrayNodePosition.X;
 	CreatedArrayNode->NodePosY = DesiredArrayNodePosition.Y;
 
