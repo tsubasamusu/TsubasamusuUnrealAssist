@@ -9,14 +9,17 @@
 
 void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
-	InMenuBuilder.BeginSection(TEXT("TsubasamusuUnrealAssistSection"), LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist"));
-	
-	const FText CreateArrayNodeLabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
-	const FText CreateArrayNodeToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
+	const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
+	const TAttribute HeadingText = LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist");
+    
+	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
+
+	const FText LabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
+	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
 
-	InMenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, ArrayNodePinType]()
+	InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, ArrayNodePinType]()
 	{
 		CreateArrayNode(InGraph, ArrayNodePinType);
 	})));

@@ -6,17 +6,26 @@
 
 void FCommentNodeTranslationUtility::AddCommentNodeTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	InMenuBuilder.BeginSection(TEXT("TsubasamusuUnrealAssistSection"), LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist"));
-	
-	const FText CreateArrayNodeLabelText = LOCTEXT("TranslateCommentNodeLabelText", "Translate");
-	const FText CreateArrayNodeToolTipText = LOCTEXT("TranslateCommentNodeToolTipText", "Translate comment of selected comment node.");
+    const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
+    const TAttribute HeadingText = LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist");
+    
+	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-	InMenuBuilder.AddMenuEntry(CreateArrayNodeLabelText, CreateArrayNodeToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode]()
-	{
-		TranslateCommentNode(InCommentNode);
-	})));
-	
-	InMenuBuilder.EndSection();
+    const TAttribute LabelText = LOCTEXT("CommentNodeTranslationLabelText", "Translate");
+    const TAttribute ToolTipText = LOCTEXT("CommentNodeTranslationToolTipText", "Translate comment of selected comment node.");
+
+    const auto MenuAction = [InCommentNode](FMenuBuilder& MenuBuilder)
+    {
+        AddLanguageSubMenus(MenuBuilder, InCommentNode);
+    };
+    
+    InMenuBuilder.AddSubMenu(LabelText, ToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None);
+
+    InMenuBuilder.EndSection();
+}
+
+void FCommentNodeTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+{
 }
 
 void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
