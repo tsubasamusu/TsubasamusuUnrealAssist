@@ -152,7 +152,18 @@ void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<U
         
         if (InCommentNode.IsValid())
         {
+            const FScopedTransaction Transaction(LOCTEXT("TranslateCommentNodeTransaction", "Translate Comment Node"));
+
+            InCommentNode->Modify();
             InCommentNode->NodeComment = TranslatedText;
+            InCommentNode->ReconstructNode();
+
+            UEdGraph* Graph = InCommentNode->GetGraph();
+            
+            if (IsValid(Graph))
+            {
+                Graph->NotifyGraphChanged();
+            }
         }
     });
     
