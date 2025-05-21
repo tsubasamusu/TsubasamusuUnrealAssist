@@ -15,6 +15,8 @@ public:
 private:
 
 	static void AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
+
+	static TArray<FString> GetEditorLanguages();
 	
 	static void TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 };
