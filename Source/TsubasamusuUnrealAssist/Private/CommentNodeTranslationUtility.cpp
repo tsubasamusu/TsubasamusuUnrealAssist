@@ -1,6 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "CommentNodeTranslationUtility.h"
+#include "EdGraphNode_Comment.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
@@ -29,6 +30,28 @@ void FCommentNodeTranslationUtility::AddCommentNodeTranslationMenu(FMenuBuilder&
 
 void FCommentNodeTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
+    const TArray<FString> EditorLanguages = GetEditorLanguages();
+
+    for (const FString& EditorLanguage : EditorLanguages)
+    {
+        FInternationalization& Internationalization = FInternationalization::Get();
+        FCulturePtr Culture = Internationalization.GetCulture(EditorLanguage);
+        
+        if (!Culture.IsValid())
+        {
+            continue;
+        }
+
+        const TAttribute LabelText = FText::FromString(Culture->GetEnglishName());
+        const TAttribute ToolTipText = FText::FromString(TEXT("Translate comment of selected comment node to ") + Culture->GetEnglishName() + TEXT("."));
+
+        const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
+        
+        InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()
+        {
+            TranslateCommentNode(InCommentNode, TranslationTargetLanguage);
+        })));
+    }
 }
 
 TArray<FString> FCommentNodeTranslationUtility::GetEditorLanguages()
@@ -49,7 +72,7 @@ TArray<FString> FCommentNodeTranslationUtility::GetEditorLanguages()
     return EditorLanguages;
 }
 
-void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
 {
 	
 }
