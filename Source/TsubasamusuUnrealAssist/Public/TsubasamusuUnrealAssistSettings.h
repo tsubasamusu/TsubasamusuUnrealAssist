@@ -18,6 +18,9 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;
 	
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
+	FString DeeplApiKey;
+	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Color Animation Duration", ClampMin = "0.0"))
 	float GamingColorAnimationDuration;
 
