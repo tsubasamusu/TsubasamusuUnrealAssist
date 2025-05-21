@@ -25,7 +25,10 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "OutputLog",
             "Slate",
             "SlateCore",
-            "InputCore"
+            "InputCore",
+            "HTTP",
+            "Json",
+            "JsonUtilities"
         });
 	}
 }

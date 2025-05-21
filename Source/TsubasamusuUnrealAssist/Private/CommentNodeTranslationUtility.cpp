@@ -2,9 +2,14 @@
 
 #include "CommentNodeTranslationUtility.h"
 #include "EdGraphNode_Comment.h"
+#include "TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
+#include "HttpModule.h"
+#include "TsubasamusuUnrealAssistSettings.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 
 #define LOCTEXT_NAMESPACE "FCommentNodeTranslationUtility"
 
@@ -74,7 +79,82 @@ TArray<FString> FCommentNodeTranslationUtility::GetEditorLanguages()
 
 void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
 {
-	
+    if (!InCommentNode.IsValid() || !TranslationTargetLanguage.IsValid())
+    {
+        return;
+    }
+
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+    const FString ApiKey = TsubasamusuUnrealAssistSettings->DeeplApiKey;
+    
+    const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *TranslationTargetLanguage);
+    
+    const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+    
+    HttpRequest->SetURL(TEXT("https://api-free.deepl.com/v2/translate"));
+    HttpRequest->SetVerb(TEXT("POST"));
+    HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+    HttpRequest->SetHeader(TEXT("Authorization"), TEXT("DeepL-Auth-Key ") + ApiKey);
+    HttpRequest->SetContentAsString(DeeplJsonRequest);
+
+    HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr HttpResponse, const bool bSucceeded)
+    {
+        if (!bSucceeded)
+        {
+            FTsubasamusuLogUtility::LogError(TEXT("Failed to send a HTTP request."));
+
+            return;
+        }
+
+        if (!HttpResponse.IsValid())
+        {
+            FTsubasamusuLogUtility::LogError(TEXT("Failed to get a HTTP response."));
+
+            return;
+        }
+        
+        const FString JsonResponse = HttpResponse->GetContentAsString();
+        
+        TSharedPtr<FJsonObject> JsonObject;
+        const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonResponse);
+        
+        if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
+        {
+            FTsubasamusuLogUtility::LogError(TEXT("Failed to deserialize the HTTP response \"") + JsonResponse + TEXT("\"."));
+
+            return;
+        }
+        
+        const TArray<TSharedPtr<FJsonValue>>* Translations;
+        
+        if (!JsonObject->TryGetArrayField(TEXT("translations"), Translations) || Translations->Num() == 0)
+        {
+            FTsubasamusuLogUtility::LogError(TEXT("Failed to get translations from the HTTP response \"") + JsonResponse + TEXT("\"."));
+
+            return;
+        }
+        
+        const TSharedPtr<FJsonObject> TranslationJsonObject = (*Translations)[0]->AsObject();
+        
+        FString TranslatedText;
+        
+        if (!TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText))
+        {
+            FTsubasamusuLogUtility::LogError(TEXT("Failed to get a translated text from the HTTP response \"") + JsonResponse + TEXT("\"."));
+
+            return;
+        }
+        
+        if (InCommentNode.IsValid())
+        {
+            InCommentNode->NodeComment = TranslatedText;
+        }
+    });
+    
+    if (!HttpRequest->ProcessRequest())
+    {
+        FTsubasamusuLogUtility::LogError(TEXT("Failed to process a HTTP request."));
+    }
 }
 
 FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
