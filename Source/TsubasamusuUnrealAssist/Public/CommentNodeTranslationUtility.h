@@ -19,4 +19,5 @@ private:
 	
 	static void TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage);
 	static FString GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage);
+	static void FixLanguage(FString& InLanguage);
 };

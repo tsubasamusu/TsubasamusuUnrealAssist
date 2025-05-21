@@ -39,6 +39,11 @@ void FCommentNodeTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBui
 
     for (const FString& EditorLanguage : EditorLanguages)
     {
+        if (EditorLanguage.IsEmpty() || EditorLanguage == TEXT("es-419"))
+        {
+            continue;
+        }
+        
         FInternationalization& Internationalization = FInternationalization::Get();
         FCulturePtr Culture = Internationalization.GetCulture(EditorLanguage);
         
@@ -161,9 +166,12 @@ FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& Sourc
 {
     const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
     const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(SourceText) };
+
+    FString FixedLanguage = TargetLanguage;
+    FixLanguage(FixedLanguage);
     
     JsonObject->SetArrayField(TEXT("text"), SourceTexts);
-    JsonObject->SetStringField(TEXT("target_lang"), TargetLanguage.ToUpper());
+    JsonObject->SetStringField(TEXT("target_lang"), FixedLanguage);
 
     FString DeeplJsonRequest;
     
@@ -171,6 +179,16 @@ FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& Sourc
     FJsonSerializer::Serialize(JsonObject.ToSharedRef(), JsonWriter);
     
     return DeeplJsonRequest;
+}
+
+void FCommentNodeTranslationUtility::FixLanguage(FString& InLanguage)
+{
+    if (InLanguage == TEXT("es-419"))
+    {
+        InLanguage = TEXT("es");
+    }
+    
+    InLanguage = InLanguage.ToUpper();
 }
 
 #undef LOCTEXT_NAMESPACE
