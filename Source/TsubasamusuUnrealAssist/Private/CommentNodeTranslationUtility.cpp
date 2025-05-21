@@ -77,4 +77,20 @@ void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<U
 	
 }
 
+FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
+{
+    const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
+    const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(SourceText) };
+    
+    JsonObject->SetArrayField(TEXT("text"), SourceTexts);
+    JsonObject->SetStringField(TEXT("target_lang"), TargetLanguage.ToUpper());
+
+    FString DeeplJsonRequest;
+    
+    const TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&DeeplJsonRequest);
+    FJsonSerializer::Serialize(JsonObject.ToSharedRef(), JsonWriter);
+    
+    return DeeplJsonRequest;
+}
+
 #undef LOCTEXT_NAMESPACE
