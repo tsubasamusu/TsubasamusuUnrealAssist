@@ -1,7 +1,9 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "SelectedNodeMenuExtender.h"
+#include "CommentNodeTranslationUtility.h"
 #include "CreateArrayNodeUtility.h"
+#include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
 #include "GraphNodeUtility.h"
 
@@ -16,17 +18,45 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 {
 	TSharedRef<FExtender> Extender = MakeShared<FExtender>();
 
-	TSharedPtr<FEdGraphPinType> SelectedNodesOutputPinsCommonType = MakeShared<FEdGraphPinType>();
-
 	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
-	
-	if (FGraphNodeUtility::TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
+
+	if (SelectedNodes.Num() == 0)
 	{
-		Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([InGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
-		{
-			FCreateArrayNodeUtility::AddCreateArrayNodeMenu(InGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
-		}));
+		return Extender;
 	}
 	
+	const TWeakObjectPtr<UEdGraph> WeakGraph = const_cast<UEdGraph*>(InGraph);
+	
+	// Create Array Node
+	if (SelectedNodes.Num() >= 2)
+	{
+		TSharedPtr<FEdGraphPinType> SelectedNodesOutputPinsCommonType = MakeShared<FEdGraphPinType>();
+
+		if (FGraphNodeUtility::TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
+		{
+			Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
+			{
+				FCreateArrayNodeUtility::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
+			}));
+		}
+
+		return Extender;
+	}
+
+	// Translate Comment Node
+	{
+		UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(SelectedNodes[0]);
+
+		if (IsValid(CommentNode))
+		{
+			const TWeakObjectPtr<UEdGraphNode_Comment> WeakCommentNode = CommentNode;
+			
+			Extender->AddMenuExtension("GraphNodeComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
+			{
+				FCommentNodeTranslationUtility::AddCommentNodeTranslationMenu(MenuBuilder, WeakCommentNode);
+			}));
+		}
+	}
+
 	return Extender;
 }

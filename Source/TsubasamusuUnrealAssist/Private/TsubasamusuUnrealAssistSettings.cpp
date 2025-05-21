@@ -6,6 +6,7 @@
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	CommentNodeType = ECommentNodeType::Normal;
+	DeeplApiKey = TEXT("");
 	
 	GamingColorAnimationDuration = 1.0f;
 	GamingScaleAnimationDuration = 1.0f;
