@@ -8,7 +8,7 @@
 class ISettingsModule;
 class FTsubasamusuNodeFactory;
 
-class FTsubasamusuUnrealAssistModule : public IModuleInterface
+class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
 public:
 	

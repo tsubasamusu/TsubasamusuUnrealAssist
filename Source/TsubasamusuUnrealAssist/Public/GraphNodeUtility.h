@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class TSUBASAMUSUUNREALASSIST_API FGraphNodeUtility
+class TSUBASAMUSUUNREALASSIST_API FGraphNodeUtility final
 {
 public:
 	

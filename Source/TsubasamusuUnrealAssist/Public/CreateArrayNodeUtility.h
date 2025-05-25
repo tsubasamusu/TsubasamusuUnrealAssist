@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class TSUBASAMUSUUNREALASSIST_API FCreateArrayNodeUtility
+class TSUBASAMUSUUNREALASSIST_API FCreateArrayNodeUtility final
 {
 public:
 	

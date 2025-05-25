@@ -13,6 +13,7 @@ class TSUBASAMUSUUNREALASSIST_API UTsubasamusuUnrealAssistSettings final : publi
 	GENERATED_BODY()
 
 public:
+	
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(EditAnywhere, config, Category = "General")

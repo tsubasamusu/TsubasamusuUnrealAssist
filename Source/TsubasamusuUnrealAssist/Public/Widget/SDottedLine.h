@@ -5,9 +5,10 @@
 #include "CoreMinimal.h"
 #include "Widgets/SLeafWidget.h"
 
-class SDottedLine : public SLeafWidget
+class SDottedLine final : public SLeafWidget
 {
 public:
+	
 	SLATE_BEGIN_ARGS(SDottedLine)
 		: _Thickness(3.0f)
 		, _OneCycleLength(8.0f)

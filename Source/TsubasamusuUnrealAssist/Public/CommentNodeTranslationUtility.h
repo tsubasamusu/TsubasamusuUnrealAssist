@@ -6,7 +6,7 @@
 
 class UEdGraphNode_Comment;
 
-class TSUBASAMUSUUNREALASSIST_API FCommentNodeTranslationUtility
+class TSUBASAMUSUUNREALASSIST_API FCommentNodeTranslationUtility final
 {
 public:
 	

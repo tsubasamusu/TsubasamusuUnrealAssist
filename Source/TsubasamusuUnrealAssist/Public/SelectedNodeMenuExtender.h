@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class TSUBASAMUSUUNREALASSIST_API FSelectedNodeMenuExtender
+class TSUBASAMUSUUNREALASSIST_API FSelectedNodeMenuExtender final
 {
 public:
 	
