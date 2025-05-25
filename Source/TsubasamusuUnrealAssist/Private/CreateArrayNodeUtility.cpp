@@ -32,11 +32,11 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGra
 	InMenuBuilder.EndSection();
 }
 
-void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)
+UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)
 {
 	if (!InGraph.IsValid())
 	{
-		return;
+		return nullptr;
 	}
 	
 	const FText TransactionSessionName = LOCTEXT("CreateArrayNodeTransaction", "Create Array Node");
@@ -62,7 +62,7 @@ void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InG
 	
 	if (!IsValid(CreatedArrayNode))
 	{
-		return;
+		return nullptr;
 	}
 	
 	CreatedArrayNode->AllocateDefaultPins();
@@ -102,6 +102,8 @@ void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InG
 	}
 	
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+
+	return CreatedArrayNode;
 }
 
 FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes)
