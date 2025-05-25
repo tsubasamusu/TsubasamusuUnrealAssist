@@ -14,6 +14,9 @@ class TSUBASAMUSUUNREALASSIST_API UTsubasamusuUnrealAssistSettings final : publi
 
 public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditAnywhere, config, Category = "General")
+	bool bEnableBlueprintSuggestion;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;

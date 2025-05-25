@@ -5,6 +5,8 @@
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	bEnableBlueprintSuggestion = true;
+	
 	CommentNodeType = ECommentNodeType::Normal;
 	DeeplApiKey = TEXT("");
 	
