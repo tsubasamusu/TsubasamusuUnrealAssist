@@ -5,7 +5,15 @@
 #include "CoreMinimal.h"
 #include "EdGraphUtilities.h"
 
-class TSUBASAMUSUUNREALASSIST_API FTsubasamusuNodeFactory : public FGraphPanelNodeFactory
+class FBlueprintSuggester;
+
+class TSUBASAMUSUUNREALASSIST_API FTsubasamusuNodeFactory final : public FGraphPanelNodeFactory
 {
-	virtual TSharedPtr<SGraphNode> CreateNode(class UEdGraphNode* Node) const override;
+public:
+	
+	virtual TSharedPtr<SGraphNode> CreateNode(UEdGraphNode* Node) const override;
+
+private:
+
+	mutable TSharedPtr<FBlueprintSuggester> BlueprintSuggester;
 };
