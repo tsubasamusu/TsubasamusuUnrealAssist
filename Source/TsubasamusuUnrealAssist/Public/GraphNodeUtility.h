@@ -19,4 +19,7 @@ public:
 
 	static void SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins);
 	static FIntPoint GetPinPosition(const UEdGraphPin* InPin);
+
+	static TArray<UEdGraphNode*> ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes);
+	static void RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes);
 };
