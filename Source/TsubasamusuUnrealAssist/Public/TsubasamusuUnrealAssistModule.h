@@ -16,6 +16,9 @@ public:
 	virtual void ShutdownModule() override;
 
 private:
+
+	void RegisterOnPostEngineInitEvent();
+	void UnregisterOnPostEngineInitEvent() const;
 	
 	void RegisterTsubasamusuNodeFactory();
 	void UnregisterTsubasamusuNodeFactory();
@@ -26,6 +29,8 @@ private:
 	static ISettingsModule* GetSettingsModuleChecked();
 	
 	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactoryPtr;
+	
+	FDelegateHandle OnPostEngineInitHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");

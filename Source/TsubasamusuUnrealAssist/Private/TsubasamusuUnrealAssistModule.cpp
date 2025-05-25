@@ -13,17 +13,34 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 #if TUA_IS_ENABLED
 	RegisterSettings();
-	FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
-	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory);
+	RegisterOnPostEngineInitEvent();
 #endif
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 #if TUA_IS_ENABLED
+	UnregisterOnPostEngineInitEvent();
 	UnregisterTsubasamusuNodeFactory();
 	UnregisterSettings();
 #endif
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
+{
+	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
+	{
+		RegisterTsubasamusuNodeFactory();
+		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
+	});
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
+{
+	if (OnPostEngineInitHandle.IsValid())
+	{
+		FCoreDelegates::OnPostEngineInit.Remove(OnPostEngineInitHandle);
+	}
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory()
