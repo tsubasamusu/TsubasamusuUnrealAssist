@@ -98,12 +98,10 @@ void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InG
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
 }
 
-FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const UEdGraph* InGraph)
+FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes)
 {
-	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
-
-	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(SelectedNodes) + 200;
-	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(SelectedNodes);
+	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(InNodes) + 200;
+	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(InNodes);
 
 	return FIntPoint(DesiredArrayNodePositionX, DesiredArrayNodePositionY);
 }

@@ -14,7 +14,7 @@ private:
 	
 	static void CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType);
 	
-	static FIntPoint GetDesiredArrayNodePosition(const UEdGraph* InGraph);
+	static FIntPoint GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes);
 
 	static int32 GetNodesMaxPositionX(const TArray<UEdGraphNode*>& InNodes);
 	static int32 GetNodesAveragePositionY(const TArray<UEdGraphNode*>& InNodes);
