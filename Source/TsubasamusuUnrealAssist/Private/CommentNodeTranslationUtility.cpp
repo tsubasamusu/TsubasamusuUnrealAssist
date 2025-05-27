@@ -192,14 +192,14 @@ FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& Sourc
     return DeeplJsonRequest;
 }
 
-void FCommentNodeTranslationUtility::FixLanguage(FString& InLanguage)
+void FCommentNodeTranslationUtility::FixLanguage(FString& OutLanguage)
 {
-    if (InLanguage == TEXT("es-419"))
+    if (OutLanguage == TEXT("es-419"))
     {
-        InLanguage = TEXT("es");
+        OutLanguage = TEXT("es");
     }
     
-    InLanguage = InLanguage.ToUpper();
+    OutLanguage = OutLanguage.ToUpper();
 }
 
 #undef LOCTEXT_NAMESPACE
