@@ -68,7 +68,6 @@ public:
 	virtual void EndUserInteraction() const override;
 	virtual FString GetNodeComment() const override;
 	virtual bool CanBeSelected(const FVector2D& MousePositionInNode) const override;
-	virtual FVector2D GetDesiredTitleBarSize() const override;
 	//~ End SNodePanel::SNode Interface
 
 	//~ Begin SGraphNode Interface
@@ -112,6 +111,7 @@ protected:
 	TSharedPtr<SOverlay> GetCommentNodeContentOverlay() const; 
 	
 	float GetTitleBarHeight() const;
+	virtual FVector2D GetDesiredTitleBarSize() const;
 
 private:
 	
