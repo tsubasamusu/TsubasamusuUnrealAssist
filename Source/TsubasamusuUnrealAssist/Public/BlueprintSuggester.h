@@ -12,7 +12,7 @@ public:
 
 private:
 
-	void OnNodesAdded(TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes);
+	void OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes);
 
 	TArray<TWeakObjectPtr<UEdGraphNode>> CachedWeakAddedNodes;
 

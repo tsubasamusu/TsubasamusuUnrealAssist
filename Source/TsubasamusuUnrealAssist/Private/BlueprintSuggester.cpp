@@ -1,9 +1,17 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "BlueprintSuggester.h"
+#include "GraphNodeUtility.h"
+#include "Framework/Docking/TabManager.h"
+#include "Toolkits/AssetEditorToolkit.h"
 
 void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 {
+	if (!IsValid(AddedNode))
+	{
+		return;
+	}
+	
 	const TWeakObjectPtr<UEdGraphNode> WeakAddedNode = AddedNode;
 	CachedWeakAddedNodes.AddUnique(WeakAddedNode);
 
@@ -34,7 +42,18 @@ void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 		PinnedBlueprintSuggester->bIsWaitingSuggestion = false;
 		PinnedBlueprintSuggester->CurrentWaitSuggestionSeconds = 0.0f;
 
-		PinnedBlueprintSuggester->OnNodesAdded(PinnedBlueprintSuggester->CachedWeakAddedNodes);
+		FGraphNodeUtility::RemoveInvalidWeakNodes(PinnedBlueprintSuggester->CachedWeakAddedNodes);
+
+		if (PinnedBlueprintSuggester->CachedWeakAddedNodes.Num() > 0)
+		{
+			UEdGraph* Graph = PinnedBlueprintSuggester->CachedWeakAddedNodes[0].Get()->GetGraph();
+			
+			if (IsValid(Graph))
+			{
+				PinnedBlueprintSuggester->OnNodesAdded(Graph, PinnedBlueprintSuggester->CachedWeakAddedNodes);
+			}
+		}
+		
 		PinnedBlueprintSuggester->CachedWeakAddedNodes.Empty();
 
 		return false;
@@ -43,7 +62,7 @@ void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 	bIsWaitingSuggestion = true;
 }
 
-void FBlueprintSuggester::OnNodesAdded(TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes)
+void FBlueprintSuggester::OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes)
 {
 	
 }
