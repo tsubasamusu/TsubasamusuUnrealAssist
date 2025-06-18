@@ -116,14 +116,14 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 		return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
 	}
 	
-	const FVector2D DeltaNodeSize = GetDeltaNodeSize(GetDeltaMouseCoordinates(MouseEvent));
+	const FVector2f DeltaNodeSize = GetDeltaNodeSize(GetDeltaMouseCoordinates(MouseEvent));
 		
 	DragSize.X += DeltaNodeSize.X;
 	DragSize.Y += DeltaNodeSize.Y;
 		
-	const FVector2D SnappedNodeSize = GetSnappedNodeSize();
+	const FVector2f SnappedNodeSize = GetSnappedNodeSize();
 	
-	FVector2D DeltaNodePosition(0,0);
+	FVector2f DeltaNodePosition(0,0);
 
 	if(UserSize != SnappedNodeSize)
 	{
@@ -145,7 +145,7 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 		
 		GraphNode->ResizeNode(UserSize);
 		
-		DeltaNodePosition = GetCorrectedNodePositionByAnchorPoint() - GetPosition();
+		DeltaNodePosition = GetCorrectedNodePositionByAnchorPoint() - GetPosition2f();
 	}
 
 	if (!ResizeTransactionPtr.IsValid() && UserSize != StoredUserSize)
@@ -155,14 +155,14 @@ FReply SGraphNodeCustomizableComment::OnMouseMove(const FGeometry& MyGeometry, c
 	}
 
 	FNodeSet NodeFilter;
-	SGraphNode::MoveTo(GetPosition() + DeltaNodePosition, NodeFilter);
+	SGraphNode::MoveTo(GetPosition2f() + DeltaNodePosition, NodeFilter);
 	
 	return SGraphNode::OnMouseMove(MyGeometry, MouseEvent);
 }
 
 void SGraphNodeCustomizableComment::UpdateAnchorPoint()
 {
-	NodeAnchorPoint = GetPosition();
+	NodeAnchorPoint = GetPosition2f();
 	
 	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 	{
@@ -178,9 +178,9 @@ void SGraphNodeCustomizableComment::UpdateAnchorPoint()
 	}
 }
 
-FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint() const
+FVector2f SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint() const
 {
-	FVector2D CorrectedNodePositionByAnchorPoint = NodeAnchorPoint;
+	FVector2f CorrectedNodePositionByAnchorPoint = NodeAnchorPoint;
 	
 	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 	{
@@ -200,18 +200,18 @@ FVector2D SGraphNodeCustomizableComment::GetCorrectedNodePositionByAnchorPoint()
 
 SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const
 {
-	const FVector2D LocalMouseCoordinates = InGeometry.AbsoluteToLocal(InPointerEvent.GetScreenSpacePosition());
+	const FVector2f LocalMouseCoordinates = InGeometry.AbsoluteToLocal(InPointerEvent.GetScreenSpacePosition());
 	
 	return  GetMouseZone(LocalMouseCoordinates);
 }
 
-SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FVector2D& LocalMouseCoordinates) const
+SGraphNodeCustomizableComment::ECommentNodeZone SGraphNodeCustomizableComment::GetMouseZone(const FVector2f& LocalMouseCoordinates) const
 {
 	ECommentNodeZone MouseZone = NotInNode;
 	
 	const FSlateRect HitTestingSlateRect = GetHitTestingBorderRect();
 	
-	const FVector2D DesiredNodeSize = GetDesiredSize();
+	const FVector2f DesiredNodeSize = GetDesiredSize();
 
 	if (LocalMouseCoordinates.Y > DesiredNodeSize.Y - HitTestingSlateRect.Bottom)
 	{
@@ -277,14 +277,14 @@ float SGraphNodeCustomizableComment::GetTitleBarHeight() const
 	return TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetMinNodeSize()
+FVector2f SGraphNodeCustomizableComment::GetMinNodeSize()
 {
 	return CustomizableCommentNodeDefinitions::MinNodeSize;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetMaxNodeSize() const
+FVector2f SGraphNodeCustomizableComment::GetMaxNodeSize() const
 {
-	return FVector2D(UserSize.X + 100, UserSize.Y + 100);
+	return FVector2f(UserSize.X + 100, UserSize.Y + 100);
 }
 
 FSlateRect SGraphNodeCustomizableComment::GetHitTestingBorderRect()
@@ -309,6 +309,65 @@ void SGraphNodeCustomizableComment::Construct(const FArguments& InArgs, UEdGraph
 
 	MouseLocatedZone = NotInNode;
 	bUserIsDragging = false;
+}
+
+void SGraphNodeCustomizableComment::MoveTo(const FVector2f& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty)
+{
+	const FVector2f DeltaPosition = NewPosition - GetPosition2f();
+	
+	SGraphNode::MoveTo(NewPosition, NodeFilter, bMarkDirty);
+	
+	const FModifierKeysState ModifierKeysState = FSlateApplication::Get().GetModifierKeys();
+	
+	if(ModifierKeysState.IsShiftDown())
+	{
+		bCachedShiftKeyIsDown = true;
+		
+		return;
+	}
+
+	if (bCachedShiftKeyIsDown)
+	{
+		bCachedShiftKeyIsDown = false;
+		
+		UpdateNodesUnderComment();
+	}
+	
+	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
+	
+	if (CommentNode->MoveMode != ECommentBoxMode::GroupMovement)
+	{
+		return;
+	}
+	
+	const TSharedPtr<SGraphPanel> OwnerGraphPanel = GetOwnerPanel();
+
+	for (FCommentNodeSet::TConstIterator NodeIterator(CommentNode->GetNodesUnderComment()); NodeIterator; ++NodeIterator)
+	{
+		UEdGraphNode* NodeUnderComment = Cast<UEdGraphNode>(*NodeIterator);
+		
+		if (!IsValid(NodeUnderComment))
+		{
+			continue;
+		}
+		
+		if (OwnerGraphPanel->SelectionManager.IsNodeSelected(NodeUnderComment))
+		{
+			continue;
+		}
+
+		if (NodeFilter.Find(NodeUnderComment->DEPRECATED_NodeWidget.Pin()))
+		{
+			continue;
+		}
+		
+		NodeFilter.Add(NodeUnderComment->DEPRECATED_NodeWidget.Pin());
+		
+		NodeUnderComment->Modify(bMarkDirty);
+		
+		NodeUnderComment->NodePosX += DeltaPosition.X;
+		NodeUnderComment->NodePosY += DeltaPosition.Y;
+	}
 }
 
 void SGraphNodeCustomizableComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -361,9 +420,9 @@ float SGraphNodeCustomizableComment::GetWrappingTitleTextWidth() const
 
 void SGraphNodeCustomizableComment::UpdateRenderTransform()
 {
-	const FSlateRenderTransform SlateRenderTransform = Concatenate(FScale2D(CachedCommentNodeScale), FQuat2D(FMath::DegreesToRadians(CachedCommentNodeAngle)), FVector2D::ZeroVector);
+	const FSlateRenderTransform SlateRenderTransform = Concatenate(FScale2D(CachedCommentNodeScale), FQuat2D(FMath::DegreesToRadians(CachedCommentNodeAngle)), FVector2f::ZeroVector);
 
-	SetRenderTransformPivot(FVector2D(0.5f, 0.5f));
+	SetRenderTransformPivot(FVector2f(0.5f, 0.5f));
 	SetRenderTransform(SlateRenderTransform);
 }
 
@@ -406,12 +465,17 @@ void SGraphNodeCustomizableComment::UpdateGraphNode()
 
 FVector2D SGraphNodeCustomizableComment::ComputeDesiredSize(float) const
 {
-	return UserSize;
+	return FVector2D(UserSize);
 }
 
 FString SGraphNodeCustomizableComment::GetNodeComment() const
 {
 	return GetEditableNodeTitle();
+}
+
+bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2f& MousePositionInNode) const
+{
+	return GetMouseZone(MousePositionInNode) == TitleBar;
 }
 
 FReply SGraphNodeCustomizableComment::OnMouseButtonDoubleClick(const FGeometry& InMyGeometry, const FPointerEvent& InMouseEvent)
@@ -493,9 +557,51 @@ UObject* SGraphNodeCustomizableComment::GetLastOuter() const
 	return LastOuter;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const
+FVector2f SGraphNodeCustomizableComment::GetSnappedNodeSize() const
 {
-	FVector2D DeltaNodeSize = InDeltaMouseCoordinates;
+	const uint32 SnapGridSize = SNodePanel::GetSnapGridSize();
+	
+	FVector2f SnappedNodeSize;
+	
+	SnappedNodeSize.X = SnapGridSize * FMath::RoundToFloat(DragSize.X / SnapGridSize);
+	SnappedNodeSize.Y = SnapGridSize * FMath::RoundToFloat(DragSize.Y / SnapGridSize);
+
+	const FVector2f NodeMinSize = GetMinNodeSize();
+	const FVector2f NodeMaxSize = GetMaxNodeSize();
+	
+	SnappedNodeSize.X = FMath::Min(SnappedNodeSize.X, NodeMaxSize.X);
+	SnappedNodeSize.X = FMath::Max(SnappedNodeSize.X, NodeMinSize.X);
+	
+	SnappedNodeSize.Y = FMath::Min(SnappedNodeSize.Y, NodeMaxSize.Y);
+	SnappedNodeSize.Y = FMath::Max(SnappedNodeSize.Y, NodeMinSize.Y);
+	
+	return SnappedNodeSize;
+}
+
+FVector2f SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointerEvent& InPointerEvent)
+{
+	const FVector2f CurrentGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InPointerEvent.GetScreenSpacePosition());
+	const FVector2f LastGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InPointerEvent.GetLastScreenSpacePosition());
+	
+	const TSharedPtr<SWindow> OwnerWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
+	
+	FVector2f DeltaMouseCoordinates = (CurrentGraphSpaceMouseCoordinates - LastGraphSpaceMouseCoordinates) / (OwnerWindow.IsValid() ? OwnerWindow->GetDPIScaleFactor() : 1.0f);
+
+	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == RightBorder)
+	{
+		DeltaMouseCoordinates.Y = 0.0f;
+	}
+	else if(MouseLocatedZone == TopBorder || MouseLocatedZone == BottomBorder)
+	{
+		DeltaMouseCoordinates.X = 0.0f;
+	}
+
+	return DeltaMouseCoordinates;
+}
+
+FVector2f SGraphNodeCustomizableComment::GetDeltaNodeSize(const FVector2f& InDeltaMouseCoordinates) const
+{
+	FVector2f DeltaNodeSize = InDeltaMouseCoordinates;
 
 	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == TopBorder || MouseLocatedZone == TopLeftBorder)
 	{
@@ -513,52 +619,10 @@ FVector2D SGraphNodeCustomizableComment::GetDeltaNodeSize(const FVector2D& InDel
 	return DeltaNodeSize;
 }
 
-FVector2D SGraphNodeCustomizableComment::GetSnappedNodeSize() const
-{
-	const uint32 SnapGridSize = SNodePanel::GetSnapGridSize();
-	
-	FVector2D SnappedNodeSize;
-	
-	SnappedNodeSize.X = SnapGridSize * FMath::RoundToFloat(DragSize.X / SnapGridSize);
-	SnappedNodeSize.Y = SnapGridSize * FMath::RoundToFloat(DragSize.Y / SnapGridSize);
-
-	const FVector2D NodeMinSize = GetMinNodeSize();
-	const FVector2D NodeMaxSize = GetMaxNodeSize();
-	
-	SnappedNodeSize.X = FMath::Min(SnappedNodeSize.X, NodeMaxSize.X);
-	SnappedNodeSize.X = FMath::Max(SnappedNodeSize.X, NodeMinSize.X);
-	
-	SnappedNodeSize.Y = FMath::Min(SnappedNodeSize.Y, NodeMaxSize.Y);
-	SnappedNodeSize.Y = FMath::Max(SnappedNodeSize.Y, NodeMinSize.Y);
-	
-	return SnappedNodeSize;
-}
-
-FVector2D SGraphNodeCustomizableComment::GetDeltaMouseCoordinates(const FPointerEvent& InPointerEvent)
-{
-	const FVector2D CurrentGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InPointerEvent.GetScreenSpacePosition());
-	const FVector2D LastGraphSpaceMouseCoordinates = NodeCoordToGraphCoord(InPointerEvent.GetLastScreenSpacePosition());
-	
-	const TSharedPtr<SWindow> OwnerWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-	
-	FVector2D DeltaMouseCoordinates = (CurrentGraphSpaceMouseCoordinates - LastGraphSpaceMouseCoordinates) / (OwnerWindow.IsValid() ? OwnerWindow->GetDPIScaleFactor() : 1.0f);
-
-	if(MouseLocatedZone == LeftBorder || MouseLocatedZone == RightBorder)
-	{
-		DeltaMouseCoordinates.Y = 0.0f;
-	}
-	else if(MouseLocatedZone == TopBorder || MouseLocatedZone == BottomBorder)
-	{
-		DeltaMouseCoordinates.X = 0.0f;
-	}
-
-	return DeltaMouseCoordinates;
-}
-
 FSlateRect SGraphNodeCustomizableComment::GetNodeRect(TSharedRef<const SGraphNode> InNodeWidget)
 {
-	const FVector2D NodePosition = InNodeWidget->GetPosition();
-	const FVector2D DesiredNodeSize = InNodeWidget->GetDesiredSize();
+	const FVector2f NodePosition = InNodeWidget->GetPosition2f();
+	const FVector2f DesiredNodeSize = InNodeWidget->GetDesiredSize();
 	
 	return FSlateRect(NodePosition.X, NodePosition.Y, NodePosition.X + DesiredNodeSize.X, NodePosition.Y + DesiredNodeSize.Y);
 }
@@ -578,7 +642,7 @@ const FSlateBrush* SGraphNodeCustomizableComment::GetShadowBrush(bool bSelected)
 	return SGraphNode::GetShadowBrush(bSelected);
 }
 
-void SGraphNodeCustomizableComment::GetOverlayBrushes(bool bSelected, const FVector2D WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const
+void SGraphNodeCustomizableComment::GetOverlayBrushes(bool bSelected, const FVector2f& WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const
 {
 	constexpr float Fudge = 3.0f;
 
@@ -597,65 +661,6 @@ void SGraphNodeCustomizableComment::GetOverlayBrushes(bool bSelected, const FVec
 bool SGraphNodeCustomizableComment::ShouldAllowCulling() const
 {
 	return true;
-}
-
-void SGraphNodeCustomizableComment::MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, const bool bMarkDirty)
-{
-	const FVector2D DeltaPosition = NewPosition - GetPosition();
-	
-	SGraphNode::MoveTo(NewPosition, NodeFilter, bMarkDirty);
-	
-	const FModifierKeysState ModifierKeysState = FSlateApplication::Get().GetModifierKeys();
-	
-	if(ModifierKeysState.IsShiftDown())
-	{
-		bCachedShiftKeyIsDown = true;
-		
-		return;
-	}
-
-	if (bCachedShiftKeyIsDown)
-	{
-		bCachedShiftKeyIsDown = false;
-		
-		UpdateNodesUnderComment();
-	}
-	
-	const UEdGraphNode_Comment* CommentNode = CastChecked<UEdGraphNode_Comment>(GraphNode);
-	
-	if (CommentNode->MoveMode != ECommentBoxMode::GroupMovement)
-	{
-		return;
-	}
-	
-	const TSharedPtr<SGraphPanel> OwnerGraphPanel = GetOwnerPanel();
-
-	for (FCommentNodeSet::TConstIterator NodeIterator(CommentNode->GetNodesUnderComment()); NodeIterator; ++NodeIterator)
-	{
-		UEdGraphNode* NodeUnderComment = Cast<UEdGraphNode>(*NodeIterator);
-		
-		if (!IsValid(NodeUnderComment))
-		{
-			continue;
-		}
-		
-		if (OwnerGraphPanel->SelectionManager.IsNodeSelected(NodeUnderComment))
-		{
-			continue;
-		}
-
-		if (NodeFilter.Find(NodeUnderComment->DEPRECATED_NodeWidget.Pin()))
-		{
-			continue;
-		}
-		
-		NodeFilter.Add(NodeUnderComment->DEPRECATED_NodeWidget.Pin());
-		
-		NodeUnderComment->Modify(bMarkDirty);
-		
-		NodeUnderComment->NodePosX += DeltaPosition.X;
-		NodeUnderComment->NodePosY += DeltaPosition.Y;
-	}
 }
 
 void SGraphNodeCustomizableComment::EndUserInteraction() const
@@ -844,8 +849,8 @@ void SGraphNodeCustomizableComment::CreateCommentNodeWidget(const FGraphNodeMeta
 	.Visibility(this, &SGraphNodeCustomizableComment::GetCommentBubbleVisibility);
 
 	GetOrAddSlot(ENodeZone::TopCenter)
-	.SlotOffset(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetOffset))
-	.SlotSize(TAttribute<FVector2D>(CommentBubble.Get(), &SCommentBubble::GetSize))
+	.SlotOffset2f(TAttribute<FVector2f>(CommentBubble.Get(), &SCommentBubble::GetOffset2f))
+	.SlotSize2f(TAttribute<FVector2f>(CommentBubble.Get(), &SCommentBubble::GetSize2f))
 	.AllowScaling(TAttribute<bool>(CommentBubble.Get(), &SCommentBubble::IsScalingAllowed))
 	.VAlign(VAlign_Top)
 	[
@@ -896,22 +901,17 @@ TSharedPtr<SOverlay> SGraphNodeCustomizableComment::GetCommentNodeContentOverlay
 	return CommentNodeContentOverlay;
 }
 
-bool SGraphNodeCustomizableComment::CanBeSelected(const FVector2D& MousePositionInNode) const
-{
-	return GetMouseZone(MousePositionInNode) == TitleBar;
-}
-
-FVector2D SGraphNodeCustomizableComment::GetDesiredTitleBarSize() const
+FVector2f SGraphNodeCustomizableComment::GetDesiredTitleBarSize() const
 {
 	const float TitleBarHeight = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize().Y : 0.0f;
 	
-	return FVector2D(UserSize.X, TitleBarHeight);
+	return FVector2f(UserSize.X, TitleBarHeight);
 }
 
 FSlateRect SGraphNodeCustomizableComment::GetTitleRect() const
 {
-	const FVector2D CommentNodePosition = GetPosition();
-	const FVector2D TitleBarSize = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize() : GetDesiredSize();
+	const FVector2f CommentNodePosition = GetPosition2f();
+	const FVector2f TitleBarSize = TitleBarBorder.IsValid() ? TitleBarBorder->GetDesiredSize() : GetDesiredSize();
 	
 	return FSlateRect(CommentNodePosition.X, CommentNodePosition.Y, CommentNodePosition.X + TitleBarSize.X, CommentNodePosition.Y + TitleBarSize.Y) + CustomizableCommentNodeDefinitions::TitleBarOffset;
 }

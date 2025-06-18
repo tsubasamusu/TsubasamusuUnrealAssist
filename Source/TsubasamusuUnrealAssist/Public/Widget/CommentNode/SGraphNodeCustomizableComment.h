@@ -12,7 +12,7 @@ namespace CustomizableCommentNodeDefinitions
 {
 	static const FSlateRect HitTestingBorderRect(10, 10, 10, 10);
 
-	static const FVector2D MinNodeSize(30.0f, 30.0f);
+	static const FVector2f MinNodeSize(30.0f, 30.0f);
 
 	static constexpr float TitleBarColorMultiplier = 0.6f;
 
@@ -62,12 +62,12 @@ public:
 
 	//~ Begin SNodePanel::SNode Interface
 	virtual const FSlateBrush* GetShadowBrush(bool bSelected) const override;
-	virtual void GetOverlayBrushes(bool bSelected, const FVector2D WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const override;
+	virtual void GetOverlayBrushes(bool bSelected, const FVector2f& WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const override;
 	virtual bool ShouldAllowCulling() const override;
 	virtual int32 GetSortDepth() const override;
 	virtual void EndUserInteraction() const override;
 	virtual FString GetNodeComment() const override;
-	virtual bool CanBeSelected(const FVector2D& MousePositionInNode) const override;
+	virtual bool CanBeSelected(const FVector2f& MousePositionInNode) const override;;
 	//~ End SNodePanel::SNode Interface
 
 	//~ Begin SGraphNode Interface
@@ -81,7 +81,7 @@ public:
 protected:
 	
 	//~ Begin SNodePanel::SNode Interface
-	virtual void MoveTo(const FVector2D& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty = true) override;
+	virtual void MoveTo(const FVector2f& NewPosition, FNodeSet& NodeFilter, bool bMarkDirty = true) override;
 	//~ End SNodePanel::SNode Interface
 
 	//~ Begin SGraphNode Interface
@@ -111,12 +111,12 @@ protected:
 	TSharedPtr<SOverlay> GetCommentNodeContentOverlay() const; 
 	
 	float GetTitleBarHeight() const;
-	virtual FVector2D GetDesiredTitleBarSize() const;
+	virtual FVector2f GetDesiredTitleBarSize() const;
 
 private:
 	
 	ECommentNodeZone GetMouseZone(const FGeometry& InGeometry, const FPointerEvent& InPointerEvent) const;
-	ECommentNodeZone GetMouseZone(const FVector2D& LocalMouseCoordinates) const;
+	ECommentNodeZone GetMouseZone(const FVector2f& LocalMouseCoordinates) const;
 
 	FSlateColor GetTitleBarColor() const;
 	FSlateColor GetCommentBubbleColor() const;
@@ -126,10 +126,10 @@ private:
 
 	void UpdateAnchorPoint();
 
-	FVector2D GetCorrectedNodePositionByAnchorPoint() const;
+	FVector2f GetCorrectedNodePositionByAnchorPoint() const;
 	
-	static FVector2D GetMinNodeSize();
-	FVector2D GetMaxNodeSize() const;
+	static FVector2f GetMinNodeSize();
+	FVector2f GetMaxNodeSize() const;
 
 	static FSlateRect GetHitTestingBorderRect();
 	static FSlateRect GetNodeRect(TSharedRef<const SGraphNode> InNodeWidget);
@@ -140,9 +140,9 @@ private:
 
 	UObject* GetLastOuter() const;
 	
-	FVector2D GetDeltaMouseCoordinates(const FPointerEvent& InPointerEvent);
-	FVector2D GetDeltaNodeSize(const FVector2D& InDeltaMouseCoordinates) const;
-	FVector2D GetSnappedNodeSize() const;
+	FVector2f GetDeltaMouseCoordinates(const FPointerEvent& InPointerEvent);
+	FVector2f GetDeltaNodeSize(const FVector2f& InDeltaMouseCoordinates) const;
+	FVector2f GetSnappedNodeSize() const;
 
 	bool IsNodeUnderComment(TSharedRef<const SGraphNode> InNodeWidget) const;
 
@@ -150,10 +150,10 @@ private:
 
 	void UpdateRenderTransform();
 	
-	FVector2D DragSize;
-	FVector2D UserSize;
-	FVector2D StoredUserSize;
-	FVector2D NodeAnchorPoint;
+	FVector2f DragSize;
+	FVector2f UserSize;
+	FVector2f StoredUserSize;
+	FVector2f NodeAnchorPoint;
 
 	TSharedPtr<FScopedTransaction> ResizeTransactionPtr;
 	
