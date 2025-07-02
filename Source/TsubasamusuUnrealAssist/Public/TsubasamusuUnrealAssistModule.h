@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class IAssetTypeActions;
 class ISettingsModule;
 class FTsubasamusuNodeFactory;
 
@@ -26,10 +27,13 @@ private:
 	void RegisterSettings() const;
 	void UnregisterSettings() const;
 
+	void RegisterAssetTypeActions();
+	void UnregisterAssetTypeActions();
+	
 	static ISettingsModule* GetSettingsModuleChecked();
 	
 	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactoryPtr;
-	
+	TArray<TSharedPtr<IAssetTypeActions>> CreatedAssetTypeActions;
 	FDelegateHandle OnPostEngineInitHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");

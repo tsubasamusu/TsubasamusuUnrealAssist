@@ -1,6 +1,8 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
+#include "AssetToolsModule.h"
+#include "AssetTypeActions_TsubasamusuBlueprint.h"
 #include "ISettingsModule.h"
 #include "SelectedNodeMenuExtender.h"
 #include "TsubasamusuNodeFactory.h"
@@ -68,6 +70,34 @@ void FTsubasamusuUnrealAssistModule::RegisterSettings() const
 void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 {
 	GetSettingsModuleChecked()->UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterAssetTypeActions()
+{
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	const TSharedRef<IAssetTypeActions> AssetTypeActions = MakeShared<FAssetTypeActions_TsubasamusuBlueprint>();
+	AssetTools.RegisterAssetTypeActions(AssetTypeActions);
+	CreatedAssetTypeActions.Add(AssetTypeActions);
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterAssetTypeActions()
+{
+	if (!FModuleManager::Get().IsModuleLoaded("AssetTools"))
+	{
+		return;
+	}
+	
+	IAssetTools& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	
+	for (const TSharedPtr<IAssetTypeActions> CreatedAssetTypeAction : CreatedAssetTypeActions)
+	{
+		if (CreatedAssetTypeAction.IsValid())
+		{
+			AssetToolsModule.UnregisterAssetTypeActions(CreatedAssetTypeAction.ToSharedRef());
+		}
+	}
+	
+	CreatedAssetTypeActions.Empty();
 }
 
 ISettingsModule* FTsubasamusuUnrealAssistModule::GetSettingsModuleChecked()
