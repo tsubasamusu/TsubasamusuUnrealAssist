@@ -17,12 +17,11 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) c
 		return ReturnNodeWidget;
 	}
 	
+	const UTsubasamusuUnrealAssistSettings* Settings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(Node);
-
+		
 	if (IsValid(CommentNode))
 	{
-		const UTsubasamusuUnrealAssistSettings* Settings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-		
 		switch (Settings->CommentNodeType)
 		{
 		case ECommentNodeType::Gaming:
@@ -36,12 +35,15 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) c
 		}
 	}
 
-	if (!BlueprintSuggester.IsValid())
+	if (Settings->bEnableBlueprintSuggestion)
 	{
-		BlueprintSuggester = MakeShared<FBlueprintSuggester>();
-	}
+		if (!BlueprintSuggester.IsValid())
+		{
+			BlueprintSuggester = MakeShared<FBlueprintSuggester>();
+		}
 	
-	BlueprintSuggester->OnNodeAdded(Node);
+		BlueprintSuggester->OnNodeAdded(Node);
+	}
 
 	return ReturnNodeWidget;
 }
