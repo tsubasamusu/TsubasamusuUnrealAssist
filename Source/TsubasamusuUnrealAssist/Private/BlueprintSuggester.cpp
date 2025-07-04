@@ -1,8 +1,13 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "BlueprintSuggester.h"
+#include "BlueprintEditor.h"
 #include "GraphNodeUtility.h"
+#include "SGraphActionMenu.h"
+#include "SGraphPanel.h"
+#include "TsubasamusuBlueprintEditor.h"
 #include "Framework/Docking/TabManager.h"
+#include "Kismet2/KismetEditorUtilities.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
 void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
@@ -65,4 +70,20 @@ void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 void FBlueprintSuggester::OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes)
 {
 	
+}
+
+TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const UEdGraph* InGraph, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode, UEdGraphPin* ForPin, const TArray<UEdGraphPin*>& DragFromPins)
+{
+	const TSharedPtr<IBlueprintEditor> BlueprintEditor = FKismetEditorUtilities::GetIBlueprintEditorForObject(InGraph, false);
+	const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor = StaticCastSharedPtr<FTsubasamusuBlueprintEditor>(BlueprintEditor);
+	check(TsubasamusuBlueprintEditor);
+	
+	const TWeakPtr<SGraphEditor> GraphEditor = TsubasamusuBlueprintEditor->GetFocusedGraphEditor();
+	check(GraphEditor.IsValid());
+
+	SGraphPanel* GraphPanel = GraphEditor.Pin()->GetGraphPanel();
+	check(GraphPanel);
+
+	const TSharedPtr<SWidget> CreatedWidget = GraphPanel->SummonContextMenu(CreatePosition, AddNodePosition, ForNode, ForPin, DragFromPins);
+	return StaticCastSharedPtr<SGraphActionMenu>(CreatedWidget);
 }
