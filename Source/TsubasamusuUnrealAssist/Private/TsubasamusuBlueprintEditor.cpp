@@ -6,3 +6,8 @@ void FTsubasamusuBlueprintEditor::InitTsubasamusuBlueprintEditor(const EToolkitM
 {
 	InitBlueprintEditor(Mode, InitToolkitHost, InBlueprints, bShouldOpenInDefaultsMode);
 }
+
+TWeakPtr<SGraphEditor> FTsubasamusuBlueprintEditor::GetFocusedGraphEditor() const
+{
+	return FocusedGraphEdPtr;
+}
