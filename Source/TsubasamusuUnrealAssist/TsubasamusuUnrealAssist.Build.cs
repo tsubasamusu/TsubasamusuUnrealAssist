@@ -29,7 +29,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "HTTP",
             "Json",
             "JsonUtilities",
-            "AssetTools"
+            "AssetTools",
+            "Kismet"
         });
 	}
 }
