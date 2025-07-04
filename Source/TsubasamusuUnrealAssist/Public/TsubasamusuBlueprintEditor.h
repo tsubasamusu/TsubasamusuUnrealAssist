@@ -7,5 +7,7 @@
 
 class FTsubasamusuBlueprintEditor : public FBlueprintEditor
 {
+public:
 	
+	void InitTsubasamusuBlueprintEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode);
 };
