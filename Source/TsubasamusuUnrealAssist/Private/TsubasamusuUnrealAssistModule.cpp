@@ -16,6 +16,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 #if TUA_IS_ENABLED
 	RegisterSettings();
 	RegisterOnPostEngineInitEvent();
+	RegisterAssetTypeActions();
 #endif
 }
 
@@ -24,6 +25,7 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 #if TUA_IS_ENABLED
 	UnregisterOnPostEngineInitEvent();
 	UnregisterTsubasamusuNodeFactory();
+	UnregisterAssetTypeActions();
 	UnregisterSettings();
 #endif
 }
