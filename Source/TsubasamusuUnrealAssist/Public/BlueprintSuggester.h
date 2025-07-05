@@ -25,6 +25,8 @@ private:
 
 	static void TryInsertPromoteToVariable(const FBlueprintActionContext& BlueprintActionContext, FGraphActionListBuilderBase& OutGraphActionListBuilderBase, const UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor);
 
+	static TSharedRef<FGraphActionListBuilderBase> GetGraphActionListBuilderBase(UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins = TArray<UEdGraphPin*>());
+	
 	TArray<TWeakObjectPtr<UEdGraphNode>> CachedWeakAddedNodes;
 
 	FTSTicker::FDelegateHandle WaitSuggestionHandle;

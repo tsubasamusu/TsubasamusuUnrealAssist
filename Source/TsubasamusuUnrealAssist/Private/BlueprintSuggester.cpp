@@ -1,7 +1,10 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "BlueprintSuggester.h"
+#include "BlueprintActionMenuBuilder.h"
+#include "BlueprintActionMenuUtils.h"
 #include "BlueprintEditor.h"
+#include "BlueprintEditorSettings.h"
 #include "GraphNodeUtility.h"
 #include "SGraphActionMenu.h"
 #include "SGraphPanel.h"
@@ -167,4 +170,43 @@ void FBlueprintSuggester::TryInsertPromoteToVariable(const FBlueprintActionConte
 		PromoteLocalVariableAction->MyBlueprintEditor = TsubasamusuBlueprintEditor;
 		OutGraphActionListBuilderBase.AddAction(PromoteLocalVariableAction);
 	}
+}
+
+TSharedRef<FGraphActionListBuilderBase> FBlueprintSuggester::GetGraphActionListBuilderBase(UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
+{
+	check(TsubasamusuBlueprintEditor.IsValid());
+	bool const bIsContextSensitive = TsubasamusuBlueprintEditor->GetIsContextSensitive();
+
+	//TODO: ContextTargetMask の適切な値を取得する処理
+	uint32 ContextTargetMask = 0;
+	//if (bIsContextSensitive && ContextTargetSubMenu.IsValid())
+	//{
+	// 	ContextTargetMask = ContextTargetSubMenu->GetContextTargetMask();
+	//}
+	
+	FBlueprintActionContext BlueprintActionContext;
+	ConstructActionContext(BlueprintActionContext, InGraph, TsubasamusuBlueprintEditor, DragFromPins);
+	
+	FBlueprintActionMenuBuilder::EConfigFlags ConfigFlags = FBlueprintActionMenuBuilder::DefaultConfig;
+
+	if (GetDefault<UBlueprintEditorSettings>()->bEnableContextMenuTimeSlicing)
+	{
+		ConfigFlags |= FBlueprintActionMenuBuilder::UseTimeSlicing;
+	}
+	
+	const TSharedPtr<FBlueprintActionMenuBuilder> BlueprintActionMenuBuilder = MakeShared<FBlueprintActionMenuBuilder>(ConfigFlags);
+	
+	if (!GIsSavingPackage && !IsGarbageCollecting() && BlueprintActionContext.Blueprints.Num() > 0)
+	{
+		FBlueprintActionMenuUtils::MakeContextMenu(BlueprintActionContext, bIsContextSensitive, ContextTargetMask, *BlueprintActionMenuBuilder);
+	}
+	
+	TryInsertPromoteToVariable(BlueprintActionContext, *BlueprintActionMenuBuilder, InGraph, TsubasamusuBlueprintEditor);
+	
+	if (const UEdGraphSchema* Schema = Cast<const UEdGraphSchema>(InGraph->GetSchema()))
+	{
+		Schema->InsertAdditionalActions(BlueprintActionContext.Blueprints, BlueprintActionContext.Graphs, BlueprintActionContext.Pins, *BlueprintActionMenuBuilder);
+	}
+	
+	return BlueprintActionMenuBuilder.ToSharedRef();
 }
