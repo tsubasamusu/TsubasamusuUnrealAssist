@@ -2,7 +2,7 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "AssetToolsModule.h"
-#include "AssetTypeActions_TsubasamusuBlueprint.h"
+#include "BlueprintEditor/AssetTypeActions_TsubasamusuBlueprint.h"
 #include "ISettingsModule.h"
 #include "SelectedNodeMenuExtender.h"
 #include "TsubasamusuNodeFactory.h"

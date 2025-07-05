@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "AssetTypeActions_TsubasamusuBlueprint.h"
+#include "BlueprintEditor/AssetTypeActions_TsubasamusuBlueprint.h"
 #include "BlueprintEditor/TsubasamusuBlueprintEditor.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
