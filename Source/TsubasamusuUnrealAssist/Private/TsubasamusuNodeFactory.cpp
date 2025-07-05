@@ -2,7 +2,6 @@
 
 #include "TsubasamusuNodeFactory.h"
 #include "BlueprintSuggester.h"
-#include "CommentNodeType.h"
 #include "EdGraphNode_Comment.h"
 #include "Widget/CommentNode/SGraphNodeGamingComment.h"
 #include "Widget/CommentNode/SGraphNodePongComment.h"

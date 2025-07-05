@@ -5,7 +5,13 @@
 #include "CoreMinimal.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
-enum class ECommentNodeType;
+UENUM()
+enum class ECommentNodeType
+{
+	Normal,
+	Gaming,
+	Pong UMETA(DisplayName = "PONG")
+};
 
 UCLASS(config = EditorPerProjectUserSettings)
 class TSUBASAMUSUUNREALASSIST_API UTsubasamusuUnrealAssistSettings final : public UObject

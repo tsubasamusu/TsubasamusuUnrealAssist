@@ -1,7 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
-#include "CommentNodeType.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
