@@ -17,7 +17,9 @@ private:
 
 	void OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes);
 
-	static TSharedPtr<SGraphActionMenu> CreateGraphActionMenu(const UEdGraph* InGraph, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode = nullptr, UEdGraphPin* ForPin = nullptr, const TArray<UEdGraphPin*>& DragFromPins = TArray<UEdGraphPin*>());
+	static TSharedPtr<SGraphActionMenu> CreateGraphActionMenu(const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode = nullptr, UEdGraphPin* ForPin = nullptr, const TArray<UEdGraphPin*>& DragFromPins = TArray<UEdGraphPin*>());
+
+	static TSharedPtr<FTsubasamusuBlueprintEditor> GetTsubasamusuBlueprintEditor(const UEdGraph* InGraph);
 
 	static void ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins);
 	

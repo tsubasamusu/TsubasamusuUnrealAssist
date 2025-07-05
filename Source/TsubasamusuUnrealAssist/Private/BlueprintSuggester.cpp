@@ -74,11 +74,9 @@ void FBlueprintSuggester::OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<
 	
 }
 
-TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const UEdGraph* InGraph, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode, UEdGraphPin* ForPin, const TArray<UEdGraphPin*>& DragFromPins)
+TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode, UEdGraphPin* ForPin, const TArray<UEdGraphPin*>& DragFromPins)
 {
-	const TSharedPtr<IBlueprintEditor> BlueprintEditor = FKismetEditorUtilities::GetIBlueprintEditorForObject(InGraph, false);
-	const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor = StaticCastSharedPtr<FTsubasamusuBlueprintEditor>(BlueprintEditor);
-	check(TsubasamusuBlueprintEditor);
+	check(TsubasamusuBlueprintEditor.IsValid());
 	
 	const TWeakPtr<SGraphEditor> GraphEditor = TsubasamusuBlueprintEditor->GetFocusedGraphEditor();
 	check(GraphEditor.IsValid());
@@ -88,6 +86,12 @@ TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const UE
 
 	const TSharedPtr<SWidget> CreatedWidget = GraphPanel->SummonContextMenu(CreatePosition, AddNodePosition, ForNode, ForPin, DragFromPins);
 	return StaticCastSharedPtr<SGraphActionMenu>(CreatedWidget);
+}
+
+TSharedPtr<FTsubasamusuBlueprintEditor> FBlueprintSuggester::GetTsubasamusuBlueprintEditor(const UEdGraph* InGraph)
+{
+	const TSharedPtr<IBlueprintEditor> BlueprintEditor = FKismetEditorUtilities::GetIBlueprintEditorForObject(InGraph, false);
+	return StaticCastSharedPtr<FTsubasamusuBlueprintEditor>(BlueprintEditor);
 }
 
 void FBlueprintSuggester::ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
