@@ -5,6 +5,7 @@
 #include "BlueprintActionMenuUtils.h"
 #include "BlueprintEditor.h"
 #include "BlueprintEditorSettings.h"
+#include "ContextMenuTargetProfile.h"
 #include "GraphNodeUtility.h"
 #include "SGraphActionMenu.h"
 #include "SGraphPanel.h"
@@ -76,7 +77,7 @@ void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 
 void FBlueprintSuggester::OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes)
 {
-	
+	//TODO: suggest nodes
 }
 
 TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode, UEdGraphPin* ForPin, const TArray<UEdGraphPin*>& DragFromPins)
@@ -177,16 +178,14 @@ TSharedRef<FGraphActionListBuilderBase> FBlueprintSuggester::GetGraphActionListB
 	check(TsubasamusuBlueprintEditor.IsValid());
 	bool const bIsContextSensitive = TsubasamusuBlueprintEditor->GetIsContextSensitive();
 
-	//TODO: ContextTargetMask の適切な値を取得する処理
-	uint32 ContextTargetMask = 0;
-	//if (bIsContextSensitive && ContextTargetSubMenu.IsValid())
-	//{
-	// 	ContextTargetMask = ContextTargetSubMenu->GetContextTargetMask();
-	//}
-	
 	FBlueprintActionContext BlueprintActionContext;
 	ConstructActionContext(BlueprintActionContext, InGraph, TsubasamusuBlueprintEditor, DragFromPins);
 	
+	//TODO: get ContextTargetMask
+	uint32 ContextTargetMask = 0;
+	//const FContextMenuTargetProfile ContextMenuTargetProfile = FContextMenuTargetProfile(BlueprintActionContext);
+	//uint32 ContextTargetMask = ContextMenuTargetProfile.GetContextTargetMask();
+
 	FBlueprintActionMenuBuilder::EConfigFlags ConfigFlags = FBlueprintActionMenuBuilder::DefaultConfig;
 
 	if (GetDefault<UBlueprintEditorSettings>()->bEnableContextMenuTimeSlicing)
