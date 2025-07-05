@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "TsubasamusuNodeFactory.h"
-#include "BlueprintSuggester.h"
+#include "BlueprintEditor/BlueprintSuggesting/BlueprintSuggester.h"
 #include "EdGraphNode_Comment.h"
 #include "Widget/CommentNode/SGraphNodeGamingComment.h"
 #include "Widget/CommentNode/SGraphNodePongComment.h"
