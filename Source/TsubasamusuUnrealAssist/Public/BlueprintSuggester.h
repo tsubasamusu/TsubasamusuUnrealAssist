@@ -21,8 +21,10 @@ private:
 
 	static TSharedPtr<FTsubasamusuBlueprintEditor> GetTsubasamusuBlueprintEditor(const UEdGraph* InGraph);
 
-	static void ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins);
-	
+	static void ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins = TArray<UEdGraphPin*>());
+
+	static void TryInsertPromoteToVariable(const FBlueprintActionContext& BlueprintActionContext, FGraphActionListBuilderBase& OutGraphActionListBuilderBase, const UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor);
+
 	TArray<TWeakObjectPtr<UEdGraphNode>> CachedWeakAddedNodes;
 
 	FTSTicker::FDelegateHandle WaitSuggestionHandle;

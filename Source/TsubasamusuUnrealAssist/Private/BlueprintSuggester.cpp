@@ -7,8 +7,10 @@
 #include "SGraphPanel.h"
 #include "SMyBlueprint.h"
 #include "SSubobjectEditor.h"
+#include "TsubasamusuBlueprintAction_PromoteVariable.h"
 #include "TsubasamusuBlueprintEditor.h"
 #include "Framework/Docking/TabManager.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
@@ -140,5 +142,29 @@ void FBlueprintSuggester::ConstructActionContext(FBlueprintActionContext& OutBlu
 		const FName PropertyName = Nodes[0]->GetVariableName();
 		const FObjectProperty* VariableProperty = FindFProperty<FObjectProperty>(Blueprint->SkeletonGeneratedClass, PropertyName);
 		OutBlueprintActionContext.SelectedObjects.Add(VariableProperty);
+	}
+}
+
+void FBlueprintSuggester::TryInsertPromoteToVariable(const FBlueprintActionContext& BlueprintActionContext, FGraphActionListBuilderBase& OutGraphActionListBuilderBase, const UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor)
+{
+	const UEdGraphSchema_K2* K2Schema = Cast<const UEdGraphSchema_K2>(InGraph->GetSchema());
+	
+	if (!K2Schema || BlueprintActionContext.Pins.Num() == 0)
+	{
+		return;
+	}
+	
+	if (K2Schema->CanPromotePinToVariable(*BlueprintActionContext.Pins[0], true))
+	{
+		const TSharedPtr<FTsubasamusuBlueprintAction_PromoteVariable> PromoteMemberVariableAction = MakeShared<FTsubasamusuBlueprintAction_PromoteVariable>(true);
+		PromoteMemberVariableAction->MyBlueprintEditor = TsubasamusuBlueprintEditor;
+		OutGraphActionListBuilderBase.AddAction(PromoteMemberVariableAction);
+	}
+
+	if (BlueprintActionContext.Graphs.Num() == 1 && FBlueprintEditorUtils::DoesSupportLocalVariables(BlueprintActionContext.Graphs[0]) && K2Schema->CanPromotePinToVariable(*BlueprintActionContext.Pins[0], false))
+	{
+		const TSharedPtr<FTsubasamusuBlueprintAction_PromoteVariable> PromoteLocalVariableAction = MakeShared<FTsubasamusuBlueprintAction_PromoteVariable>(false);
+		PromoteLocalVariableAction->MyBlueprintEditor = TsubasamusuBlueprintEditor;
+		OutGraphActionListBuilderBase.AddAction(PromoteLocalVariableAction);
 	}
 }
