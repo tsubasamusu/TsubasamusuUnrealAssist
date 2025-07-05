@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "Widget/CommentNode/SGraphNodeGamingComment.h"
-#include "TsubasamusuUnrealAssistSettings.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 void SGraphNodeGamingComment::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {

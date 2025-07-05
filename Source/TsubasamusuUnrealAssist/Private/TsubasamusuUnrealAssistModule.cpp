@@ -6,7 +6,7 @@
 #include "ISettingsModule.h"
 #include "SelectedNodeMenuExtender.h"
 #include "TsubasamusuNodeFactory.h"
-#include "TsubasamusuUnrealAssistSettings.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 #define TUA_IS_ENABLED (!IS_MONOLITHIC && !UE_BUILD_SHIPPING && !UE_BUILD_TEST && !UE_GAME && !UE_SERVER)

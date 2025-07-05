@@ -6,7 +6,7 @@
 #include "EdGraphNode_Comment.h"
 #include "Widget/CommentNode/SGraphNodeGamingComment.h"
 #include "Widget/CommentNode/SGraphNodePongComment.h"
-#include "TsubasamusuUnrealAssistSettings.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) const
 {

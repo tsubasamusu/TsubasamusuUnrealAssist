@@ -3,7 +3,7 @@
 #include "Widget/CommentNode/SGraphNodePongComment.h"
 #include "Widget/SDottedLine.h"
 #include "Widget/CommentNode/SGraphNodeCustomizableComment.h"
-#include "TsubasamusuUnrealAssistSettings.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Widgets/Layout/SScaleBox.h"
 
