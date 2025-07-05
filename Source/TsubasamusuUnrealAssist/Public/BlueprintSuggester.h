@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+class FTsubasamusuBlueprintEditor;
 class SGraphActionMenu;
 
 class TSUBASAMUSUUNREALASSIST_API FBlueprintSuggester final : public TSharedFromThis<FBlueprintSuggester>
@@ -17,6 +18,8 @@ private:
 	void OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes);
 
 	static TSharedPtr<SGraphActionMenu> CreateGraphActionMenu(const UEdGraph* InGraph, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode = nullptr, UEdGraphPin* ForPin = nullptr, const TArray<UEdGraphPin*>& DragFromPins = TArray<UEdGraphPin*>());
+
+	static void ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins);
 	
 	TArray<TWeakObjectPtr<UEdGraphNode>> CachedWeakAddedNodes;
 

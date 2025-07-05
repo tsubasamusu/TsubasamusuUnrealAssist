@@ -5,6 +5,8 @@
 #include "GraphNodeUtility.h"
 #include "SGraphActionMenu.h"
 #include "SGraphPanel.h"
+#include "SMyBlueprint.h"
+#include "SSubobjectEditor.h"
 #include "TsubasamusuBlueprintEditor.h"
 #include "Framework/Docking/TabManager.h"
 #include "Kismet2/KismetEditorUtilities.h"
@@ -86,4 +88,53 @@ TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const UE
 
 	const TSharedPtr<SWidget> CreatedWidget = GraphPanel->SummonContextMenu(CreatePosition, AddNodePosition, ForNode, ForPin, DragFromPins);
 	return StaticCastSharedPtr<SGraphActionMenu>(CreatedWidget);
+}
+
+void FBlueprintSuggester::ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
+{
+	check(TsubasamusuBlueprintEditor.IsValid());
+	bool const bIsContextSensitive = TsubasamusuBlueprintEditor->GetIsContextSensitive();
+	
+	OutBlueprintActionContext.Graphs.Add(InGraph);
+	
+	UBlueprint* Blueprint = TsubasamusuBlueprintEditor->GetBlueprintObj();
+	const bool bBlueprintIsValid = IsValid(Blueprint) && Blueprint->GeneratedClass && Blueprint->GeneratedClass->ClassGeneratedBy == Blueprint;
+
+	if (!ensure(bBlueprintIsValid))
+	{
+		return;
+	}
+	
+	OutBlueprintActionContext.EditorPtr = TsubasamusuBlueprintEditor;
+	OutBlueprintActionContext.Blueprints.Add(Blueprint);
+
+	if (!bIsContextSensitive)
+	{
+		return;
+	}
+	
+	OutBlueprintActionContext.Pins = DragFromPins;
+	
+	const FEdGraphSchemaAction_K2Var* SelectedVar = TsubasamusuBlueprintEditor->GetMyBlueprintWidget()->SelectionAsVar();
+
+	if (SelectedVar != nullptr && SelectedVar->GetProperty() != nullptr)
+	{
+		OutBlueprintActionContext.SelectedObjects.Add(SelectedVar->GetProperty());
+
+		return;
+	}
+	
+	if (!Blueprint->SkeletonGeneratedClass || !TsubasamusuBlueprintEditor->GetSubobjectEditor().IsValid())
+	{
+		return;
+	}
+	
+	TArray<FSubobjectEditorTreeNodePtrType> Nodes = TsubasamusuBlueprintEditor->GetSubobjectEditor()->GetSelectedNodes();
+
+	if (Nodes.Num() == 1 && Nodes[0]->IsComponentNode())
+	{
+		const FName PropertyName = Nodes[0]->GetVariableName();
+		const FObjectProperty* VariableProperty = FindFProperty<FObjectProperty>(Blueprint->SkeletonGeneratedClass, PropertyName);
+		OutBlueprintActionContext.SelectedObjects.Add(VariableProperty);
+	}
 }
