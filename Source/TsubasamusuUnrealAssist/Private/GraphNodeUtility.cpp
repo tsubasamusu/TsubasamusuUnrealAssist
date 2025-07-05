@@ -2,7 +2,7 @@
 
 #include  "GraphNodeUtility.h"
 
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 
 TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {

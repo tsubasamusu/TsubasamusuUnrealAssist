@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 
 DEFINE_LOG_CATEGORY(TsubasamusuUnrealAssistLog);
 

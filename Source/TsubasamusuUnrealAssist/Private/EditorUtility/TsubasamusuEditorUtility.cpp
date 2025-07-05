@@ -3,7 +3,7 @@
 #include "EditorUtility/TsubasamusuEditorUtility.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 #include "UObject/SavePackage.h"
 
 UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory)
