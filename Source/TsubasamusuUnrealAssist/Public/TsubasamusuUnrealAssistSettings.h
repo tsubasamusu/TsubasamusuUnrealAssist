@@ -16,7 +16,7 @@ public:
 	
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, config, Category = "General")
+	UPROPERTY(EditAnywhere, config, Category = "General", meta=(EditCondition="false"))
 	bool bEnableBlueprintSuggestion;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
