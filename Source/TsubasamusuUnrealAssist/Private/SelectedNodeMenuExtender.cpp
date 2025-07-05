@@ -5,7 +5,7 @@
 #include "CreateArrayNodeUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
-#include "GraphNodeUtility.h"
+#include  "BlueprintEditor/GraphNodeUtility.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {

@@ -6,7 +6,7 @@
 #include "BlueprintEditor.h"
 #include "BlueprintEditorSettings.h"
 #include "BlueprintEditor/BlueprintSuggesting/ContextMenuTargetProfile.h"
-#include "GraphNodeUtility.h"
+#include  "BlueprintEditor/GraphNodeUtility.h"
 #include "SGraphActionMenu.h"
 #include "SGraphPanel.h"
 #include "SMyBlueprint.h"

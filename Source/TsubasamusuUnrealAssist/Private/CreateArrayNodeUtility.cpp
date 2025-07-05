@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "CreateArrayNodeUtility.h"
-#include "GraphNodeUtility.h"
+#include  "BlueprintEditor/GraphNodeUtility.h"
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
