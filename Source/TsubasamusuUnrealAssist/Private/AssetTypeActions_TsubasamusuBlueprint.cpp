@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "AssetTypeActions_TsubasamusuBlueprint.h"
-#include "TsubasamusuBlueprintEditor.h"
+#include "BlueprintEditor/TsubasamusuBlueprintEditor.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuAssetTypeActions"

@@ -12,7 +12,7 @@
 #include "SMyBlueprint.h"
 #include "SSubobjectEditor.h"
 #include "TsubasamusuBlueprintAction_PromoteVariable.h"
-#include "TsubasamusuBlueprintEditor.h"
+#include "BlueprintEditor/TsubasamusuBlueprintEditor.h"
 #include "Framework/Docking/TabManager.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
