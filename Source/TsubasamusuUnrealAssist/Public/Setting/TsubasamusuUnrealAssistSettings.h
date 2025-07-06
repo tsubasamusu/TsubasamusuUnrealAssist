@@ -22,13 +22,13 @@ public:
 	
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, config, Category = "General", meta = (EditCondition = "false", DisplayName = "Enable Node Suggestion in Blueprint Gpah"))
+	UPROPERTY(EditAnywhere, config, Category = "Node Suggestion", meta = (EditCondition = "false", DisplayName = "Enable Node Suggestion in Blueprint Gpah"))
 	bool bEnableNodeSuggestion;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;
 	
-	UPROPERTY(EditAnywhere, config, Category = "Comment Node", meta = (DisplayName = "DeepL API Key"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Comment Translation", meta = (DisplayName = "DeepL API Key"))
 	FString DeeplApiKey;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Gaming Comment Node", meta = (Units = "Seconds", DisplayName = "Color Animation Duration", ClampMin = "0.0"))
@@ -63,6 +63,30 @@ public:
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node|PONG Comment Node", meta = (ToolTip = "Make the left scroll bar move automatically. You will not be able to control the left scroll bar."))
 	bool bMakeLeftScrollBarNPC;
+	
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Comment Generation", meta = (DisplayName = "Open AI API Key"))
+	FString ApiKey;
+	
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Comment Generation", meta = (DisplayName = "GPT Model Name"))
+	FString GptModelName;
+	
+	UPROPERTY(VisibleAnywhere, config, Category = "Comment Node|Comment Generation", meta = (DisplayName = "Culture Name of GPT Language"))
+	FString GptLanguageCultureName;
+	
+	/* Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to them when generating comments */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Comment Generation")
+	bool bIgnoreNodesDoNotHaveConnectedPins;
+	
+	/* Whether to ignore comment nodes contained within a comment node when generating comments */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Comment Generation")
+	bool bIgnoreCommentNodes;
+	
+	/* Conditions that AI must adhere to when generating comments */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Node|Comment Generation")
+	TArray<FString> CommentGenerationConditions;
+
+	FCulturePtr GetGptLanguageCulture() const;
+	void SetGptLanguageCulture(const FCulturePtr& InGptLanguageCulture);
 	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
 };
