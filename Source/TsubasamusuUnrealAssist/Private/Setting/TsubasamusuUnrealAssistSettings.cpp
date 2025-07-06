@@ -1,10 +1,11 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "TsubasamusuUnrealAssistSettings.h"
-#include "CommentNodeType.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	bEnableBlueprintSuggestion = false;
+	
 	CommentNodeType = ECommentNodeType::Normal;
 	DeeplApiKey = TEXT("");
 	

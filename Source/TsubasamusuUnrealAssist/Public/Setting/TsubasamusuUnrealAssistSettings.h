@@ -5,7 +5,13 @@
 #include "CoreMinimal.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
-enum class ECommentNodeType;
+UENUM()
+enum class ECommentNodeType
+{
+	Normal,
+	Gaming,
+	Pong UMETA(DisplayName = "PONG")
+};
 
 UCLASS(config = EditorPerProjectUserSettings)
 class TSUBASAMUSUUNREALASSIST_API UTsubasamusuUnrealAssistSettings final : public UObject
@@ -13,7 +19,11 @@ class TSUBASAMUSUUNREALASSIST_API UTsubasamusuUnrealAssistSettings final : publi
 	GENERATED_BODY()
 
 public:
+	
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditAnywhere, config, Category = "General", meta=(EditCondition="false"))
+	bool bEnableBlueprintSuggestion;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;

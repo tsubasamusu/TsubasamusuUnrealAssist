@@ -1,11 +1,11 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "SelectedNodeMenuExtender.h"
-#include "CommentNodeTranslationUtility.h"
-#include "CreateArrayNodeUtility.h"
+#include "BlueprintEditor/Menu/SelectedNodeMenuExtender.h"
+#include "BlueprintEditor/Menu/CommentNodeTranslationUtility.h"
+#include "BlueprintEditor/Menu/CreateArrayNodeUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
-#include "GraphNodeUtility.h"
+#include  "BlueprintEditor/GraphNodeUtility.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {

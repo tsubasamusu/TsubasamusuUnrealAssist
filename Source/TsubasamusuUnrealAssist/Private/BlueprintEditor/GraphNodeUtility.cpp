@@ -1,8 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include  "GraphNodeUtility.h"
-
-#include "TsubasamusuLogUtility.h"
+#include  "BlueprintEditor/GraphNodeUtility.h"
 
 TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {
@@ -189,4 +187,32 @@ FIntPoint FGraphNodeUtility::GetPinPosition(const UEdGraphPin* InPin)
 	}
 
 	return FIntPoint(PinNode->NodePosX, PinNode->NodePosY);
+}
+
+TArray<UEdGraphNode*> FGraphNodeUtility::ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+{
+	TArray<UEdGraphNode*> Nodes;
+
+	for (const TWeakObjectPtr<UEdGraphNode>& WeakNode : InWeakNodes)
+	{
+		check(WeakNode.IsValid());
+		
+		if (WeakNode.IsValid())
+		{
+			Nodes.Add(WeakNode.Get());
+		}
+	}
+
+	return Nodes;
+}
+
+void FGraphNodeUtility::RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes)
+{
+	for (TWeakObjectPtr<UEdGraphNode> WeakNode : OutWeakNodes)
+	{
+		if (!WeakNode.IsValid())
+		{
+			OutWeakNodes.Remove(WeakNode);
+		}
+	}
 }

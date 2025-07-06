@@ -28,7 +28,10 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "InputCore",
             "HTTP",
             "Json",
-            "JsonUtilities"
+            "JsonUtilities",
+            "AssetTools",
+            "Kismet",
+            "SubobjectEditor"
         });
 	}
 }

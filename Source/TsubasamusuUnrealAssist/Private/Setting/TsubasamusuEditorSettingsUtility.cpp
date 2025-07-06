@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "TsubasamusuEditorSettingsUtility.h"
+#include "Setting/TsubasamusuEditorSettingsUtility.h"
 #include "GraphEditorSettings.h"
 #include "InternationalizationSettingsModel.h"
 #include "Settings/EditorStyleSettings.h"

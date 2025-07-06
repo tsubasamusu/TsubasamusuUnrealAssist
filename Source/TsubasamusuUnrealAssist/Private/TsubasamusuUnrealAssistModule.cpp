@@ -1,10 +1,12 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
+#include "AssetToolsModule.h"
+#include "BlueprintEditor/AssetTypeActions_TsubasamusuBlueprint.h"
 #include "ISettingsModule.h"
-#include "SelectedNodeMenuExtender.h"
-#include "TsubasamusuNodeFactory.h"
-#include "TsubasamusuUnrealAssistSettings.h"
+#include "BlueprintEditor/Menu/SelectedNodeMenuExtender.h"
+#include "BlueprintEditor/TsubasamusuNodeFactory.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 #define TUA_IS_ENABLED (!IS_MONOLITHIC && !UE_BUILD_SHIPPING && !UE_BUILD_TEST && !UE_GAME && !UE_SERVER)
@@ -13,17 +15,36 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 #if TUA_IS_ENABLED
 	RegisterSettings();
-	FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
-	FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory);
+	RegisterOnPostEngineInitEvent();
+	RegisterAssetTypeActions();
 #endif
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 #if TUA_IS_ENABLED
+	UnregisterOnPostEngineInitEvent();
 	UnregisterTsubasamusuNodeFactory();
+	UnregisterAssetTypeActions();
 	UnregisterSettings();
 #endif
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
+{
+	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
+	{
+		RegisterTsubasamusuNodeFactory();
+		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
+	});
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
+{
+	if (OnPostEngineInitHandle.IsValid())
+	{
+		FCoreDelegates::OnPostEngineInit.Remove(OnPostEngineInitHandle);
+	}
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory()
@@ -51,6 +72,34 @@ void FTsubasamusuUnrealAssistModule::RegisterSettings() const
 void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 {
 	GetSettingsModuleChecked()->UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterAssetTypeActions()
+{
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	const TSharedRef<IAssetTypeActions> AssetTypeActions = MakeShared<FAssetTypeActions_TsubasamusuBlueprint>();
+	AssetTools.RegisterAssetTypeActions(AssetTypeActions);
+	CreatedAssetTypeActions.Add(AssetTypeActions);
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterAssetTypeActions()
+{
+	if (!FModuleManager::Get().IsModuleLoaded("AssetTools"))
+	{
+		return;
+	}
+	
+	IAssetTools& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	
+	for (const TSharedPtr<IAssetTypeActions> CreatedAssetTypeAction : CreatedAssetTypeActions)
+	{
+		if (CreatedAssetTypeAction.IsValid())
+		{
+			AssetToolsModule.UnregisterAssetTypeActions(CreatedAssetTypeAction.ToSharedRef());
+		}
+	}
+	
+	CreatedAssetTypeActions.Empty();
 }
 
 ISettingsModule* FTsubasamusuUnrealAssistModule::GetSettingsModuleChecked()

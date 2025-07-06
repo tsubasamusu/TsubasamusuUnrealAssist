@@ -1,13 +1,13 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "CommentNodeTranslationUtility.h"
+#include "BlueprintEditor/Menu/CommentNodeTranslationUtility.h"
 #include "EdGraphNode_Comment.h"
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
 #include "HttpModule.h"
-#include "TsubasamusuUnrealAssistSettings.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
@@ -192,14 +192,14 @@ FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& Sourc
     return DeeplJsonRequest;
 }
 
-void FCommentNodeTranslationUtility::FixLanguage(FString& InLanguage)
+void FCommentNodeTranslationUtility::FixLanguage(FString& OutLanguage)
 {
-    if (InLanguage == TEXT("es-419"))
+    if (OutLanguage == TEXT("es-419"))
     {
-        InLanguage = TEXT("es");
+        OutLanguage = TEXT("es");
     }
     
-    InLanguage = InLanguage.ToUpper();
+    OutLanguage = OutLanguage.ToUpper();
 }
 
 #undef LOCTEXT_NAMESPACE

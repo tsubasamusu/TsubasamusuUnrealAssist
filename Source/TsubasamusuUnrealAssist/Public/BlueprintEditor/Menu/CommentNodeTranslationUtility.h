@@ -6,7 +6,7 @@
 
 class UEdGraphNode_Comment;
 
-class TSUBASAMUSUUNREALASSIST_API FCommentNodeTranslationUtility
+class TSUBASAMUSUUNREALASSIST_API FCommentNodeTranslationUtility final
 {
 public:
 	
@@ -19,5 +19,5 @@ private:
 	
 	static void TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage);
 	static FString GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage);
-	static void FixLanguage(FString& InLanguage);
+	static void FixLanguage(FString& OutLanguage);
 };

@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "CreateArrayNodeUtility.h"
-#include "GraphNodeUtility.h"
+#include "BlueprintEditor/Menu/CreateArrayNodeUtility.h"
+#include  "BlueprintEditor/GraphNodeUtility.h"
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
@@ -21,51 +21,57 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGra
 
 	InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, ArrayNodePinType]()
 	{
-		CreateArrayNode(InGraph, ArrayNodePinType);
+		if (InGraph.IsValid())
+		{
+			const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph.Get());
+		
+			CreateArrayNode(InGraph, SelectedNodes, *ArrayNodePinType);
+		}
 	})));
 	
 	InMenuBuilder.EndSection();
 }
 
-void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
+UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)
 {
 	if (!InGraph.IsValid())
 	{
-		return;
+		return nullptr;
 	}
 	
 	const FText TransactionSessionName = LOCTEXT("CreateArrayNodeTransaction", "Create Array Node");
 	FScopedTransaction Transaction(TransactionSessionName);
 
-	InGraph->Modify();
+	UEdGraph* Graph = InGraph.Get();
 	
-	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(InGraph.Get());
+	Graph->Modify();
+
+	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(Graph);
 	
 	if (IsValid(Blueprint))
 	{
 		Blueprint->Modify();
 	}
 	
-	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph.Get());
-	TArray<UEdGraphPin*> SelectedNodesOutputPins = FGraphNodeUtility::GetNodesOutputPins(SelectedNodes, *ArrayNodePinType);
-	FGraphNodeUtility::SortPinsByPositionY(SelectedNodesOutputPins);
+	TArray<UEdGraphPin*> NodesOutputPins = FGraphNodeUtility::GetNodesOutputPins(InNodes, ArrayNodePinType);
+	FGraphNodeUtility::SortPinsByPositionY(NodesOutputPins);
 	
-	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*InGraph.Get());
+	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*Graph);
 	
 	UK2Node_MakeArray* CreatedArrayNode = ArrayNodeCreator.CreateNode();
 	
 	if (!IsValid(CreatedArrayNode))
 	{
-		return;
+		return nullptr;
 	}
 	
 	CreatedArrayNode->AllocateDefaultPins();
 
-	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InGraph.Get());
+	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InNodes);
 	CreatedArrayNode->NodePosX = DesiredArrayNodePosition.X;
 	CreatedArrayNode->NodePosY = DesiredArrayNodePosition.Y;
 
-	for (int32 i = 0; i < SelectedNodesOutputPins.Num() - 1; i++)
+	for (int32 i = 0; i < NodesOutputPins.Num() - 1; i++)
 	{
 		CreatedArrayNode->AddInputPin();
 	}
@@ -74,9 +80,9 @@ void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InG
 	
 	const TArray<UEdGraphPin*> CreatedArrayNodeInputPins = FGraphNodeUtility::GetNodeInputPins(CreatedArrayNode);
 
-	for (UEdGraphPin* SelectedNodesOutputPin : SelectedNodesOutputPins)
+	for (UEdGraphPin* NodesOutputPin : NodesOutputPins)
 	{
-		if (!SelectedNodesOutputPin)
+		if (!NodesOutputPin)
 		{
 			continue;
 		}
@@ -88,7 +94,7 @@ void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InG
 				continue;
 			}
 
-			if (InGraph->GetSchema()->TryCreateConnection(CreatedArrayNodeInputPin, SelectedNodesOutputPin))
+			if (Graph->GetSchema()->TryCreateConnection(CreatedArrayNodeInputPin, NodesOutputPin))
 			{
 				break;
 			}
@@ -96,14 +102,14 @@ void FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InG
 	}
 	
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+
+	return CreatedArrayNode;
 }
 
-FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const UEdGraph* InGraph)
+FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes)
 {
-	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
-
-	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(SelectedNodes) + 200;
-	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(SelectedNodes);
+	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(InNodes) + 200;
+	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(InNodes);
 
 	return FIntPoint(DesiredArrayNodePositionX, DesiredArrayNodePositionY);
 }
