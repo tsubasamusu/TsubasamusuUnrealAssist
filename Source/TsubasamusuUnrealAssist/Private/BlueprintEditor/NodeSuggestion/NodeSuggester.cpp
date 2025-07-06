@@ -1,24 +1,24 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/BlueprintSuggesting/BlueprintSuggester.h"
+#include "BlueprintEditor/NodeSuggestion/NodeSuggester.h"
 #include "BlueprintActionMenuBuilder.h"
 #include "BlueprintActionMenuUtils.h"
 #include "BlueprintEditor.h"
 #include "BlueprintEditorSettings.h"
-#include "BlueprintEditor/BlueprintSuggesting/ContextMenuTargetProfile.h"
+#include "BlueprintEditor/NodeSuggestion/ContextMenuTargetProfile.h"
 #include  "BlueprintEditor/GraphNodeUtility.h"
 #include "SGraphActionMenu.h"
 #include "SGraphPanel.h"
 #include "SMyBlueprint.h"
 #include "SSubobjectEditor.h"
-#include "BlueprintEditor/BlueprintSuggesting/TsubasamusuBlueprintAction_PromoteVariable.h"
+#include "BlueprintEditor/NodeSuggestion/TsubasamusuBlueprintAction_PromoteVariable.h"
 #include "BlueprintEditor/TsubasamusuBlueprintEditor.h"
 #include "Framework/Docking/TabManager.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Toolkits/AssetEditorToolkit.h"
 
-void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
+void FNodeSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 {
 	if (!IsValid(AddedNode))
 	{
@@ -33,41 +33,41 @@ void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 		return;
 	}
 	
-	const TWeakPtr<FBlueprintSuggester> WeakBlueprintSuggester = SharedThis(this);
+	const TWeakPtr<FNodeSuggester> WeakNodeSuggester = SharedThis(this);
 
-	WaitSuggestionHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([WeakBlueprintSuggester](const float DeltaTime)
+	WaitSuggestionHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([WeakNodeSuggester](const float DeltaTime)
 	{
-		if (!WeakBlueprintSuggester.IsValid())
+		if (!WeakNodeSuggester.IsValid())
 		{
 			return false;
 		}
 
-		const TSharedPtr<FBlueprintSuggester> PinnedBlueprintSuggester = WeakBlueprintSuggester.Pin();
+		const TSharedPtr<FNodeSuggester> PinnedNodeSuggester = WeakNodeSuggester.Pin();
 		
-		PinnedBlueprintSuggester->CurrentWaitSuggestionSeconds += DeltaTime;
+		PinnedNodeSuggester->CurrentWaitSuggestionSeconds += DeltaTime;
 
-		if (PinnedBlueprintSuggester->CurrentWaitSuggestionSeconds < PinnedBlueprintSuggester->MaxWaitSuggestionSeconds)
+		if (PinnedNodeSuggester->CurrentWaitSuggestionSeconds < PinnedNodeSuggester->MaxWaitSuggestionSeconds)
 		{
 			return true;
 		}
 
-		FTSTicker::GetCoreTicker().RemoveTicker(PinnedBlueprintSuggester->WaitSuggestionHandle);
-		PinnedBlueprintSuggester->bIsWaitingSuggestion = false;
-		PinnedBlueprintSuggester->CurrentWaitSuggestionSeconds = 0.0f;
+		FTSTicker::GetCoreTicker().RemoveTicker(PinnedNodeSuggester->WaitSuggestionHandle);
+		PinnedNodeSuggester->bIsWaitingSuggestion = false;
+		PinnedNodeSuggester->CurrentWaitSuggestionSeconds = 0.0f;
 
-		FGraphNodeUtility::RemoveInvalidWeakNodes(PinnedBlueprintSuggester->CachedWeakAddedNodes);
+		FGraphNodeUtility::RemoveInvalidWeakNodes(PinnedNodeSuggester->CachedWeakAddedNodes);
 
-		if (PinnedBlueprintSuggester->CachedWeakAddedNodes.Num() > 0)
+		if (PinnedNodeSuggester->CachedWeakAddedNodes.Num() > 0)
 		{
-			UEdGraph* Graph = PinnedBlueprintSuggester->CachedWeakAddedNodes[0].Get()->GetGraph();
+			UEdGraph* Graph = PinnedNodeSuggester->CachedWeakAddedNodes[0].Get()->GetGraph();
 			
 			if (IsValid(Graph))
 			{
-				PinnedBlueprintSuggester->OnNodesAdded(Graph, PinnedBlueprintSuggester->CachedWeakAddedNodes);
+				PinnedNodeSuggester->OnNodesAdded(Graph, PinnedNodeSuggester->CachedWeakAddedNodes);
 			}
 		}
 		
-		PinnedBlueprintSuggester->CachedWeakAddedNodes.Empty();
+		PinnedNodeSuggester->CachedWeakAddedNodes.Empty();
 
 		return false;
 	}));
@@ -75,12 +75,12 @@ void FBlueprintSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 	bIsWaitingSuggestion = true;
 }
 
-void FBlueprintSuggester::OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes)
+void FNodeSuggester::OnNodesAdded(UEdGraph* InGraph, TArray<TWeakObjectPtr<UEdGraphNode>> WeakAddedNodes)
 {
 	//TODO: suggest nodes
 }
 
-TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode, UEdGraphPin* ForPin, const TArray<UEdGraphPin*>& DragFromPins)
+TSharedPtr<SGraphActionMenu> FNodeSuggester::CreateGraphActionMenu(const TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const FVector2f& CreatePosition, const FVector2f& AddNodePosition, UEdGraphNode* ForNode, UEdGraphPin* ForPin, const TArray<UEdGraphPin*>& DragFromPins)
 {
 	check(TsubasamusuBlueprintEditor.IsValid());
 	
@@ -94,13 +94,13 @@ TSharedPtr<SGraphActionMenu> FBlueprintSuggester::CreateGraphActionMenu(const TS
 	return StaticCastSharedPtr<SGraphActionMenu>(CreatedWidget);
 }
 
-TSharedPtr<FTsubasamusuBlueprintEditor> FBlueprintSuggester::GetTsubasamusuBlueprintEditor(const UEdGraph* InGraph)
+TSharedPtr<FTsubasamusuBlueprintEditor> FNodeSuggester::GetTsubasamusuBlueprintEditor(const UEdGraph* InGraph)
 {
 	const TSharedPtr<IBlueprintEditor> BlueprintEditor = FKismetEditorUtilities::GetIBlueprintEditorForObject(InGraph, false);
 	return StaticCastSharedPtr<FTsubasamusuBlueprintEditor>(BlueprintEditor);
 }
 
-void FBlueprintSuggester::ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
+void FNodeSuggester::ConstructActionContext(FBlueprintActionContext& OutBlueprintActionContext, UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
 {
 	check(TsubasamusuBlueprintEditor.IsValid());
 	bool const bIsContextSensitive = TsubasamusuBlueprintEditor->GetIsContextSensitive();
@@ -149,7 +149,7 @@ void FBlueprintSuggester::ConstructActionContext(FBlueprintActionContext& OutBlu
 	}
 }
 
-void FBlueprintSuggester::TryInsertPromoteToVariable(const FBlueprintActionContext& BlueprintActionContext, FGraphActionListBuilderBase& OutGraphActionListBuilderBase, const UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor)
+void FNodeSuggester::TryInsertPromoteToVariable(const FBlueprintActionContext& BlueprintActionContext, FGraphActionListBuilderBase& OutGraphActionListBuilderBase, const UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor)
 {
 	const UEdGraphSchema_K2* K2Schema = Cast<const UEdGraphSchema_K2>(InGraph->GetSchema());
 	
@@ -173,7 +173,7 @@ void FBlueprintSuggester::TryInsertPromoteToVariable(const FBlueprintActionConte
 	}
 }
 
-TSharedRef<FGraphActionListBuilderBase> FBlueprintSuggester::GetGraphActionListBuilderBase(UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
+TSharedRef<FGraphActionListBuilderBase> FNodeSuggester::GetGraphActionListBuilderBase(UEdGraph* InGraph, TSharedPtr<FTsubasamusuBlueprintEditor> TsubasamusuBlueprintEditor, const TArray<UEdGraphPin*>& DragFromPins)
 {
 	check(TsubasamusuBlueprintEditor.IsValid());
 	bool const bIsContextSensitive = TsubasamusuBlueprintEditor->GetIsContextSensitive();

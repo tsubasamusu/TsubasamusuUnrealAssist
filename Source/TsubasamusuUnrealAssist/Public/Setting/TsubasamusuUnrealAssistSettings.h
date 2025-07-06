@@ -22,8 +22,8 @@ public:
 	
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
 
-	UPROPERTY(EditAnywhere, config, Category = "General", meta=(EditCondition="false"))
-	bool bEnableBlueprintSuggestion;
+	UPROPERTY(EditAnywhere, config, Category = "General", meta = (EditCondition = "false", DisplayName = "Enable Node Suggestion in Blueprint Gpah"))
+	bool bEnableNodeSuggestion;
 	
 	UPROPERTY(EditAnywhere, config, Category = "Comment Node")
 	ECommentNodeType CommentNodeType;

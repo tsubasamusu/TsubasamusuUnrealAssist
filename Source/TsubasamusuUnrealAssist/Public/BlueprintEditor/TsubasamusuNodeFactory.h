@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "EdGraphUtilities.h"
 
-class FBlueprintSuggester;
+class FNodeSuggester;
 
 class TSUBASAMUSUUNREALASSIST_API FTsubasamusuNodeFactory final : public FGraphPanelNodeFactory
 {
@@ -15,5 +15,5 @@ public:
 
 private:
 
-	mutable TSharedPtr<FBlueprintSuggester> BlueprintSuggester;
+	mutable TSharedPtr<FNodeSuggester> NodeSuggester;
 };

@@ -7,7 +7,7 @@
 class FTsubasamusuBlueprintEditor;
 class SGraphActionMenu;
 
-class TSUBASAMUSUUNREALASSIST_API FBlueprintSuggester final : public TSharedFromThis<FBlueprintSuggester>
+class TSUBASAMUSUUNREALASSIST_API FNodeSuggester final : public TSharedFromThis<FNodeSuggester>
 {
 public:
 	

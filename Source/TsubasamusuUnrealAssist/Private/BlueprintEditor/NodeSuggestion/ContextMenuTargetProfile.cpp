@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/BlueprintSuggesting/ContextMenuTargetProfile.h"
+#include "BlueprintEditor/NodeSuggestion/ContextMenuTargetProfile.h"
 #include "BlueprintEditorSettings.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuAssetTypeActions"
