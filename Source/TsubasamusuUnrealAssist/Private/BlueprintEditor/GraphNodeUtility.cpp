@@ -193,10 +193,8 @@ TArray<UEdGraphNode*> FGraphNodeUtility::ConvertToHardNodes(const TArray<TWeakOb
 {
 	TArray<UEdGraphNode*> Nodes;
 
-	for (const TWeakObjectPtr<UEdGraphNode>& WeakNode : InWeakNodes)
+	for (const TWeakObjectPtr<UEdGraphNode> WeakNode : InWeakNodes)
 	{
-		check(WeakNode.IsValid());
-		
 		if (WeakNode.IsValid())
 		{
 			Nodes.Add(WeakNode.Get());

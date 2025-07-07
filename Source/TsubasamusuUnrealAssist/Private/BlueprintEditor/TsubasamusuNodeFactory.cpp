@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "BlueprintEditor/TsubasamusuNodeFactory.h"
-#include "BlueprintEditor/BlueprintSuggesting/BlueprintSuggester.h"
+#include "BlueprintEditor/NodeSuggestion/NodeSuggester.h"
 #include "EdGraphNode_Comment.h"
 #include "Widget/CommentNode/SGraphNodeGamingComment.h"
 #include "Widget/CommentNode/SGraphNodePongComment.h"
@@ -16,12 +16,12 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) c
 		return ReturnNodeWidget;
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* Settings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(Node);
 		
 	if (IsValid(CommentNode))
 	{
-		switch (Settings->CommentNodeType)
+		switch (TsubasamusuUnrealAssistSettings->CommentNodeType)
 		{
 		case ECommentNodeType::Gaming:
 			ReturnNodeWidget = SNew(SGraphNodeGamingComment, CommentNode);
@@ -34,14 +34,14 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) c
 		}
 	}
 
-	if (Settings->bEnableBlueprintSuggestion)
+	if (TsubasamusuUnrealAssistSettings->bEnableNodeSuggestion)
 	{
-		if (!BlueprintSuggester.IsValid())
+		if (!NodeSuggester.IsValid())
 		{
-			BlueprintSuggester = MakeShared<FBlueprintSuggester>();
+			NodeSuggester = MakeShared<FNodeSuggester>();
 		}
 	
-		BlueprintSuggester->OnNodeAdded(Node);
+		NodeSuggester->OnNodeAdded(Node);
 	}
 
 	return ReturnNodeWidget;

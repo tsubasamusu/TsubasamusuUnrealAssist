@@ -6,6 +6,7 @@
 #include "ISettingsModule.h"
 #include "BlueprintEditor/Menu/SelectedNodeMenuExtender.h"
 #include "BlueprintEditor/TsubasamusuNodeFactory.h"
+#include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
@@ -15,6 +16,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 #if TUA_IS_ENABLED
 	RegisterSettings();
+	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
 	RegisterAssetTypeActions();
 #endif
@@ -26,6 +28,7 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 	UnregisterOnPostEngineInitEvent();
 	UnregisterTsubasamusuNodeFactory();
 	UnregisterAssetTypeActions();
+	UnregisterSettingsCustomization();
 	UnregisterSettings();
 #endif
 }
@@ -65,13 +68,15 @@ void FTsubasamusuUnrealAssistModule::RegisterSettings() const
 {
 	const FText SettingsDisplayName = LOCTEXT("SettingsDisplayName", "Tsubasamusu Unreal Assist");
 	const FText SettingsDescription = LOCTEXT("SettingsDescription", "Configure the Tsubasamusu Unreal Assist plugin");
-
-	GetSettingsModuleChecked()->RegisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName, SettingsDisplayName, SettingsDescription, GetMutableDefault<UTsubasamusuUnrealAssistSettings>());
+	
+	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
+	SettingsModule.RegisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName, SettingsDisplayName, SettingsDescription, GetMutableDefault<UTsubasamusuUnrealAssistSettings>());
 }
 
 void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 {
-	GetSettingsModuleChecked()->UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
+	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
+	SettingsModule.UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterAssetTypeActions()
@@ -102,13 +107,20 @@ void FTsubasamusuUnrealAssistModule::UnregisterAssetTypeActions()
 	CreatedAssetTypeActions.Empty();
 }
 
-ISettingsModule* FTsubasamusuUnrealAssistModule::GetSettingsModuleChecked()
+void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()
 {
-	ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>(TEXT("Settings"));
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
+	const FName SettingsClassName = UTsubasamusuUnrealAssistSettings::StaticClass()->GetFName();
+	
+	PropertyModule.RegisterCustomClassLayout(SettingsClassName, FOnGetDetailCustomizationInstance::CreateStatic(&FTsubasamusuSettingsCustomization::Create));
+}
 
-	check(SettingsModule);
-
-	return SettingsModule;
+void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
+{
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
+	const FName SettingsClassName = UTsubasamusuUnrealAssistSettings::StaticClass()->GetFName();
+	
+	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
 }
 
 #undef LOCTEXT_NAMESPACE

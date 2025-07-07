@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/BlueprintSuggesting/TsubasamusuBlueprintAction_PromoteVariable.h"
+#include "BlueprintEditor/NodeSuggestion/TsubasamusuBlueprintAction_PromoteVariable.h"
 #include "BlueprintEditor.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 

@@ -6,18 +6,18 @@
 
 class UEdGraphNode_Comment;
 
-class TSUBASAMUSUUNREALASSIST_API FCommentNodeTranslationUtility final
+class TSUBASAMUSUUNREALASSIST_API FCommentTranslationUtility final
 {
 public:
 	
-	static void AddCommentNodeTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
+	static void AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 
 private:
 
 	static void AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 	static TArray<FString> GetEditorLanguages();
 	
-	static void TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage);
+	static void TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage);
 	static FString GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage);
 	static void FixLanguage(FString& OutLanguage);
 };
