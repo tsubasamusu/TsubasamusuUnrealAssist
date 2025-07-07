@@ -1,7 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "BlueprintEditor/Menu/SelectedNodeMenuExtender.h"
-#include "BlueprintEditor/Menu/CommentNodeTranslationUtility.h"
+#include "BlueprintEditor/Menu/CommentTranslationUtility.h"
 #include "BlueprintEditor/Menu/CreateArrayNodeUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
@@ -10,14 +10,12 @@
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {
 	FGraphEditorModule& GraphEditorModule = FModuleManager::LoadModuleChecked<FGraphEditorModule>("GraphEditor");
-
 	GraphEditorModule.GetAllGraphEditorContextMenuExtender().Add(FGraphEditorModule::FGraphEditorMenuExtender_SelectedNode::CreateStatic(ExtendSelectedNodeMenu));
 }
 
 TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedRef<FUICommandList> CommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging)
 {
 	TSharedRef<FExtender> Extender = MakeShared<FExtender>();
-
 	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
 
 	if (SelectedNodes.Num() == 0)
@@ -53,7 +51,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 			
 			Extender->AddMenuExtension("GraphNodeComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
 			{
-				FCommentNodeTranslationUtility::AddCommentNodeTranslationMenu(MenuBuilder, WeakCommentNode);
+				FCommentTranslationUtility::AddCommentTranslationMenu(MenuBuilder, WeakCommentNode);
 			}));
 		}
 	}

@@ -1,6 +1,6 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/Menu/CommentNodeTranslationUtility.h"
+#include "BlueprintEditor/Menu/CommentTranslationUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "Debug/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
@@ -11,17 +11,17 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
-#define LOCTEXT_NAMESPACE "FCommentNodeTranslationUtility"
+#define LOCTEXT_NAMESPACE "FCommentTranslationUtility"
 
-void FCommentNodeTranslationUtility::AddCommentNodeTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentTranslationUtility::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
     const TAttribute HeadingText = LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist");
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-    const TAttribute LabelText = LOCTEXT("CommentNodeTranslationLabelText", "Translate to...");
-    const TAttribute ToolTipText = LOCTEXT("CommentNodeTranslationToolTipText", "Translate comment of selected comment node.");
+    const TAttribute LabelText = LOCTEXT("CommentTranslationLabelText", "Translate to...");
+    const TAttribute ToolTipText = LOCTEXT("CommentTranslationToolTipText", "Translate comment of selected comment node.");
 
     const auto MenuAction = [InCommentNode](FMenuBuilder& MenuBuilder)
     {
@@ -33,7 +33,7 @@ void FCommentNodeTranslationUtility::AddCommentNodeTranslationMenu(FMenuBuilder&
     InMenuBuilder.EndSection();
 }
 
-void FCommentNodeTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const TArray<FString> EditorLanguages = GetEditorLanguages();
 
@@ -59,12 +59,12 @@ void FCommentNodeTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBui
         
         InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()
         {
-            TranslateCommentNode(InCommentNode, TranslationTargetLanguage);
+            TranslateComment(InCommentNode, TranslationTargetLanguage);
         })));
     }
 }
 
-TArray<FString> FCommentNodeTranslationUtility::GetEditorLanguages()
+TArray<FString> FCommentTranslationUtility::GetEditorLanguages()
 {
     const FTextLocalizationManager& TextLocalizationManager = FTextLocalizationManager::Get();
     const TArray<FString> LocalizedCultureNames = TextLocalizationManager.GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
@@ -82,7 +82,7 @@ TArray<FString> FCommentNodeTranslationUtility::GetEditorLanguages()
     return EditorLanguages;
 }
 
-void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
+void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
 {
     if (!InCommentNode.IsValid() || !TranslationTargetLanguage.IsValid())
     {
@@ -152,7 +152,7 @@ void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<U
         
         if (InCommentNode.IsValid())
         {
-            const FScopedTransaction Transaction(LOCTEXT("TranslateCommentNodeTransaction", "Translate Comment Node"));
+            const FScopedTransaction Transaction(LOCTEXT("TranslateCommentTransaction", "Translate Comment"));
 
             InCommentNode->Modify();
             InCommentNode->NodeComment = TranslatedText;
@@ -173,7 +173,7 @@ void FCommentNodeTranslationUtility::TranslateCommentNode(const TWeakObjectPtr<U
     }
 }
 
-FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
+FString FCommentTranslationUtility::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
 {
     const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
     const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(SourceText) };
@@ -192,7 +192,7 @@ FString FCommentNodeTranslationUtility::GetDeeplJsonRequest(const FString& Sourc
     return DeeplJsonRequest;
 }
 
-void FCommentNodeTranslationUtility::FixLanguage(FString& OutLanguage)
+void FCommentTranslationUtility::FixLanguage(FString& OutLanguage)
 {
     if (OutLanguage == TEXT("es-419"))
     {
