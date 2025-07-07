@@ -280,4 +280,48 @@ FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListS
 	return Prompt;
 }
 
+TArray<UEdGraphNode*> FCommentGenerationUtility::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+{
+	//TODO: コメントノード内のノードの更新
+	//「HandleSelection(true, true)」を「SGraphNodeComment::OnMouseButtonUp()」経由で間接的に呼び出すか？
+
+	TArray<UEdGraphNode*> NodesUnderComment;
+
+	if (!InCommentNode.IsValid())
+	{
+		return NodesUnderComment;
+	}
+
+	TArray<UObject*> NodeObjectsUnderComment = InCommentNode.Pin()->GetNodesUnderComment();
+
+	for (UObject* NodeObjectUnderComment : NodeObjectsUnderComment)
+	{
+		if (UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment))
+		{
+			NodesUnderComment.Add(Node);
+		}
+	}
+
+	return NodesUnderComment;
+}
+
+bool FCommentGenerationUtility::TryGetNodeDataListStringUnderComment(FString& OutNodeDataListString, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+{
+	if (!InCommentNode.IsValid())
+	{
+		return false;
+	}
+	
+	const TArray<UEdGraphNode*> NodesUnderComment = GetNodesUnderComment(InCommentNode);
+	const TArray<UEdGraphNode*> ActiveNodesUnderComment = GetActiveNodes(NodesUnderComment);
+
+	if (ActiveNodesUnderComment.Num() == 0)
+	{
+		return false;
+	}
+
+	const FNodeDataList NodeDataList = GetNodeDataList(ActiveNodesUnderComment);
+	return FJsonObjectConverter::UStructToJsonObjectString(NodeDataList, OutNodeDataListString, 0, 0);
+}
+
 #undef LOCTEXT_NAMESPACE

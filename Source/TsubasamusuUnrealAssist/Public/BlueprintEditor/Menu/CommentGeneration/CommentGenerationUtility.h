@@ -35,4 +35,7 @@ private:
 
 	static bool TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString);
 	static FString GetDesiredPrompt(const FString& NodeDataListString);
+
+	static TArray<UEdGraphNode*> GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
+	static bool TryGetNodeDataListStringUnderComment(FString& OutNodeDataListString, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 };
