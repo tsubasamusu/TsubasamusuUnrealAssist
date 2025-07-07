@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-struct FNodeData;
+struct FNodeDataList;
 struct FPinData;
 class UEdGraphNode_Comment;
 
@@ -16,9 +16,9 @@ public:
 
 private:
 
-	static void GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
+	static void UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 
-	static TArray<FNodeData> GetNodeDataList(const TArray<UEdGraphNode*>& InNodes);
+	static FNodeDataList GetNodeDataList(const TArray<UEdGraphNode*>& InNodes);
 	static TArray<FPinData> GetPinDataList(const UEdGraphNode* InNode);
 
 	static TArray<FString> GetPinIds(const TArray<UEdGraphPin*>& InPins);
@@ -30,4 +30,9 @@ private:
 	
 	static int32 GetCharNum(const FString& InString, const TCHAR& InChar);
 	static FString GetPinTypeAsString(const UEdGraphPin* InPin);
+	
+	static void GenerateComment(const FString& NodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& OnGeneratedComment);
+
+	static bool TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString);
+	static FString GetDesiredPrompt(const FString& NodeDataListString);
 };

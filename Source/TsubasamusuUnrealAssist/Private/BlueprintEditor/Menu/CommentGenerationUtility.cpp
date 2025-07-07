@@ -2,7 +2,13 @@
 
 #include "BlueprintEditor/Menu/CommentGeneration/CommentGenerationUtility.h"
 #include "EdGraphNode_Comment.h"
+#include "HttpModule.h"
+#include "JsonObjectConverter.h"
+#include "BlueprintEditor/Menu/CommentGeneration/GptResponse.h"
 #include "BlueprintEditor/Menu/CommentGeneration/NodeData.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "Internationalization/Culture.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "CommentGenerationUtility"
@@ -16,19 +22,19 @@ void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBui
     {
     	if (InCommentNode.IsValid())
     	{
-    		GenerateComment(InCommentNode);
+    		UpdateCommentByGpt(InCommentNode);
     	}
     })));
 	
     InMenuBuilder.EndSection();
 }
 
-void FCommentGenerationUtility::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
 	
 }
 
-TArray<FNodeData> FCommentGenerationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)
+FNodeDataList FCommentGenerationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)
 {
 	TArray<FNodeData> NodesDataList;
 
@@ -45,7 +51,7 @@ TArray<FNodeData> FCommentGenerationUtility::GetNodeDataList(const TArray<UEdGra
 		NodesDataList.Add(NodeData);
 	}
 
-	return NodesDataList;
+	return FNodeDataList(NodesDataList);
 }
 
 TArray<FPinData> FCommentGenerationUtility::GetPinDataList(const UEdGraphNode* InNode)
@@ -167,6 +173,111 @@ FString FCommentGenerationUtility::GetPinTypeAsString(const UEdGraphPin* InPin)
 	default:
 		return TEXT("UnknownType");
 	}
+}
+
+void FCommentGenerationUtility::GenerateComment(const FString& NodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& OnGeneratedComment)
+{
+	FString GptRequestString;
+
+	if (!TryGetGptRequestString(NodeDataListString, GptRequestString))
+	{
+		OnGeneratedComment(false, TEXT("Failed to create a GPT request."));
+		return;
+	}
+
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const FString OpenAiApiKey = TsubasamusuUnrealAssistSettings->OpenAiApiKey;
+
+	const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->SetURL(TEXT("https://api.openai.com/v1/chat/completions"));
+	HttpRequest->SetVerb(TEXT("POST"));
+	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+	HttpRequest->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + OpenAiApiKey);
+	HttpRequest->SetContentAsString(GptRequestString);
+
+	HttpRequest->OnProcessRequestComplete().BindLambda([OnGeneratedComment](FHttpRequestPtr, const FHttpResponsePtr& HttpResponsePtr, const bool bSucceeded)
+	{
+		if (!bSucceeded)
+		{
+			OnGeneratedComment(false, TEXT("Failed to send a HTTP request."));
+			return;
+		}
+
+		if (!HttpResponsePtr.IsValid())
+		{
+			OnGeneratedComment(false, TEXT("Failed to get a HTTP response."));
+			return;
+		}
+
+		const FString JsonResponse = HttpResponsePtr->GetContentAsString();
+
+		FGptErrorResponse GptErrorResponse;
+
+		if (FJsonObjectConverter::JsonObjectStringToUStruct(JsonResponse, &GptErrorResponse, 0, 0) && !GptErrorResponse.IsEmpty())
+		{
+			OnGeneratedComment(false, GptErrorResponse.error.message);
+			return;
+		}
+
+		FGptResponse GptResponse;
+
+		if (!FJsonObjectConverter::JsonObjectStringToUStruct(JsonResponse, &GptResponse, 0, 0))
+		{
+			OnGeneratedComment(false, TEXT("Failed to get a GPT response."));
+			return;
+		}
+
+		if (GptResponse.IsEmpty())
+		{
+			OnGeneratedComment(false, TEXT("Failed to get a GPT response."));
+			return;
+		}
+
+		OnGeneratedComment(true, GptResponse.GetGptMessage());
+	});
+
+	if (!HttpRequest->ProcessRequest())
+	{
+		OnGeneratedComment(false, TEXT("Failed to process a HTTP request."));
+	}
+}
+
+bool FCommentGenerationUtility::TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString)
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	const FGptRequest GptRequest =
+	{
+		.model = TsubasamusuUnrealAssistSettings->GptModelName,
+		.messages =
+	{
+		{
+				.role = TEXT("user"),
+				.content = GetDesiredPrompt(NodeDataListString)
+			}
+		}
+	};
+
+	return FJsonObjectConverter::UStructToJsonObjectString(GptRequest, OutGptRequestString, 0, 0);
+}
+
+FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListString)
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	FString Prompt = TEXT("You are developing a game using the Unreal Engine and are going to write a comment in a comment node for a blueprint process represented by the following string in JSON format. Answer the appropriate comment to be written in the comment node according to the following conditions.");
+
+	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetGptLanguageCulture()->GetEnglishName();
+
+	for (FString CommentGenerationCondition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
+	{
+		Prompt += TEXT("\n- ") + CommentGenerationCondition;
+	}
+
+	Prompt += TEXT("\n\n") + NodeDataListString;
+
+	return Prompt;
 }
 
 #undef LOCTEXT_NAMESPACE
