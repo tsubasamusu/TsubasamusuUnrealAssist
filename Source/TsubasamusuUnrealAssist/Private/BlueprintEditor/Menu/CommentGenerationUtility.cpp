@@ -17,7 +17,7 @@
 void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const TAttribute LabelText = LOCTEXT("CommentGenerationLabelText", "Generate Comment");
-    const TAttribute ToolTipText = LOCTEXT("CommentTranslationToolTipText", "Generate a comment based on the nodes contained in the comment node.");
+    const TAttribute ToolTipText = LOCTEXT("CommentGenerationToolTipText", "Generate a comment based on the nodes contained in the comment node.");
 
     InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode]()
     {
@@ -44,12 +44,12 @@ void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraph
 		const FString ErrorMessage = TEXT("Failed to get a node data list as JSON string.");
 		
 		FTsubasamusuLogUtility::LogError(ErrorMessage);
-		InCommentNode.Pin()->OnUpdateCommentText(ErrorMessage);
+		InCommentNode->OnUpdateCommentText(ErrorMessage);
 		
 		return;
 	}
 
-	InCommentNode.Pin()->OnUpdateCommentText(TEXT("Start generating comment..."));
+	InCommentNode->OnUpdateCommentText(TEXT("Start generating comment..."));
 
 	GenerateComment(NodeDataListString, [InCommentNode](const bool bSucceeded, const FString& Message)
 	{
@@ -58,7 +58,7 @@ void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraph
 			return;
 		}
 		
-		InCommentNode.Pin()->OnUpdateCommentText(Message);
+		InCommentNode->OnUpdateCommentText(Message);
 
 		if (!bSucceeded)
 		{
@@ -325,11 +325,13 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetNodesUnderComment(const TWea
 		return NodesUnderComment;
 	}
 
-	TArray<UObject*> NodeObjectsUnderComment = InCommentNode.Pin()->GetNodesUnderComment();
+	TArray<UObject*> NodeObjectsUnderComment = InCommentNode->GetNodesUnderComment();
 
 	for (UObject* NodeObjectUnderComment : NodeObjectsUnderComment)
 	{
-		if (UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment))
+		UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment);
+		
+		if (IsValid(Node))
 		{
 			NodesUnderComment.Add(Node);
 		}

@@ -59,7 +59,7 @@ void FNodeSuggester::OnNodeAdded(UEdGraphNode* AddedNode)
 
 		if (PinnedNodeSuggester->CachedWeakAddedNodes.Num() > 0)
 		{
-			UEdGraph* Graph = PinnedNodeSuggester->CachedWeakAddedNodes[0].Get()->GetGraph();
+			UEdGraph* Graph = PinnedNodeSuggester->CachedWeakAddedNodes[0]->GetGraph();
 			
 			if (IsValid(Graph))
 			{
