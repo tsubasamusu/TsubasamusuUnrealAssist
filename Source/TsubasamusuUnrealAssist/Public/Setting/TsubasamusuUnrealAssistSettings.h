@@ -70,7 +70,7 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "GPT Model Name"))
 	FString GptModelName;
 	
-	UPROPERTY(VisibleAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Culture Name of GPT Language"))
+	UPROPERTY(config)
 	FString GptLanguageCultureName;
 	
 	/* Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to them when generating comments */
