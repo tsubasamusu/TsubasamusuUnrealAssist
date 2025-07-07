@@ -6,6 +6,7 @@
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
 #include  "BlueprintEditor/GraphNodeUtility.h"
+#include "BlueprintEditor/Menu/CommentGeneration/CommentGenerationUtility.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {
@@ -41,7 +42,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 		return Extender;
 	}
 
-	// Translate Comment Node
+	// Comment Node Menu
 	{
 		UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(SelectedNodes[0]);
 
@@ -52,6 +53,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 			Extender->AddMenuExtension("GraphNodeComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
 			{
 				FCommentTranslationUtility::AddCommentTranslationMenu(MenuBuilder, WeakCommentNode);
+				FCommentGenerationUtility::AddCommentGenerationMenu(MenuBuilder, WeakCommentNode);
 			}));
 		}
 	}
