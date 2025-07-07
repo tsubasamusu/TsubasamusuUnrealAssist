@@ -27,15 +27,17 @@ void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<
 
 FText SLanguageComboButton::GetDesiredComboButtonText()
 {
-    const UTsubasamusuUnrealAssistSettings* Settings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-    const FString GptLanguageName = Settings->GetGptLanguageCulture()->GetNativeName();
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+    const FString GptLanguageName = TsubasamusuUnrealAssistSettings->GetGptLanguageCulture()->GetNativeName();
     return FText::FromString(GptLanguageName);
 }
 
 TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
 {
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+
     const TSharedRef<SCulturePicker> CulturePicker = SNew(SCulturePicker)
-        .InitialSelection(UTsubasamusuUnrealAssistSettings::GetSettingsChecked()->GetGptLanguageCulture())
+        .InitialSelection(TsubasamusuUnrealAssistSettings->GetGptLanguageCulture())
         .OnSelectionChanged(this, &SLanguageComboButton::OnSelectionChanged)
         .IsCulturePickable(this, &SLanguageComboButton::IsCulturePickable)
         .DisplayNameFormat(SCulturePicker::ECultureDisplayFormat::ActiveAndNativeCultureDisplayName)
@@ -53,8 +55,8 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
 
 void SLanguageComboButton::OnSelectionChanged(FCulturePtr InSelectedCulture, ESelectInfo::Type /*SelectInfo*/) const
 {
-    UTsubasamusuUnrealAssistSettings* Settings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-    Settings->SetGptLanguageCulture(InSelectedCulture);
+    UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+    TsubasamusuUnrealAssistSettings->SetGptLanguageCulture(InSelectedCulture);
 
     if (ComboButton.IsValid())
     {

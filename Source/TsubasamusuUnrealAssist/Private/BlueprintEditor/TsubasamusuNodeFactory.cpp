@@ -16,12 +16,12 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) c
 		return ReturnNodeWidget;
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* Settings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 	UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(Node);
 		
 	if (IsValid(CommentNode))
 	{
-		switch (Settings->CommentNodeType)
+		switch (TsubasamusuUnrealAssistSettings->CommentNodeType)
 		{
 		case ECommentNodeType::Gaming:
 			ReturnNodeWidget = SNew(SGraphNodeGamingComment, CommentNode);
@@ -34,7 +34,7 @@ TSharedPtr<SGraphNode> FTsubasamusuNodeFactory::CreateNode(UEdGraphNode* Node) c
 		}
 	}
 
-	if (Settings->bEnableNodeSuggestion)
+	if (TsubasamusuUnrealAssistSettings->bEnableNodeSuggestion)
 	{
 		if (!NodeSuggester.IsValid())
 		{
