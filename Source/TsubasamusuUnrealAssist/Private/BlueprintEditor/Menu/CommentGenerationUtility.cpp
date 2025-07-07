@@ -6,6 +6,7 @@
 #include "JsonObjectConverter.h"
 #include "BlueprintEditor/Menu/CommentGeneration/GptResponse.h"
 #include "BlueprintEditor/Menu/CommentGeneration/NodeData.h"
+#include "Debug/TsubasamusuLogUtility.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Internationalization/Culture.h"
@@ -31,7 +32,39 @@ void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBui
 
 void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
+	if (!InCommentNode.IsValid())
+	{
+		return;
+	}
 	
+	FString NodeDataListString;
+
+	if (!TryGetNodeDataListStringUnderComment(NodeDataListString, InCommentNode))
+	{
+		const FString ErrorMessage = TEXT("Failed to get a node data list as JSON string.");
+		
+		FTsubasamusuLogUtility::LogError(ErrorMessage);
+		InCommentNode.Pin()->OnUpdateCommentText(ErrorMessage);
+		
+		return;
+	}
+
+	InCommentNode.Pin()->OnUpdateCommentText(TEXT("Start generating comment..."));
+
+	GenerateComment(NodeDataListString, [InCommentNode](const bool bSucceeded, const FString& Message)
+	{
+		if (!InCommentNode.IsValid())
+		{
+			return;
+		}
+		
+		InCommentNode.Pin()->OnUpdateCommentText(Message);
+
+		if (!bSucceeded)
+		{
+			FTsubasamusuLogUtility::LogError(Message);
+		}
+	});
 }
 
 FNodeDataList FCommentGenerationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)
