@@ -5,16 +5,22 @@
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	bEnableNodeSuggestion = false;
-	
+	// General
 	CommentNodeType = ECommentNodeType::Normal;
+
+	// Node Suggestion
+	bEnableNodeSuggestion = false;
+
+	// Comment Translation
 	DeeplApiKey = TEXT("");
-	
+
+	// Gaming Comment Node
 	GamingColorAnimationDuration = 1.0f;
 	GamingScaleAnimationDuration = 1.0f;
 	GamingCommentNodeRotatingAnglePerSeconds = 720.0f;
 	MaxGamingCommentNodeScale = 1.5f;
 
+	// PONG Comment Node
 	PongCommentNodeColor = FLinearColor::Black;
 	PongUiColor = FLinearColor::White;
 	PongBallImageSize = FVector2D(30.0f, 30.0f);
@@ -23,7 +29,8 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	PongIntervalSeconds = 1.0f;
 	bMakeLeftScrollBarNPC = false;
 
-	ApiKey = TEXT("");
+	// Comment Generation
+	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4");
 	GptLanguageCultureName = FInternationalization::Get().GetCurrentLanguage()->GetName();
 	bIgnoreNodesDoNotHaveConnectedPins = true;
