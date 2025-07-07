@@ -29,8 +29,9 @@ private:
 
 	void RegisterAssetTypeActions();
 	void UnregisterAssetTypeActions();
-	
-	static ISettingsModule* GetSettingsModuleChecked();
+
+	static void RegisterSettingsCustomization();
+	static void UnregisterSettingsCustomization();
 	
 	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactoryPtr;
 	TArray<TSharedPtr<IAssetTypeActions>> CreatedAssetTypeActions;
