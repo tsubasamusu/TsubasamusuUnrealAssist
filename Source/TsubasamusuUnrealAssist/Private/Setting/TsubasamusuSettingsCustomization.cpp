@@ -20,16 +20,15 @@ TSharedRef<IDetailCustomization> FTsubasamusuSettingsCustomization::Create()
 
 void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
 {
-	ChangeOpenAiApiKeyPropertyDisplayAsPassword(DetailBuilder);
+	ChangePropertyDisplayAsPassword(DetailBuilder, TEXT("Comment Generation"), TEXT("OpenAiApiKey"));
+    ChangePropertyDisplayAsPassword(DetailBuilder, TEXT("Comment Translation"), TEXT("DeeplApiKey"));
+    
 	AddGptLanguageProperty(DetailBuilder);
     AddGptModelsDocumentButton(DetailBuilder);
 }
 
-void FTsubasamusuSettingsCustomization::ChangeOpenAiApiKeyPropertyDisplayAsPassword(IDetailLayoutBuilder& DetailLayout)
+void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& DetailLayout, const FName& CategoryName, const FName& PropertyName)
 {
-    const FName CategoryName = TEXT("Comment Generation");
-    const FName PropertyName = TEXT("OpenAiApiKey");
-
     IDetailCategoryBuilder& DetailCategoryBuilder = DetailLayout.EditCategory(CategoryName);
     check(!DetailCategoryBuilder.IsEmpty());
 

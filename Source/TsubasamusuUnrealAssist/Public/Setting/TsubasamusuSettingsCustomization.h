@@ -16,7 +16,7 @@ public:
 
 private:
 	
-	static void ChangeOpenAiApiKeyPropertyDisplayAsPassword(IDetailLayoutBuilder& DetailLayout);
+	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& DetailLayout, const FName& CategoryName, const FName& PropertyName);
 	static void AddGptLanguageProperty(IDetailLayoutBuilder& DetailLayout);
 	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& DetailLayout);
 };
