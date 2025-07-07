@@ -31,7 +31,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 
 	// Comment Generation
 	OpenAiApiKey = TEXT("");
-	GptModelName = TEXT("gpt-4");
+	GptModelName = TEXT("gpt-4o-mini");
 	GptLanguageCultureName = FInternationalization::Get().GetCurrentLanguage()->GetName();
 	bIgnoreNodesDoNotHaveConnectedPins = true;
 	bIgnoreCommentNodes = false;

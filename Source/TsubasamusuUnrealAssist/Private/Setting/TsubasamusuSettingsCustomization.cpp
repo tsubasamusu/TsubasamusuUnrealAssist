@@ -129,7 +129,7 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
             [
                 SNew(SEditableTextBox)
                 .Font(FAppStyle::GetFontStyle("PropertyWindow.NormalFont"))
-                .HintText(FText::FromString(TEXT("gpt-4")))
+                .HintText(FText::FromString(TEXT("gpt-4o-mini")))
                 .Text_Lambda([PropertyHandle]()
                 {
                     FString Value;
