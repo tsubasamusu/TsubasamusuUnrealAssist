@@ -26,8 +26,6 @@ void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBui
     		UpdateCommentByGpt(InCommentNode);
     	}
     })));
-	
-    InMenuBuilder.EndSection();
 }
 
 void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
