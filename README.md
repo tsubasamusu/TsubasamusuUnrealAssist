@@ -1,14 +1,15 @@
-# Tsubasamusu Unreal Assist
-## Summary
-An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. This plugin is in beta, and I cannot compensate for any file corruption or system failures caused by using this plugin. Once you install this plugin, a category for this plugin will appear in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist".
+# Tsubasamusu Unreal Assist (Beta)
+## Overview
+An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. This plugin is in beta, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist".
 
-## Test Engine Versions
-- 5.6.0
+## Engine Versions
+The following engine versions have been confirmed to work with this plugin.
+- 5.6.0 (Launcher)
 
 # Features
 ## Right Click Menu in Blueprint Graph
 ### Generate Comments
-Generate comments using Open AI's API key.
+Generate comments using Open AI's API key. Please pay close attention to API usage when using this feature.
 
 <img width="500" src="https://github.com/user-attachments/assets/7fc80cb9-6c61-4002-8aea-bd5e06a00488">
 
@@ -32,6 +33,11 @@ When multiple nodes with output pins of the same type are selected and right-cli
 When you right-click on a comment node, a menu labeled 'Translate to...' appears, allowing you to select the target language and translate the comment. This translation feature uses the DeepL API, and the API key can be configured in the editor settings under "Comment Translation > DeepL API Key".
 
 <img width="500" src="https://github.com/user-attachments/assets/6768ed5d-5c88-42e7-b2f4-e33a4e4b24c8">
+
+### Copy Nodes in JSON Format
+It copies the information of selected nodes as a JSON-formatted string. This JSON-formatted string includes the node and pin names, node comments, pin direction (input or output), pin type, and the GUID of the connected pins. The copied data is currently saved to the clipboard and its character count is approximately one-third of that of the text that can be obtained using the standard Unreal Engine copy function.
+
+<img width="500" src="https://github.com/user-attachments/assets/f71a7ef4-6d2e-4c19-9d8e-626bd129de3e">
 
 ## Blueprint Function Library for Editor Utilty
 ### Replace Assets References
