@@ -2,7 +2,7 @@
 
 #include "BlueprintEditor/Menu/CopyNodeInformationUtility.h"
 #include  "BlueprintEditor/GraphNodeUtility.h"
-#include "BlueprintEditor/Menu/NodeInformationUtility.h"
+#include "BlueprintEditor/Menu/NodeInformation/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "FCopyNodeInformationUtility"
