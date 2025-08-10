@@ -40,7 +40,7 @@ TArray<FPinData> FNodeInformationUtility::GetPinDataList(const UEdGraphNode* InN
 		FPinData PinData
 		{
 			.PinName = Pin->GetDisplayName().IsEmpty() ? Pin->PinName.ToString() : Pin->GetDisplayName().ToString(),
-			.PinType = GetPinTypeAsString(Pin),
+			.PinDirection = GetPinDirectionAsString(Pin),
 			.PinCategory = GetPinCategoryAsString(Pin),
 			.PinId = Pin->PinId.ToString(),
 			.DefaultValue = Pin->GetDefaultAsString(),
@@ -66,7 +66,7 @@ TArray<FString> FNodeInformationUtility::GetPinIds(const TArray<UEdGraphPin*>& I
 	return PinIds;
 }
 
-FString FNodeInformationUtility::GetPinTypeAsString(const UEdGraphPin* InPin)
+FString FNodeInformationUtility::GetPinDirectionAsString(const UEdGraphPin* InPin)
 {
 	switch (InPin->Direction)
 	{

@@ -16,7 +16,7 @@ public:
 	static TArray<FPinData> GetPinDataList(const UEdGraphNode* InNode);
 
 	static TArray<FString> GetPinIds(const TArray<UEdGraphPin*>& InPins);
-	static FString GetPinTypeAsString(const UEdGraphPin* InPin);
+	static FString GetPinDirectionAsString(const UEdGraphPin* InPin);
 	static FString GetPinCategoryAsString(const UEdGraphPin* InPin);
 
 	static bool IsPinUsesDefaultValue(const UEdGraphPin* InPin);

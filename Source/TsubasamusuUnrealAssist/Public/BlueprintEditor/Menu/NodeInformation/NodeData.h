@@ -16,7 +16,7 @@ public:
     FString PinName;
 
     UPROPERTY()
-    FString PinType;
+    FString PinDirection;
 
     UPROPERTY()
     FString PinCategory;
