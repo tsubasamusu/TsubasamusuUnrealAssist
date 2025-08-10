@@ -2,7 +2,14 @@
 
 #include "BlueprintEditor/Menu/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
+#include "JsonObjectConverter.h"
 #include "BlueprintEditor/Menu/CommentGeneration/NodeData.h"
+
+bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
+{
+	const FNodeDataList NodeDataList = GetNodeDataList(InNodes);
+	return FJsonObjectConverter::UStructToJsonObjectString(NodeDataList, OutNodeDataListString, 0, 0);
+}
 
 FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)
 {

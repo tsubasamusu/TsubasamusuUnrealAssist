@@ -10,7 +10,8 @@ struct FPinData;
 class TSUBASAMUSUUNREALASSIST_API FNodeInformationUtility final
 {
 public:
-	
+
+	static bool TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes);
 	static FNodeDataList GetNodeDataList(const TArray<UEdGraphNode*>& InNodes);
 	static TArray<FPinData> GetPinDataList(const UEdGraphNode* InNode);
 

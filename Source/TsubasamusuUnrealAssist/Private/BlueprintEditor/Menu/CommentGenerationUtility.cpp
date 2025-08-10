@@ -277,8 +277,7 @@ bool FCommentGenerationUtility::TryGetNodeDataListStringUnderComment(FString& Ou
 		return false;
 	}
 
-	const FNodeDataList NodeDataList = FNodeInformationUtility::GetNodeDataList(ActiveNodesUnderComment);
-	return FJsonObjectConverter::UStructToJsonObjectString(NodeDataList, OutNodeDataListString, 0, 0);
+	return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
 }
 
 #undef LOCTEXT_NAMESPACE
