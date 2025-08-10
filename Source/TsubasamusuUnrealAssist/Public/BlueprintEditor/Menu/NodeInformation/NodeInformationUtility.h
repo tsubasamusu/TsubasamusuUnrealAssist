@@ -17,6 +17,7 @@ public:
 
 	static TArray<FString> GetPinIds(const TArray<UEdGraphPin*>& InPins);
 	static FString GetPinTypeAsString(const UEdGraphPin* InPin);
+	static FString GetPinCategoryAsString(const UEdGraphPin* InPin);
 
 	static bool IsPinUsesDefaultValue(const UEdGraphPin* InPin);
 	static bool IsCommentNode(const UEdGraphNode* InNode);

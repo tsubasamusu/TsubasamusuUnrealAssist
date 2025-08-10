@@ -19,6 +19,9 @@ public:
     FString PinType;
 
     UPROPERTY()
+    FString PinCategory;
+    
+    UPROPERTY()
     FString PinId;
 
     UPROPERTY()

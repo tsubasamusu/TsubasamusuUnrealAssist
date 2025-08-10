@@ -41,6 +41,7 @@ TArray<FPinData> FNodeInformationUtility::GetPinDataList(const UEdGraphNode* InN
 		{
 			.PinName = Pin->GetDisplayName().IsEmpty() ? Pin->PinName.ToString() : Pin->GetDisplayName().ToString(),
 			.PinType = GetPinTypeAsString(Pin),
+			.PinCategory = GetPinCategoryAsString(Pin),
 			.PinId = Pin->PinId.ToString(),
 			.DefaultValue = Pin->GetDefaultAsString(),
 			.bThisPinUsesDefaultValue = IsPinUsesDefaultValue(Pin),
@@ -76,6 +77,26 @@ FString FNodeInformationUtility::GetPinTypeAsString(const UEdGraphPin* InPin)
 	default:
 		return TEXT("UnknownType");
 	}
+}
+
+FString FNodeInformationUtility::GetPinCategoryAsString(const UEdGraphPin* InPin)
+{
+	const FName PinSubCategoryName = InPin->PinType.PinSubCategory;
+	const UObject* PinSubCategoryObject = InPin->PinType.PinSubCategoryObject.Get();
+	
+	if (PinSubCategoryName != UEdGraphSchema_K2::PSC_Bitmask && PinSubCategoryObject)
+	{
+		const UField* PinSubCategoryObjectField = Cast<const UField>(PinSubCategoryObject);
+		
+		if (IsValid(PinSubCategoryObjectField))
+		{
+			return PinSubCategoryObjectField->GetDisplayNameText().ToString();
+		}
+		
+		return PinSubCategoryObject->GetName();
+	}
+	
+	return UEdGraphSchema_K2::GetCategoryText(InPin->PinType.PinCategory, PinSubCategoryName, true).ToString();
 }
 
 bool FNodeInformationUtility::IsPinUsesDefaultValue(const UEdGraphPin* InPin)
