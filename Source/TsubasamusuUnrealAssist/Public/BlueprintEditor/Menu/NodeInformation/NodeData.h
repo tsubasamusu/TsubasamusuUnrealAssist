@@ -19,7 +19,7 @@ public:
     FString PinDirection;
 
     UPROPERTY()
-    FString PinCategory;
+    FString PinType;
     
     UPROPERTY()
     FString PinId;
