@@ -14,7 +14,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPt
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-	const FText LabelText = LOCTEXT("CreateArrayNodeLabelText", "Copy in JSON format");
+	const FText LabelText = LOCTEXT("CreateArrayNodeLabelText", "Copy in JSON Format");
 	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Copy selected nodes in JSON format.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GenericCommands.Copy");
