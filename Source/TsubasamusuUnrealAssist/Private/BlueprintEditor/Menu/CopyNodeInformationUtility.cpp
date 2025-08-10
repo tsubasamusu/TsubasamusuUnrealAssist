@@ -2,6 +2,8 @@
 
 #include "BlueprintEditor/Menu/CopyNodeInformationUtility.h"
 #include  "BlueprintEditor/GraphNodeUtility.h"
+#include "BlueprintEditor/Menu/NodeInformationUtility.h"
+#include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "FCopyNodeInformationUtility"
 
@@ -21,9 +23,13 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPt
 	{
 		if (InGraph.IsValid())
 		{
+			FString NodeDataListString;
 			const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph.Get());
-		
-			//TODO: Copy selected nodes information in JSON format
+
+			if (FNodeInformationUtility::TryGetNodeDataListString(NodeDataListString, SelectedNodes))
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*NodeDataListString);
+			}
 		}
 	})));
 	
