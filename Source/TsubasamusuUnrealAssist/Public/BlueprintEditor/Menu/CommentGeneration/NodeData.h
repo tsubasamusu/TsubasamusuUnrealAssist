@@ -25,7 +25,7 @@ public:
     FString DefaultValue;
 
     UPROPERTY()
-    bool bDefaultValueIsUsed;
+    bool bThisPinUsesDefaultValue;
 
     UPROPERTY()
     TArray<FString> ConnectedPinIds;

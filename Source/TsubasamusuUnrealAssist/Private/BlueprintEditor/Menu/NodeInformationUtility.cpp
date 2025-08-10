@@ -43,7 +43,7 @@ TArray<FPinData> FNodeInformationUtility::GetPinDataList(const UEdGraphNode* InN
 			.PinType = GetPinTypeAsString(Pin),
 			.PinId = Pin->PinId.ToString(),
 			.DefaultValue = Pin->GetDefaultAsString(),
-			.bDefaultValueIsUsed = IsPinUsesDefaultValue(Pin),
+			.bThisPinUsesDefaultValue = IsPinUsesDefaultValue(Pin),
 			.ConnectedPinIds = GetPinIds(Pin->LinkedTo)
 		};
 
