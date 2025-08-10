@@ -16,8 +16,11 @@ public:
     FString PinName;
 
     UPROPERTY()
-    FString PinType;
+    FString PinDirection;
 
+    UPROPERTY()
+    FString PinType;
+    
     UPROPERTY()
     FString PinId;
 
@@ -25,7 +28,7 @@ public:
     FString DefaultValue;
 
     UPROPERTY()
-    bool bDefaultValueIsUsed;
+    bool bThisPinUsesDefaultValue;
 
     UPROPERTY()
     TArray<FString> ConnectedPinIds;

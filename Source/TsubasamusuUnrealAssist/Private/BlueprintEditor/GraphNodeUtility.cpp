@@ -80,6 +80,11 @@ bool FGraphNodeUtility::NodeHasSameTypeOutputPins(const UEdGraphNode* InNode, co
 	return false;
 }
 
+bool FGraphNodeUtility::IsExecPinType(const FEdGraphPinType& InPinType)
+{
+	return InPinType.PinCategory == UEdGraphSchema_K2::PC_Exec;
+}
+
 TArray<UEdGraphPin*> FGraphNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes)
 {
 	TArray<UEdGraphPin*> OutputPins;

@@ -6,6 +6,7 @@
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
 #include  "BlueprintEditor/GraphNodeUtility.h"
+#include "BlueprintEditor/Menu/CopyNodeInformationUtility.h"
 #include "BlueprintEditor/Menu/CommentGeneration/CommentGenerationUtility.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
@@ -25,27 +26,38 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 	}
 	
 	const TWeakObjectPtr<UEdGraph> WeakGraph = const_cast<UEdGraph*>(InGraph);
-	
-	// Create Array Node
+
+	// Multiple Nodes Menu
 	if (SelectedNodes.Num() >= 2)
 	{
-		TSharedPtr<FEdGraphPinType> SelectedNodesOutputPinsCommonType = MakeShared<FEdGraphPinType>();
-
-		if (FGraphNodeUtility::TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
+		// Copy Node Information
+		Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph](FMenuBuilder& MenuBuilder)
 		{
-			Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
+			FCopyNodeInformationUtility::AddCopyNodeInformationMenu(WeakGraph, MenuBuilder);
+		}));
+
+		// Create Array Node
+		{
+			TSharedPtr<FEdGraphPinType> SelectedNodesOutputPinsCommonType = MakeShared<FEdGraphPinType>();
+
+			if (FGraphNodeUtility::TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
 			{
-				FCreateArrayNodeUtility::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
-			}));
+				if (!FGraphNodeUtility::IsExecPinType(*SelectedNodesOutputPinsCommonType.Get()))
+				{
+					Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
+					{
+						FCreateArrayNodeUtility::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
+					}));
+				}
+			}
 		}
-
-		return Extender;
 	}
-
-	// Comment Node Menu
+	// Single Node Menu
+	else
 	{
 		UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(SelectedNodes[0]);
 
+		// Comment Node Menu
 		if (IsValid(CommentNode))
 		{
 			const TWeakObjectPtr<UEdGraphNode_Comment> WeakCommentNode = CommentNode;

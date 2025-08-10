@@ -9,11 +9,6 @@
 
 void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
-	const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-	const TAttribute HeadingText = LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist");
-    
-	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
-
 	const FText LabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
 	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
 
@@ -28,8 +23,6 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGra
 			CreateArrayNode(InGraph, SelectedNodes, *ArrayNodePinType);
 		}
 	})));
-	
-	InMenuBuilder.EndSection();
 }
 
 UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)

@@ -31,7 +31,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "JsonUtilities",
             "AssetTools",
             "Kismet",
-            "SubobjectEditor"
+            "SubobjectEditor",
+            "ApplicationCore"
         });
 	}
 }
