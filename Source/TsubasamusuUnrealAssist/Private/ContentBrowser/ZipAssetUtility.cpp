@@ -63,7 +63,21 @@ TArray<FAssetData> FZipAssetUtility::GetDirtyAssetDataList(const TArray<FName>& 
 
 void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames)
 {
+}
+
+FString FZipAssetUtility::GetDesiredDefaultFileName(const TArray<FName>& InSelectedAssetPackageNames)
+{
+	if (InSelectedAssetPackageNames.Num() == 1)
+	{
+		return FPackageName::GetShortName(InSelectedAssetPackageNames[0]);
+	}
+
+	const FString LongPackagePath = FPackageName::GetLongPackagePath(InSelectedAssetPackageNames[0].ToString());
+
+	int32 LastSlashIndex;
+	LongPackagePath.FindLastChar(TEXT('/'), LastSlashIndex);
 	
+	return LongPackagePath.Mid(LastSlashIndex + 1);
 }
 
 #undef LOCTEXT_NAMESPACE
