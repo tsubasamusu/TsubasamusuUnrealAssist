@@ -32,7 +32,9 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "AssetTools",
             "Kismet",
             "SubobjectEditor",
-            "ApplicationCore"
+            "ApplicationCore",
+            "ToolMenus",
+            "ContentBrowserData"
         });
 	}
 }
