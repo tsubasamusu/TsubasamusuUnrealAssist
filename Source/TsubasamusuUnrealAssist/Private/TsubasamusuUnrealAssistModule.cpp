@@ -6,6 +6,7 @@
 #include "ISettingsModule.h"
 #include "BlueprintEditor/Menu/SelectedNodeMenuExtender.h"
 #include "BlueprintEditor/TsubasamusuNodeFactory.h"
+#include "ContentBrowser/FileMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
@@ -19,6 +20,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
 	RegisterAssetTypeActions();
+	FFileMenuExtender::RegisterFileMenu();
 #endif
 }
 
