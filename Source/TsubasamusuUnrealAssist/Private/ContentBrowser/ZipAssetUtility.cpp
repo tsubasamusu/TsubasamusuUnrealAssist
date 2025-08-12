@@ -3,6 +3,28 @@
 #include "ContentBrowser/ZipAssetUtility.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
+#define LOCTEXT_NAMESPACE "FZipAssetUtility"
+
+void FZipAssetUtility::AddZipAssetMenu(FToolMenuSection& InSection, const TArray<FName>& InSelectedAssetPackageNames)
+{
+	const TArray<FAssetData> DirtyAssetDataList = GetDirtyAssetDataList(InSelectedAssetPackageNames);
+	bool bContainsDirtyAssets = !DirtyAssetDataList.IsEmpty();
+	
+	const FCanExecuteAction CanExecuteActionDelegate = FCanExecuteAction::CreateLambda([bContainsDirtyAssets]()
+	{
+		return !bContainsDirtyAssets;
+	});
+	
+	const FName MenuName = TEXT("ZipAssetMenu");
+	const FText MenuLabelText = LOCTEXT("ZipAssetMenuLabelText", "ZIP Asset(s)");
+	const FText MenuToolTipText = LOCTEXT("ZipAssetMenuTooltip", "Compress the selected asset(s) into a ZIP file.");
+
+	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "MainFrame.ZipUpProject");
+	const FUIAction MenuAction = FUIAction(FExecuteAction::CreateStatic(&ExecuteZipAssetAction, InSelectedAssetPackageNames));
+	
+	InSection.AddMenuEntry(MenuName, MenuLabelText, MenuToolTipText, MenuIcon, MenuAction);
+}
+
 TArray<FAssetData> FZipAssetUtility::GetDirtyAssetDataList(const TArray<FName>& InAssetPackageNames)
 {
 	TArray<FAssetData> AssetDataList;
@@ -38,3 +60,10 @@ TArray<FAssetData> FZipAssetUtility::GetDirtyAssetDataList(const TArray<FName>& 
 	
 	return DirtyAssetDataList;
 }
+
+void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames)
+{
+	
+}
+
+#undef LOCTEXT_NAMESPACE

@@ -6,6 +6,10 @@
 
 class TSUBASAMUSUUNREALASSIST_API FZipAssetUtility final
 {
+public:
+	static void AddZipAssetMenu(FToolMenuSection& InSection, const TArray<FName>& InSelectedAssetPackageNames);
+	
 private:
 	static TArray<FAssetData> GetDirtyAssetDataList(const TArray<FName>& InAssetPackageNames);
+	static void ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames);
 };

@@ -14,6 +14,4 @@ private:
 
 	static void GetSelectedAssetPackageNames(const UToolMenu* InMenu, TArray<FString>& OutSelectedAssetPackageNames);
 	static void GetSelectedAssetPackageNames(const UToolMenu* InMenu, TArray<FName>& OutSelectedAssetPackageNames);
-	
-	static void Hoge();
 };

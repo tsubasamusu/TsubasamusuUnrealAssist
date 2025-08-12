@@ -4,6 +4,7 @@
 #include "ContentBrowserDataMenuContexts.h"
 #include "ContentBrowserAssetDataCore.h"
 #include "ContentBrowserAssetDataPayload.h"
+#include "ContentBrowser/ZipAssetUtility.h"
 
 #define LOCTEXT_NAMESPACE "FFileMenuExtender"
 
@@ -29,20 +30,16 @@ void FFileMenuExtender::AddFileMenu()
 			return;
 		}
 
+		TArray<FName> SelectedAssetPackageNames;
+		GetSelectedAssetPackageNames(InMenu, SelectedAssetPackageNames);
+
 		const FName SectionName = TEXT("TsubasamusuUnrealAssistSection");
 		const FText SectionLabelText = LOCTEXT("TsubasamusuUnrealAssistSectionLabelText", "Tsubasamusu Unreal Assist");
 		
 		FToolMenuSection& Section = InMenu->AddSection(SectionName, SectionLabelText);
 		Section.InsertPosition = FToolMenuInsert(TEXT("AssetContextReferences"), EToolMenuInsertType::Before);
 
-		const FName MenuName = TEXT("ZipAssetMenu");
-		const FText MenuLabelText = LOCTEXT("ZipAssetMenuLabelText", "ZIP Asset(s)");
-		const FText MenuToolTipText = LOCTEXT("ZipAssetMenuTooltip", "Compress the selected asset(s) into a ZIP file.");
-
-		const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "MainFrame.ZipUpProject");
-		const FUIAction MenuAction = FUIAction(FExecuteAction::CreateStatic(&Hoge));
-		
-		Section.AddMenuEntry(MenuName, MenuLabelText, MenuToolTipText, MenuIcon, MenuAction);
+		FZipAssetUtility::AddZipAssetMenu(Section, SelectedAssetPackageNames);
 	}));
 }
 
@@ -91,11 +88,6 @@ void FFileMenuExtender::GetSelectedAssetPackageNames(const UToolMenu* InMenu, TA
 	});
 
 	OutSelectedAssetPackageNames = MoveTemp(SelectedAssetPackageNames);
-}
-
-void FFileMenuExtender::Hoge()
-{
-	
 }
 
 #undef LOCTEXT_NAMESPACE
