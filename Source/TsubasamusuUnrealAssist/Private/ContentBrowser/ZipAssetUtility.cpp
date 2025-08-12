@@ -1,6 +1,7 @@
 // Copyright (c) 2025, tsubasamusu All rights reserved.
 
 #include "ContentBrowser/ZipAssetUtility.h"
+#include "DesktopPlatformModule.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 
 #define LOCTEXT_NAMESPACE "FZipAssetUtility"
@@ -63,6 +64,19 @@ TArray<FAssetData> FZipAssetUtility::GetDirtyAssetDataList(const TArray<FName>& 
 
 void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames)
 {
+	bool bOpenedFileDialog = false;
+	TArray<FString> SelectedFileNames;
+	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+
+	const void* ParentWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+	const FString FileDialogTitle = LOCTEXT("ZipAsset", "ZIP Asset(s) into...").ToString();
+	const FString DefaultFilePath = FPaths::ProjectDir();
+	const FString DefaultFileName = GetDesiredDefaultFileName(InSelectedAssetPackageNames);
+	
+	if (DesktopPlatform)
+	{
+		bOpenedFileDialog = DesktopPlatform->SaveFileDialog(ParentWindowHandle, FileDialogTitle, DefaultFilePath, DefaultFileName, TEXT("Zip file|*.zip"), EFileDialogFlags::None, SelectedFileNames);
+	}
 }
 
 FString FZipAssetUtility::GetDesiredDefaultFileName(const TArray<FName>& InSelectedAssetPackageNames)
