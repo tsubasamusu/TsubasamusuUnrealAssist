@@ -34,7 +34,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "SubobjectEditor",
             "ApplicationCore",
             "ToolMenus",
-            "ContentBrowserData"
+            "ContentBrowserData",
+            "ContentBrowserAssetDataSource"
         });
 	}
 }
