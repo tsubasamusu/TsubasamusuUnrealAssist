@@ -79,6 +79,25 @@ void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackag
 	}
 }
 
+bool FZipAssetUtility::IsValidDependency(const FString& InDependency)
+{
+	TArray<FName> IgnoreDirectoryNames =
+	{
+		TEXT("/Engine"),
+		TEXT("/Script")
+	};
+	
+	for (const FName& IgnoreDirectoryName : IgnoreDirectoryNames)
+	{
+		if (InDependency.StartsWith(IgnoreDirectoryName.ToString()))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 bool FZipAssetUtility::TryGetAssetData(const FString& InAssetPackageName, TArray<FAssetData>& OutAssetDataList, TArray<FName>& OutDependencies)
 {
 	FString AssetFileName = InAssetPackageName;
