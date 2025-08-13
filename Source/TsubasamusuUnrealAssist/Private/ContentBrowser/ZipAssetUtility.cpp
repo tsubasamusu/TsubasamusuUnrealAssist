@@ -79,6 +79,35 @@ void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackag
 	}
 }
 
+bool FZipAssetUtility::TryGetDependencies(const TArray<FName>& InAssetPackageNames, TArray<FName>& OutDependencies, FText& OutErrorText, const bool bInShouldValidatePackages)
+{
+	if (InAssetPackageNames.IsEmpty())
+	{
+		OutErrorText = LOCTEXT("AssetPackageNames_Empty", "Provided asset package names array is empty.");
+		return false;
+	}
+
+	if (bInShouldValidatePackages && !AssetsAreValid(InAssetPackageNames, OutErrorText))
+	{
+		return false;
+	}
+
+	TArray<FString> AssetPackageNamesString;
+	Algo::Transform(InAssetPackageNames, AssetPackageNamesString, [](const FName& InAssetPackageName)
+	{
+		return InAssetPackageName.ToString();
+	});
+	
+	for (const FName& AssetPackageName : InAssetPackageNames)
+	{
+		OutDependencies.Add(AssetPackageName);
+		RecursiveGetDependencies(AssetPackageName, OutDependencies);
+	}
+
+	OutDependencies.Sort(FNameLexicalLess());
+	return true;
+}
+
 void FZipAssetUtility::RecursiveGetDependencies(const FName& InAssetPackageName, TArray<FName>& OutDependencies)
 {
 	TArray<FName> Dependencies;
