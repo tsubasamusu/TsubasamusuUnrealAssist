@@ -4,6 +4,7 @@
 #include "DesktopPlatformModule.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Framework/Notifications/NotificationManager.h"
+#include "Widget/SZipAssetWizard.h"
 #include "Widgets/Notifications/SNotificationList.h"
 
 #define LOCTEXT_NAMESPACE "FZipAssetUtility"
@@ -66,19 +67,62 @@ TArray<FAssetData> FZipAssetUtility::GetDirtyAssetDataList(const TArray<FName>& 
 
 void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames)
 {
-	bool bOpenedFileDialog = false;
-	TArray<FString> SelectedFileNames;
-	IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
-
-	const void* ParentWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
-	const FString FileDialogTitle = LOCTEXT("ZipAsset", "ZIP Asset(s) into...").ToString();
-	const FString DefaultFilePath = FPaths::ProjectDir();
-	const FString DefaultFileName = GetDesiredDefaultFileName(InSelectedAssetPackageNames);
+	FScopedSlowTask ScopedSlowTask(InSelectedAssetPackageNames.Num(), LOCTEXT("MigratePackages_GatheringDependencies", "Gathering Dependencies..."));
+	ScopedSlowTask.MakeDialog();
+	ScopedSlowTask.EnterProgressFrame();
 	
-	if (DesktopPlatform)
+	TArray<FName> AssetPackageNamesToMove;
+	FText ErrorText;
+
+	if (!TryGetDependencies(InSelectedAssetPackageNames, AssetPackageNamesToMove, ErrorText))
 	{
-		bOpenedFileDialog = DesktopPlatform->SaveFileDialog(ParentWindowHandle, FileDialogTitle, DefaultFilePath, DefaultFileName, TEXT("Zip file|*.zip"), EFileDialogFlags::None, SelectedFileNames);
+		OnFoundInvalidPackages(InSelectedAssetPackageNames, LOCTEXT("Zip_Warning_Notify_Heading", "Some files are invalid (not existing on disk)"));
+		return;
 	}
+	
+	const TArray<FName> FilteredAssetPackageNames = AssetPackageNamesToMove.FilterByPredicate([](const FName& InAssetPackageName)
+	{
+		return FPackageName::DoesPackageExist(InAssetPackageName.ToString());
+	});
+	
+	if (FilteredAssetPackageNames.Num() == 0)
+	{
+		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("Zip_NoFilesToSave", "No files were found to zip"));
+		return;
+	}
+	
+	SZipAssetWizard::OpenWizard(InSelectedAssetPackageNames, FilteredAssetPackageNames, SZipAssetWizard::FOnZipAssetWizardCompleted::CreateStatic(&OnZipAssetWizardCompleted));
+}
+
+void FZipAssetUtility::OnZipAssetWizardCompleted(const TArray<FName>& InAssetPackageNames, const FString& InFilePath)
+{
+	// bool bOpenedFileDialog = false;
+	// TArray<FString> SelectedFileNames;
+	// IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+	//
+	// const void* ParentWindowHandle = FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr);
+	// const FString FileDialogTitle = LOCTEXT("ZipAsset", "ZIP Asset(s) into...").ToString();
+	// const FString DefaultFilePath = FPaths::ProjectDir();
+	// const FString DefaultFileName = GetDesiredDefaultFileName(InSelectedAssetPackageNames);
+	//
+	// if (DesktopPlatform)
+	// {
+	// 	bOpenedFileDialog = DesktopPlatform->SaveFileDialog(ParentWindowHandle, FileDialogTitle, DefaultFilePath, DefaultFileName, TEXT("Zip file|*.zip"), EFileDialogFlags::None, SelectedFileNames);
+	// }
+	//
+	// if (bOpenedFileDialog)
+	// {
+	// 	for (const FString& SelectedFileName : SelectedFileNames)
+	// 	{
+	// 		FString FinalFileName = FPaths::ConvertRelativePathToFull(SelectedFileName);
+	// 		FString ProjectPath = FPaths::IsProjectFilePathSet() ? FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()) : FPaths::RootDir() / FApp::GetProjectName();
+	//
+	// 		FString CommandLine = FString::Printf(TEXT("ZipProjectUp -nocompileeditor -project=\"%s\" -install=\"%s\""), *ProjectPath, *FinalFileName);
+	//
+	// 		IUATHelperModule::Get().CreateUatTask( CommandLine, GetTargetPlatformManager()->GetRunningTargetPlatform()->DisplayName(), LOCTEXT("ZipTaskName", "Zipping Up Project"),
+	// 		LOCTEXT("ZipTaskShortName", "Zip Project Task"), FAppStyle::GetBrush(TEXT("MainFrame.CookContent")), nullptr, IUATHelperModule::UatTaskResultCallack(), FPaths::GetPath(FinalFileName));
+	// 	}
+	// }
 }
 
 void FZipAssetUtility::OnFoundInvalidPackages(const TArray<FName>& InAssetPackageNames, const FText& InHeadingText, const FSlateBrush* InBrush)
