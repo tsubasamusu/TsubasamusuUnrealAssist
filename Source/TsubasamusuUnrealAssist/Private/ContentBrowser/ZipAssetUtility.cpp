@@ -3,6 +3,8 @@
 #include "ContentBrowser/ZipAssetUtility.h"
 #include "DesktopPlatformModule.h"
 #include "AssetRegistry/AssetRegistryModule.h"
+#include "Framework/Notifications/NotificationManager.h"
+#include "Widgets/Notifications/SNotificationList.h"
 
 #define LOCTEXT_NAMESPACE "FZipAssetUtility"
 
@@ -77,6 +79,36 @@ void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackag
 	{
 		bOpenedFileDialog = DesktopPlatform->SaveFileDialog(ParentWindowHandle, FileDialogTitle, DefaultFilePath, DefaultFileName, TEXT("Zip file|*.zip"), EFileDialogFlags::None, SelectedFileNames);
 	}
+}
+
+void FZipAssetUtility::OnFoundInvalidPackages(const TArray<FName>& InAssetPackageNames, const FText& InHeadingText, const FSlateBrush* InBrush)
+{
+	TArray<FString> ErrorMessages;
+	for (const FName& AssetPackageName : InAssetPackageNames)
+	{
+		if (!FPackageName::DoesPackageExist(AssetPackageName.ToString()))
+		{
+			FText ErrorMessage = FText::Format(LOCTEXT("Zip_InvalidFile", "{0} does not exist on disk"), FText::FromName(AssetPackageName));
+			ErrorMessages.Add(ErrorMessage.ToString());
+		}
+	}
+	
+	if (ErrorMessages.IsEmpty())
+	{
+		return;
+	}
+	
+	const FString ErrorMessagesString = TEXT("- ") + FString::Join(ErrorMessages, TEXT("\n- "));
+	const FText NotificationText = FText::Format(LOCTEXT("Zip_Error_Notify_Format", "{0}:\n\n{1}"), InHeadingText, FText::FromString(ErrorMessagesString));
+	
+	FNotificationInfo NotifyInfo(NotificationText);
+	NotifyInfo.WidthOverride = 480.f;
+	NotifyInfo.ExpireDuration = 5.0f;
+	NotifyInfo.FadeInDuration = 0.2f;
+	NotifyInfo.FadeOutDuration = 1.0f;
+	NotifyInfo.Image = InBrush ? InBrush : FAppStyle::GetBrush(TEXT("AssetEditor.CompileStatus.Overlay.Warning"));
+	
+	FSlateNotificationManager::Get().AddNotification(NotifyInfo);
 }
 
 bool FZipAssetUtility::TryGetDependencies(const TArray<FName>& InAssetPackageNames, TArray<FName>& OutDependencies, FText& OutErrorText, const bool bInShouldValidatePackages)
