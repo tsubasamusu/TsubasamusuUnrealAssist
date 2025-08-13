@@ -13,4 +13,5 @@ private:
 	static TArray<FAssetData> GetDirtyAssetDataList(const TArray<FName>& InAssetPackageNames);
 	static void ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames);
 	static FString GetDesiredDefaultFileName(const TArray<FName>& InSelectedAssetPackageNames);
+	static bool AssetsAreValid(const TArray<FName>& InAssetPackageNames, FText& OutErrorText);
 };

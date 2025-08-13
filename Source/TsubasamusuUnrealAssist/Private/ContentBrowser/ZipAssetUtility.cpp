@@ -79,6 +79,23 @@ void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackag
 	}
 }
 
+bool FZipAssetUtility::AssetsAreValid(const TArray<FName>& InAssetPackageNames, FText& OutErrorText)
+{
+	for (const FName& AssetPackageName : InAssetPackageNames)
+	{
+		FString AssetFileName;
+		FString AssetPackageNameString = AssetPackageName.ToString();
+		
+		if (!FPackageName::DoesPackageExist(AssetPackageNameString, &AssetFileName))
+		{
+			OutErrorText = FText::Format(LOCTEXT("ValidateAssets_Asset_Invalid", "{0} does not exist on disk."), FText::FromString(AssetPackageNameString));
+			return false;
+		}
+	}
+
+	return true;
+}
+
 FString FZipAssetUtility::GetDesiredDefaultFileName(const TArray<FName>& InSelectedAssetPackageNames)
 {
 	if (InSelectedAssetPackageNames.Num() == 1)
