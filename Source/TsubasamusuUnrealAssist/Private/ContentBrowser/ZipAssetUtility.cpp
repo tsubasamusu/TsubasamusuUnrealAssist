@@ -79,6 +79,29 @@ void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackag
 	}
 }
 
+void FZipAssetUtility::RecursiveGetDependencies(const FName& InAssetPackageName, TArray<FName>& OutDependencies)
+{
+	TArray<FName> Dependencies;
+	TArray<FAssetData> AssetDataList;
+	
+	if (!TryGetAssetData(InAssetPackageName.ToString(), AssetDataList, Dependencies))
+	{
+		return;
+	}
+
+	for (const FName& Dependency : Dependencies)
+	{
+		if (IsValidDependency(Dependency.ToString()))
+		{
+			if (!OutDependencies.Contains(Dependency))
+			{
+				OutDependencies.Add(Dependency);
+				RecursiveGetDependencies(Dependency, OutDependencies);
+			}
+		}
+	}
+}
+
 bool FZipAssetUtility::IsValidDependency(const FString& InDependency)
 {
 	TArray<FName> IgnoreDirectoryNames =

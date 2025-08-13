@@ -12,6 +12,7 @@ public:
 private:
 	static TArray<FAssetData> GetDirtyAssetDataList(const TArray<FName>& InAssetPackageNames);
 	static void ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackageNames);
+	static void RecursiveGetDependencies(const FName& InAssetPackageName, TArray<FName>& OutDependencies);
 	static bool IsValidDependency(const FString& InDependency);
 	static bool TryGetAssetData(const FString& InAssetPackageName, TArray<FAssetData>& OutAssetDataList, TArray<FName>& OutDependencies);
 	static bool AssetsAreValid(const TArray<FName>& InAssetPackageNames, FText& OutErrorText);
