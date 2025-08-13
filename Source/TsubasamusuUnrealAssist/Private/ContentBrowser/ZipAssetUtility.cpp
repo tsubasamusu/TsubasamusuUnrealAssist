@@ -79,6 +79,52 @@ void FZipAssetUtility::ExecuteZipAssetAction(TArray<FName> InSelectedAssetPackag
 	}
 }
 
+bool FZipAssetUtility::TryGetAssetData(const FString& InAssetPackageName, TArray<FAssetData>& OutAssetDataList, TArray<FName>& OutDependencies)
+{
+	FString AssetFileName = InAssetPackageName;
+
+	if (!FPackageName::DoesPackageExist(InAssetPackageName, &AssetFileName))
+	{
+		if (FPackageName::IsValidLongPackageName(InAssetPackageName, false))
+		{
+			const UPackage* Package = FindPackage(nullptr, *InAssetPackageName);
+			const FString PackageExtension = Package && Package->ContainsMap() ? FPackageName::GetMapPackageExtension() : FPackageName::GetAssetPackageExtension();
+			AssetFileName = FPackageName::LongPackageNameToFilename(InAssetPackageName, PackageExtension);
+		}
+	}
+
+	const FString AbsoluteAssetFileName = FPaths::ConvertRelativePathToFull(AssetFileName);
+	const EPackageExtension PackageExtension = FPackagePath::ParseExtension(AbsoluteAssetFileName);
+
+	if (PackageExtension == EPackageExtension::Unspecified || PackageExtension == EPackageExtension::Custom)
+	{
+		return false;
+	}
+
+	IAssetRegistry::FLoadPackageRegistryData LoadPackageRegistryData(true);
+
+	const IAssetRegistry& AssetRegistry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry")).Get();
+	AssetRegistry.LoadPackageRegistryData(AbsoluteAssetFileName, LoadPackageRegistryData);
+
+	OutAssetDataList = MoveTemp(LoadPackageRegistryData.Data);
+
+	for (const FName& Dependency : LoadPackageRegistryData.DataDependencies)
+	{
+		if (OutDependencies.Contains(Dependency))
+		{
+			continue;
+		}
+		
+		if (FPackageName::IsValidLongPackageName(Dependency.ToString()))
+		{
+			OutDependencies.Add(Dependency);
+		}
+	}
+
+	OutDependencies.Add(FName(*InAssetPackageName));
+	return !OutAssetDataList.IsEmpty();
+}
+
 bool FZipAssetUtility::AssetsAreValid(const TArray<FName>& InAssetPackageNames, FText& OutErrorText)
 {
 	for (const FName& AssetPackageName : InAssetPackageNames)
