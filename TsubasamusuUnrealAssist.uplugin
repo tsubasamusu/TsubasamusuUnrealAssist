@@ -16,6 +16,12 @@
 	"NoRedist": true,
 	"Installed": false,
 	"EnabledByDefault": false,
+	"Plugins": [
+		{
+			"Name": "ContentBrowserAssetDataSource",
+			"Enabled": true
+		}
+	],
 	"Modules": [
 		{
 			"Name": "TsubasamusuUnrealAssist",
