@@ -11,12 +11,10 @@ class ISettingsModule;
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
 public:
-	
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
 private:
-
 	void RegisterOnPostEngineInitEvent();
 	void UnregisterOnPostEngineInitEvent() const;
 	

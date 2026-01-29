@@ -12,7 +12,6 @@ struct TSUBASAMUSUUNREALASSIST_API FGptResponseChoice
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY()
 	FGptMessage message;
 };
@@ -23,7 +22,6 @@ struct TSUBASAMUSUUNREALASSIST_API FGptResponse
 	GENERATED_BODY()
 
 public:
-	
 	bool IsEmpty() const
 	{
 		if (choices.Num() == 0)
@@ -50,7 +48,6 @@ public:
 	}
 
 private:
-	
 	UPROPERTY()
 	TArray<FGptResponseChoice> choices;
 };
@@ -61,7 +58,6 @@ struct TSUBASAMUSUUNREALASSIST_API FGptError
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY()
 	FString message;
 
@@ -78,7 +74,6 @@ struct TSUBASAMUSUUNREALASSIST_API FGptErrorResponse
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY()
 	FGptError error;
 

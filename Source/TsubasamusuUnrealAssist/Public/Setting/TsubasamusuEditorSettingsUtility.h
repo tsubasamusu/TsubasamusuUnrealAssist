@@ -7,7 +7,6 @@
 class TSUBASAMUSUUNREALASSIST_API FTsubasamusuEditorSettingsUtility final
 {
 public:
-	
 	static void SetupEditorSettingsForTsubasamusu();
 
 	static void SetupLoadingSavingSettings();

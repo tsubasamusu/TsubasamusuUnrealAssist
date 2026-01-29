@@ -28,7 +28,6 @@ class TSUBASAMUSUUNREALASSIST_API SLanguageComboButton final : public SCompoundW
     SLATE_END_ARGS()
 
 public:
-    
     void Construct(const FArguments& InArgs, const TSharedRef<FLocalizedCulturesFlyweight>& InLocalizedCulturesFlyweight);
 
 private:

@@ -11,7 +11,6 @@ struct TSUBASAMUSUUNREALASSIST_API FPinData
     GENERATED_BODY()
 
 public:
-    
     UPROPERTY();
     FString PinName;
 
@@ -40,7 +39,6 @@ struct TSUBASAMUSUUNREALASSIST_API FNodeData
     GENERATED_BODY()
 
 public:
-    
     UPROPERTY()
     FString NodeName;
 
@@ -60,16 +58,8 @@ struct TSUBASAMUSUUNREALASSIST_API FNodeDataList
     GENERATED_BODY()
 
 public:
-    
-    FNodeDataList() : NodeDataList(TArray<FNodeData>())
-    {
-        
-    }
-
-    explicit FNodeDataList(const TArray<FNodeData>& InNodeDataList) : NodeDataList(InNodeDataList)
-    {
-        
-    }
+    FNodeDataList() : NodeDataList(TArray<FNodeData>()){}
+    explicit FNodeDataList(const TArray<FNodeData>& InNodeDataList) : NodeDataList(InNodeDataList){}
     
     UPROPERTY()
     TArray<FNodeData> NodeDataList;

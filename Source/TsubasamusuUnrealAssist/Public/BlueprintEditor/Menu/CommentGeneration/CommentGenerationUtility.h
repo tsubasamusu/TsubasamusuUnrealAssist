@@ -11,11 +11,9 @@ class UEdGraphNode_Comment;
 class TSUBASAMUSUUNREALASSIST_API FCommentGenerationUtility final
 {
 public:
-	
 	static void AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 
 private:
-
 	static void UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 	static void GenerateComment(const FString& NodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& OnGeneratedComment);
 

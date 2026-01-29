@@ -14,7 +14,6 @@ class TSUBASAMUSUUNREALASSIST_API UAsyncActionReplaceReferences : public UEditor
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY(BlueprintAssignable)
 	FOnCompletedReplaceReferences Completed;
 
@@ -24,7 +23,6 @@ public:
 	virtual void Activate() override;
 
 private:
-	
 	UPROPERTY()
 	TSoftObjectPtr<UObject> SourceAsset;
 

@@ -7,6 +7,5 @@
 class TSUBASAMUSUUNREALASSIST_API FCopyNodeInformationUtility final
 {
 public:
-	
 	static void AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder);
 };

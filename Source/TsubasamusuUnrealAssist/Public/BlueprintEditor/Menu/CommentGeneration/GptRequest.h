@@ -11,7 +11,6 @@ struct TSUBASAMUSUUNREALASSIST_API FGptMessage
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY()
 	FString role;
 
@@ -25,7 +24,6 @@ struct TSUBASAMUSUUNREALASSIST_API FGptRequest
 	GENERATED_BODY()
 
 public:
-	
 	UPROPERTY()
 	FString model;
 

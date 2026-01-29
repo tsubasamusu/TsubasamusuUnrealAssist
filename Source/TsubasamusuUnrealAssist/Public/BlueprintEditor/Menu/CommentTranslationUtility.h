@@ -9,11 +9,9 @@ class UEdGraphNode_Comment;
 class TSUBASAMUSUUNREALASSIST_API FCommentTranslationUtility final
 {
 public:
-	
 	static void AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 
 private:
-
 	static void AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 	static TArray<FString> GetEditorLanguages();
 	
