@@ -7,7 +7,6 @@
 
 class IAssetTypeActions;
 class ISettingsModule;
-class FTsubasamusuNodeFactory;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
@@ -21,19 +20,12 @@ private:
 	void RegisterOnPostEngineInitEvent();
 	void UnregisterOnPostEngineInitEvent() const;
 	
-	void RegisterTsubasamusuNodeFactory();
-	void UnregisterTsubasamusuNodeFactory();
-
 	void RegisterSettings() const;
 	void UnregisterSettings() const;
-
-	void RegisterAssetTypeActions();
-	void UnregisterAssetTypeActions();
 
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
-	TSharedPtr<FTsubasamusuNodeFactory> TsubasamusuNodeFactoryPtr;
 	TArray<TSharedPtr<IAssetTypeActions>> CreatedAssetTypeActions;
 	FDelegateHandle OnPostEngineInitHandle;
 	
