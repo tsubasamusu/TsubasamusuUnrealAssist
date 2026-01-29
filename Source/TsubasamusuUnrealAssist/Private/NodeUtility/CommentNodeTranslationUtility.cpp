@@ -1,8 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/Menu/CommentTranslationUtility.h"
+#include "NodeUtility/CommentTranslationUtility.h"
 #include "EdGraphNode_Comment.h"
-#include "Debug/TsubasamusuLogUtility.h"
+#include "TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"

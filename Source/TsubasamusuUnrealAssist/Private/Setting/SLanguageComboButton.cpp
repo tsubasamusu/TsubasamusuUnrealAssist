@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "Widget/SLanguageComboButton.h"
+#include "Setting/SLanguageComboButton.h"
 #include "Internationalization/Culture.h"
 #include "SCulturePicker.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"

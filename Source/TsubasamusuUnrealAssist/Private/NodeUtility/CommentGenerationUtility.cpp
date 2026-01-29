@@ -1,12 +1,11 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/Menu/CommentGeneration/CommentGenerationUtility.h"
+#include "NodeUtility/CommentGenerationUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "HttpModule.h"
 #include "JsonObjectConverter.h"
-#include "BlueprintEditor/Menu/NodeInformation/NodeInformationUtility.h"
-#include "BlueprintEditor/Menu/CommentGeneration/GptResponse.h"
-#include "Debug/TsubasamusuLogUtility.h"
+#include "NodeUtility/NodeInformationUtility.h"
+#include "TsubasamusuLogUtility.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Internationalization/Culture.h"

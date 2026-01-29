@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include  "BlueprintEditor/GraphNodeUtility.h"
+#include  "NodeUtility/GraphNodeUtility.h"
 
 TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {

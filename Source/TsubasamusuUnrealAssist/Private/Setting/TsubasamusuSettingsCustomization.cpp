@@ -3,7 +3,7 @@
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
-#include "Widget/SLanguageComboButton.h"
+#include "Setting/SLanguageComboButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SEditableTextBox.h"

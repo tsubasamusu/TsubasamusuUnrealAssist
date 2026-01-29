@@ -1,8 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/Menu/CopyNodeInformationUtility.h"
-#include  "BlueprintEditor/GraphNodeUtility.h"
-#include "BlueprintEditor/Menu/NodeInformation/NodeInformationUtility.h"
+#include "NodeUtility/CopyNodeInformationUtility.h"
+#include  "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "FCopyNodeInformationUtility"

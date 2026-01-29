@@ -1,9 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "BlueprintEditor/Menu/NodeInformation/NodeInformationUtility.h"
+#include "NodeUtility/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "JsonObjectConverter.h"
-#include "BlueprintEditor/Menu/NodeInformation/NodeData.h"
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
 {
