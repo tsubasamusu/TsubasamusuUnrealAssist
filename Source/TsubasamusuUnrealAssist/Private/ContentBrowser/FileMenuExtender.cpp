@@ -10,7 +10,7 @@
 
 void FFileMenuExtender::RegisterFileMenu()
 {
-	UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&AddFileMenu));
+	//UToolMenus::RegisterStartupCallback(FSimpleMulticastDelegate::FDelegate::CreateStatic(&AddFileMenu));
 }
 
 void FFileMenuExtender::AddFileMenu()
