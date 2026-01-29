@@ -13,7 +13,9 @@
 	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": true,
+	"NoRedist": true,
 	"Installed": false,
+	"EnabledByDefault": false,
 	"Modules": [
 		{
 			"Name": "TsubasamusuUnrealAssist",
