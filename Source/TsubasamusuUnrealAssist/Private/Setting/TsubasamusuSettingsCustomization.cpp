@@ -1,4 +1,4 @@
-// Copyright (c) 2025, tsubasamusu All rights reserved.
+// Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "DetailLayoutBuilder.h"
