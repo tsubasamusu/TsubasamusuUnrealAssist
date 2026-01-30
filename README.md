@@ -1,10 +1,10 @@
 # Tsubasamusu Unreal Assist (Experimental)
 ## Overview
-An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. This plugin is in beta, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist".
+An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. This plugin is in experimental, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist".
 
-## Engine Versions
+## Available Engine Versions
 The following engine versions have been confirmed to work with this plugin.
-- 5.6.0 (Launcher)
+- 5.7
 
 # Features
 ## Right Click Menu in Blueprint Graph
