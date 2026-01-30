@@ -40,7 +40,7 @@ void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraph
 	{
 		const FString ErrorMessage = TEXT("Failed to get a node data list as JSON string.");
 		
-		FTsubasamusuLogUtility::LogError(ErrorMessage);
+		TUA_ERROR(TEXT("%s"), *ErrorMessage);
 		InCommentNode->OnUpdateCommentText(ErrorMessage);
 		
 		return;
@@ -59,7 +59,7 @@ void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraph
 
 		if (!bSucceeded)
 		{
-			FTsubasamusuLogUtility::LogError(Message);
+			TUA_ERROR(TEXT("%s"), *Message);
 		}
 	});
 }

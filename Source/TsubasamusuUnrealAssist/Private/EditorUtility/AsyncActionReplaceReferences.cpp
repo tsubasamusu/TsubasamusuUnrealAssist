@@ -8,7 +8,7 @@ UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceRefere
 {
     if (!IsValid(WorldContextObject))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("WorldContextObject is invalid."));
+        TUA_ERROR(TEXT("WorldContextObject is invalid."));
         
         return nullptr;
     }
@@ -30,7 +30,7 @@ void UAsyncActionReplaceReferences::Activate()
 
     if (!IsValid(LoadedSourceAsset) || !IsValid(LoadedDestinationAsset))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Failed to load assets."));
+        TUA_ERROR(TEXT("Failed to load assets."));
         
         OnCompleted(false);
 

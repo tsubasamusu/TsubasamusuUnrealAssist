@@ -10,14 +10,14 @@ UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const 
 {
     if (!IsValid(InMaterialInstanceDynamic))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("UMaterialInstanceDynamic is not valid."));
+        TUA_ERROR(TEXT("UMaterialInstanceDynamic is not valid."));
 
         return nullptr;
     }
 
     if (!InAssetDirectory.StartsWith(TEXT("/Game/")))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Asset directory does not start with \"/Game/\"."));
+        TUA_ERROR(TEXT("Asset directory does not start with \"/Game/\"."));
 
         return nullptr;
     }
@@ -34,7 +34,7 @@ UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const 
 
     if (!IsValid(Package))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Failed to create UPackage."));
+        TUA_ERROR(TEXT("Failed to create UPackage."));
 
         return nullptr;
     }
@@ -43,7 +43,7 @@ UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const 
 
     if (!IsValid(MaterialInstanceConstant))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Failed to create UMaterialInstanceConstant."));
+        TUA_ERROR(TEXT("Failed to create UMaterialInstanceConstant."));
 
         return nullptr;
     }
@@ -61,7 +61,7 @@ UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const 
 
     if (!SavePackage(Package, MaterialInstanceConstant, FileName))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Failed to save package."));
+        TUA_ERROR(TEXT("Failed to save package."));
 
         return nullptr;
     }

@@ -106,14 +106,14 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
     {
         if (!bSucceeded)
         {
-            FTsubasamusuLogUtility::LogError(TEXT("Failed to send a HTTP request."));
+            TUA_ERROR(TEXT("Failed to send a HTTP request."));
 
             return;
         }
 
         if (!HttpResponse.IsValid())
         {
-            FTsubasamusuLogUtility::LogError(TEXT("Failed to get a HTTP response."));
+            TUA_ERROR(TEXT("Failed to get a HTTP response."));
 
             return;
         }
@@ -125,7 +125,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
         {
-            FTsubasamusuLogUtility::LogError(TEXT("Failed to deserialize the HTTP response \"") + JsonResponse + TEXT("\"."));
+            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s\"."), *JsonResponse);
 
             return;
         }
@@ -134,7 +134,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!JsonObject->TryGetArrayField(TEXT("translations"), Translations) || Translations->Num() == 0)
         {
-            FTsubasamusuLogUtility::LogError(TEXT("Failed to get translations from the HTTP response \"") + JsonResponse + TEXT("\"."));
+            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s\"."), *JsonResponse);
 
             return;
         }
@@ -145,7 +145,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText))
         {
-            FTsubasamusuLogUtility::LogError(TEXT("Failed to get a translated text from the HTTP response \"") + JsonResponse + TEXT("\"."));
+            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s\"."), *JsonResponse);
 
             return;
         }
@@ -169,7 +169,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
     
     if (!HttpRequest->ProcessRequest())
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Failed to process a HTTP request."));
+        TUA_ERROR(TEXT("Failed to process a HTTP request."));
     }
 }
 
