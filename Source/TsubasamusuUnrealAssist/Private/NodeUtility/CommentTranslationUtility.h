@@ -6,7 +6,7 @@
 
 class UEdGraphNode_Comment;
 
-class TSUBASAMUSUUNREALASSIST_API FCommentTranslationUtility final
+class FCommentTranslationUtility final
 {
 public:
 	static void AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);

@@ -7,7 +7,7 @@
 
 class IDetailLayoutBuilder;
 
-class TSUBASAMUSUUNREALASSIST_API FTsubasamusuSettingsCustomization final : public IDetailCustomization
+class FTsubasamusuSettingsCustomization final : public IDetailCustomization
 {
 public:
 	static TSharedRef<IDetailCustomization> Create();

@@ -6,7 +6,7 @@
 
 class UK2Node_MakeArray;
 
-class TSUBASAMUSUUNREALASSIST_API FCreateArrayNodeUtility final
+class FCreateArrayNodeUtility final
 {
 public:
 	static void AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType);

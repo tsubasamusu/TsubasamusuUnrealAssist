@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class TSUBASAMUSUUNREALASSIST_API FTsubasamusuEditorSettingsUtility final
+class FTsubasamusuEditorSettingsUtility final
 {
 public:
 	static void SetupEditorSettingsForTsubasamusu();

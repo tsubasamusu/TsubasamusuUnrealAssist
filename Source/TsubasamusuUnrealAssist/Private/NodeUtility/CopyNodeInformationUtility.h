@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class TSUBASAMUSUUNREALASSIST_API FCopyNodeInformationUtility final
+class FCopyNodeInformationUtility final
 {
 public:
 	static void AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder);

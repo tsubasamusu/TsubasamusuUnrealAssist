@@ -6,7 +6,7 @@
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
 UCLASS(config = EditorPerProjectUserSettings)
-class TSUBASAMUSUUNREALASSIST_API UTsubasamusuUnrealAssistSettings final : public UObject
+class UTsubasamusuUnrealAssistSettings final : public UObject
 {
 	GENERATED_BODY()
 

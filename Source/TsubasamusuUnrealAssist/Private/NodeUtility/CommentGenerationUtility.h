@@ -10,7 +10,7 @@ struct FPinData;
 class UEdGraphNode_Comment;
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FGptMessage
+struct FGptMessage
 {
 	GENERATED_BODY()
 
@@ -23,7 +23,7 @@ public:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FGptRequest
+struct FGptRequest
 {
 	GENERATED_BODY()
 
@@ -36,7 +36,7 @@ public:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FGptResponseChoice
+struct FGptResponseChoice
 {
 	GENERATED_BODY()
 
@@ -46,7 +46,7 @@ public:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FGptResponse
+struct FGptResponse
 {
 	GENERATED_BODY()
 
@@ -82,7 +82,7 @@ private:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FGptError
+struct FGptError
 {
 	GENERATED_BODY()
 
@@ -98,7 +98,7 @@ public:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FGptErrorResponse
+struct FGptErrorResponse
 {
 	GENERATED_BODY()
 
@@ -112,7 +112,7 @@ public:
 	}
 };
 
-class TSUBASAMUSUUNREALASSIST_API FCommentGenerationUtility final
+class FCommentGenerationUtility final
 {
 public:
 	static void AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);

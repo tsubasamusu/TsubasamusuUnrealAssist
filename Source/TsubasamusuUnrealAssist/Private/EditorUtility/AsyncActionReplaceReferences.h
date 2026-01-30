@@ -9,7 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCompletedReplaceReferences, const bool, bSucceeded);
 
 UCLASS()
-class TSUBASAMUSUUNREALASSIST_API UAsyncActionReplaceReferences final : public UEditorUtilityBlueprintAsyncActionBase
+class UAsyncActionReplaceReferences final : public UEditorUtilityBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
 

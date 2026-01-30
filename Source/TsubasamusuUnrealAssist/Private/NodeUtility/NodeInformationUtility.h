@@ -6,7 +6,7 @@
 #include "NodeInformationUtility.generated.h"
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FPinData
+struct FPinData
 {
 	GENERATED_BODY()
 
@@ -34,7 +34,7 @@ public:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FNodeData
+struct FNodeData
 {
 	GENERATED_BODY()
 
@@ -53,7 +53,7 @@ public:
 };
 
 USTRUCT()
-struct TSUBASAMUSUUNREALASSIST_API FNodeDataList
+struct FNodeDataList
 {
 	GENERATED_BODY()
 
@@ -65,7 +65,7 @@ public:
 	TArray<FNodeData> NodeDataList;
 };
 
-class TSUBASAMUSUUNREALASSIST_API FNodeInformationUtility final
+class FNodeInformationUtility final
 {
 public:
 	static bool TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes);

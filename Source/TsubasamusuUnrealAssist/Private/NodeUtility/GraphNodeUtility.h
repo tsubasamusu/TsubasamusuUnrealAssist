@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class TSUBASAMUSUUNREALASSIST_API FGraphNodeUtility final
+class FGraphNodeUtility final
 {
 public:
 	static TArray<UEdGraphNode*> GetSelectedNodes(const UEdGraph* InGraph);

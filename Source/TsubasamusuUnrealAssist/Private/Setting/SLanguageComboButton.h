@@ -8,7 +8,7 @@
 class SComboButton;
 class SWidget;
 
-struct TSUBASAMUSUUNREALASSIST_API FLocalizedCulturesFlyweight
+struct FLocalizedCulturesFlyweight
 {
     TArray<FCultureRef> LocalizedCultures;
 
@@ -22,7 +22,7 @@ struct TSUBASAMUSUUNREALASSIST_API FLocalizedCulturesFlyweight
     }
 };
 
-class TSUBASAMUSUUNREALASSIST_API SLanguageComboButton final : public SCompoundWidget
+class SLanguageComboButton final : public SCompoundWidget
 {
     SLATE_BEGIN_ARGS(SLanguageComboButton) {}
     SLATE_END_ARGS()
