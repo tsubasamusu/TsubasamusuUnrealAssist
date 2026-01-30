@@ -27,7 +27,7 @@ public:
 	FString DefaultValue;
 
 	UPROPERTY()
-	bool bThisPinUsesDefaultValue;
+	bool bThisPinUsesDefaultValue = false;
 
 	UPROPERTY()
 	TArray<FString> ConnectedPinIds;
@@ -46,7 +46,7 @@ public:
 	FString Comment;
 
 	UPROPERTY()
-	bool bIsCommentNode;
+	bool bIsCommentNode = false;
 
 	UPROPERTY()
 	TArray<FPinData> PinDataList;
