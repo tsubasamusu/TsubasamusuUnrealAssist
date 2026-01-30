@@ -7,7 +7,7 @@
 #include "TsubasamusuEditorUtility.generated.h"
 
 UCLASS()
-class TSUBASAMUSUUNREALASSIST_API UTsubasamusuEditorUtility : public UEditorUtilityLibrary
+class TSUBASAMUSUUNREALASSIST_API UTsubasamusuEditorUtility final : public UEditorUtilityLibrary
 {
 	GENERATED_BODY()
 
