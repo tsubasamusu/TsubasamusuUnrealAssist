@@ -1,33 +1,12 @@
-// Copyright (c) 2025, tsubasamusu All rights reserved.
+// Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Culture.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	// General
-	CommentNodeType = ECommentNodeType::Normal;
-
-	// Node Suggestion
-	bEnableNodeSuggestion = false;
-
 	// Comment Translation
 	DeeplApiKey = TEXT("");
-
-	// Gaming Comment Node
-	GamingColorAnimationDuration = 1.0f;
-	GamingScaleAnimationDuration = 1.0f;
-	GamingCommentNodeRotatingAnglePerSeconds = 720.0f;
-	MaxGamingCommentNodeScale = 1.5f;
-
-	// PONG Comment Node
-	PongCommentNodeColor = FLinearColor::Black;
-	PongUiColor = FLinearColor::White;
-	PongBallImageSize = FVector2D(30.0f, 30.0f);
-	PongSliderLengthMultiplier = 0.3f;
-	PongBallSpeed = 100.0f;
-	PongIntervalSeconds = 1.0f;
-	bMakeLeftScrollBarNPC = false;
 
 	// Comment Generation
 	OpenAiApiKey = TEXT("");
@@ -40,12 +19,14 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetGptLanguageCulture() const
 {
-	return FInternationalization::Get().GetCulture(GptLanguageCultureName);
+	const FCulturePtr GptLanguageCulture = FInternationalization::Get().GetCulture(GptLanguageCultureName);
+	checkf(GptLanguageCulture.IsValid(), TEXT("GPT language culture name \"%s\" is invalid."), *GptLanguageCultureName);
+	return GptLanguageCulture;
 }
 
-void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& InGptLanguageCulture)
+void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture)
 {
-	GptLanguageCultureName = InGptLanguageCulture->GetName();
+	GptLanguageCultureName = NewGptLanguageCulture->GetName();
 	SaveConfig();
 }
 

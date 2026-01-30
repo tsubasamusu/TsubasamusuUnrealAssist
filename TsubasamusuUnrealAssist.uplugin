@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.6.0",
+	"VersionName": "0.6.1",
 	"FriendlyName": "TsubasamusuUnrealAssist",
 	"Description": "",
 	"Category": "TSUBASAMUSU",
@@ -11,9 +11,17 @@
 	"MarketplaceURL": "",
 	"SupportURL": "https://tsubasamusu.com",
 	"CanContainContent": false,
-	"IsBetaVersion": true,
-	"IsExperimentalVersion": false,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": true,
+	"NoRedist": true,
 	"Installed": false,
+	"EnabledByDefault": false,
+	"Plugins": [
+		{
+			"Name": "ContentBrowserAssetDataSource",
+			"Enabled": true
+		}
+	],
 	"Modules": [
 		{
 			"Name": "TsubasamusuUnrealAssist",

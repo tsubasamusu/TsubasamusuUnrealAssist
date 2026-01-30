@@ -1,11 +1,8 @@
-// Copyright (c) 2025, tsubasamusu All rights reserved.
+// Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
-#include "AssetToolsModule.h"
-#include "BlueprintEditor/AssetTypeActions_TsubasamusuBlueprint.h"
 #include "ISettingsModule.h"
-#include "BlueprintEditor/Menu/SelectedNodeMenuExtender.h"
-#include "BlueprintEditor/TsubasamusuNodeFactory.h"
+#include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
@@ -18,7 +15,6 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 	RegisterSettings();
 	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
-	RegisterAssetTypeActions();
 #endif
 }
 
@@ -26,8 +22,6 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 #if TUA_IS_ENABLED
 	UnregisterOnPostEngineInitEvent();
-	UnregisterTsubasamusuNodeFactory();
-	UnregisterAssetTypeActions();
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
 #endif
@@ -37,7 +31,6 @@ void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
 {
 	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
 	{
-		RegisterTsubasamusuNodeFactory();
 		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
 	});
 }
@@ -48,20 +41,6 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
 	{
 		FCoreDelegates::OnPostEngineInit.Remove(OnPostEngineInitHandle);
 	}
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterTsubasamusuNodeFactory()
-{
-	TsubasamusuNodeFactoryPtr = MakeShared<FTsubasamusuNodeFactory>();
-
-	FEdGraphUtilities::RegisterVisualNodeFactory(TsubasamusuNodeFactoryPtr);
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterTsubasamusuNodeFactory()
-{
-	FEdGraphUtilities::UnregisterVisualNodeFactory(TsubasamusuNodeFactoryPtr);
-
-	TsubasamusuNodeFactoryPtr.Reset();
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterSettings() const
@@ -77,34 +56,6 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 {
 	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
 	SettingsModule.UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterAssetTypeActions()
-{
-	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	const TSharedRef<IAssetTypeActions> AssetTypeActions = MakeShared<FAssetTypeActions_TsubasamusuBlueprint>();
-	AssetTools.RegisterAssetTypeActions(AssetTypeActions);
-	CreatedAssetTypeActions.Add(AssetTypeActions);
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterAssetTypeActions()
-{
-	if (!FModuleManager::Get().IsModuleLoaded("AssetTools"))
-	{
-		return;
-	}
-	
-	IAssetTools& AssetToolsModule = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
-	
-	for (const TSharedPtr<IAssetTypeActions> CreatedAssetTypeAction : CreatedAssetTypeActions)
-	{
-		if (CreatedAssetTypeAction.IsValid())
-		{
-			AssetToolsModule.UnregisterAssetTypeActions(CreatedAssetTypeAction.ToSharedRef());
-		}
-	}
-	
-	CreatedAssetTypeActions.Empty();
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()

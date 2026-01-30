@@ -1,14 +1,14 @@
-// Copyright (c) 2025, tsubasamusu All rights reserved.
+// Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "EditorUtility/AsyncActionReplaceReferences.h"
 #include "AssetDeleteModel.h"
-#include "Debug/TsubasamusuLogUtility.h"
+#include "TsubasamusuLogUtility.h"
 
 UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> From, TSoftObjectPtr<UObject> To)
 {
     if (!IsValid(WorldContextObject))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("WorldContextObject is invalid."));
+        TUA_ERROR(TEXT("WorldContextObject is invalid."));
         
         return nullptr;
     }
@@ -30,7 +30,7 @@ void UAsyncActionReplaceReferences::Activate()
 
     if (!IsValid(LoadedSourceAsset) || !IsValid(LoadedDestinationAsset))
     {
-        FTsubasamusuLogUtility::LogError(TEXT("Failed to load assets."));
+        TUA_ERROR(TEXT("Failed to load assets."));
         
         OnCompleted(false);
 
