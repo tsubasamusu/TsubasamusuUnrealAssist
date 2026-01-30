@@ -19,12 +19,14 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetGptLanguageCulture() const
 {
-	return FInternationalization::Get().GetCulture(GptLanguageCultureName);
+	const FCulturePtr GptLanguageCulture = FInternationalization::Get().GetCulture(GptLanguageCultureName);
+	checkf(GptLanguageCulture.IsValid(), TEXT("GPT language culture name \"%s\" is invalid."), *GptLanguageCultureName);
+	return GptLanguageCulture;
 }
 
-void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& InGptLanguageCulture)
+void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture)
 {
-	GptLanguageCultureName = InGptLanguageCulture->GetName();
+	GptLanguageCultureName = NewGptLanguageCulture->GetName();
 	SaveConfig();
 }
 
