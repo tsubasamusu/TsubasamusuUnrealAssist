@@ -236,7 +236,7 @@ FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListS
 TArray<UEdGraphNode*> FCommentGenerationUtility::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
 	//TODO: コメントノード内のノードの更新
-	//「HandleSelection(true, true)」を「SGraphNodeComment::OnMouseButtonUp()」経由で間接的に呼び出すか？
+	// HandleSelection(true, true) を SGraphNodeComment::OnMouseButtonUp() 経由で間接的に呼び出すか？
 
 	TArray<UEdGraphNode*> NodesUnderComment;
 
@@ -274,7 +274,14 @@ bool FCommentGenerationUtility::TryGetNodeDataListStringUnderComment(FString& Ou
 	{
 		return false;
 	}
-
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
+	{
+		return FNodeInformationUtility::TryGetNodeDataListToonString(OutNodeDataListString, ActiveNodesUnderComment);
+	}
+	
 	return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
 }
 

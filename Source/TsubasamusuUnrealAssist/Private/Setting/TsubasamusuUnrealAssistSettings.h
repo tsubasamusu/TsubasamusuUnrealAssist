@@ -39,6 +39,10 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Ignore Comment Nodes"))
 	bool bIgnoreCommentNodesWhenGeneratingComments;
 	
+	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Use TOON Format"))
+	bool bUseToonFormatForCommentGeneration;
+	
 	/* Conditions that AI must adhere to when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
 	TArray<FString> CommentGenerationConditions;

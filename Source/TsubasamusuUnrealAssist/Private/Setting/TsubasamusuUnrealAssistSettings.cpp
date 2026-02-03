@@ -14,6 +14,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	GptLanguageCultureName = FInternationalization::Get().GetCurrentLanguage()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
+	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
 }
 

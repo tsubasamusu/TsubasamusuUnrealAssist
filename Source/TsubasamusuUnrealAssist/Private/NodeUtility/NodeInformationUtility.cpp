@@ -2,6 +2,7 @@
 
 #include "NodeUtility/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
+#include "GraphNodeUtility.h"
 #include "JsonObjectConverter.h"
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
@@ -12,21 +13,15 @@ bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListS
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
 {
-	TArray<UEdGraphNode*> Nodes;
-	
-	for (TWeakObjectPtr<UEdGraphNode> WeakNode : InWeakNodes)
-	{
-		Nodes.Add(WeakNode.Get());
-	}
-	
-	return TryGetNodeDataListString(OutNodeDataListString, Nodes);
+	const TArray<UEdGraphNode*> HardNodes = FGraphNodeUtility::ConvertToHardNodes(InWeakNodes);
+	return TryGetNodeDataListString(OutNodeDataListString, HardNodes);
 }
 
-bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
 {
 	// まず JSON を取得
 	FString JsonString;
-	if (!TryGetNodeDataListString(JsonString, InWeakNodes))
+	if (!TryGetNodeDataListString(JsonString, InNodes))
 	{
 		return false;
 	}
@@ -127,6 +122,12 @@ bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataL
 
 	OutNodeDataListString = ToonOutput;
 	return true;
+}
+
+bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+{
+	const TArray<UEdGraphNode*> HardNodes = FGraphNodeUtility::ConvertToHardNodes(InWeakNodes);
+	return TryGetNodeDataListToonString(OutNodeDataListString, HardNodes);
 }
 
 FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)
