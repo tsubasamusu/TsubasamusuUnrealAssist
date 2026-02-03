@@ -5,6 +5,7 @@
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "Internationalization/Internationalization.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 #define TUA_IS_ENABLED (!IS_MONOLITHIC && !UE_BUILD_SHIPPING && !UE_BUILD_TEST && !UE_GAME && !UE_SERVER)
@@ -22,6 +23,7 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 #if TUA_IS_ENABLED
 	UnregisterOnPostEngineInitEvent();
+	UnregisterOnEditorLanguageChangedEvent();
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
 #endif
@@ -32,6 +34,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
 	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
 	{
 		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
+		RegisterOnEditorLanguageChangedEvent();
 	});
 }
 
@@ -56,6 +59,24 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 {
 	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
 	SettingsModule.UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
+{
+	OnEditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([]()
+	{
+		UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
+		
+		if (Settings->bUseEditorLanguageForCommentGeneration)
+		{
+			Settings->MakeGptLanguageSameAsEditorLanguage();
+		}
+	});
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent()
+{
+	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()

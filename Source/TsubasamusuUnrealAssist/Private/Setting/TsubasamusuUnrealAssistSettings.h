@@ -57,5 +57,9 @@ public:
 	void SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture);
 	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
+	
+	void MakeGptLanguageSameAsEditorLanguage();
+	
+private:
 	static FCultureRef GetEditorLanguageCulture();
 };

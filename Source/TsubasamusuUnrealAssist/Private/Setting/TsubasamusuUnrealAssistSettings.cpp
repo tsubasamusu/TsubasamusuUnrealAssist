@@ -30,8 +30,7 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	{
 		if (bUseEditorLanguageForCommentGeneration)
 		{
-			const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
-			SetGptLanguageCulture(EditorLanguageCulture);
+			MakeGptLanguageSameAsEditorLanguage();
 		}
 	}
 }
@@ -54,6 +53,12 @@ UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsC
 	UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
 	check(Settings);
 	return Settings;
+}
+
+void UTsubasamusuUnrealAssistSettings::MakeGptLanguageSameAsEditorLanguage()
+{
+	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
+	SetGptLanguageCulture(EditorLanguageCulture);
 }
 
 FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()

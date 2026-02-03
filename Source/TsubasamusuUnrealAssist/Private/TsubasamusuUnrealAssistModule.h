@@ -21,11 +21,15 @@ private:
 	void RegisterSettings() const;
 	void UnregisterSettings() const;
 
+	void RegisterOnEditorLanguageChangedEvent();
+	void UnregisterOnEditorLanguageChangedEvent();
+	
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
 	TArray<TSharedPtr<IAssetTypeActions>> CreatedAssetTypeActions;
 	FDelegateHandle OnPostEngineInitHandle;
+	FDelegateHandle OnEditorLanguageChangedHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");
