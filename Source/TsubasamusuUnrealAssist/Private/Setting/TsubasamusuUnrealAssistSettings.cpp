@@ -2,6 +2,7 @@
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Culture.h"
+#include "Internationalization/Internationalization.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -12,11 +13,27 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4o-mini");
 	bUseEditorLanguageForCommentGeneration = true;
-	LanguageCultureNameForCommentGeneration = FInternationalization::Get().GetCurrentLanguage()->GetName();
+	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
 	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
+}
+
+void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration))
+	{
+		if (bUseEditorLanguageForCommentGeneration)
+		{
+			const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
+			SetGptLanguageCulture(EditorLanguageCulture);
+		}
+	}
 }
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetGptLanguageCulture() const
@@ -37,4 +54,9 @@ UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsC
 	UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
 	check(Settings);
 	return Settings;
+}
+
+FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()
+{
+	return FInternationalization::Get().GetCurrentLanguage();
 }

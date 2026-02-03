@@ -12,6 +12,7 @@ class UTsubasamusuUnrealAssistSettings final : public UObject
 
 public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 #pragma region Comment Translation
 	/* The DeepL API key used to translate comments. */
@@ -56,4 +57,5 @@ public:
 	void SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture);
 	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
+	static FCultureRef GetEditorLanguageCulture();
 };
