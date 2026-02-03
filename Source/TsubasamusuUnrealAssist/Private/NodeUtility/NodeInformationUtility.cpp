@@ -10,6 +10,18 @@ bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListS
 	return FJsonObjectConverter::UStructToJsonObjectString(NodeDataList, OutNodeDataListString, 0, 0);
 }
 
+bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+{
+	TArray<UEdGraphNode*> Nodes;
+	
+	for (TWeakObjectPtr<UEdGraphNode> WeakNode : InWeakNodes)
+	{
+		Nodes.Add(WeakNode.Get());
+	}
+	
+	return TryGetNodeDataListString(OutNodeDataListString, Nodes);
+}
+
 FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)
 {
 	TArray<FNodeData> NodesDataList;
