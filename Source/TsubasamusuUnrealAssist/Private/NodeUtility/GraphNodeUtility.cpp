@@ -38,14 +38,7 @@ TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGrap
 TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::GetSelectedWeakNodes(const UEdGraph* InGraph)
 {
 	TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
-	TArray<TWeakObjectPtr<UEdGraphNode>> SelectedWeakNodes;
-	
-	for (UEdGraphNode* SelectedNode : SelectedNodes)
-	{
-		SelectedWeakNodes.Add(SelectedNode);
-	}
-	
-	return SelectedWeakNodes;
+	return ConvertToWeakNodes(SelectedNodes);
 }
 
 bool FGraphNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
@@ -215,13 +208,22 @@ TArray<UEdGraphNode*> FGraphNodeUtility::ConvertToHardNodes(const TArray<TWeakOb
 
 	for (const TWeakObjectPtr<UEdGraphNode> WeakNode : InWeakNodes)
 	{
-		if (WeakNode.IsValid())
-		{
-			Nodes.Add(WeakNode.Get());
-		}
+		Nodes.Add(WeakNode.Get());
 	}
 
 	return Nodes;
+}
+
+TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::ConvertToWeakNodes(const TArray<UEdGraphNode*>& InHardNodes)
+{
+	TArray<TWeakObjectPtr<UEdGraphNode>> WeakNodes;
+	
+	for (UEdGraphNode* HardNode : InHardNodes)
+	{
+		WeakNodes.Add(HardNode);
+	}
+	
+	return WeakNodes;
 }
 
 void FGraphNodeUtility::RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes)

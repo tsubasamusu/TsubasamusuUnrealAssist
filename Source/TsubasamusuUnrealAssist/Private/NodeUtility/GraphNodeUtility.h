@@ -22,5 +22,7 @@ public:
 	static FIntPoint GetPinPosition(const UEdGraphPin* InPin);
 
 	static TArray<UEdGraphNode*> ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes);
+	static TArray<TWeakObjectPtr<UEdGraphNode>> ConvertToWeakNodes(const TArray<UEdGraphNode*>& InHardNodes);
+	
 	static void RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes);
 };
