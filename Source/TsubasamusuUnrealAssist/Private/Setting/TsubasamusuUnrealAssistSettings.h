@@ -28,8 +28,12 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "GPT Model Name"))
 	FString GptModelName;
 
+	/* Whether to match the language of generated comments to the editor language. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Use Editor Language"))
+	bool bUseEditorLanguageForCommentGeneration;
+
 	UPROPERTY(config)
-	FString GptLanguageCultureName;
+	FString LanguageCultureNameForCommentGeneration;
 	
 	/* Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to them when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Ignore Nodes Do Not Have Connected Pins"))

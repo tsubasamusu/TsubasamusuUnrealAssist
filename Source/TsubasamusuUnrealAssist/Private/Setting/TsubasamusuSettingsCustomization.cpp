@@ -10,6 +10,7 @@
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
+#include "TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -95,6 +96,11 @@ void FTsubasamusuSettingsCustomization::AddGptLanguageProperty(IDetailLayoutBuil
     .ValueContent()
     [
         SNew(SLanguageComboButton, LocalizedCulturesFlyweight)
+        .IsEnabled_Lambda([]()
+        {
+	        const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+            return !TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration;
+        })
     ];
 }
 

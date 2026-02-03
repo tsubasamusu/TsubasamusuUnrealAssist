@@ -11,7 +11,8 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	// Comment Generation
 	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4o-mini");
-	GptLanguageCultureName = FInternationalization::Get().GetCurrentLanguage()->GetName();
+	bUseEditorLanguageForCommentGeneration = true;
+	LanguageCultureNameForCommentGeneration = FInternationalization::Get().GetCurrentLanguage()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
 	bUseToonFormatForCommentGeneration = true;
@@ -20,14 +21,14 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetGptLanguageCulture() const
 {
-	const FCulturePtr GptLanguageCulture = FInternationalization::Get().GetCulture(GptLanguageCultureName);
-	checkf(GptLanguageCulture.IsValid(), TEXT("GPT language culture name \"%s\" is invalid."), *GptLanguageCultureName);
+	const FCulturePtr GptLanguageCulture = FInternationalization::Get().GetCulture(LanguageCultureNameForCommentGeneration);
+	checkf(GptLanguageCulture.IsValid(), TEXT("GPT language culture name \"%s\" is invalid."), *LanguageCultureNameForCommentGeneration);
 	return GptLanguageCulture;
 }
 
 void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture)
 {
-	GptLanguageCultureName = NewGptLanguageCulture->GetName();
+	LanguageCultureNameForCommentGeneration = NewGptLanguageCulture->GetName();
 	SaveConfig();
 }
 
