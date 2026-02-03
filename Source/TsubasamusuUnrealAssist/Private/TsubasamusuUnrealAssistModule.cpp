@@ -69,7 +69,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
 		
 		if (Settings->bUseEditorLanguageForCommentGeneration)
 		{
-			Settings->MakeGptLanguageSameAsEditorLanguage();
+			Settings->MakeCommentGenerationLanguageSameAsEditorLanguage();
 		}
 	});
 }

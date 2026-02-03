@@ -221,7 +221,7 @@ FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListS
 	
 	FString Prompt = TEXT("You are developing a game using the Unreal Engine and are going to write a comment in a comment node for a blueprint process represented by the following string in JSON format. Answer the appropriate comment to be written in the comment node according to the following conditions.");
 
-	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetGptLanguageCulture()->GetEnglishName();
+	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetEnglishName();
 
 	for (FString CommentGenerationCondition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
 	{

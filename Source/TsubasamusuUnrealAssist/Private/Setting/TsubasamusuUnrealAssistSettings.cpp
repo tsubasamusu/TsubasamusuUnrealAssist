@@ -30,22 +30,28 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	{
 		if (bUseEditorLanguageForCommentGeneration)
 		{
-			MakeGptLanguageSameAsEditorLanguage();
+			MakeCommentGenerationLanguageSameAsEditorLanguage();
 		}
 	}
 }
 
-FCulturePtr UTsubasamusuUnrealAssistSettings::GetGptLanguageCulture() const
+FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const
 {
-	const FCulturePtr GptLanguageCulture = FInternationalization::Get().GetCulture(LanguageCultureNameForCommentGeneration);
-	checkf(GptLanguageCulture.IsValid(), TEXT("GPT language culture name \"%s\" is invalid."), *LanguageCultureNameForCommentGeneration);
-	return GptLanguageCulture;
+	const FCulturePtr CommentGenerationLanguageCulture = FInternationalization::Get().GetCulture(LanguageCultureNameForCommentGeneration);
+	checkf(CommentGenerationLanguageCulture.IsValid(), TEXT("The comment generation language culture name \"%s\" is invalid."), *LanguageCultureNameForCommentGeneration);
+	return CommentGenerationLanguageCulture;
 }
 
-void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture)
+void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture)
 {
-	LanguageCultureNameForCommentGeneration = NewGptLanguageCulture->GetName();
+	LanguageCultureNameForCommentGeneration = NewCommentGenerationLanguageCulture->GetName();
 	SaveConfig();
+}
+
+void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditorLanguage()
+{
+	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
+	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
@@ -53,12 +59,6 @@ UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsC
 	UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
 	check(Settings);
 	return Settings;
-}
-
-void UTsubasamusuUnrealAssistSettings::MakeGptLanguageSameAsEditorLanguage()
-{
-	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
-	SetGptLanguageCulture(EditorLanguageCulture);
 }
 
 FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()

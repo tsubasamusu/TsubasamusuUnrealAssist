@@ -49,16 +49,15 @@ public:
 	bool bUseToonFormatForCommentGeneration;
 	
 	/* Conditions that AI must adhere to when generating comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Conditions"))
 	TArray<FString> CommentGenerationConditions;
 #pragma endregion
 	
-	FCulturePtr GetGptLanguageCulture() const;
-	void SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture);
+	FCulturePtr GetCommentGenerationLanguageCulture() const;
+	void SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture);
+	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
-	
-	void MakeGptLanguageSameAsEditorLanguage();
 	
 private:
 	static FCultureRef GetEditorLanguageCulture();
