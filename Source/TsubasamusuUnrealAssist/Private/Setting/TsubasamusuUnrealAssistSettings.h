@@ -32,12 +32,12 @@ public:
 	FString GptLanguageCultureName;
 	
 	/* Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to them when generating comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
-	bool bIgnoreNodesDoNotHaveConnectedPins;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Ignore Nodes Do Not Have Connected Pins"))
+	bool bIgnoreIsolatedNodesWhenGeneratingComments;
 	
 	/* Whether to ignore comment nodes contained within a comment node when generating comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
-	bool bIgnoreCommentNodes;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Ignore Comment Nodes"))
+	bool bIgnoreCommentNodesWhenGeneratingComments;
 	
 	/* Conditions that AI must adhere to when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")

@@ -81,7 +81,7 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEd
 
 		if (FNodeInformationUtility::IsCommentNode(Node))
 		{
-			if (!TsubasamusuUnrealAssistSettings->bIgnoreCommentNodes)
+			if (!TsubasamusuUnrealAssistSettings->bIgnoreCommentNodesWhenGeneratingComments)
 			{
 				ActiveNodes.Add(Node);
 			}
@@ -89,7 +89,7 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEd
 			continue;
 		}
 
-		if (!TsubasamusuUnrealAssistSettings->bIgnoreNodesDoNotHaveConnectedPins)
+		if (!TsubasamusuUnrealAssistSettings->bIgnoreIsolatedNodesWhenGeneratingComments)
 		{
 			ActiveNodes.Add(Node);
 		}

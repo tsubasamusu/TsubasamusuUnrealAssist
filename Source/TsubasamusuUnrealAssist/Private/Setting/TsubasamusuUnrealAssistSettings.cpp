@@ -12,8 +12,8 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4o-mini");
 	GptLanguageCultureName = FInternationalization::Get().GetCurrentLanguage()->GetName();
-	bIgnoreNodesDoNotHaveConnectedPins = true;
-	bIgnoreCommentNodes = false;
+	bIgnoreIsolatedNodesWhenGeneratingComments = true;
+	bIgnoreCommentNodesWhenGeneratingComments = false;
 	CommentGenerationConditions = { TEXT("answer briefly") };
 }
 
