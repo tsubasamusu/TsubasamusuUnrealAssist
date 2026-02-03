@@ -10,12 +10,12 @@
 void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder)
 {
 	const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-	const TAttribute HeadingText = LOCTEXT("TsubasamusuUnrealAssistSectionHeader", "Tsubasamusu Unreal Assist");
+	const TAttribute HeadingText = LOCTEXT("CopyNodeInformationHeadingText", "Tsubasamusu Unreal Assist");
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-	const FText LabelText = LOCTEXT("CreateArrayNodeLabelText", "Copy in JSON Format");
-	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Copy selected nodes in JSON format.");
+	const FText LabelText = LOCTEXT("CopyNodeInformationLabelText", "Copy in JSON Format");
+	const FText ToolTipText = LOCTEXT("CopyNodeInformationToolTipText", "Copy selected nodes in JSON format.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GenericCommands.Copy");
 

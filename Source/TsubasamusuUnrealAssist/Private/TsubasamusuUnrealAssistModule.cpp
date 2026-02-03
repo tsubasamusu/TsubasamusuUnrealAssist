@@ -45,8 +45,8 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
 
 void FTsubasamusuUnrealAssistModule::RegisterSettings() const
 {
-	const FText SettingsDisplayName = LOCTEXT("SettingsDisplayName", "Tsubasamusu Unreal Assist");
-	const FText SettingsDescription = LOCTEXT("SettingsDescription", "Configure the Tsubasamusu Unreal Assist plugin");
+	const FText SettingsDisplayName = LOCTEXT("TsubasamusuUnrealAssistSettingsDisplayName", "Tsubasamusu Unreal Assist");
+	const FText SettingsDescription = LOCTEXT("TsubasamusuUnrealAssistSettingsDescription", "Configure the Tsubasamusu Unreal Assist plugin");
 	
 	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
 	SettingsModule.RegisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName, SettingsDisplayName, SettingsDescription, GetMutableDefault<UTsubasamusuUnrealAssistSettings>());

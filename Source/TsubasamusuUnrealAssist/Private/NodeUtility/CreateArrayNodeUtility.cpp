@@ -32,8 +32,7 @@ UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr
 		return nullptr;
 	}
 	
-	const FText TransactionSessionName = LOCTEXT("CreateArrayNodeTransaction", "Create Array Node");
-	FScopedTransaction Transaction(TransactionSessionName);
+	FScopedTransaction Transaction(LOCTEXT("CreateArrayNodeTransaction", "Create Array Node"));
 
 	UEdGraph* Graph = InGraph.Get();
 	
