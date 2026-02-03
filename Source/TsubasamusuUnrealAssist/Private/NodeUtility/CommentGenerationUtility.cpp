@@ -11,7 +11,7 @@
 #include "Internationalization/Culture.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
-#define LOCTEXT_NAMESPACE "CommentGenerationUtility"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {

@@ -6,7 +6,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Input/SComboButton.h"
 
-#define LOCTEXT_NAMESPACE "LanguageComboButton"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<FLocalizedCulturesFlyweight>& InLocalizedCulturesFlyweight)
 {

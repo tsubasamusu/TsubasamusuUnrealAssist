@@ -11,7 +11,7 @@
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuSettingsCustomization"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 TSharedRef<IDetailCustomization> FTsubasamusuSettingsCustomization::Create()
 {

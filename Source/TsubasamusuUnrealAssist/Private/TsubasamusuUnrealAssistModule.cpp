@@ -6,7 +6,7 @@
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
-#define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 #define TUA_IS_ENABLED (!IS_MONOLITHIC && !UE_BUILD_SHIPPING && !UE_BUILD_TEST && !UE_GAME && !UE_SERVER)
 
 void FTsubasamusuUnrealAssistModule::StartupModule()

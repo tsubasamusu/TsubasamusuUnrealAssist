@@ -11,7 +11,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 
-#define LOCTEXT_NAMESPACE "FCommentTranslationUtility"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void FCommentTranslationUtility::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
