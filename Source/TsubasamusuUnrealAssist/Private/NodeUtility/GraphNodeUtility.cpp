@@ -1,6 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include  "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/GraphNodeUtility.h"
+#include "Editor.h"
+#include "EdGraph/EdGraphNode.h"
 
 TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {
@@ -31,6 +33,19 @@ TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGrap
 	}
 	
 	return SelectedNodes;
+}
+
+TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::GetSelectedWeakNodes(const UEdGraph* InGraph)
+{
+	TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+	TArray<TWeakObjectPtr<UEdGraphNode>> SelectedWeakNodes;
+	
+	for (UEdGraphNode* SelectedNode : SelectedNodes)
+	{
+		SelectedWeakNodes.Add(SelectedNode);
+	}
+	
+	return SelectedWeakNodes;
 }
 
 bool FGraphNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)

@@ -8,6 +8,7 @@ class FGraphNodeUtility final
 {
 public:
 	static TArray<UEdGraphNode*> GetSelectedNodes(const UEdGraph* InGraph);
+	static TArray<TWeakObjectPtr<UEdGraphNode>> GetSelectedWeakNodes(const UEdGraph* InGraph);
 	
 	static bool TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType);
 	static bool NodeHasSameTypeOutputPins(const UEdGraphNode* InNode, const FEdGraphPinType& InPinType);
