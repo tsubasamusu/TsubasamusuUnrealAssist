@@ -59,7 +59,11 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationSubMenus(FMenuBuilder& I
 
 		InMenuBuilder.AddMenuEntry(CopyNodeInformationInToonFormatLabelText, CopyNodeInformationInToonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()
 		{
-			//TODO: TOON形式でコピーする処理を実装する
+			FString NodeDataListToonString;
+			if (FNodeInformationUtility::TryGetNodeDataListToonString(NodeDataListToonString, InSelectedNodes))
+			{
+				FPlatformApplicationMisc::ClipboardCopy(*NodeDataListToonString);
+			}
 		})));
 	}
 }
