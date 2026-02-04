@@ -27,6 +27,7 @@ void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& D
     
 	AddCommentGenerationLanguageProperty(DetailBuilder);
     AddGptModelsDocumentButton(DetailBuilder);
+    AddButtonToApplyRecommendedEditorSettings(DetailBuilder);
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& DetailLayout, const FName& CategoryName, const FName& PropertyName)
@@ -189,6 +190,53 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
             ]
         ];
     }
+}
+
+void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder)
+{
+    const FName CategoryName = TEXT("General");
+    const FText PropertyText = LOCTEXT("ApplyRecommendedEditorSettingsButtonPropertyText", "Apply Recommended Editor Settings");
+    const FText ButtonText = LOCTEXT("ApplyRecommendedEditorSettingsButtonText", "Apply");
+    const FText ToolTipText = LOCTEXT("ApplyRecommendedEditorSettingsButtonToolTipText",
+        "Apply the editor settings recommended by this plugin’s developer. Specifically, as follows:\n\n"
+        "- Disable auto save.\n"
+        "- Do not restore the tabs of assets that were open previously when the editor is restarted.\n"
+        "- Set the location where asset editors open to “Main Window.”\n"
+        "- Make comment bubble visible when zooming out in the Event Graph.\n"
+        "- Set the default color of comment nodes to black.\n"
+        "- Set the editor language to English.\n"
+        "- Also use English for node names, pin names, and property names.\n"
+        "- Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)\n"
+        "- Make Cast nodes appear as Pure by default, with no execution pins.\n"
+        "- Display the Output Log in color."
+    );
+    
+    IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
+    
+    DetailCategoryBuilder.AddCustomRow(PropertyText)
+    .NameContent()
+    [
+        SNew(STextBlock)
+        .Text(PropertyText)
+        .Font(InDetailLayoutBuilder.GetDetailFont())
+        .ToolTipText(ToolTipText)
+    ]
+    .ValueContent()
+    [
+        SNew(SVerticalBox)
+        + SVerticalBox::Slot()
+        [
+            SNew(SButton)
+            .Text(ButtonText)
+            .HAlign(HAlign_Center)
+            .ToolTipText(ToolTipText)
+            .OnClicked_Lambda([]()
+            {
+                FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
+                return FReply::Handled();
+            })
+        ]
+    ];
 }
 
 #undef LOCTEXT_NAMESPACE
