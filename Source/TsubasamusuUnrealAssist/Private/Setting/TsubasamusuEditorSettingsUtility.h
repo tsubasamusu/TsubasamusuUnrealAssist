@@ -9,24 +9,23 @@ class FTsubasamusuEditorSettingsUtility final
 public:
 	static void SetupEditorSettingsForTsubasamusu();
 
+	template<typename T>
+	FORCEINLINE static T* GetSettingsChecked()
+	{
+		static_assert(TIsDerivedFrom<T, UObject>::Value, "T must be a subclass of UObject.");
+
+		T* MutableDefault = GetMutableDefault<T>();
+		const UObject* Settings = Cast<UObject>(MutableDefault);
+		check(IsValid(Settings));
+
+		return MutableDefault;
+	}
+	
+private:
 	static void SetupLoadingSavingSettings();
 	static void SetupStyleSettings();
 	static void SetupGraphEditorSettings();
 	static void SetupInternationalizationSettings();
 	static void SetupBlueprintEditorSettings();
 	static void SetupOutputLogSettings();
-
-	template<typename T>
-	static T* GetSettingsChecked()
-	{
-		static_assert(TIsDerivedFrom<T, UObject>::Value, "T must be a subclass of UObject.");
-
-		T* MutableDefault = GetMutableDefault<T>();
-
-		const UObject* Settings = Cast<UObject>(MutableDefault);
-
-		check(IsValid(Settings));
-
-		return MutableDefault;
-	}
 };
