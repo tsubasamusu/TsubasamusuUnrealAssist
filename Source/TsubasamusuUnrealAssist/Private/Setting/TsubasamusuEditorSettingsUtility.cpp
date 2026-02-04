@@ -7,17 +7,17 @@
 #include "BlueprintEditorSettings.h"
 #include "OutputLogSettings.h"
 
-void FTsubasamusuEditorSettingsUtility::SetupEditorSettingsForTsubasamusu()
+void FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu()
 {
-    SetupLoadingSavingSettings();
-    SetupStyleSettings();
-    SetupGraphEditorSettings();
-    SetupInternationalizationSettings();
-    SetupBlueprintEditorSettings();
-    SetupOutputLogSettings();
+    ChangeLoadingSavingSettingsForTsubasamusu();
+    ChangeStyleSettingsForTsubasamusu();
+    ChangeGraphEditorSettingsForTsubasamusu();
+    ChangeInternationalizationSettingsForTsubasamusu();
+    ChangeBlueprintEditorSettingsForTsubasamusu();
+    ChangeOutputLogSettingsForTsubasamusu();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupLoadingSavingSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamusu()
 {
     UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetSettingsChecked<UEditorLoadingSavingSettings>();
 
@@ -28,7 +28,7 @@ void FTsubasamusuEditorSettingsUtility::SetupLoadingSavingSettings()
     EditorLoadingSavingSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupStyleSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeStyleSettingsForTsubasamusu()
 {
     UEditorStyleSettings* EditorStyleSettings = GetSettingsChecked<UEditorStyleSettings>();
 
@@ -38,7 +38,7 @@ void FTsubasamusuEditorSettingsUtility::SetupStyleSettings()
     EditorStyleSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupGraphEditorSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeGraphEditorSettingsForTsubasamusu()
 {
     UGraphEditorSettings* GraphEditorSettings = GetSettingsChecked<UGraphEditorSettings>();
 
@@ -49,7 +49,7 @@ void FTsubasamusuEditorSettingsUtility::SetupGraphEditorSettings()
     GraphEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupInternationalizationSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeInternationalizationSettingsForTsubasamusu()
 {
     UInternationalizationSettingsModel* InternationalizationSettingsModel = GetSettingsChecked<UInternationalizationSettingsModel>();
 
@@ -63,7 +63,7 @@ void FTsubasamusuEditorSettingsUtility::SetupInternationalizationSettings()
     InternationalizationSettingsModel->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupBlueprintEditorSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeBlueprintEditorSettingsForTsubasamusu()
 {
     UBlueprintEditorSettings* BlueprintEditorSettings = GetSettingsChecked<UBlueprintEditorSettings>();
 
@@ -74,7 +74,7 @@ void FTsubasamusuEditorSettingsUtility::SetupBlueprintEditorSettings()
     BlueprintEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupOutputLogSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeOutputLogSettingsForTsubasamusu()
 {
     UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
 

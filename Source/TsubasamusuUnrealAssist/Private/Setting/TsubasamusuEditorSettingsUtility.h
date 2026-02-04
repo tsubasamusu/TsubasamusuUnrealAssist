@@ -7,7 +7,7 @@
 class FTsubasamusuEditorSettingsUtility final
 {
 public:
-	static void SetupEditorSettingsForTsubasamusu();
+	static void ChangeEditorSettingsForTsubasamusu();
 
 	template<typename T>
 	FORCEINLINE static T* GetSettingsChecked()
@@ -21,10 +21,10 @@ public:
 	}
 	
 private:
-	static void SetupLoadingSavingSettings();
-	static void SetupStyleSettings();
-	static void SetupGraphEditorSettings();
-	static void SetupInternationalizationSettings();
-	static void SetupBlueprintEditorSettings();
-	static void SetupOutputLogSettings();
+	static void ChangeLoadingSavingSettingsForTsubasamusu();
+	static void ChangeStyleSettingsForTsubasamusu();
+	static void ChangeGraphEditorSettingsForTsubasamusu();
+	static void ChangeInternationalizationSettingsForTsubasamusu();
+	static void ChangeBlueprintEditorSettingsForTsubasamusu();
+	static void ChangeOutputLogSettingsForTsubasamusu();
 };
