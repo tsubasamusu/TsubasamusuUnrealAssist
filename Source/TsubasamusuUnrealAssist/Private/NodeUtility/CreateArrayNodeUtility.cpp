@@ -5,7 +5,7 @@
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
-#define LOCTEXT_NAMESPACE "FCreateArrayNodeUtility"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
@@ -32,8 +32,7 @@ UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr
 		return nullptr;
 	}
 	
-	const FText TransactionSessionName = LOCTEXT("CreateArrayNodeTransaction", "Create Array Node");
-	FScopedTransaction Transaction(TransactionSessionName);
+	FScopedTransaction Transaction(LOCTEXT("CreateArrayNodeTransaction", "Create Array Node"));
 
 	UEdGraph* Graph = InGraph.Get();
 	

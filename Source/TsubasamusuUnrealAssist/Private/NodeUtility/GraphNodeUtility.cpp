@@ -1,6 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include  "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/GraphNodeUtility.h"
+#include "Editor.h"
+#include "EdGraph/EdGraphNode.h"
 
 TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {
@@ -31,6 +33,12 @@ TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGrap
 	}
 	
 	return SelectedNodes;
+}
+
+TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::GetSelectedWeakNodes(const UEdGraph* InGraph)
+{
+	TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
+	return ConvertToWeakNodes(SelectedNodes);
 }
 
 bool FGraphNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
@@ -200,13 +208,22 @@ TArray<UEdGraphNode*> FGraphNodeUtility::ConvertToHardNodes(const TArray<TWeakOb
 
 	for (const TWeakObjectPtr<UEdGraphNode> WeakNode : InWeakNodes)
 	{
-		if (WeakNode.IsValid())
-		{
-			Nodes.Add(WeakNode.Get());
-		}
+		Nodes.Add(WeakNode.Get());
 	}
 
 	return Nodes;
+}
+
+TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::ConvertToWeakNodes(const TArray<UEdGraphNode*>& InHardNodes)
+{
+	TArray<TWeakObjectPtr<UEdGraphNode>> WeakNodes;
+	
+	for (UEdGraphNode* HardNode : InHardNodes)
+	{
+		WeakNodes.Add(HardNode);
+	}
+	
+	return WeakNodes;
 }
 
 void FGraphNodeUtility::RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes)

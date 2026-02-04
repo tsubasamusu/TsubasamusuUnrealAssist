@@ -2,12 +2,112 @@
 
 #include "NodeUtility/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
+#include "GraphNodeUtility.h"
 #include "JsonObjectConverter.h"
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
 {
 	const FNodeDataList NodeDataList = GetNodeDataList(InNodes);
 	return FJsonObjectConverter::UStructToJsonObjectString(NodeDataList, OutNodeDataListString, 0, 0);
+}
+
+bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+{
+	const TArray<UEdGraphNode*> HardNodes = FGraphNodeUtility::ConvertToHardNodes(InWeakNodes);
+	return TryGetNodeDataListString(OutNodeDataListString, HardNodes);
+}
+
+bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
+{
+	FString NodeDataListString;
+	if (!TryGetNodeDataListString(NodeDataListString, InNodes))
+	{
+		return false;
+	}
+
+	const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(NodeDataListString);
+	TSharedPtr<FJsonObject> RootJsonObject;
+
+	if (!FJsonSerializer::Deserialize(JsonReader, RootJsonObject) || !RootJsonObject.IsValid())
+	{
+		return false;
+	}
+
+	const TArray<TSharedPtr<FJsonValue>>* NodesAsJsonValue;
+	if (!RootJsonObject->TryGetArrayField(TEXT("nodeDataList"), NodesAsJsonValue))
+	{
+		return false;
+	}
+
+	OutNodeDataListString += FString::Printf(TEXT("nodeDataList[%d]{nodeName,comment,bIsCommentNode,pinDataList}:\n"), NodesAsJsonValue->Num());
+
+	for (const TSharedPtr<FJsonValue>& NodeAsJsonValue : *NodesAsJsonValue)
+	{
+		TSharedPtr<FJsonObject> NodeAsJsonObject = NodeAsJsonValue->AsObject();
+		if (!NodeAsJsonObject.IsValid())
+		{
+			continue;
+		}
+
+		const FString NodeName = NodeAsJsonObject->GetStringField(TEXT("nodeName"));
+		const FString Comment = NodeAsJsonObject->GetStringField(TEXT("comment"));
+		const bool bIsCommentNode = NodeAsJsonObject->GetBoolField(TEXT("bIsCommentNode"));
+
+		OutNodeDataListString += FString::Printf(TEXT("  %s,%s,%s,\n"), *NodeName, *Comment, bIsCommentNode ? TEXT("true") : TEXT("false"));
+
+		const TArray<TSharedPtr<FJsonValue>>* PinDataListAsJsonValue;
+		if (NodeAsJsonObject->TryGetArrayField(TEXT("pinDataList"), PinDataListAsJsonValue))
+		{
+			OutNodeDataListString += FString::Printf(TEXT("    pinDataList[%d]{pinName,pinDirection,pinType,pinId,defaultValue,bThisPinUsesDefaultValue,connectedPinIds}:\n"), PinDataListAsJsonValue->Num());
+
+			for (const TSharedPtr<FJsonValue>& PinDataAsJsonValue : *PinDataListAsJsonValue)
+			{
+				TSharedPtr<FJsonObject> PinDataAsJsonObject = PinDataAsJsonValue->AsObject();
+				if (!PinDataAsJsonObject.IsValid())
+				{
+					continue;
+				}
+
+				FString ConnectedPinIdsAsString = TEXT("");
+				const TArray<TSharedPtr<FJsonValue>>* ConnectedPinIdsAsJsonValue;
+				
+				if (PinDataAsJsonObject->TryGetArrayField(TEXT("connectedPinIds"), ConnectedPinIdsAsJsonValue))
+				{
+					ConnectedPinIdsAsString = TEXT("[");
+					
+					for (int32 i = 0; i < ConnectedPinIdsAsJsonValue->Num(); ++i)
+					{
+						ConnectedPinIdsAsString += (*ConnectedPinIdsAsJsonValue)[i]->AsString();
+						
+						if (i < ConnectedPinIdsAsJsonValue->Num() - 1)
+						{
+							ConnectedPinIdsAsString += TEXT(",");
+						}
+					}
+					
+					ConnectedPinIdsAsString += TEXT("]");
+				}
+
+				OutNodeDataListString += FString::Printf(TEXT("      %s,%s,%s,%s,%s,%s,%s\n"),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinName")),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinDirection")),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinType")),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinId")),
+					*PinDataAsJsonObject->GetStringField(TEXT("defaultValue")),
+					PinDataAsJsonObject->GetBoolField(TEXT("bThisPinUsesDefaultValue")) ? TEXT("true") : TEXT("false"),
+					*ConnectedPinIdsAsString
+				);
+			}
+		}
+	}
+
+	return true;
+}
+
+bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+{
+	const TArray<UEdGraphNode*> HardNodes = FGraphNodeUtility::ConvertToHardNodes(InWeakNodes);
+	return TryGetNodeDataListToonString(OutNodeDataListString, HardNodes);
 }
 
 FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode*>& InNodes)

@@ -12,6 +12,7 @@ class UTsubasamusuUnrealAssistSettings final : public UObject
 
 public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 #pragma region Comment Translation
 	/* The DeepL API key used to translate comments. */
@@ -21,31 +22,43 @@ public:
 
 #pragma region Comment Generation
 	/* The OpenAI API key used to generate comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Open AI API Key"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "OpenAI API Key"))
 	FString OpenAiApiKey;
 	
 	/* The name of the GPT model used to generate comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "GPT Model Name"))
 	FString GptModelName;
 
+	/* Whether to match the language of generated comments to the editor language. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Use Editor Language"))
+	bool bUseEditorLanguageForCommentGeneration;
+
 	UPROPERTY(config)
-	FString GptLanguageCultureName;
+	FString LanguageCultureNameForCommentGeneration;
 	
 	/* Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to them when generating comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
-	bool bIgnoreNodesDoNotHaveConnectedPins;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Ignore Nodes Do Not Have Connected Pins"))
+	bool bIgnoreIsolatedNodesWhenGeneratingComments;
 	
 	/* Whether to ignore comment nodes contained within a comment node when generating comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
-	bool bIgnoreCommentNodes;
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Ignore Comment Nodes"))
+	bool bIgnoreCommentNodesWhenGeneratingComments;
+	
+	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Use TOON Format"))
+	bool bUseToonFormatForCommentGeneration;
 	
 	/* Conditions that AI must adhere to when generating comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation")
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Conditions"))
 	TArray<FString> CommentGenerationConditions;
 #pragma endregion
 	
-	FCulturePtr GetGptLanguageCulture() const;
-	void SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture);
+	FCulturePtr GetCommentGenerationLanguageCulture() const;
+	void SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture);
+	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
 	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
+	
+private:
+	static FCultureRef GetEditorLanguageCulture();
 };

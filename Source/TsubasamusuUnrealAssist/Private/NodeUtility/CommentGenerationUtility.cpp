@@ -11,7 +11,7 @@
 #include "Internationalization/Culture.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
-#define LOCTEXT_NAMESPACE "CommentGenerationUtility"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
@@ -81,7 +81,7 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEd
 
 		if (FNodeInformationUtility::IsCommentNode(Node))
 		{
-			if (!TsubasamusuUnrealAssistSettings->bIgnoreCommentNodes)
+			if (!TsubasamusuUnrealAssistSettings->bIgnoreCommentNodesWhenGeneratingComments)
 			{
 				ActiveNodes.Add(Node);
 			}
@@ -89,7 +89,7 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEd
 			continue;
 		}
 
-		if (!TsubasamusuUnrealAssistSettings->bIgnoreNodesDoNotHaveConnectedPins)
+		if (!TsubasamusuUnrealAssistSettings->bIgnoreIsolatedNodesWhenGeneratingComments)
 		{
 			ActiveNodes.Add(Node);
 		}
@@ -221,7 +221,7 @@ FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListS
 	
 	FString Prompt = TEXT("You are developing a game using the Unreal Engine and are going to write a comment in a comment node for a blueprint process represented by the following string in JSON format. Answer the appropriate comment to be written in the comment node according to the following conditions.");
 
-	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetGptLanguageCulture()->GetEnglishName();
+	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetEnglishName();
 
 	for (FString CommentGenerationCondition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
 	{
@@ -236,7 +236,7 @@ FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListS
 TArray<UEdGraphNode*> FCommentGenerationUtility::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
 	//TODO: コメントノード内のノードの更新
-	//「HandleSelection(true, true)」を「SGraphNodeComment::OnMouseButtonUp()」経由で間接的に呼び出すか？
+	// HandleSelection(true, true) を SGraphNodeComment::OnMouseButtonUp() 経由で間接的に呼び出すか？
 
 	TArray<UEdGraphNode*> NodesUnderComment;
 
@@ -274,7 +274,14 @@ bool FCommentGenerationUtility::TryGetNodeDataListStringUnderComment(FString& Ou
 	{
 		return false;
 	}
-
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	
+	if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
+	{
+		return FNodeInformationUtility::TryGetNodeDataListToonString(OutNodeDataListString, ActiveNodesUnderComment);
+	}
+	
 	return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
 }
 

@@ -69,6 +69,11 @@ class FNodeInformationUtility final
 {
 public:
 	static bool TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes);
+	static bool TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes);
+	
+	static bool TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes);
+	static bool TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes);
+	
 	static FNodeDataList GetNodeDataList(const TArray<UEdGraphNode*>& InNodes);
 	static TArray<FPinData> GetPinDataList(const UEdGraphNode* InNode);
 

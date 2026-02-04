@@ -2,6 +2,7 @@
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Culture.h"
+#include "Internationalization/Internationalization.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -11,23 +12,46 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	// Comment Generation
 	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4o-mini");
-	GptLanguageCultureName = FInternationalization::Get().GetCurrentLanguage()->GetName();
-	bIgnoreNodesDoNotHaveConnectedPins = true;
-	bIgnoreCommentNodes = false;
+	bUseEditorLanguageForCommentGeneration = true;
+	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
+	bIgnoreIsolatedNodesWhenGeneratingComments = true;
+	bIgnoreCommentNodesWhenGeneratingComments = false;
+	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
 }
 
-FCulturePtr UTsubasamusuUnrealAssistSettings::GetGptLanguageCulture() const
+void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	const FCulturePtr GptLanguageCulture = FInternationalization::Get().GetCulture(GptLanguageCultureName);
-	checkf(GptLanguageCulture.IsValid(), TEXT("GPT language culture name \"%s\" is invalid."), *GptLanguageCultureName);
-	return GptLanguageCulture;
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration))
+	{
+		if (bUseEditorLanguageForCommentGeneration)
+		{
+			MakeCommentGenerationLanguageSameAsEditorLanguage();
+		}
+	}
 }
 
-void UTsubasamusuUnrealAssistSettings::SetGptLanguageCulture(const FCulturePtr& NewGptLanguageCulture)
+FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const
 {
-	GptLanguageCultureName = NewGptLanguageCulture->GetName();
+	const FCulturePtr CommentGenerationLanguageCulture = FInternationalization::Get().GetCulture(LanguageCultureNameForCommentGeneration);
+	checkf(CommentGenerationLanguageCulture.IsValid(), TEXT("The comment generation language culture name \"%s\" is invalid."), *LanguageCultureNameForCommentGeneration);
+	return CommentGenerationLanguageCulture;
+}
+
+void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture)
+{
+	LanguageCultureNameForCommentGeneration = NewCommentGenerationLanguageCulture->GetName();
 	SaveConfig();
+}
+
+void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditorLanguage()
+{
+	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
+	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
 }
 
 UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
@@ -35,4 +59,9 @@ UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsC
 	UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
 	check(Settings);
 	return Settings;
+}
+
+FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()
+{
+	return FInternationalization::Get().GetCurrentLanguage();
 }

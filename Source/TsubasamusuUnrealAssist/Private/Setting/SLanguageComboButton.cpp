@@ -6,11 +6,12 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Input/SComboButton.h"
 
-#define LOCTEXT_NAMESPACE "LanguageComboButton"
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<FLocalizedCulturesFlyweight>& InLocalizedCulturesFlyweight)
 {
     LocalizedCulturesFlyweight = InLocalizedCulturesFlyweight;
+    OnLanguageSelected = InArgs._OnLanguageSelected;
 
     ChildSlot
     [
@@ -28,7 +29,7 @@ void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<
 FText SLanguageComboButton::GetDesiredComboButtonText()
 {
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-    const FString GptLanguageName = TsubasamusuUnrealAssistSettings->GetGptLanguageCulture()->GetNativeName();
+    const FString GptLanguageName = TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetNativeName();
     return FText::FromString(GptLanguageName);
 }
 
@@ -37,7 +38,7 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
 
     const TSharedRef<SCulturePicker> CulturePicker = SNew(SCulturePicker)
-        .InitialSelection(TsubasamusuUnrealAssistSettings->GetGptLanguageCulture())
+        .InitialSelection(TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture())
         .OnSelectionChanged(this, &SLanguageComboButton::OnSelectionChanged)
         .IsCulturePickable(this, &SLanguageComboButton::IsCulturePickable)
         .DisplayNameFormat(SCulturePicker::ECultureDisplayFormat::ActiveAndNativeCultureDisplayName)
@@ -55,8 +56,7 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
 
 void SLanguageComboButton::OnSelectionChanged(FCulturePtr InSelectedCulture, ESelectInfo::Type /*SelectInfo*/) const
 {
-    UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-    TsubasamusuUnrealAssistSettings->SetGptLanguageCulture(InSelectedCulture);
+    OnLanguageSelected.ExecuteIfBound(InSelectedCulture);
 
     if (ComboButton.IsValid())
     {
