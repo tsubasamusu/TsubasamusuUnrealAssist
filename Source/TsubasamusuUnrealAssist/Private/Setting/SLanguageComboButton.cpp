@@ -11,6 +11,7 @@
 void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<FLocalizedCulturesFlyweight>& InLocalizedCulturesFlyweight)
 {
     LocalizedCulturesFlyweight = InLocalizedCulturesFlyweight;
+    OnLanguageSelected = InArgs._OnLanguageSelected;
 
     ChildSlot
     [
@@ -55,8 +56,7 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
 
 void SLanguageComboButton::OnSelectionChanged(FCulturePtr InSelectedCulture, ESelectInfo::Type /*SelectInfo*/) const
 {
-    UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-    TsubasamusuUnrealAssistSettings->SetCommentGenerationLanguageCulture(InSelectedCulture);
+    OnLanguageSelected.ExecuteIfBound(InSelectedCulture);
 
     if (ComboButton.IsValid())
     {

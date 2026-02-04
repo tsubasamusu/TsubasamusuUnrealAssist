@@ -103,6 +103,11 @@ void FTsubasamusuSettingsCustomization::AddCommentGenerationLanguageProperty(IDe
     .ValueContent()
     [
         SNew(SLanguageComboButton, LocalizedCulturesFlyweight)
+        .OnLanguageSelected_Lambda([](const FCulturePtr& SelectedLanguageCulture)
+        {
+            UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+            TsubasamusuUnrealAssistSettings->SetCommentGenerationLanguageCulture(SelectedLanguageCulture);
+        })
         .IsEnabled_Lambda([]()
         {
 	        const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
