@@ -19,7 +19,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPt
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-	const FText MainMenuLabelText = LOCTEXT("CopyNodeInformationLabelText", "Copy in...");
+	const FText MainMenuLabelText = LOCTEXT("CopyNodeInformationLabelText", "Copy as...");
 	const FText MainMenuToolTipText = LOCTEXT("CopyNodeInformationToolTipText", "Copy selected nodes as string.");
 
 	const FSlateIcon MainMenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GenericCommands.Copy");
@@ -39,7 +39,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationSubMenus(FMenuBuilder& I
 {
 	// JSON
 	{
-		const TAttribute CopyNodeInformationInJsonFormatLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabelText", "JSON Format");
+		const TAttribute CopyNodeInformationInJsonFormatLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabelText", "JSON");
 		const TAttribute CopyNodeInformationInJsonFormatToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTipText", "Copy selected nodes in JSON Format.");
 
 		InMenuBuilder.AddMenuEntry(CopyNodeInformationInJsonFormatLabelText, CopyNodeInformationInJsonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()
@@ -54,7 +54,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationSubMenus(FMenuBuilder& I
 	
 	// TOON
 	{
-		const TAttribute CopyNodeInformationInToonFormatLabelText = LOCTEXT("CopyNodeInformationInToonFormatLabelText", "TOON Format");
+		const TAttribute CopyNodeInformationInToonFormatLabelText = LOCTEXT("CopyNodeInformationInToonFormatLabelText", "TOON");
 		const TAttribute CopyNodeInformationInToonFormatToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTipText", "Copy selected nodes in TOON Format.");
 
 		InMenuBuilder.AddMenuEntry(CopyNodeInformationInToonFormatLabelText, CopyNodeInformationInToonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()

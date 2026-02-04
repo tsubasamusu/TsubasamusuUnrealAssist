@@ -19,108 +19,88 @@ bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListS
 
 bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
 {
-	// まず JSON を取得
-	FString JsonString;
-	if (!TryGetNodeDataListString(JsonString, InNodes))
+	FString NodeDataListString;
+	if (!TryGetNodeDataListString(NodeDataListString, InNodes))
 	{
 		return false;
 	}
 
-	// JSON をパース
-	TSharedPtr<FJsonObject> RootObj;
-	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+	const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(NodeDataListString);
+	TSharedPtr<FJsonObject> RootJsonObject;
 
-	if (!FJsonSerializer::Deserialize(Reader, RootObj) || !RootObj.IsValid())
+	if (!FJsonSerializer::Deserialize(JsonReader, RootJsonObject) || !RootJsonObject.IsValid())
 	{
 		return false;
 	}
 
-	// nodeDataList が配列であることを確認
-	const TArray<TSharedPtr<FJsonValue>>* NodeArray;
-	if (!RootObj->TryGetArrayField(TEXT("nodeDataList"), NodeArray))
+	const TArray<TSharedPtr<FJsonValue>>* NodesAsJsonValue;
+	if (!RootJsonObject->TryGetArrayField(TEXT("nodeDataList"), NodesAsJsonValue))
 	{
 		return false;
 	}
 
-	// TOON 形式への組み立て
-	FString ToonOutput;
+	OutNodeDataListString += FString::Printf(TEXT("nodeDataList[%d]{nodeName,comment,bIsCommentNode,pinDataList}:\n"), NodesAsJsonValue->Num());
 
-	// ヘッダ: 配列名 + 要素数 + フィールド一覧
+	for (const TSharedPtr<FJsonValue>& NodeAsJsonValue : *NodesAsJsonValue)
 	{
-		int32 Count = NodeArray->Num();
-		ToonOutput += FString::Printf(TEXT("nodeDataList[%d]{nodeName,comment,bIsCommentNode,pinDataList}:\n"), Count);
-	}
-
-	// 各ノード
-	for (const auto& Val : *NodeArray)
-	{
-		TSharedPtr<FJsonObject> NodeObj = Val->AsObject();
-		if (!NodeObj.IsValid())
+		TSharedPtr<FJsonObject> NodeAsJsonObject = NodeAsJsonValue->AsObject();
+		if (!NodeAsJsonObject.IsValid())
 		{
 			continue;
 		}
 
-		// ベーシックプロパティ
-		FString NodeName = NodeObj->GetStringField(TEXT("nodeName"));
-		FString Comment = NodeObj->GetStringField(TEXT("comment"));
-		bool bIsComment = NodeObj->GetBoolField(TEXT("bIsCommentNode"));
+		const FString NodeName = NodeAsJsonObject->GetStringField(TEXT("nodeName"));
+		const FString Comment = NodeAsJsonObject->GetStringField(TEXT("comment"));
+		const bool bIsCommentNode = NodeAsJsonObject->GetBoolField(TEXT("bIsCommentNode"));
 
-		ToonOutput += FString::Printf(TEXT("  %s,%s,%s,\n"),
-			*NodeName,
-			*Comment,
-			bIsComment ? TEXT("true") : TEXT("false")
-		);
+		OutNodeDataListString += FString::Printf(TEXT("  %s,%s,%s,\n"), *NodeName, *Comment, bIsCommentNode ? TEXT("true") : TEXT("false"));
 
-		// pinDataList を取り出し
-		const TArray<TSharedPtr<FJsonValue>>* PinArray;
-		if (NodeObj->TryGetArrayField(TEXT("pinDataList"), PinArray))
+		const TArray<TSharedPtr<FJsonValue>>* PinDataListAsJsonValue;
+		if (NodeAsJsonObject->TryGetArrayField(TEXT("pinDataList"), PinDataListAsJsonValue))
 		{
-			int32 PinCount = PinArray->Num();
+			OutNodeDataListString += FString::Printf(TEXT("    pinDataList[%d]{pinName,pinDirection,pinType,pinId,defaultValue,bThisPinUsesDefaultValue,connectedPinIds}:\n"), PinDataListAsJsonValue->Num());
 
-			// pinDataList のヘッダ
-			ToonOutput += FString::Printf(
-				TEXT("    pinDataList[%d]{pinName,pinDirection,pinType,pinId,defaultValue,bThisPinUsesDefaultValue,connectedPinIds}:\n"),
-				PinCount
-			);
-
-			// 各 pin
-			for (const auto& PinValue : *PinArray)
+			for (const TSharedPtr<FJsonValue>& PinDataAsJsonValue : *PinDataListAsJsonValue)
 			{
-				TSharedPtr<FJsonObject> PinObj = PinValue->AsObject();
-				if (!PinObj.IsValid()) continue;
-
-				// connectedPinIds を文字列に変換
-				FString ConnIds = TEXT("");
-				const TArray<TSharedPtr<FJsonValue>>* ConnArray;
-				if (PinObj->TryGetArrayField(TEXT("connectedPinIds"), ConnArray))
+				TSharedPtr<FJsonObject> PinDataAsJsonObject = PinDataAsJsonValue->AsObject();
+				if (!PinDataAsJsonObject.IsValid())
 				{
-					ConnIds = "[";
-					for (int32 i = 0; i < ConnArray->Num(); ++i)
-					{
-						ConnIds += (*ConnArray)[i]->AsString();
-						if (i < ConnArray->Num() - 1)
-						{
-							ConnIds += TEXT(",");
-						}
-					}
-					ConnIds += TEXT("]");
+					continue;
 				}
 
-				// pin の行出力
-				ToonOutput += FString::Printf(TEXT("      %s,%s,%s,%s,%s,%s,%s\n"),
-					*PinObj->GetStringField(TEXT("pinName")),
-					*PinObj->GetStringField(TEXT("pinDirection")),
-					*PinObj->GetStringField(TEXT("pinType")),
-					*PinObj->GetStringField(TEXT("pinId")),
-					*PinObj->GetStringField(TEXT("defaultValue")),
-					PinObj->GetBoolField(TEXT("bThisPinUsesDefaultValue")) ? TEXT("true") : TEXT("false"),
-					*ConnIds
+				FString ConnectedPinIdsAsString = TEXT("");
+				const TArray<TSharedPtr<FJsonValue>>* ConnectedPinIdsAsJsonValue;
+				
+				if (PinDataAsJsonObject->TryGetArrayField(TEXT("connectedPinIds"), ConnectedPinIdsAsJsonValue))
+				{
+					ConnectedPinIdsAsString = TEXT("[");
+					
+					for (int32 i = 0; i < ConnectedPinIdsAsJsonValue->Num(); ++i)
+					{
+						ConnectedPinIdsAsString += (*ConnectedPinIdsAsJsonValue)[i]->AsString();
+						
+						if (i < ConnectedPinIdsAsJsonValue->Num() - 1)
+						{
+							ConnectedPinIdsAsString += TEXT(",");
+						}
+					}
+					
+					ConnectedPinIdsAsString += TEXT("]");
+				}
+
+				OutNodeDataListString += FString::Printf(TEXT("      %s,%s,%s,%s,%s,%s,%s\n"),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinName")),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinDirection")),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinType")),
+					*PinDataAsJsonObject->GetStringField(TEXT("pinId")),
+					*PinDataAsJsonObject->GetStringField(TEXT("defaultValue")),
+					PinDataAsJsonObject->GetBoolField(TEXT("bThisPinUsesDefaultValue")) ? TEXT("true") : TEXT("false"),
+					*ConnectedPinIdsAsString
 				);
 			}
 		}
 	}
 
-	OutNodeDataListString = ToonOutput;
 	return true;
 }
 

@@ -22,7 +22,7 @@ public:
 
 #pragma region Comment Generation
 	/* The OpenAI API key used to generate comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Open AI API Key"))
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "OpenAI API Key"))
 	FString OpenAiApiKey;
 	
 	/* The name of the GPT model used to generate comments. */
