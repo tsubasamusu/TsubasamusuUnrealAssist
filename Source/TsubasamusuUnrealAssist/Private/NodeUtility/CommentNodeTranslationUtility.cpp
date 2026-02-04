@@ -126,7 +126,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
         {
-            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s\"."), *JsonResponse);
+            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s.\""), *JsonResponse);
 
             return;
         }
@@ -135,7 +135,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!JsonObject->TryGetArrayField(TEXT("translations"), Translations) || Translations->Num() == 0)
         {
-            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s\"."), *JsonResponse);
+            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s.\""), *JsonResponse);
 
             return;
         }
@@ -146,7 +146,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText))
         {
-            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s\"."), *JsonResponse);
+            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s.\""), *JsonResponse);
 
             return;
         }

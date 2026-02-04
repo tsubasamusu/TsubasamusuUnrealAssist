@@ -17,7 +17,7 @@ UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const 
 
     if (!InAssetDirectory.StartsWith(TEXT("/Game/")))
     {
-        TUA_ERROR(TEXT("Asset directory does not start with \"/Game/\"."));
+        TUA_ERROR(TEXT("Asset directory does not start with \"/Game/.\""));
 
         return nullptr;
     }
