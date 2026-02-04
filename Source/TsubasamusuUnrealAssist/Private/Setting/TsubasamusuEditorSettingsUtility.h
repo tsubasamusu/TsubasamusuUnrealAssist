@@ -15,8 +15,7 @@ public:
 		static_assert(TIsDerivedFrom<T, UObject>::Value, "T must be a subclass of UObject.");
 
 		T* MutableDefault = GetMutableDefault<T>();
-		const UObject* Settings = Cast<UObject>(MutableDefault);
-		check(IsValid(Settings));
+		check(IsValid(MutableDefault));
 
 		return MutableDefault;
 	}

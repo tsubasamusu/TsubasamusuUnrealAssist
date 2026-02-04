@@ -9,6 +9,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Internationalization/Culture.h"
+#include "Setting/TsubasamusuEditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
@@ -66,8 +67,8 @@ void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraph
 
 TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEdGraphNode*>& InNodes)
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
-
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
 	TArray<UEdGraphNode*> ActiveNodes;
 
 	for (UEdGraphNode* Node : InNodes)
@@ -138,7 +139,7 @@ void FCommentGenerationUtility::GenerateComment(const FString& NodeDataListStrin
 		return;
 	}
 
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	const FString OpenAiApiKey = TsubasamusuUnrealAssistSettings->OpenAiApiKey;
 
 	const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
@@ -198,7 +199,7 @@ void FCommentGenerationUtility::GenerateComment(const FString& NodeDataListStrin
 
 bool FCommentGenerationUtility::TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString)
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	const FGptRequest GptRequest =
 	{
@@ -217,7 +218,7 @@ bool FCommentGenerationUtility::TryGetGptRequestString(const FString& NodeDataLi
 
 FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListString)
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	FString Prompt = TEXT("You are developing a game using the Unreal Engine and are going to write a comment in a comment node for a blueprint process represented by the following string in JSON format. Answer the appropriate comment to be written in the comment node according to the following conditions.");
 
@@ -275,7 +276,7 @@ bool FCommentGenerationUtility::TryGetNodeDataListStringUnderComment(FString& Ou
 		return false;
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
 	{

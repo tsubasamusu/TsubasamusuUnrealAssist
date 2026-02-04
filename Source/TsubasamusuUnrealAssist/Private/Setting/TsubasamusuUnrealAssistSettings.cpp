@@ -54,13 +54,6 @@ void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditor
 	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
 }
 
-UTsubasamusuUnrealAssistSettings* UTsubasamusuUnrealAssistSettings::GetSettingsChecked()
-{
-	UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
-	check(Settings);
-	return Settings;
-}
-
 FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()
 {
 	return FInternationalization::Get().GetCurrentLanguage();
