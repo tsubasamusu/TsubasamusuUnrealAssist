@@ -7,26 +7,25 @@
 class FTsubasamusuEditorSettingsUtility final
 {
 public:
-	static void SetupEditorSettingsForTsubasamusu();
-
-	static void SetupLoadingSavingSettings();
-	static void SetupStyleSettings();
-	static void SetupGraphEditorSettings();
-	static void SetupInternationalizationSettings();
-	static void SetupBlueprintEditorSettings();
-	static void SetupOutputLogSettings();
+	static void ChangeEditorSettingsForTsubasamusu();
 
 	template<typename T>
-	static T* GetSettingsChecked()
+	FORCEINLINE static T* GetSettingsChecked()
 	{
 		static_assert(TIsDerivedFrom<T, UObject>::Value, "T must be a subclass of UObject.");
 
 		T* MutableDefault = GetMutableDefault<T>();
-
-		const UObject* Settings = Cast<UObject>(MutableDefault);
-
-		check(IsValid(Settings));
+		check(IsValid(MutableDefault));
 
 		return MutableDefault;
 	}
+	
+private:
+	static void ChangeLoadingSavingSettingsForTsubasamusu();
+	static void ChangeStyleSettingsForTsubasamusu();
+	static void ChangeGraphEditorSettingsForTsubasamusu();
+	static void ChangeInternationalizationSettingsForTsubasamusu();
+	static void ChangeBlueprintEditorSettingsForTsubasamusu();
+	static void ChangeOutputLogSettingsForTsubasamusu();
+	static void ChangeLevelEditorPlaySettingsForTsubasamusu();
 };

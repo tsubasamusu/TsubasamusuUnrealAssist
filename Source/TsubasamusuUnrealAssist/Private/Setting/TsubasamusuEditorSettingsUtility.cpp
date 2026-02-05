@@ -7,46 +7,51 @@
 #include "BlueprintEditorSettings.h"
 #include "OutputLogSettings.h"
 
-void FTsubasamusuEditorSettingsUtility::SetupEditorSettingsForTsubasamusu()
+void FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu()
 {
-    SetupLoadingSavingSettings();
-    SetupStyleSettings();
-    SetupGraphEditorSettings();
-    SetupInternationalizationSettings();
-    SetupBlueprintEditorSettings();
-    SetupOutputLogSettings();
+    ChangeLoadingSavingSettingsForTsubasamusu();
+    ChangeStyleSettingsForTsubasamusu();
+    ChangeGraphEditorSettingsForTsubasamusu();
+    ChangeInternationalizationSettingsForTsubasamusu();
+    ChangeBlueprintEditorSettingsForTsubasamusu();
+    ChangeOutputLogSettingsForTsubasamusu();
+    ChangeLevelEditorPlaySettingsForTsubasamusu();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupLoadingSavingSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamusu()
 {
     UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetSettingsChecked<UEditorLoadingSavingSettings>();
 
     EditorLoadingSavingSettings->bAutoSaveEnable = false;
     EditorLoadingSavingSettings->RestoreOpenAssetTabsOnRestart = ERestoreOpenAssetTabsMethod::NeverRestore;
 
+    EditorLoadingSavingSettings->SaveConfig();
     EditorLoadingSavingSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupStyleSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeStyleSettingsForTsubasamusu()
 {
     UEditorStyleSettings* EditorStyleSettings = GetSettingsChecked<UEditorStyleSettings>();
 
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
+    EditorStyleSettings->bUseSmallToolBarIcons = true;
 
+    EditorStyleSettings->SaveConfig();
     EditorStyleSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupGraphEditorSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeGraphEditorSettingsForTsubasamusu()
 {
     UGraphEditorSettings* GraphEditorSettings = GetSettingsChecked<UGraphEditorSettings>();
 
     GraphEditorSettings->bShowCommentBubbleWhenZoomedOut = true;
     GraphEditorSettings->DefaultCommentNodeTitleColor = FLinearColor::Black;
 
+    GraphEditorSettings->SaveConfig();
     GraphEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupInternationalizationSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeInternationalizationSettingsForTsubasamusu()
 {
     UInternationalizationSettingsModel* InternationalizationSettingsModel = GetSettingsChecked<UInternationalizationSettingsModel>();
 
@@ -56,24 +61,37 @@ void FTsubasamusuEditorSettingsUtility::SetupInternationalizationSettings()
     InternationalizationSettingsModel->SetShouldUseLocalizedNumericInput(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedPropertyNames(false);
 
+    InternationalizationSettingsModel->SaveConfig();
     InternationalizationSettingsModel->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupBlueprintEditorSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeBlueprintEditorSettingsForTsubasamusu()
 {
     UBlueprintEditorSettings* BlueprintEditorSettings = GetSettingsChecked<UBlueprintEditorSettings>();
 
     BlueprintEditorSettings->bSpawnDefaultBlueprintNodes = false;
     BlueprintEditorSettings->bFavorPureCastNodes = true;
 
+    BlueprintEditorSettings->SaveConfig();
     BlueprintEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::SetupOutputLogSettings()
+void FTsubasamusuEditorSettingsUtility::ChangeOutputLogSettingsForTsubasamusu()
 {
     UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
 
     OutputLogSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
-
+    
+    OutputLogSettings->SaveConfig();
     OutputLogSettings->PostEditChange();
+}
+
+void FTsubasamusuEditorSettingsUtility::ChangeLevelEditorPlaySettingsForTsubasamusu()
+{
+    ULevelEditorPlaySettings* LevelEditorPlaySettings = GetSettingsChecked<ULevelEditorPlaySettings>();
+    
+    LevelEditorPlaySettings->GameGetsMouseControl = true;
+    
+    LevelEditorPlaySettings->SaveConfig();
+    LevelEditorPlaySettings->PostEditChange();
 }

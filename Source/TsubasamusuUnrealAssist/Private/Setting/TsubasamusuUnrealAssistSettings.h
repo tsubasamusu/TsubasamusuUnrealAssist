@@ -57,8 +57,6 @@ public:
 	void SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture);
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
-	static UTsubasamusuUnrealAssistSettings* GetSettingsChecked();
-	
 private:
 	static FCultureRef GetEditorLanguageCulture();
 };

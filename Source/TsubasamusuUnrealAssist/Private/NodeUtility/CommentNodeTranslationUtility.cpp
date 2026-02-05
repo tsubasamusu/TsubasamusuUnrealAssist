@@ -10,6 +10,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
+#include "Setting/TsubasamusuEditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -89,7 +90,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         return;
     }
 
-    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = UTsubasamusuUnrealAssistSettings::GetSettingsChecked();
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
     const FString ApiKey = TsubasamusuUnrealAssistSettings->DeeplApiKey;
     
     const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *TranslationTargetLanguage);
@@ -125,7 +126,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
         {
-            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s\"."), *JsonResponse);
+            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s.\""), *JsonResponse);
 
             return;
         }
@@ -134,7 +135,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!JsonObject->TryGetArrayField(TEXT("translations"), Translations) || Translations->Num() == 0)
         {
-            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s\"."), *JsonResponse);
+            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s.\""), *JsonResponse);
 
             return;
         }
@@ -145,7 +146,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         
         if (!TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText))
         {
-            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s\"."), *JsonResponse);
+            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s.\""), *JsonResponse);
 
             return;
         }
