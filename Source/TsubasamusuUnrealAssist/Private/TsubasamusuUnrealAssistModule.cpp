@@ -8,11 +8,10 @@
 #include "Internationalization/Internationalization.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
-#define TUA_IS_ENABLED (!IS_MONOLITHIC && !UE_BUILD_SHIPPING && !UE_BUILD_TEST && !UE_GAME && !UE_SERVER)
 
 void FTsubasamusuUnrealAssistModule::StartupModule()
 {
-#if TUA_IS_ENABLED
+#if WITH_EDITOR
 	RegisterSettings();
 	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
@@ -21,7 +20,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
-#if TUA_IS_ENABLED
+#if WITH_EDITOR
 	UnregisterOnPostEngineInitEvent();
 	UnregisterOnEditorLanguageChangedEvent();
 	UnregisterSettingsCustomization();
