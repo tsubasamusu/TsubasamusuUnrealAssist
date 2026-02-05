@@ -423,8 +423,7 @@ Create a Material Instance asset in the content browser based on `InMaterialInst
 
 <img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
 
-## Ohter
-
+## Other
 In “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > General” there is a property named “Apply Recommended Editor Settings” and a button labeled “Apply.” By clicking this button, you can apply the editor settings preferred by the developer of this plugin. Specifically, as follows:
 
 - Disable auto save.
@@ -437,5 +436,5 @@ In “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > General” ther
 - Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)
 - Make Cast nodes appear as Pure by default, with no execution pins.
 - Display the Output Log in color.
-- Make the toolbar icons display more compactly.  
+- Make the toolbar icons display more compactly.
 - When starting PIE, automatically focus the viewport even if it hasn’t been clicked.
