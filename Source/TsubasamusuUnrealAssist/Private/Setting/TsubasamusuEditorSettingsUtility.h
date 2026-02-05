@@ -27,4 +27,5 @@ private:
 	static void ChangeInternationalizationSettingsForTsubasamusu();
 	static void ChangeBlueprintEditorSettingsForTsubasamusu();
 	static void ChangeOutputLogSettingsForTsubasamusu();
+	static void ChangeLevelEditorPlaySettingsForTsubasamusu();
 };

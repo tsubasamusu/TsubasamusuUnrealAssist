@@ -208,7 +208,9 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
         "- Also use English for node names, pin names, and property names.\n"
         "- Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)\n"
         "- Make Cast nodes appear as Pure by default, with no execution pins.\n"
-        "- Display the Output Log in color."
+        "- Display the Output Log in color.\n"
+        "- Make the toolbar icons display more compactly.\n"  
+        "- When starting PIE, automatically focus the viewport even if it hasn’t been clicked."
     );
     
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);

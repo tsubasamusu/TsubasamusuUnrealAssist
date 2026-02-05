@@ -15,6 +15,7 @@ void FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu()
     ChangeInternationalizationSettingsForTsubasamusu();
     ChangeBlueprintEditorSettingsForTsubasamusu();
     ChangeOutputLogSettingsForTsubasamusu();
+    ChangeLevelEditorPlaySettingsForTsubasamusu();
 }
 
 void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamusu()
@@ -33,6 +34,7 @@ void FTsubasamusuEditorSettingsUtility::ChangeStyleSettingsForTsubasamusu()
     UEditorStyleSettings* EditorStyleSettings = GetSettingsChecked<UEditorStyleSettings>();
 
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
+    EditorStyleSettings->bUseSmallToolBarIcons = true;
 
     EditorStyleSettings->SaveConfig();
     EditorStyleSettings->PostEditChange();
@@ -82,4 +84,14 @@ void FTsubasamusuEditorSettingsUtility::ChangeOutputLogSettingsForTsubasamusu()
     
     OutputLogSettings->SaveConfig();
     OutputLogSettings->PostEditChange();
+}
+
+void FTsubasamusuEditorSettingsUtility::ChangeLevelEditorPlaySettingsForTsubasamusu()
+{
+    ULevelEditorPlaySettings* LevelEditorPlaySettings = GetSettingsChecked<ULevelEditorPlaySettings>();
+    
+    LevelEditorPlaySettings->GameGetsMouseControl = true;
+    
+    LevelEditorPlaySettings->SaveConfig();
+    LevelEditorPlaySettings->PostEditChange();
 }
