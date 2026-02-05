@@ -424,6 +424,7 @@ Create a Material Instance asset in the content browser based on `InMaterialInst
 <img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
 
 ## Other
+### Apply Recommended Editor Settings
 In “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > General” there is a property named “Apply Recommended Editor Settings” and a button labeled “Apply.” By clicking this button, you can apply the editor settings preferred by the developer of this plugin. Specifically, as follows:
 
 - Disable auto save.
