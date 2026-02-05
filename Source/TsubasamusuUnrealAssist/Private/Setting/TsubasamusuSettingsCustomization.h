@@ -14,8 +14,8 @@ public:
 	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
 
 private:
-	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& DetailLayout, const FName& CategoryName, const FName& PropertyName);
-	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& DetailLayout);
-	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& DetailLayout);
+	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& CategoryName, const FName& PropertyName);
+	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);
 };
