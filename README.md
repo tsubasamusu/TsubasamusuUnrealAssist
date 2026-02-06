@@ -1,10 +1,17 @@
 # Tsubasamusu Unreal Assist (Experimental)
 ## Overview
-An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. This plugin is in experimental, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist."
+An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. The target platform for this plugin is Win64. This plugin is in experimental, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist."
 
 ## Available Engine Versions
 The following engine versions have been confirmed to work with this plugin.
 
+- 5.0
+- 5.1
+- 5.2
+- 5.3
+- 5.4
+- 5.5
+- 5.6
 - 5.7
 
 # Features
