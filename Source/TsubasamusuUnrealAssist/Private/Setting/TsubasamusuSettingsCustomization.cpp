@@ -265,7 +265,11 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
                 const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
                 const FText WarningTitle = LOCTEXT("ApplyRecommendedEditorSettingsWarningTitle", "Tsubasamusu Unreal Assist Warning");
                 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
                 if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, WarningTitle))
+#else
+                if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, &WarningTitle))
+#endif
                 {
                     FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
                 }
