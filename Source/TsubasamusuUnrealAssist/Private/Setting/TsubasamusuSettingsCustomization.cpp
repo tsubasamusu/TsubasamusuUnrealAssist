@@ -43,7 +43,11 @@ void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailL
 
     for (const TSharedRef<IPropertyHandle>& PropertyHandle : PropertyHandles)
     {
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
         if (PropertyHandle->GetProperty()->GetName() != PropertyName)
+#else
+        if (PropertyHandle->GetProperty()->GetName() != PropertyName.ToString())
+#endif
         {
             continue;
         }
@@ -143,7 +147,11 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
 
     for (const TSharedRef<IPropertyHandle>& PropertyHandle : PropertyHandles)
     {
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
         if (PropertyHandle->GetProperty()->GetName() != PropertyName)
+#else
+        if (PropertyHandle->GetProperty()->GetName() != PropertyName.ToString())
+#endif
         {
             continue;
         }

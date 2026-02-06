@@ -116,6 +116,13 @@ FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode
 
 	for (const UEdGraphNode* Node : InNodes)
 	{
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+		FNodeData NodeData;
+		NodeData.NodeName = Node->GetNodeTitle(ENodeTitleType::FullTitle).ToString();
+		NodeData.Comment = Node->NodeComment;
+		NodeData.bIsCommentNode = IsCommentNode(Node);
+		NodeData.PinDataList = GetPinDataList(Node);
+#else
 		FNodeData NodeData =
 		{
 			.NodeName = Node->GetNodeTitle(ENodeTitleType::FullTitle).ToString(),
@@ -123,7 +130,8 @@ FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode
 			.bIsCommentNode = IsCommentNode(Node),
 			.PinDataList = GetPinDataList(Node)
 		};
-
+#endif
+		
 		NodesDataList.Add(NodeData);
 	}
 
@@ -136,6 +144,16 @@ TArray<FPinData> FNodeInformationUtility::GetPinDataList(const UEdGraphNode* InN
 
 	for (const UEdGraphPin* Pin : InNode->GetAllPins())
 	{
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+		FPinData PinData;
+		PinData.PinName = Pin->GetDisplayName().IsEmpty() ? Pin->PinName.ToString() : Pin->GetDisplayName().ToString();
+		PinData.PinDirection = GetPinDirectionAsString(Pin);
+		PinData.PinType = GetPinTypeAsString(Pin);
+		PinData.PinId = Pin->PinId.ToString();
+		PinData.DefaultValue = Pin->GetDefaultAsString();
+		PinData.bThisPinUsesDefaultValue = IsPinUsesDefaultValue(Pin);
+		PinData.ConnectedPinIds = GetPinIds(Pin->LinkedTo);
+#else
 		FPinData PinData
 		{
 			.PinName = Pin->GetDisplayName().IsEmpty() ? Pin->PinName.ToString() : Pin->GetDisplayName().ToString(),
@@ -146,7 +164,8 @@ TArray<FPinData> FNodeInformationUtility::GetPinDataList(const UEdGraphNode* InN
 			.bThisPinUsesDefaultValue = IsPinUsesDefaultValue(Pin),
 			.ConnectedPinIds = GetPinIds(Pin->LinkedTo)
 		};
-
+#endif
+		
 		PinDataList.Add(PinData);
 	}
 

@@ -200,18 +200,28 @@ void FCommentGenerationUtility::GenerateComment(const FString& NodeDataListStrin
 bool FCommentGenerationUtility::TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+	FGptMessage GptMessage;
+	GptMessage.role = TEXT("user");
+	GptMessage.content = GetDesiredPrompt(NodeDataListString);
 	
+	FGptRequest GptRequest;
+	GptRequest.model = TsubasamusuUnrealAssistSettings->GptModelName;
+	GptRequest.messages.Add(GptMessage);
+#else
 	const FGptRequest GptRequest =
 	{
 		.model = TsubasamusuUnrealAssistSettings->GptModelName,
 		.messages =
-	{
 		{
+			{
 				.role = TEXT("user"),
 				.content = GetDesiredPrompt(NodeDataListString)
 			}
 		}
 	};
+#endif
 
 	return FJsonObjectConverter::UStructToJsonObjectString(GptRequest, OutGptRequestString, 0, 0);
 }

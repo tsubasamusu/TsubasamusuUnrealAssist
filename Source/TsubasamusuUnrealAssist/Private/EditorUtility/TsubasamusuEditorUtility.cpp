@@ -6,6 +6,10 @@
 #include "TsubasamusuLogUtility.h"
 #include "UObject/SavePackage.h"
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#include "Materials/MaterialInstanceDynamic.h"
+#endif
+
 UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory)
 {
     if (!IsValid(InMaterialInstanceDynamic))

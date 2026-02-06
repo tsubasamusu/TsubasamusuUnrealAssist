@@ -23,7 +23,12 @@ void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamus
     UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetSettingsChecked<UEditorLoadingSavingSettings>();
 
     EditorLoadingSavingSettings->bAutoSaveEnable = false;
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
     EditorLoadingSavingSettings->RestoreOpenAssetTabsOnRestart = ERestoreOpenAssetTabsMethod::NeverRestore;
+#else
+    EditorLoadingSavingSettings->bRestoreOpenAssetTabsOnRestart = false;
+#endif
 
     EditorLoadingSavingSettings->SaveConfig();
     EditorLoadingSavingSettings->PostEditChange();
