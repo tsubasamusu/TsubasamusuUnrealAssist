@@ -214,7 +214,11 @@ FString FNodeInformationUtility::GetPinTypeAsString(const UEdGraphPin* InPin)
 		return PinSubCategoryObject->GetName();
 	}
 	
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
 	return UEdGraphSchema_K2::GetCategoryText(InPin->PinType.PinCategory, PinSubCategoryName, true).ToString();
+#else
+	return UEdGraphSchema_K2::GetCategoryText(InPin->PinType.PinCategory, true).ToString();
+#endif
 }
 
 bool FNodeInformationUtility::IsPinUsesDefaultValue(const UEdGraphPin* InPin)

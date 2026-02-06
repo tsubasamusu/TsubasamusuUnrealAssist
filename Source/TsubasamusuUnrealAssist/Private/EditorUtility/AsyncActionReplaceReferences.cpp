@@ -17,8 +17,12 @@ UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceRefere
 
     Action->SourceAsset = From;
     Action->DestinationAsset = To;
-
+    
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
     Action->RegisterWithGameInstance(WorldContextObject);
+#else
+    Action->RegisterWithGameInstance(const_cast<UObject*>(WorldContextObject));
+#endif
 
     return Action;
 }

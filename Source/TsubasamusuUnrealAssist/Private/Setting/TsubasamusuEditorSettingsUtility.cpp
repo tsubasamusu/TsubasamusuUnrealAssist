@@ -3,9 +3,14 @@
 #include "Setting/TsubasamusuEditorSettingsUtility.h"
 #include "GraphEditorSettings.h"
 #include "InternationalizationSettingsModel.h"
-#include "Settings/EditorStyleSettings.h"
 #include "BlueprintEditorSettings.h"
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#include "Settings/EditorStyleSettings.h"
 #include "OutputLogSettings.h"
+#else
+#include "Classes/EditorStyleSettings.h"
+#endif
 
 void FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu()
 {
@@ -14,8 +19,11 @@ void FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu()
     ChangeGraphEditorSettingsForTsubasamusu();
     ChangeInternationalizationSettingsForTsubasamusu();
     ChangeBlueprintEditorSettingsForTsubasamusu();
-    ChangeOutputLogSettingsForTsubasamusu();
     ChangeLevelEditorPlaySettingsForTsubasamusu();
+    
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+    ChangeOutputLogSettingsForTsubasamusu();
+#endif
 }
 
 void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamusu()
@@ -41,6 +49,10 @@ void FTsubasamusuEditorSettingsUtility::ChangeStyleSettingsForTsubasamusu()
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
     EditorStyleSettings->bUseSmallToolBarIcons = true;
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+    EditorStyleSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
+#endif
+    
     EditorStyleSettings->SaveConfig();
     EditorStyleSettings->PostEditChange();
 }
@@ -81,16 +93,6 @@ void FTsubasamusuEditorSettingsUtility::ChangeBlueprintEditorSettingsForTsubasam
     BlueprintEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeOutputLogSettingsForTsubasamusu()
-{
-    UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
-
-    OutputLogSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
-    
-    OutputLogSettings->SaveConfig();
-    OutputLogSettings->PostEditChange();
-}
-
 void FTsubasamusuEditorSettingsUtility::ChangeLevelEditorPlaySettingsForTsubasamusu()
 {
     ULevelEditorPlaySettings* LevelEditorPlaySettings = GetSettingsChecked<ULevelEditorPlaySettings>();
@@ -100,3 +102,15 @@ void FTsubasamusuEditorSettingsUtility::ChangeLevelEditorPlaySettingsForTsubasam
     LevelEditorPlaySettings->SaveConfig();
     LevelEditorPlaySettings->PostEditChange();
 }
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+void FTsubasamusuEditorSettingsUtility::ChangeOutputLogSettingsForTsubasamusu()
+{
+    UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
+    
+    OutputLogSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
+    
+    OutputLogSettings->SaveConfig();
+    OutputLogSettings->PostEditChange();
+}
+#endif

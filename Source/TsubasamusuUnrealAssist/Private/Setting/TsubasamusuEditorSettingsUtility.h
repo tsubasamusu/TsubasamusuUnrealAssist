@@ -26,6 +26,9 @@ private:
 	static void ChangeGraphEditorSettingsForTsubasamusu();
 	static void ChangeInternationalizationSettingsForTsubasamusu();
 	static void ChangeBlueprintEditorSettingsForTsubasamusu();
-	static void ChangeOutputLogSettingsForTsubasamusu();
 	static void ChangeLevelEditorPlaySettingsForTsubasamusu();
+	
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+	static void ChangeOutputLogSettingsForTsubasamusu();
+#endif
 };
