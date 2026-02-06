@@ -45,8 +45,6 @@ When you right-click on a comment node, a menu labeled 'Translate to...' appears
 <img width="500" src="https://github.com/user-attachments/assets/6768ed5d-5c88-42e7-b2f4-e33a4e4b24c8">
 
 ### Copy Nodes Information as String
-It copies the information of selected nodes as a JSON-formatted string. This JSON-formatted string includes the node and pin names, node comments, pin direction (input or output), pin type, and the GUID of the connected pins. The copied data is currently saved to the clipboard and its character count is approximately one-third of that of the text that can be obtained using the standard Unreal Engine copy function.
-
 Copies information about the selected nodes as a string in JSON format or [TOON](https://toonformat.dev) format. This string includes the node name and pin names, node comments, pin direction (input or output), pin types, and the GUIDs of connected pins. This string is saved to the clipboard. When “JSON” is selected, the character count is about one-third of the text obtainable with the standard Unreal Engine copy function. Furthermore, when “TOON” is selected, the character count is less than half of that of “JSON”.
 
 <img width="700" src="https://github.com/user-attachments/assets/7a4b25c9-46c1-4b39-a6b6-09251ca1801b">
