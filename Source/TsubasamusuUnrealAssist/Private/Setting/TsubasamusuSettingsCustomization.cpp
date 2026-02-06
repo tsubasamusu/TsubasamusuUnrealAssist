@@ -262,7 +262,14 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
             .ToolTipText(ToolTipText)
             .OnClicked_Lambda([]()
             {
-                FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
+                const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
+                const FText WarningTitle = LOCTEXT("ApplyRecommendedEditorSettingsWarningTitle", "Tsubasamusu Unreal Assist Warning");
+                
+                if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, WarningTitle))
+                {
+                    FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
+                }
+                
                 return FReply::Handled();
             })
         ]
