@@ -1,7 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "NodeUtility/CopyNodeInformationUtility.h"
-#include  "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/GraphNodeUtility.h"
 #include "NodeUtility/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 

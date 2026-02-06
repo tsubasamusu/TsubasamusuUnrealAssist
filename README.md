@@ -1,4 +1,9 @@
 # Tsubasamusu Unreal Assist (Experimental)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tsubasamusu/TsubasamusuUnrealAssist)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.7-0e1128?logo=unrealengine&logoColor=white)
+[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
+
 ## Overview
 An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. The target platform for this plugin is Win64. This plugin is in experimental, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist."
 
