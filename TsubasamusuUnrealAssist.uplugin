@@ -1,9 +1,9 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.8.0",
+	"VersionName": "0.8.1",
 	"FriendlyName": "TsubasamusuUnrealAssist",
-	"Description": "",
+	"Description": "An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want.",
 	"Category": "TSUBASAMUSU",
 	"CreatedBy": "tsubasamusu",
 	"CreatedByURL": "https://tsubasamusu.com",
@@ -26,7 +26,10 @@
 		{
 			"Name": "TsubasamusuUnrealAssist",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
 		}
 	]
 }

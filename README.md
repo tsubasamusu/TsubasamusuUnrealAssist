@@ -1,10 +1,17 @@
 # Tsubasamusu Unreal Assist (Experimental)
 ## Overview
-An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. This plugin is in experimental, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist."
+An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want. The target platform for this plugin is Win64. This plugin is in experimental, and I cannot compensate for any file corruption or system failures caused by using this plugin. Additionally, installing this plugin will display a category for this plugin in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist."
 
 ## Available Engine Versions
 The following engine versions have been confirmed to work with this plugin.
 
+- 5.0
+- 5.1
+- 5.2
+- 5.3
+- 5.4
+- 5.5
+- 5.6
 - 5.7
 
 # Features
@@ -423,8 +430,8 @@ Create a Material Instance asset in the content browser based on `InMaterialInst
 
 <img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
 
-## Ohter
-
+## Other
+### Apply Recommended Editor Settings
 In “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > General” there is a property named “Apply Recommended Editor Settings” and a button labeled “Apply.” By clicking this button, you can apply the editor settings preferred by the developer of this plugin. Specifically, as follows:
 
 - Disable auto save.
@@ -437,5 +444,5 @@ In “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > General” ther
 - Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)
 - Make Cast nodes appear as Pure by default, with no execution pins.
 - Display the Output Log in color.
-- Make the toolbar icons display more compactly.  
+- Make the toolbar icons display more compactly.
 - When starting PIE, automatically focus the viewport even if it hasn’t been clicked.
