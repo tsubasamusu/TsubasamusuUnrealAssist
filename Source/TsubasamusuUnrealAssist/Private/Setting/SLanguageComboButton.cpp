@@ -42,9 +42,11 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
         .InitialSelection(TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture())
         .OnSelectionChanged(this, &SLanguageComboButton::OnSelectionChanged)
         .IsCulturePickable(this, &SLanguageComboButton::IsCulturePickable)
-        .DisplayNameFormat(SCulturePicker::ECultureDisplayFormat::ActiveAndNativeCultureDisplayName)
-        .ViewMode(SCulturePicker::ECulturesViewMode::Flat);
-
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2)
+        .ViewMode(SCulturePicker::ECulturesViewMode::Flat)
+#endif
+        .DisplayNameFormat(SCulturePicker::ECultureDisplayFormat::ActiveAndNativeCultureDisplayName);
+    
     TSharedRef<SBox> Content = SNew(SBox)
         .MaxDesiredHeight(500.0f)
         .WidthOverride(350.0f)
