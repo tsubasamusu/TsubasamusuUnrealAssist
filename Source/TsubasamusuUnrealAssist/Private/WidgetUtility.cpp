@@ -20,3 +20,25 @@ TSharedPtr<SWidget> FWidgetUtility::GetHoveredWidget()
 	
 	return nullptr;
 }
+
+bool FWidgetUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+{
+	TSharedPtr<SWidget> TargetWidget = InWidget;
+	
+	while (true)
+	{
+		if (!TargetWidget.IsValid())
+		{
+			break;
+		}
+		
+		if (TargetWidget->GetType() == TEXT("SBlueprintPaletteItem"))
+		{
+			return true;
+		}
+		
+		TargetWidget = TargetWidget->GetParentWidget();
+	}
+	
+	return false;
+}

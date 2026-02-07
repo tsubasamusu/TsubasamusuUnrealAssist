@@ -8,4 +8,5 @@ class FWidgetUtility final
 {
 public:
 	static TSharedPtr<SWidget> GetHoveredWidget();
+	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
 };
