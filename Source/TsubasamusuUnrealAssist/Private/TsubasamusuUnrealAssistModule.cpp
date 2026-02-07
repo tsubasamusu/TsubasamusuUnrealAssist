@@ -2,30 +2,36 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
+#include "ITickEventHandler.h"
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
+#include "Setting/TsubasamusuEditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void FTsubasamusuUnrealAssistModule::StartupModule()
 {
-#if WITH_EDITOR
 	RegisterSettings();
 	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
-#endif
+	RegisterTicker();
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
-#if WITH_EDITOR
 	UnregisterOnPostEngineInitEvent();
 	UnregisterOnEditorLanguageChangedEvent();
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
-#endif
+	UnregisterTicker();
+}
+
+void FTsubasamusuUnrealAssistModule::ReregisterTicker()
+{
+	UnregisterTicker();
+	RegisterTicker();
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
@@ -78,6 +84,20 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent()
 	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
 }
 
+void FTsubasamusuUnrealAssistModule::RegisterTicker()
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	TickHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FTsubasamusuUnrealAssistModule::Tick), TsubasamusuUnrealAssistSettings->TickInterval);
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterTicker()
+{
+	if (TickHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(TickHandle);
+	}
+}
+
 void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
@@ -92,6 +112,11 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	const FName SettingsClassName = UTsubasamusuUnrealAssistSettings::StaticClass()->GetFName();
 	
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
+}
+
+bool FTsubasamusuUnrealAssistModule::Tick(const float DeltaTime)
+{
+	return true;
 }
 
 #undef LOCTEXT_NAMESPACE
