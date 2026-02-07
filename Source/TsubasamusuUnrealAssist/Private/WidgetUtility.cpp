@@ -44,6 +44,39 @@ bool FWidgetUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
 	return false;
 }
 
+TSharedPtr<FGraphActionNode> FWidgetUtility::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
+{
+	TSharedPtr<SWidget> TargetWidget = InWidget;
+	
+	while (true)
+	{
+		if (!TargetWidget.IsValid())
+		{
+			break;
+		}
+		
+		if (TargetWidget->GetType() == TEXT("STableRow< TSharedPtr<FGraphActionNode> >"))
+		{
+			TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> NodeTreeView= GetNodeTreeViewFromWidget(TargetWidget);
+			TSharedPtr<STableRow<TSharedPtr<FGraphActionNode>>> TableRow = StaticCastSharedPtr<STableRow<TSharedPtr<FGraphActionNode>>>(TargetWidget);
+			
+			if (NodeTreeView.IsValid())
+			{
+				const TObjectPtrWrapTypeOf<TSharedPtr<FGraphActionNode>>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
+				
+				if (GraphActionNodePtr->IsValid())
+				{
+					return GraphActionNodePtr->ToSharedRef();
+				}
+			}
+		}
+		
+		TargetWidget = TargetWidget->GetParentWidget();
+	}
+	
+	return nullptr;
+}
+
 TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FWidgetUtility::GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
