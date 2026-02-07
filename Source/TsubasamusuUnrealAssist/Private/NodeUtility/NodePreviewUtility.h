@@ -13,4 +13,5 @@ public:
 	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<FGraphActionNode> GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget);
+	static UK2Node* GetTemplateK2NodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode);
 };

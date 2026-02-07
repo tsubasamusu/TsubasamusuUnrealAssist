@@ -1,6 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "NodeUtility/NodePreviewUtility.h"
+#include "BlueprintActionMenuItem.h"
+#include "BlueprintNodeSpawner.h"
 #include "GraphActionNode.h"
 
 TSharedPtr<SWidget> FNodePreviewUtility::GetHoveredWidget()
@@ -94,6 +96,50 @@ TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewUtility::GetNode
 		}
 		
 		TargetWidget = TargetWidget->GetParentWidget();
+	}
+	
+	return nullptr;
+}
+
+UK2Node* FNodePreviewUtility::GetTemplateK2NodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
+{
+	if (!InGraphActionNode.IsValid())
+	{
+		return nullptr;
+	}
+	
+	TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
+	
+	if (!PrimaryAction.IsValid())
+	{
+		return nullptr;
+	}
+	
+	if (!PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
+	{
+		return nullptr;
+	}
+	
+	TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
+	const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
+					
+	if (!IsValid(BlueprintNodeSpawner))
+	{
+		return nullptr;
+	}
+	
+	UEdGraphNode* TemplateNode = BlueprintNodeSpawner->GetTemplateNode();
+						
+	if (!IsValid(TemplateNode))
+	{
+		return nullptr;
+	}
+	
+	UK2Node* K2Node = Cast<UK2Node>(TemplateNode);
+							
+	if (IsValid(K2Node))
+	{
+		return K2Node;
 	}
 	
 	return nullptr;
