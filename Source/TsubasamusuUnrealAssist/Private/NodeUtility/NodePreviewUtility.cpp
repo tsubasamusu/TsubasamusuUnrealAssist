@@ -1,9 +1,9 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "WidgetUtility.h"
+#include "NodeUtility/NodePreviewUtility.h"
 #include "GraphActionNode.h"
 
-TSharedPtr<SWidget> FWidgetUtility::GetHoveredWidget()
+TSharedPtr<SWidget> FNodePreviewUtility::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();
 	const FVector2f CursorPosition = SlateApplication.GetCursorPos();
@@ -22,7 +22,7 @@ TSharedPtr<SWidget> FWidgetUtility::GetHoveredWidget()
 	return nullptr;
 }
 
-bool FWidgetUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+bool FNodePreviewUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
 	
@@ -44,7 +44,7 @@ bool FWidgetUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
 	return false;
 }
 
-TSharedPtr<FGraphActionNode> FWidgetUtility::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<FGraphActionNode> FNodePreviewUtility::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
 	
@@ -77,7 +77,7 @@ TSharedPtr<FGraphActionNode> FWidgetUtility::GetGraphActionNodeFromWidget(const 
 	return nullptr;
 }
 
-TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FWidgetUtility::GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewUtility::GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
 	
