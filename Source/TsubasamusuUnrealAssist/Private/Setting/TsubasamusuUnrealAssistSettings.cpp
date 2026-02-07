@@ -1,6 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "TsubasamusuUnrealAssistModule.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 
@@ -38,6 +39,12 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		{
 			MakeCommentGenerationLanguageSameAsEditorLanguage();
 		}
+	}
+	
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
+	{
+		FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
+		TsubasamusuUnrealAssist.ReregisterTicker();
 	}
 }
 
