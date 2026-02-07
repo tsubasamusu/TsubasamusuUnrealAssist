@@ -6,6 +6,9 @@
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	// General
+	TickInterval = 0.f;
+	
 	// Comment Translation
 	DeeplApiKey = TEXT("");
 
@@ -18,6 +21,9 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bIgnoreCommentNodesWhenGeneratingComments = false;
 	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
+	
+	// Node Preview
+	bEnableNodePreview = false;
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)

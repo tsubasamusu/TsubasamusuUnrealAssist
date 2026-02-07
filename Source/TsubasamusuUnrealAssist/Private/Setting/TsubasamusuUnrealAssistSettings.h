@@ -14,6 +14,12 @@ public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
+#pragma region General
+	/* The tick interval of Tsubasamusu Unreal Assist. If set to 0 seconds, the tick processing will run every frame. */
+	UPROPERTY(EditAnywhere, config, Category = "General", meta = (ClampMin = "0.0", ClampMax = "1.0", Units = "s"))
+	float TickInterval;
+#pragma endregion
+
 #pragma region Comment Translation
 	/* The DeepL API key used to translate comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Translation", meta = (DisplayName = "DeepL API Key"))
@@ -52,7 +58,13 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generation", meta = (DisplayName = "Conditions"))
 	TArray<FString> CommentGenerationConditions;
 #pragma endregion
-	
+
+#pragma region Node Preview
+	/* Whether to display a preview of the node being hovered over in the node search window. */
+	UPROPERTY(EditAnywhere, config, Category = "Node Preview")
+	bool bEnableNodePreview;
+#pragma endregion
+
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
 	void SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture);
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
