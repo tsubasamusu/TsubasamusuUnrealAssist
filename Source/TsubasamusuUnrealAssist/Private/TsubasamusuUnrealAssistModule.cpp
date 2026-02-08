@@ -2,11 +2,11 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
-#include "ITickEventHandler.h"
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
+#include "NodeUtility/NodePreviewer.h"
 #include "Setting/TsubasamusuEditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
@@ -32,6 +32,22 @@ void FTsubasamusuUnrealAssistModule::ReregisterTicker()
 {
 	UnregisterTicker();
 	RegisterTicker();
+}
+
+void FTsubasamusuUnrealAssistModule::StartNodePreview()
+{
+	if (!NodePreviewer.IsValid())
+	{
+		NodePreviewer = MakeShared<FNodePreviewer>();
+	}
+}
+
+void FTsubasamusuUnrealAssistModule::StopNodePreview()
+{
+	if (NodePreviewer.IsValid())
+	{
+		NodePreviewer.Reset();
+	}
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
@@ -114,8 +130,13 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
 }
 
-bool FTsubasamusuUnrealAssistModule::Tick(const float DeltaTime)
+bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
 {
+	if (NodePreviewer.IsValid())
+	{
+		NodePreviewer->TryPreviewNode();
+	}
+	
 	return true;
 }
 

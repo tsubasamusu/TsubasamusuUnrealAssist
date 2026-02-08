@@ -9,6 +9,8 @@ struct FGraphActionNode;
 class FNodePreviewer final
 {
 public:
+	void TryPreviewNode();
+	
 	static TSharedPtr<SWidget> GetHoveredWidget();
 	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<FGraphActionNode> GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget);

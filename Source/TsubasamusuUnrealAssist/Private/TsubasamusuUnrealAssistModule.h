@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class FNodePreviewer;
+
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
 public:
@@ -12,6 +14,9 @@ public:
 	virtual void ShutdownModule() override;
 	
 	void ReregisterTicker();
+	
+	void StartNodePreview();
+	void StopNodePreview();
 	
 private:
 	void RegisterOnPostEngineInitEvent();
@@ -29,7 +34,7 @@ private:
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
-	bool Tick(const float DeltaTime);
+	bool Tick(float /* DeltaTime */);
 	
 	FDelegateHandle OnPostEngineInitHandle;
 	FDelegateHandle OnEditorLanguageChangedHandle;
@@ -38,4 +43,6 @@ private:
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");
 	const FName SettingsSectionName = TEXT("Tsubasamusu Unreal Assist");
+	
+	TSharedPtr<FNodePreviewer> NodePreviewer;
 };

@@ -9,6 +9,10 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 
+void FNodePreviewer::TryPreviewNode()
+{
+}
+
 TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();

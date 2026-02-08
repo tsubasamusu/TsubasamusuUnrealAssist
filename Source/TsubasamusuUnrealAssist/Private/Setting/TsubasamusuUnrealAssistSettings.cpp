@@ -41,10 +41,23 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		}
 	}
 	
+	FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
+	
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
 	{
-		FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 		TsubasamusuUnrealAssist.ReregisterTicker();
+	}
+	
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
+	{
+		if (bEnableNodePreview)
+		{
+			TsubasamusuUnrealAssist.StartNodePreview();
+		}
+		else
+		{
+			TsubasamusuUnrealAssist.StopNodePreview();
+		}
 	}
 }
 
