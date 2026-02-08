@@ -13,6 +13,11 @@ void FNodePreviewer::TryPreviewNode()
 {
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
 	
+	if (!HoveredWidget.IsValid())
+	{
+		return;
+	}
+	
 	if (!IsNodeSelectionWidget(HoveredWidget))
 	{
 		return;
@@ -30,9 +35,17 @@ void FNodePreviewer::TryPreviewNode()
 			TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
 			check(NodeWidget.IsValid());
 			
+			CachedGraphActionNode.Reset();
+			CachedNodeWidget.Reset();
+			
 			CachedGraphActionNode = GraphActionNode;
 			CachedNodeWidget = NodeWidget;
 		}
+	}
+	
+	if (!CachedNodeWidget.IsValid())
+	{
+		return;
 	}
 }
 
@@ -187,5 +200,31 @@ UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGr
 		CachedGraph= FBlueprintEditorUtils::CreateNewGraph(CachedBlueprint, FName("TempGraph"),UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 	}
 	
-	return  BlueprintNodeSpawner->Invoke(CachedGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+	return BlueprintNodeSpawner->Invoke(CachedGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+}
+
+TSharedPtr<SToolTip> FNodePreviewer::FindChildToolTipWidget(const TSharedPtr<SWidget> InWidget)
+{
+	if (!InWidget.IsValid())
+	{
+		return nullptr;
+	}
+	
+	if (InWidget->GetType() == TEXT("SToolTip"))
+	{
+		return StaticCastSharedPtr<SToolTip>(InWidget);
+	}
+	
+	for (int32 ChildIndex = 0; ChildIndex < InWidget->GetChildren()->Num(); ChildIndex++)
+	{
+		TSharedRef<SWidget> ChildWidget = InWidget->GetChildren()->GetChildAt(ChildIndex);
+		TSharedPtr<SToolTip> ToolTipWidget = FindChildToolTipWidget(ChildWidget.ToSharedPtr());
+		
+		if (ToolTipWidget.IsValid())
+		{
+			return ToolTipWidget;
+		}
+	}
+	
+	return nullptr;
 }
