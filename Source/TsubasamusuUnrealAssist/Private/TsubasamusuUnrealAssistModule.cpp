@@ -132,6 +132,13 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 
 bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
 {
+	UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+	if (TsubasamusuUnrealAssistSettings->bEnableNodePreview && !NodePreviewer.IsValid())
+	{
+		StartNodePreview();
+	}
+	
 	if (NodePreviewer.IsValid())
 	{
 		NodePreviewer->TryPreviewNode();
