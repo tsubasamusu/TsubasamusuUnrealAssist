@@ -5,6 +5,7 @@
 #include "BlueprintNodeSpawner.h"
 #include "GraphActionNode.h"
 #include "NodeFactory.h"
+#include "SDocumentationToolTip.h"
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
@@ -166,6 +167,31 @@ TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 	NodeWidget->SlatePrepass();
 	
 	return NodeWidget;
+}
+
+TSharedPtr<SDocumentationToolTip> FNodePreviewer::FindDocumentationToolTip()
+{
+	TArray<TSharedRef<SWindow>> TopLevelWindows = FSlateApplication::Get().GetTopLevelWindows();
+	
+	for (const TSharedRef<SWindow>& TopLevelWindow : TopLevelWindows)
+	{
+		if (TopLevelWindow->GetType() == EWindowType::ToolTip)
+		{
+			TSharedPtr<SToolTip> ToolTipWidget = FindChildToolTipWidget(TopLevelWindow);
+			
+			if (ToolTipWidget.IsValid())
+			{
+				TSharedRef<SWidget> ContentWidget = ToolTipWidget->GetContentWidget();
+				
+				if (ContentWidget->GetType() == TEXT("SDocumentationToolTip"))
+				{
+					return StaticCastSharedRef<SDocumentationToolTip>(ContentWidget);
+				}
+			}
+		}
+	}
+	
+	return nullptr;
 }
 
 UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)

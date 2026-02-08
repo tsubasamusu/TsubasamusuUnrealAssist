@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+class SDocumentationToolTip;
 struct FGraphActionNode;
 
 class FNodePreviewer final : public FGCObject
@@ -25,6 +26,7 @@ private:
 	static TSharedPtr<FGraphActionNode> GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
+	static TSharedPtr<SDocumentationToolTip> FindDocumentationToolTip();
 	static TSharedPtr<SToolTip> FindChildToolTipWidget(const TSharedPtr<SWidget> InWidget);
 	UEdGraphNode* CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode);
 	
