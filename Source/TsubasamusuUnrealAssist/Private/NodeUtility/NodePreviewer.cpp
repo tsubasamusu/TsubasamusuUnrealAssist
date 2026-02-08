@@ -11,6 +11,29 @@
 
 void FNodePreviewer::TryPreviewNode()
 {
+	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
+	
+	if (!IsNodeSelectionWidget(HoveredWidget))
+	{
+		return;
+	}
+	
+	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNodeFromWidget(HoveredWidget);
+	check(GraphActionNode.IsValid());
+	
+	if (!CachedGraphActionNode.IsValid() || !CachedNodeWidget.IsValid() || GraphActionNode != CachedGraphActionNode)
+	{
+		UEdGraphNode* Node = CreateNodeFromGraphActionNode(GraphActionNode);
+		
+		if (IsValid(Node))
+		{
+			TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
+			check(NodeWidget.IsValid());
+			
+			CachedGraphActionNode = GraphActionNode;
+			CachedNodeWidget = NodeWidget;
+		}
+	}
 }
 
 TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
