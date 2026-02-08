@@ -6,7 +6,7 @@
 
 struct FGraphActionNode;
 
-class FNodePreviewUtility final
+class FNodePreviewer final
 {
 public:
 	static TSharedPtr<SWidget> GetHoveredWidget();

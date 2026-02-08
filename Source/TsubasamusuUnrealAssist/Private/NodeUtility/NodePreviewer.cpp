@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/NodePreviewUtility.h"
+#include "NodeUtility/NodePreviewer.h"
 #include "BlueprintActionMenuItem.h"
 #include "BlueprintNodeSpawner.h"
 #include "GraphActionNode.h"
@@ -9,7 +9,7 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 
-TSharedPtr<SWidget> FNodePreviewUtility::GetHoveredWidget()
+TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();
 	const FVector2f CursorPosition = SlateApplication.GetCursorPos();
@@ -28,7 +28,7 @@ TSharedPtr<SWidget> FNodePreviewUtility::GetHoveredWidget()
 	return nullptr;
 }
 
-bool FNodePreviewUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+bool FNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
 	
@@ -50,7 +50,7 @@ bool FNodePreviewUtility::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidg
 	return false;
 }
 
-TSharedPtr<FGraphActionNode> FNodePreviewUtility::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
 	
@@ -83,7 +83,7 @@ TSharedPtr<FGraphActionNode> FNodePreviewUtility::GetGraphActionNodeFromWidget(c
 	return nullptr;
 }
 
-TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewUtility::GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewer::GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget)
 {
 	TSharedPtr<SWidget> TargetWidget = InWidget;
 	
@@ -105,7 +105,7 @@ TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewUtility::GetNode
 	return nullptr;
 }
 
-UEdGraphNode* FNodePreviewUtility::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
+UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
 {
 	if (!InGraphActionNode.IsValid())
 	{
@@ -133,7 +133,7 @@ UEdGraphNode* FNodePreviewUtility::CreateNodeFromGraphActionNode(const TSharedPt
 	return  BlueprintNodeSpawner->Invoke(TemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 }
 
-TSharedPtr<SGraphNode> FNodePreviewUtility::CreateNodeWidget(UEdGraphNode* InNode)
+TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 {
 	if (!IsValid(InNode))
 	{
