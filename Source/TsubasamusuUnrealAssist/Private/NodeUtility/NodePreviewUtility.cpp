@@ -4,6 +4,8 @@
 #include "BlueprintActionMenuItem.h"
 #include "BlueprintNodeSpawner.h"
 #include "GraphActionNode.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/KismetEditorUtilities.h"
 
 TSharedPtr<SWidget> FNodePreviewUtility::GetHoveredWidget()
 {
@@ -101,7 +103,7 @@ TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewUtility::GetNode
 	return nullptr;
 }
 
-UK2Node* FNodePreviewUtility::GetTemplateK2NodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
+UEdGraphNode* FNodePreviewUtility::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
 {
 	if (!InGraphActionNode.IsValid())
 	{
@@ -110,17 +112,12 @@ UK2Node* FNodePreviewUtility::GetTemplateK2NodeFromGraphActionNode(const TShared
 	
 	TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
 	
-	if (!PrimaryAction.IsValid())
+	if (!PrimaryAction.IsValid() || !PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
 	{
 		return nullptr;
 	}
-	
-	if (!PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
-	{
-		return nullptr;
-	}
-	
-	TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
+
+	const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
 	const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
 					
 	if (!IsValid(BlueprintNodeSpawner))
@@ -128,19 +125,8 @@ UK2Node* FNodePreviewUtility::GetTemplateK2NodeFromGraphActionNode(const TShared
 		return nullptr;
 	}
 	
-	UEdGraphNode* TemplateNode = BlueprintNodeSpawner->GetTemplateNode();
-						
-	if (!IsValid(TemplateNode))
-	{
-		return nullptr;
-	}
+	UBlueprint* TemporaryBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(),GetTransientPackage(), NAME_None,BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+	UEdGraph* TemporaryGraph = FBlueprintEditorUtils::CreateNewGraph(TemporaryBlueprint, FName("TempGraph"),UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 	
-	UK2Node* K2Node = Cast<UK2Node>(TemplateNode);
-							
-	if (IsValid(K2Node))
-	{
-		return K2Node;
-	}
-	
-	return nullptr;
+	return  BlueprintNodeSpawner->Invoke(TemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 }
