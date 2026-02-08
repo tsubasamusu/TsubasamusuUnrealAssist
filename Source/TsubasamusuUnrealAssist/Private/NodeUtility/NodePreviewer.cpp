@@ -36,6 +36,12 @@ void FNodePreviewer::TryPreviewNode()
 	}
 }
 
+void FNodePreviewer::AddReferencedObjects(FReferenceCollector& Collector)
+{
+	Collector.AddReferencedObject(CachedBlueprint);
+	Collector.AddReferencedObject(CachedGraph);
+}
+
 TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();
@@ -132,6 +138,23 @@ TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewer::GetNodeTreeV
 	return nullptr;
 }
 
+TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
+{
+	if (!IsValid(InNode))
+	{
+		return nullptr;
+	}
+	
+	InNode->AllocateDefaultPins();
+	InNode->ReconstructNode();
+	
+	TSharedPtr<SGraphNode> NodeWidget = FNodeFactory::CreateNodeWidget(InNode);
+	NodeWidget->UpdateGraphNode();
+	NodeWidget->SlatePrepass();
+	
+	return NodeWidget;
+}
+
 UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
 {
 	if (!InGraphActionNode.IsValid())
@@ -154,25 +177,15 @@ UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGr
 		return nullptr;
 	}
 	
-	UBlueprint* TemporaryBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(),GetTransientPackage(), NAME_None,BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
-	UEdGraph* TemporaryGraph = FBlueprintEditorUtils::CreateNewGraph(TemporaryBlueprint, FName("TempGraph"),UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
-	
-	return  BlueprintNodeSpawner->Invoke(TemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
-}
-
-TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
-{
-	if (!IsValid(InNode))
+	if (!IsValid(CachedBlueprint))
 	{
-		return nullptr;
+		CachedBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(),GetTransientPackage(), NAME_None,BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
 	}
 	
-	InNode->AllocateDefaultPins();
-	InNode->ReconstructNode();
+	if (!IsValid(CachedGraph))
+	{
+		CachedGraph= FBlueprintEditorUtils::CreateNewGraph(CachedBlueprint, FName("TempGraph"),UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	}
 	
-	TSharedPtr<SGraphNode> NodeWidget = FNodeFactory::CreateNodeWidget(InNode);
-	NodeWidget->UpdateGraphNode();
-	NodeWidget->SlatePrepass();
-	
-	return NodeWidget;
+	return  BlueprintNodeSpawner->Invoke(CachedGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 }
