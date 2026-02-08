@@ -4,6 +4,8 @@
 #include "BlueprintActionMenuItem.h"
 #include "BlueprintNodeSpawner.h"
 #include "GraphActionNode.h"
+#include "NodeFactory.h"
+#include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 
@@ -129,4 +131,21 @@ UEdGraphNode* FNodePreviewUtility::CreateNodeFromGraphActionNode(const TSharedPt
 	UEdGraph* TemporaryGraph = FBlueprintEditorUtils::CreateNewGraph(TemporaryBlueprint, FName("TempGraph"),UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 	
 	return  BlueprintNodeSpawner->Invoke(TemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+}
+
+TSharedPtr<SGraphNode> FNodePreviewUtility::CreateNodeWidget(UEdGraphNode* InNode)
+{
+	if (!IsValid(InNode))
+	{
+		return nullptr;
+	}
+	
+	InNode->AllocateDefaultPins();
+	InNode->ReconstructNode();
+	
+	TSharedPtr<SGraphNode> NodeWidget = FNodeFactory::CreateNodeWidget(InNode);
+	NodeWidget->UpdateGraphNode();
+	NodeWidget->SlatePrepass();
+	
+	return NodeWidget;
 }
