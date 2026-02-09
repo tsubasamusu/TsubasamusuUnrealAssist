@@ -132,12 +132,21 @@ TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const 
 			
 			if (NodeTreeView.IsValid())
 			{
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
 				const TObjectPtrWrapTypeOf<TSharedPtr<FGraphActionNode>>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
 				
 				if (GraphActionNodePtr->IsValid())
 				{
 					return GraphActionNodePtr->ToSharedRef();
 				}
+#else
+				const TSharedPtr<FGraphActionNode>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
+				
+				if (GraphActionNodePtr && GraphActionNodePtr->IsValid())
+				{
+					return *GraphActionNodePtr;
+				}
+#endif
 			}
 		}
 		
