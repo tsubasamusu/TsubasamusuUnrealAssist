@@ -34,9 +34,9 @@ private:
 	static TSharedPtr<SWidget> FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget);
 	static TSharedPtr<SInlineEditableTextBlock> FindParentInlineEditableTextBlock(const TSharedPtr<SWidget> InWidget);
 	
-	TSharedPtr<FGraphActionNode> CachedGraphActionNode;
-	TSharedPtr<SGraphNode> CachedNodeWidget;
+	TWeakPtr<SWidget> WidgetWhoseToolTipWasPreviouslyEdited;
+	TWeakPtr<SToolTip> LastBeforeEditingToolTipWidget;
 	
-	TObjectPtr<UBlueprint> CachedBlueprint;
-	TObjectPtr<UEdGraph> CachedGraph;
+	TObjectPtr<UBlueprint> CachedTemporaryBlueprint;
+	TObjectPtr<UEdGraph> CachedTemporaryGraph;
 };

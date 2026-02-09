@@ -14,46 +14,69 @@ void FNodePreviewer::TryPreviewNode()
 {
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
 	
-	if (!HoveredWidget.IsValid())
+	if (!HoveredWidget.IsValid() || !IsNodeSelectionWidget(HoveredWidget))
 	{
 		return;
 	}
 	
-	if (!IsNodeSelectionWidget(HoveredWidget))
+	const TSharedPtr<SWidget> WidgetDisplayingToolTip = FindWidgetDisplayingToolTipFromNodeSelectionWidget(HoveredWidget);
+	
+	if (!WidgetDisplayingToolTip.IsValid())
 	{
 		return;
+	}
+	
+	const TSharedPtr<SToolTip> CurrentToolTipWidget = StaticCastSharedPtr<SToolTip>(WidgetDisplayingToolTip->GetToolTip());
+	
+	if (WidgetWhoseToolTipWasPreviouslyEdited.IsValid() && WidgetDisplayingToolTip == WidgetWhoseToolTipWasPreviouslyEdited.Pin())
+	{
+		return;
+	}
+	
+	// To preview a different node than the last one, restore the tooltip from the previous edit.
+	if (LastBeforeEditingToolTipWidget.IsValid())
+	{
+		WidgetWhoseToolTipWasPreviouslyEdited.Pin()->SetToolTip(LastBeforeEditingToolTipWidget.Pin());
+		
+		WidgetWhoseToolTipWasPreviouslyEdited.Reset();
+		LastBeforeEditingToolTipWidget.Reset();
 	}
 	
 	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNodeFromWidget(HoveredWidget);
 	check(GraphActionNode.IsValid());
 	
-	if (!CachedGraphActionNode.IsValid() || !CachedNodeWidget.IsValid() || GraphActionNode != CachedGraphActionNode)
-	{
-		UEdGraphNode* Node = CreateNodeFromGraphActionNode(GraphActionNode);
-		
-		if (IsValid(Node))
-		{
-			TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
-			check(NodeWidget.IsValid());
-			
-			CachedGraphActionNode.Reset();
-			CachedNodeWidget.Reset();
-			
-			CachedGraphActionNode = GraphActionNode;
-			CachedNodeWidget = NodeWidget;
-		}
-	}
+	UEdGraphNode* Node = CreateNodeFromGraphActionNode(GraphActionNode);
+	check(IsValid(Node));
 	
-	if (!CachedNodeWidget.IsValid())
-	{
-		return;
-	}
+	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
+	check(NodeWidget.IsValid());
+	
+	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
+	[
+		SNew(SVerticalBox)
+		+SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			NodeWidget.ToSharedRef()
+		]
+		+SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(0.f, 5.f, 0.f, 0.f))
+		[
+			CurrentToolTipWidget.ToSharedRef()
+		]
+	];
+	
+	WidgetDisplayingToolTip->SetToolTip(NewToolTip);
+	
+	WidgetWhoseToolTipWasPreviouslyEdited = WidgetDisplayingToolTip;
+	LastBeforeEditingToolTipWidget = CurrentToolTipWidget;
 }
 
 void FNodePreviewer::AddReferencedObjects(FReferenceCollector& Collector)
 {
-	Collector.AddReferencedObject(CachedBlueprint);
-	Collector.AddReferencedObject(CachedGraph);
+	Collector.AddReferencedObject(CachedTemporaryBlueprint);
+	Collector.AddReferencedObject(CachedTemporaryGraph);
 }
 
 TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
@@ -191,17 +214,17 @@ UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGr
 		return nullptr;
 	}
 	
-	if (!IsValid(CachedBlueprint))
+	if (!IsValid(CachedTemporaryBlueprint))
 	{
-		CachedBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+		CachedTemporaryBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
 	}
 	
-	if (!IsValid(CachedGraph))
+	if (!IsValid(CachedTemporaryGraph))
 	{
-		CachedGraph = FBlueprintEditorUtils::CreateNewGraph(CachedBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+		CachedTemporaryGraph = FBlueprintEditorUtils::CreateNewGraph(CachedTemporaryBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 	}
 	
-	return BlueprintNodeSpawner->Invoke(CachedGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+	return BlueprintNodeSpawner->Invoke(CachedTemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 }
 
 TSharedPtr<SWidget> FNodePreviewer::FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget)
