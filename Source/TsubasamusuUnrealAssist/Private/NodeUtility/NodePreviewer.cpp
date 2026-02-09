@@ -3,12 +3,17 @@
 #include "NodeUtility/NodePreviewer.h"
 #include "BlueprintActionMenuItem.h"
 #include "BlueprintNodeSpawner.h"
-#include "GraphActionNode.h"
 #include "NodeFactory.h"
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#include "GraphActionNode.h"
+#else
+#include "GraphEditor/Private/GraphActionNode.h"
+#endif
 
 void FNodePreviewer::TryPreviewNode()
 {
