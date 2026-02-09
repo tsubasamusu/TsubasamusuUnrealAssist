@@ -5,10 +5,10 @@
 #include "BlueprintNodeSpawner.h"
 #include "GraphActionNode.h"
 #include "NodeFactory.h"
-#include "SDocumentationToolTip.h"
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "Widgets/Text/SInlineEditableTextBlock.h"
 
 void FNodePreviewer::TryPreviewNode()
 {
@@ -169,31 +169,6 @@ TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 	return NodeWidget;
 }
 
-TSharedPtr<SDocumentationToolTip> FNodePreviewer::FindDocumentationToolTip()
-{
-	TArray<TSharedRef<SWindow>> TopLevelWindows = FSlateApplication::Get().GetTopLevelWindows();
-	
-	for (const TSharedRef<SWindow>& TopLevelWindow : TopLevelWindows)
-	{
-		if (TopLevelWindow->GetType() == EWindowType::ToolTip)
-		{
-			TSharedPtr<SToolTip> ToolTipWidget = FindChildToolTipWidget(TopLevelWindow);
-			
-			if (ToolTipWidget.IsValid())
-			{
-				TSharedRef<SWidget> ContentWidget = ToolTipWidget->GetContentWidget();
-				
-				if (ContentWidget->GetType() == TEXT("SDocumentationToolTip"))
-				{
-					return StaticCastSharedRef<SDocumentationToolTip>(ContentWidget);
-				}
-			}
-		}
-	}
-	
-	return nullptr;
-}
-
 UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
 {
 	if (!InGraphActionNode.IsValid())
@@ -218,38 +193,54 @@ UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGr
 	
 	if (!IsValid(CachedBlueprint))
 	{
-		CachedBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(),GetTransientPackage(), NAME_None,BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+		CachedBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
 	}
 	
 	if (!IsValid(CachedGraph))
 	{
-		CachedGraph= FBlueprintEditorUtils::CreateNewGraph(CachedBlueprint, FName("TempGraph"),UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+		CachedGraph = FBlueprintEditorUtils::CreateNewGraph(CachedBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 	}
 	
 	return BlueprintNodeSpawner->Invoke(CachedGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 }
 
-TSharedPtr<SToolTip> FNodePreviewer::FindChildToolTipWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<SWidget> FNodePreviewer::FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget)
 {
-	if (!InWidget.IsValid())
+	if (InNodeSelectionWidget.IsValid())
 	{
-		return nullptr;
-	}
-	
-	if (InWidget->GetType() == TEXT("SToolTip"))
-	{
-		return StaticCastSharedPtr<SToolTip>(InWidget);
-	}
-	
-	for (int32 ChildIndex = 0; ChildIndex < InWidget->GetChildren()->Num(); ChildIndex++)
-	{
-		TSharedRef<SWidget> ChildWidget = InWidget->GetChildren()->GetChildAt(ChildIndex);
-		TSharedPtr<SToolTip> ToolTipWidget = FindChildToolTipWidget(ChildWidget.ToSharedPtr());
-		
-		if (ToolTipWidget.IsValid())
+		if (InNodeSelectionWidget->GetType() == TEXT("SLayeredImage"))
 		{
-			return ToolTipWidget;
+			return InNodeSelectionWidget;
 		}
+	
+		TSharedPtr<SInlineEditableTextBlock> InlineEditableTextBlock = FindParentInlineEditableTextBlock(InNodeSelectionWidget);
+	
+		if (InlineEditableTextBlock.IsValid())
+		{
+			return InlineEditableTextBlock;
+		}
+	}
+	
+	return nullptr;
+}
+
+TSharedPtr<SInlineEditableTextBlock> FNodePreviewer::FindParentInlineEditableTextBlock(const TSharedPtr<SWidget> InWidget)
+{
+	TSharedPtr<SWidget> TargetWidget = InWidget;
+	
+	while (true)
+	{
+		if (!TargetWidget.IsValid())
+		{
+			break;
+		}
+		
+		if (TargetWidget->GetType() == TEXT("SInlineEditableTextBlock"))
+		{
+			return StaticCastSharedPtr<SInlineEditableTextBlock>(TargetWidget);
+		}
+		
+		TargetWidget = TargetWidget->GetParentWidget();
 	}
 	
 	return nullptr;

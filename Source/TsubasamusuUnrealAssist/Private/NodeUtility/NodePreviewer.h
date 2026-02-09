@@ -22,13 +22,17 @@ public:
 	
 private:
 	static TSharedPtr<SWidget> GetHoveredWidget();
+	
 	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
+	
 	static TSharedPtr<FGraphActionNode> GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> GetNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget);
+	
 	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
-	static TSharedPtr<SDocumentationToolTip> FindDocumentationToolTip();
-	static TSharedPtr<SToolTip> FindChildToolTipWidget(const TSharedPtr<SWidget> InWidget);
 	UEdGraphNode* CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode);
+	
+	static TSharedPtr<SWidget> FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget);
+	static TSharedPtr<SInlineEditableTextBlock> FindParentInlineEditableTextBlock(const TSharedPtr<SWidget> InWidget);
 	
 	TSharedPtr<FGraphActionNode> CachedGraphActionNode;
 	TSharedPtr<SGraphNode> CachedNodeWidget;
