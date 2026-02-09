@@ -103,7 +103,13 @@ void FNodePreviewer::AddReferencedObjects(FReferenceCollector& Collector)
 TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();
+	
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2)
 	const FVector2f CursorPosition = SlateApplication.GetCursorPos();
+#else
+	const FVector2D CursorPosition = SlateApplication.GetCursorPos();
+#endif
+	
 	FWidgetPath WidgetPath = SlateApplication.LocateWindowUnderMouse(CursorPosition, SlateApplication.GetInteractiveTopLevelWindows());
  
 	if (WidgetPath.IsValid())
