@@ -43,21 +43,37 @@ void FNodePreviewer::TryPreviewNode()
 	}
 	
 	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNodeFromWidget(HoveredWidget);
-	check(GraphActionNode.IsValid());
+	
+	if (!GraphActionNode.IsValid())
+	{
+		return;
+	}
 	
 	UEdGraphNode* Node = CreateNodeFromGraphActionNode(GraphActionNode);
-	check(IsValid(Node));
+	
+	if (!IsValid(Node))
+	{
+		return;
+	}
 	
 	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
-	check(NodeWidget.IsValid());
+	
+	if (!NodeWidget.IsValid())
+	{
+		return;
+	}
 	
 	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
 	[
 		SNew(SVerticalBox)
 		+SVerticalBox::Slot()
 		.AutoHeight()
+		.HAlign(HAlign_Left)
 		[
-			NodeWidget.ToSharedRef()
+			SNew(SBox)
+			[
+				NodeWidget.ToSharedRef()
+			]
 		]
 		+SVerticalBox::Slot()
 		.AutoHeight()
