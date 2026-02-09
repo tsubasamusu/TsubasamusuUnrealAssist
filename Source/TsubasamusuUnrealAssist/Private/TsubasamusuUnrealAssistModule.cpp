@@ -6,26 +6,48 @@
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
+#include "NodeUtility/NodePreviewer.h"
+#include "Setting/TsubasamusuEditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
 void FTsubasamusuUnrealAssistModule::StartupModule()
 {
-#if WITH_EDITOR
 	RegisterSettings();
 	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
-#endif
+	RegisterTicker();
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
-#if WITH_EDITOR
 	UnregisterOnPostEngineInitEvent();
 	UnregisterOnEditorLanguageChangedEvent();
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
-#endif
+	UnregisterTicker();
+}
+
+void FTsubasamusuUnrealAssistModule::ReregisterTicker()
+{
+	UnregisterTicker();
+	RegisterTicker();
+}
+
+void FTsubasamusuUnrealAssistModule::StartNodePreview()
+{
+	if (!NodePreviewer.IsValid())
+	{
+		NodePreviewer = MakeShared<FNodePreviewer>();
+	}
+}
+
+void FTsubasamusuUnrealAssistModule::StopNodePreview()
+{
+	if (NodePreviewer.IsValid())
+	{
+		NodePreviewer.Reset();
+	}
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
@@ -78,6 +100,20 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent()
 	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
 }
 
+void FTsubasamusuUnrealAssistModule::RegisterTicker()
+{
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	TickHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FTsubasamusuUnrealAssistModule::Tick), TsubasamusuUnrealAssistSettings->TickInterval);
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterTicker()
+{
+	if (TickHandle.IsValid())
+	{
+		FTSTicker::GetCoreTicker().RemoveTicker(TickHandle);
+	}
+}
+
 void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
@@ -92,6 +128,23 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	const FName SettingsClassName = UTsubasamusuUnrealAssistSettings::StaticClass()->GetFName();
 	
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
+}
+
+bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
+{
+	UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+	if (TsubasamusuUnrealAssistSettings->bEnableNodePreview && !NodePreviewer.IsValid())
+	{
+		StartNodePreview();
+	}
+	
+	if (NodePreviewer.IsValid())
+	{
+		NodePreviewer->TryPreviewNode();
+	}
+	
+	return true;
 }
 
 #undef LOCTEXT_NAMESPACE

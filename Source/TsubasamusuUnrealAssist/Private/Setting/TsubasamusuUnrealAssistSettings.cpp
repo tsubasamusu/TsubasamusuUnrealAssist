@@ -1,11 +1,15 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "TsubasamusuUnrealAssistModule.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	// General
+	TickInterval = 0.f;
+	
 	// Comment Translation
 	DeeplApiKey = TEXT("");
 
@@ -18,6 +22,9 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bIgnoreCommentNodesWhenGeneratingComments = false;
 	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
+	
+	// Node Preview
+	bEnableNodePreview = false;
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -31,6 +38,25 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		if (bUseEditorLanguageForCommentGeneration)
 		{
 			MakeCommentGenerationLanguageSameAsEditorLanguage();
+		}
+	}
+	
+	FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
+	
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
+	{
+		TsubasamusuUnrealAssist.ReregisterTicker();
+	}
+	
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
+	{
+		if (bEnableNodePreview)
+		{
+			TsubasamusuUnrealAssist.StartNodePreview();
+		}
+		else
+		{
+			TsubasamusuUnrealAssist.StopNodePreview();
 		}
 	}
 }

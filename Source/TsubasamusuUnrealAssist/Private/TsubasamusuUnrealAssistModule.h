@@ -5,15 +5,19 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class IAssetTypeActions;
-class ISettingsModule;
+class FNodePreviewer;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-
+	
+	void ReregisterTicker();
+	
+	void StartNodePreview();
+	void StopNodePreview();
+	
 private:
 	void RegisterOnPostEngineInitEvent();
 	void UnregisterOnPostEngineInitEvent() const;
@@ -24,14 +28,21 @@ private:
 	void RegisterOnEditorLanguageChangedEvent();
 	void UnregisterOnEditorLanguageChangedEvent();
 	
+	void RegisterTicker();
+	void UnregisterTicker();
+	
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
-	TArray<TSharedPtr<IAssetTypeActions>> CreatedAssetTypeActions;
+	bool Tick(float /* DeltaTime */);
+	
 	FDelegateHandle OnPostEngineInitHandle;
 	FDelegateHandle OnEditorLanguageChangedHandle;
+	FTSTicker::FDelegateHandle TickHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");
 	const FName SettingsSectionName = TEXT("Tsubasamusu Unreal Assist");
+	
+	TSharedPtr<FNodePreviewer> NodePreviewer;
 };
