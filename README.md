@@ -20,7 +20,7 @@ The following engine versions have been confirmed to work with this plugin.
 - 5.7
 
 # Features
-## Right Click Menu in Blueprint Graph
+## Features in Blueprint Graph
 ### Generate Comments
 Generate comments using Open AI's API key. Please pay close attention to API usage when using this feature.
 
@@ -421,6 +421,11 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 </details>
 
 In this example, the character count for JSON is 7,986 characters. The character count for TOON is 3,316 characters. With Unreal Engine’s standard copy function, it is 23,278 characters.
+
+### Node Preview
+Display a preview of the node you’re hovering over in the Blueprint node search window. Previews can be shown not only for nodes already defined inside the engine, but also for functions, custom events, variables, macros, and more that were added in the Blueprint. To enable this feature, you need to check “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Enable Node Preview.”
+
+<img width="500" src="https://github.com/user-attachments/assets/df8661ec-6444-460e-82f3-b7b540351108">
 
 ## Blueprint Function Library for Editor Utilty
 ### Replace Assets References
