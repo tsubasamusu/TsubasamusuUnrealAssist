@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class IAssetTypeActions;
 class FNodePreviewer;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
@@ -31,6 +32,9 @@ private:
 	void RegisterTicker();
 	void UnregisterTicker();
 	
+	void RegisterAssetTypeActions();
+	void UnregisterAssetTypeActions();
+
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
@@ -45,4 +49,5 @@ private:
 	const FName SettingsSectionName = TEXT("Tsubasamusu Unreal Assist");
 	
 	TSharedPtr<FNodePreviewer> NodePreviewer;
+	TArray<TSharedPtr<IAssetTypeActions>> AssetTypeActionsArray;
 };

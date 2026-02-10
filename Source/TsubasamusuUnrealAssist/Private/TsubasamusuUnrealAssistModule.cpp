@@ -1,6 +1,9 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "TsubasamusuUnrealAssistModule.h"
+#include "AssetToolsModule.h"
+#include "AssetTypeActions_TsubasamusuBlueprint.h"
+#include "IAssetTools.h"
 #include "ISettingsModule.h"
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
@@ -17,6 +20,7 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 	RegisterSettingsCustomization();
 	RegisterOnPostEngineInitEvent();
 	RegisterTicker();
+	RegisterAssetTypeActions();
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
@@ -26,6 +30,7 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
 	UnregisterTicker();
+	UnregisterAssetTypeActions();
 }
 
 void FTsubasamusuUnrealAssistModule::ReregisterTicker()
@@ -111,6 +116,33 @@ void FTsubasamusuUnrealAssistModule::UnregisterTicker()
 	if (TickHandle.IsValid())
 	{
 		FTSTicker::GetCoreTicker().RemoveTicker(TickHandle);
+	}
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterAssetTypeActions()
+{
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools")).Get();
+	const TSharedRef<IAssetTypeActions> AssetTypeActions = MakeShared<FAssetTypeActions_TsubasamusuBlueprint>();
+	
+	AssetTools.RegisterAssetTypeActions(AssetTypeActions);
+	AssetTypeActionsArray.Add(AssetTypeActions);
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterAssetTypeActions()
+{
+	if (FModuleManager::Get().IsModuleLoaded(TEXT("AssetTools")))
+	{
+		IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools")).Get();
+	
+		for (const TSharedPtr<IAssetTypeActions> AssetTypeActions : AssetTypeActionsArray)
+		{
+			if (AssetTypeActions.IsValid())
+			{
+				AssetTools.UnregisterAssetTypeActions(AssetTypeActions.ToSharedRef());
+			}
+		}
+	
+		AssetTypeActionsArray.Empty();
 	}
 }
 
