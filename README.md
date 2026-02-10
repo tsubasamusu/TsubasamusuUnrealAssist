@@ -427,6 +427,12 @@ Display a preview of the node you’re hovering over in the Blueprint node searc
 
 <img width="500" src="https://github.com/user-attachments/assets/df8661ec-6444-460e-82f3-b7b540351108">
 
+When you check “Enable Node Preview,” the following properties become editable.
+
+| Property Name | Description |
+----|----
+| Node Preview Scale  | The scale of node preview. The default value is 1.0. |
+
 ## Blueprint Function Library for Editor Utilty
 ### Replace Assets References
 Replace reference to `From` with `To`.
