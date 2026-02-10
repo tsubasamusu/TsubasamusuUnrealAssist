@@ -4,7 +4,7 @@
 	"VersionName": "0.9.2",
 	"FriendlyName": "TsubasamusuUnrealAssist",
 	"Description": "An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want.",
-	"Category": "TSUBASAMUSU",
+	"Category": "Editor",
 	"CreatedBy": "tsubasamusu",
 	"CreatedByURL": "https://tsubasamusu.com",
 	"DocsURL": "https://github.com/tsubasamusu/TsubasamusuUnrealAssist",
