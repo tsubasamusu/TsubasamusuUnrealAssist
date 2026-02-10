@@ -64,14 +64,19 @@ void FNodePreviewer::TryPreviewNode()
 		return;
 	}
 	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+	if (TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && Node->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
+	{
+		Node->AdvancedPinDisplay = ENodeAdvancedPins::Shown;
+	}
+	
 	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
 	
 	if (!NodeWidget.IsValid())
 	{
 		return;
 	}
-	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
 	[

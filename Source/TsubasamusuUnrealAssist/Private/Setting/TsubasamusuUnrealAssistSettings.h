@@ -64,6 +64,10 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Node Preview")
 	bool bEnableNodePreview;
 	
+	/* Whether to display pins that are hidden by default in the node preview. For example, pins such as TextColor, Duration, and Key of the PrintString node. */
+	UPROPERTY(EditAnywhere, config, Category = "Node Preview", meta = (EditCondition = "bEnableNodePreview"))
+	bool bAlsoPreviewAdvancedView;
+	
 	/* The scale of node preview. */
 	UPROPERTY(EditAnywhere, config, Category = "Node Preview", meta = (DisplayName = "Preview Scale", ClampMin = "0.0", EditCondition = "bEnableNodePreview"))
 	float NodePreviewScale;

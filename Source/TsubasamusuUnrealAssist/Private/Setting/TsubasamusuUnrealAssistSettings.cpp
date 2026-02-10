@@ -25,6 +25,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	
 	// Node Preview
 	bEnableNodePreview = false;
+	bAlsoPreviewAdvancedView = false;
 	NodePreviewScale = 1.f;
 }
 
