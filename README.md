@@ -431,7 +431,8 @@ When you check “Enable Node Preview,” the following properties become editab
 
 | Property Name | Description |
 ----|----
-| Node Preview Scale  | The scale of node preview. The default value is 1.0. |
+| Preview Scale  | The scale of node preview. The default value is 1.0. |
+| Also Preview Advanced View  | Whether to display pins that are hidden by default in node preview. For example, pins such as TextColor, Duration, and Key of the PrintString node. |
 
 ## Blueprint Function Library for Editor Utilty
 ### Replace Assets References
