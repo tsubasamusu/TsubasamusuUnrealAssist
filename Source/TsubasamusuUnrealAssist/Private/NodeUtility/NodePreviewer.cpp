@@ -7,6 +7,9 @@
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "Setting/TsubasamusuEditorSettingsUtility.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
@@ -68,19 +71,26 @@ void FNodePreviewer::TryPreviewNode()
 		return;
 	}
 	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
 	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
 	[
 		SNew(SVerticalBox)
-		+SVerticalBox::Slot()
+		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Left)
 		[
 			SNew(SBox)
+			.HeightOverride(NodeWidget->GetDesiredSize().Y * TsubasamusuUnrealAssistSettings->NodePreviewScale)
 			[
-				NodeWidget.ToSharedRef()
+				SNew(SScaleBox)
+				.Stretch(EStretch::ScaleToFitY)
+				[
+					NodeWidget.ToSharedRef()
+				]
 			]
 		]
-		+SVerticalBox::Slot()
+		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.Padding(FMargin(0.f, 5.f, 0.f, 0.f))
 		[
@@ -200,6 +210,7 @@ TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 	InNode->ReconstructNode();
 	
 	TSharedPtr<SGraphNode> NodeWidget = FNodeFactory::CreateNodeWidget(InNode);
+	
 	NodeWidget->UpdateGraphNode();
 	NodeWidget->SlatePrepass();
 	
