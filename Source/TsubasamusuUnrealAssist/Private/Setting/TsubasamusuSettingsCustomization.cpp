@@ -3,6 +3,7 @@
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
+#include "FMessageDialogUtility.h"
 #include "Setting/SLanguageComboButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Input/SButton.h"
@@ -263,13 +264,8 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
             .OnClicked_Lambda([]()
             {
                 const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
-                const FText WarningTitle = LOCTEXT("ApplyRecommendedEditorSettingsWarningTitle", "Tsubasamusu Unreal Assist Warning");
                 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
-                if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, WarningTitle))
-#else
-                if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, &WarningTitle))
-#endif
+                if (FMessageDialogUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
                 {
                     FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
                 }
