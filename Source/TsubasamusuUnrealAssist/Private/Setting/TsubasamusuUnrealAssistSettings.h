@@ -16,7 +16,7 @@ public:
 
 #pragma region General
 	/* The tick interval of Tsubasamusu Unreal Assist. If set to 0 seconds, the tick processing will run every frame. */
-	UPROPERTY(EditAnywhere, config, Category = "General", meta = (ClampMin = "0.0", ClampMax = "1.0", Units = "s"))
+	UPROPERTY(EditAnywhere, config, Category = "General", meta = (ClampMin = "0.0", Units = "s"))
 	float TickInterval;
 #pragma endregion
 
@@ -63,6 +63,10 @@ public:
 	/* Whether to display a preview of the node being hovered over in the node search window. */
 	UPROPERTY(EditAnywhere, config, Category = "Node Preview")
 	bool bEnableNodePreview;
+	
+	/* The scale of node preview. */
+	UPROPERTY(EditAnywhere, config, Category = "Node Preview", meta = (DisplayName = "Preview Scale", ClampMin = "0.0", EditCondition = "bEnableNodePreview"))
+	float NodePreviewScale;
 #pragma endregion
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
