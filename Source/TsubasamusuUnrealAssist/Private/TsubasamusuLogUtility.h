@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Widgets/Notifications/SNotificationList.h"
 #include "CoreMinimal.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTsubasamusuUnrealAssist, Log, All);
@@ -20,3 +21,9 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTsubasamusuUnrealAssist, Log, All);
 { \
 	UE_LOG(LogTsubasamusuUnrealAssist, Error, Format, ##__VA_ARGS__); \
 }
+
+class FTsubasamusuLogUtility final
+{
+public:
+	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState);
+};
