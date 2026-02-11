@@ -21,6 +21,10 @@ void FTsubasamusuBlueprintEditor::CreateDefaultCommands()
 	FBlueprintEditor::CreateDefaultCommands();
 	
 	FTsubasamusuBlueprintEditorCommands::Register();
+	
+	ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().ChangeMemberVariablesAccessSpecifierToPrivate,
+		FExecuteAction::CreateSP(this, &FTsubasamusuBlueprintEditor::ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked),
+		FCanExecuteAction::CreateSP(this, &FBlueprintEditor::IsInAScriptingMode));
 }
 
 void FTsubasamusuBlueprintEditor::RegisterOriginalMenus() const
@@ -40,4 +44,7 @@ void FTsubasamusuBlueprintEditor::RegisterOriginalMenus() const
 	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().ChangeMemberVariablesAccessSpecifierToPrivate);
 }
 
+void FTsubasamusuBlueprintEditor::ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked()
+{
+}
 #undef LOCTEXT_NAMESPACE
