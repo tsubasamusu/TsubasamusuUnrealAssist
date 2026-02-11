@@ -88,6 +88,17 @@ TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBluepr
 	return MemberVariables;
 }
 
+void FTsubasamusuBlueprintEditor::RemoveVariablesDoNotNeedToBeChangedToPrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariableOwnerBlueprint)
+{
+	OutVariables.RemoveAll([VariableOwnerBlueprint](const FProperty* InVariable)
+	{
+		FString PrivateMetaDataValue;
+		FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
+		
+		return PrivateMetaDataValue == TEXT("true") || IsVariableReferencedFromAnyOtherClass(InVariable, VariableOwnerBlueprint);
+	});
+}
+
 bool FTsubasamusuBlueprintEditor::IsVariableReferencedFromAnyOtherClass(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
