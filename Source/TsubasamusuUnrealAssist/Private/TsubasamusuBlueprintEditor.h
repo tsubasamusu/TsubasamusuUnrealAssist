@@ -19,4 +19,5 @@ private:
 	void ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked();
 	
 	static TArray<FProperty*> GetMemberVariables(const UBlueprint* InBlueprint);
+	static bool IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint);
 };

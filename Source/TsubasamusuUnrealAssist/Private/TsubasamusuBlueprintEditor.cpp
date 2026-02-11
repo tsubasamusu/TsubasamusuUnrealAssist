@@ -1,7 +1,11 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "TsubasamusuBlueprintEditor.h"
+#include "K2Node_ComponentBoundEvent.h"
+#include "K2Node_GetClassDefaults.h"
+#include "K2Node_Variable.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
+#include "Algo/AnyOf.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
@@ -80,6 +84,104 @@ TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBluepr
 	}
 	
 	return MemberVariables;
+}
+
+bool FTsubasamusuBlueprintEditor::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
+{
+	const FName VariableNameToCheck = VariableToCheck->GetFName();
+	
+	FGuid VariableGuidToCheck;
+	UBlueprint::GetGuidFromClassByFieldName<FProperty>(VariableOwnerBlueprint->SkeletonGeneratedClass, VariableNameToCheck, VariableGuidToCheck);
+	check(VariableGuidToCheck.IsValid());
+	
+	TArray<UEdGraph*> AllGraphsToCheck;
+	BlueprintToCheck->GetAllGraphs(AllGraphsToCheck);
+
+	for (TArray<UEdGraph*>::TConstIterator GraphConstIterator(AllGraphsToCheck); GraphConstIterator; ++GraphConstIterator)
+	{
+		const UEdGraph* GraphToCheck = *GraphConstIterator;
+
+		if (!IsValid(GraphToCheck))
+		{
+			continue;
+		}
+		
+		// Check variable nodes
+		{
+			TArray<UK2Node_Variable*> VariableNodesInGraph;
+			GraphToCheck->GetNodesOfClass(VariableNodesInGraph);
+		
+			auto IsVariableNodeReferencesVariable = [&VariableGuidToCheck, &VariableNameToCheck](const UK2Node_Variable* InVariableNode)
+			{
+				return VariableGuidToCheck == InVariableNode->VariableReference.GetMemberGuid() && VariableNameToCheck == InVariableNode->GetVarName();
+			};
+
+			if (Algo::AnyOf(VariableNodesInGraph, IsVariableNodeReferencesVariable))
+			{
+				return true;
+			}
+		}
+
+		// Check class default nodes
+		{
+			TArray<UK2Node_GetClassDefaults*> ClassDefaultsNodesInGraph;
+			GraphToCheck->GetNodesOfClass(ClassDefaultsNodesInGraph);
+		
+			auto IsClassDefaultsNodeReferencesVariable = [&VariableNameToCheck, &VariableOwnerBlueprint](const UK2Node_GetClassDefaults* InClassDefaultsNode)
+			{
+				if (InClassDefaultsNode->GetInputClass() == VariableOwnerBlueprint->SkeletonGeneratedClass)
+				{
+					const UEdGraphPin* VariablePin = InClassDefaultsNode->FindPin(VariableNameToCheck);
+				
+					if (VariablePin && VariablePin->Direction == EGPD_Output && VariablePin->LinkedTo.Num() > 0)
+					{
+						return true;
+					}
+				}
+
+				return false;
+			};
+		
+			if (Algo::AnyOf(ClassDefaultsNodesInGraph, IsClassDefaultsNodeReferencesVariable))
+			{
+				return true;
+			}
+		}
+
+		// Check component bound event nodes
+		{
+			TArray<UK2Node_ComponentBoundEvent*> ComponentBoundEventNodes;
+			GraphToCheck->GetNodesOfClass(ComponentBoundEventNodes);
+		
+			auto IsComponentBoundEventNodeReferencesVariable = [&VariableNameToCheck](const UK2Node_ComponentBoundEvent* InComponentBoundEventNode)
+			{
+				return InComponentBoundEventNode->GetComponentPropertyName() == VariableNameToCheck;
+			};
+		
+			if (Algo::AnyOf(ComponentBoundEventNodes, IsComponentBoundEventNodeReferencesVariable))
+			{
+				return true;
+			}
+		}
+
+		// Check other K2 nodes
+		{
+			TArray<const UK2Node*> NodesInGraph;
+			GraphToCheck->GetNodesOfClass(NodesInGraph);
+		
+			auto IsNodeReferencesVariable = [&VariableNameToCheck, &VariableOwnerBlueprint](const UK2Node* InNode)
+			{
+				return InNode->ReferencesVariable(VariableNameToCheck, VariableOwnerBlueprint->SkeletonGeneratedClass);
+			};
+		
+			if (Algo::AnyOf(NodesInGraph, IsNodeReferencesVariable))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE
