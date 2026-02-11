@@ -10,4 +10,10 @@ class FTsubasamusuBlueprintEditor final : public FBlueprintEditor
 public:
 	void InitTsubasamusuBlueprintEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode);
 	TWeakPtr<SGraphEditor> GetFocusedGraphEditor() const;
+	
+protected:
+	virtual void CreateDefaultCommands() override;
+	
+private:
+	void RegisterOriginalMenus() const;
 };
