@@ -2,6 +2,8 @@
 
 #include "TsubasamusuBlueprintEditor.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
+#include "Components/TimelineComponent.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -47,4 +49,37 @@ void FTsubasamusuBlueprintEditor::RegisterOriginalMenus() const
 void FTsubasamusuBlueprintEditor::ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked()
 {
 }
+
+TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBlueprint* InBlueprint)
+{
+	TArray<FProperty*> MemberVariables;
+	
+	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIteratorFlags::ExcludeSuper); PropertyFieldIterator; ++PropertyFieldIterator)
+	{
+		FProperty* Property = *PropertyFieldIterator;
+		
+		const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
+		const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
+		const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
+		const bool bIsMemberVariable = !bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty;
+
+		if (bIsMemberVariable)
+		{
+			const FName VariableName = Property->GetFName();
+			const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, VariableName);
+			const bool bFoundVariable = VariableIndex != INDEX_NONE;
+
+			const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
+			const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
+	
+			if (bFoundVariable && !bIsTimelineComponent)
+			{
+				MemberVariables.Add(Property);
+			}
+		}
+	}
+	
+	return MemberVariables;
+}
+
 #undef LOCTEXT_NAMESPACE

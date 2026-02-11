@@ -17,4 +17,6 @@ protected:
 private:
 	void RegisterOriginalMenus() const;
 	void ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked();
+	
+	static TArray<FProperty*> GetMemberVariables(const UBlueprint* InBlueprint);
 };
