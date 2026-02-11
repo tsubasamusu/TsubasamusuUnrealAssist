@@ -28,7 +28,7 @@ void FTsubasamusuBlueprintEditor::RegisterOriginalMenus() const
 	const FName EditMenuName = *(GetToolMenuName().ToString() + TEXT(".Edit"));
 	const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
 	
-	UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName);
+	UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
 	
 	const FName SectionName = TEXT("EditTsubasamusuUnrealAssist");
 	const FText SectionLabel = LOCTEXT("EditMenu_TsubasamusuUnrealAssist", "Tsubasamusu Unreal Assist");
