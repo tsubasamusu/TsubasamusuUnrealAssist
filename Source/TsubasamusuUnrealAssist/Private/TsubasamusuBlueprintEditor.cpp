@@ -6,7 +6,9 @@
 #include "K2Node_Variable.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
+#include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/TimelineComponent.h"
+#include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
@@ -84,6 +86,59 @@ TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBluepr
 	}
 	
 	return MemberVariables;
+}
+
+bool FTsubasamusuBlueprintEditor::IsVariableReferencedFromAnyOtherClass(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+{
+	const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
+	
+	FARFilter AssetRegistryFilter;
+	AssetRegistryModule.Get().GetReferencers(VariableOwnerBlueprint->GetPackage()->GetFName(), AssetRegistryFilter.PackageNames, UE::AssetRegistry::EDependencyCategory::Package, UE::AssetRegistry::EDependencyQuery::Hard);
+
+	if (AssetRegistryFilter.PackageNames.Num() == 0)
+	{
+		return false;
+	}
+	
+	GWarn->BeginSlowTask(LOCTEXT("LoadingReferencerAssets", "Loading Referencing Assets ..."), true);
+	{
+		AssetRegistryFilter.TagsAndValues.Add(FBlueprintTags::IsDataOnly, TOptional<FString>(TEXT("false")));
+		TArray<FAssetData> ReferencerAssetDataArray;
+		AssetRegistryModule.Get().GetAssets(AssetRegistryFilter, ReferencerAssetDataArray);
+
+		for (const FAssetData& ReferencerAssetData : ReferencerAssetDataArray)
+		{
+			const UObject* ReferencerAsset = ReferencerAssetData.GetAsset();
+			const UBlueprint* ReferencerBlueprint = Cast<const UBlueprint>(ReferencerAsset);
+
+			if (IsValid(ReferencerBlueprint) && ReferencerBlueprint != VariableOwnerBlueprint && IsBlueprintReferencesVariable(ReferencerBlueprint, InVariable, VariableOwnerBlueprint))
+			{
+				GWarn->EndSlowTask();
+				return true;
+			}
+			
+			const UWorld* ReferencerWorld = Cast<const UWorld>(ReferencerAsset);
+			
+			if (IsValid(ReferencerWorld))
+			{
+				const TObjectPtr<ULevel>& PersistentLevel = ReferencerWorld->PersistentLevel;
+				
+				if (IsValid(PersistentLevel) && IsValid(PersistentLevel->OwningWorld))
+				{
+					const ULevelScriptBlueprint* PersistentLevelBlueprint = PersistentLevel->GetLevelScriptBlueprint();
+				
+					if (PersistentLevelBlueprint != VariableOwnerBlueprint && IsBlueprintReferencesVariable(PersistentLevelBlueprint, InVariable, VariableOwnerBlueprint))
+					{
+						GWarn->EndSlowTask();
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	GWarn->EndSlowTask();
+	return false;
 }
 
 bool FTsubasamusuBlueprintEditor::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
