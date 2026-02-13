@@ -5,14 +5,17 @@
 #include "BlueprintEditor.h"
 #include "CoreMinimal.h"
 
-UENUM()
-enum class ETsubasamusuAccessSpecifier : uint8
+namespace TsubasamusuBlueprintEditor
 {
-	None,
-	Private,
-	Protected,
-	Public
-};
+	UENUM()
+	enum class EAccessSpecifier : uint8
+	{
+		None,
+		Private,
+		Protected,
+		Public
+	};
+}
 
 class FTsubasamusuBlueprintEditor final : public FBlueprintEditor
 {
@@ -30,7 +33,7 @@ private:
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static void RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint);
 
-	static ETsubasamusuAccessSpecifier GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint);
+	static TsubasamusuBlueprintEditor::EAccessSpecifier GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint);
 	
 	static TArray<UBlueprint*> GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint = true);
 	static TArray<UBlueprint*> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);

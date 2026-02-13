@@ -142,13 +142,13 @@ void FTsubasamusuBlueprintEditor::RemoveVariablesShouldNotBePrivate(TArray<FProp
 	});
 }
 
-ETsubasamusuAccessSpecifier FTsubasamusuBlueprintEditor::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, VariableOwnerBlueprint);
 	
 	if (BlueprintsReferencesVariable.IsEmpty())
 	{
-		return ETsubasamusuAccessSpecifier::Private;
+		return TsubasamusuBlueprintEditor::EAccessSpecifier::Private;
 	}
 	
 	for (const UBlueprint* BlueprintReferencesVariable : BlueprintsReferencesVariable)
@@ -158,11 +158,11 @@ ETsubasamusuAccessSpecifier FTsubasamusuBlueprintEditor::GetOptimalAccessSpecifi
 		
 		if (!BlueprintReferencesVariableClass->IsChildOf(VariableOwnerBlueprintClass))
 		{
-			return ETsubasamusuAccessSpecifier::Public;
+			return TsubasamusuBlueprintEditor::EAccessSpecifier::Public;
 		}
 	}
 	
-	return ETsubasamusuAccessSpecifier::Protected;
+	return TsubasamusuBlueprintEditor::EAccessSpecifier::Protected;
 }
 
 TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
