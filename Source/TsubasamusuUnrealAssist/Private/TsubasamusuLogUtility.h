@@ -25,6 +25,14 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTsubasamusuUnrealAssist, Log, All);
 class FTsubasamusuLogUtility final
 {
 public:
+	enum class EDialogButton : uint8
+	{
+		OK,
+		Cancel,
+		Close
+	};
+	
 	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState = SNotificationItem::ECompletionState::CS_None);
 	static EAppReturnType::Type OpenWarningMessageDialog(const EAppMsgType::Type InMessageType, const FText& InMessage);
+	static EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = FText::FromString(TEXT("OK")), const FText& CancelButtonText = FText::FromString(TEXT("Cancel")), const TSharedPtr<SWidget> ContentWidget = nullptr);
 };

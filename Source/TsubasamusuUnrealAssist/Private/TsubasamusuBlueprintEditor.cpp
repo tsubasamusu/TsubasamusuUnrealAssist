@@ -9,7 +9,6 @@
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/TimelineComponent.h"
-#include "Dialog/SCustomDialog.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
@@ -77,28 +76,13 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 		return;
 	}
 	
-	const TSharedRef<SCustomDialog> OptimizeAccessSpecifiersDialog = SNew(SCustomDialog)
-		.Title(LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers"))
-		.Content()
-		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot().Padding(10)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members."))
-				.AutoWrapText(true)
-			]
-		]
-		.Buttons(
-		{
-			SCustomDialog::FButton(LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Recommended Access Specifiers"))
-				.SetPrimary(true),
-			SCustomDialog::FButton(LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel"))
-		});
+	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
+	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
+	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Recommended Access Specifiers");
+	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
+	
+	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText);
 
-	// 0 is OK, Cancel is 1, Close is -1
-	const int32 PressedButtonIndex = OptimizeAccessSpecifiersDialog->ShowModal();
 }
 
 TArray<FProperty*> FTsubasamusuBlueprintEditor::GetVariables(const UBlueprint* InBlueprint)

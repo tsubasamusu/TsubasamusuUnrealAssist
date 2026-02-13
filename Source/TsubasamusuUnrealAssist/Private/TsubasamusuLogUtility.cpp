@@ -1,6 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "TsubasamusuLogUtility.h"
+#include "Dialog/SCustomDialog.h"
 #include "Framework/Notifications/NotificationManager.h"
 
 DEFINE_LOG_CATEGORY(LogTsubasamusuUnrealAssist);
@@ -30,6 +31,49 @@ EAppReturnType::Type FTsubasamusuLogUtility::OpenWarningMessageDialog(const EApp
 #else
 	return FMessageDialog::Open(InMessageType, InMessage, &Title);
 #endif
+}
+
+FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget)
+{
+	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
+		.Title(Title)
+		.Content()
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			.Padding(10)
+			.AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text(Message)
+				.AutoWrapText(true)
+			]
+			+ SVerticalBox::Slot()
+			.FillHeight(0.8)
+			[
+				(ContentWidget.IsValid() ? ContentWidget.ToSharedRef() : SNullWidget::NullWidget)
+			]
+		]
+		.Buttons(
+		{
+			SCustomDialog::FButton(OkButtonText).SetPrimary(true),
+			SCustomDialog::FButton(CancelButtonText)
+		});
+
+	const int32 PressedButtonIndex = CustomDialog->ShowModal();
+
+	switch (PressedButtonIndex)
+	{
+		case -1:
+			return EDialogButton::Close;
+		case 0:
+			return EDialogButton::OK;
+		case 1:
+			return EDialogButton::Cancel;
+		default:
+			checkNoEntry()
+			return EDialogButton::Close;
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
