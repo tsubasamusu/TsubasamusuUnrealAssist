@@ -94,13 +94,13 @@ void FTsubasamusuBlueprintEditor::RemoveVariablesShouldNotBePrivate(TArray<FProp
 		FString PrivateMetaDataValue;
 		FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariablesOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
 		
-		return PrivateMetaDataValue == TEXT("true") || !GetBlueprintsReferencesVariable(InVariable, VariablesOwnerBlueprint).IsEmpty();
+		return PrivateMetaDataValue == TEXT("true") || !GetBlueprintsReferenceVariable(InVariable, VariablesOwnerBlueprint).IsEmpty();
 	});
 }
 
 ETsubasamusuAccessSpecifier FTsubasamusuBlueprintEditor::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
-	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferencesVariable(InVariable, VariableOwnerBlueprint);
+	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, VariableOwnerBlueprint);
 	
 	if (BlueprintsReferencesVariable.IsEmpty())
 	{
@@ -121,23 +121,35 @@ ETsubasamusuAccessSpecifier FTsubasamusuBlueprintEditor::GetOptimalAccessSpecifi
 	return ETsubasamusuAccessSpecifier::Protected;
 }
 
-TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferencesVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
+TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
 {
-	TArray<UBlueprint*> BlueprintsReferencesVariable;
+	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(VariableOwnerBlueprint);
+	
+	BlueprintsReferenceVariable.RemoveAll([InVariable, VariableOwnerBlueprint](const UBlueprint* InReferencerBlueprint)
+	{
+		return !IsBlueprintReferencesVariable(InReferencerBlueprint, InVariable, VariableOwnerBlueprint);
+	});
 	
 	if (!bExcludeVariableOwnerBlueprint)
 	{
-		BlueprintsReferencesVariable.Add(const_cast<UBlueprint*>(VariableOwnerBlueprint));
+		BlueprintsReferenceVariable.AddUnique(const_cast<UBlueprint*>(VariableOwnerBlueprint));
 	}
+	
+	return BlueprintsReferenceVariable;
+}
+
+TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
+{
+	TArray<UBlueprint*> ReferencerBlueprints;
 	
 	const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 	
 	FARFilter AssetRegistryFilter;
-	AssetRegistryModule.Get().GetReferencers(VariableOwnerBlueprint->GetPackage()->GetFName(), AssetRegistryFilter.PackageNames, UE::AssetRegistry::EDependencyCategory::Package, UE::AssetRegistry::EDependencyQuery::Hard);
+	AssetRegistryModule.Get().GetReferencers(InReferencedBlueprint->GetPackage()->GetFName(), AssetRegistryFilter.PackageNames, UE::AssetRegistry::EDependencyCategory::Package, UE::AssetRegistry::EDependencyQuery::Hard);
 
 	if (AssetRegistryFilter.PackageNames.Num() == 0)
 	{
-		return BlueprintsReferencesVariable;
+		return ReferencerBlueprints;
 	}
 	
 	GWarn->BeginSlowTask(LOCTEXT("LoadingReferencerAssets", "Loading Referencing Assets ..."), true);
@@ -151,9 +163,9 @@ TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferencesVariable
 			UObject* ReferencerAsset = ReferencerAssetData.GetAsset();
 			UBlueprint* ReferencerBlueprint = Cast<UBlueprint>(ReferencerAsset);
 
-			if (IsValid(ReferencerBlueprint) && ReferencerBlueprint != VariableOwnerBlueprint && IsBlueprintReferencesVariable(ReferencerBlueprint, InVariable, VariableOwnerBlueprint))
+			if (IsValid(ReferencerBlueprint) && ReferencerBlueprint != InReferencedBlueprint)
 			{
-				BlueprintsReferencesVariable.AddUnique(ReferencerBlueprint);
+				ReferencerBlueprints.AddUnique(ReferencerBlueprint);
 				continue;
 			}
 			
@@ -167,9 +179,9 @@ TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferencesVariable
 				{
 					ULevelScriptBlueprint* PersistentLevelBlueprint = PersistentLevel->GetLevelScriptBlueprint();
 				
-					if (PersistentLevelBlueprint != VariableOwnerBlueprint && IsBlueprintReferencesVariable(PersistentLevelBlueprint, InVariable, VariableOwnerBlueprint))
+					if (IsValid(PersistentLevelBlueprint) && PersistentLevelBlueprint != InReferencedBlueprint)
 					{
-						BlueprintsReferencesVariable.AddUnique(PersistentLevelBlueprint);
+						ReferencerBlueprints.AddUnique(PersistentLevelBlueprint);
 						continue;
 					}
 				}
@@ -178,7 +190,7 @@ TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferencesVariable
 	}
 	
 	GWarn->EndSlowTask();
-	return BlueprintsReferencesVariable;
+	return ReferencerBlueprints;
 }
 
 bool FTsubasamusuBlueprintEditor::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
