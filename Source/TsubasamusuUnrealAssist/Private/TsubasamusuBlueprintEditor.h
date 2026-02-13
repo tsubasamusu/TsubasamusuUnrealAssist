@@ -5,6 +5,15 @@
 #include "BlueprintEditor.h"
 #include "CoreMinimal.h"
 
+UENUM()
+enum class ETsubasamusuAccessSpecifier : uint8
+{
+	None,
+	Private,
+	Protected,
+	Public
+};
+
 class FTsubasamusuBlueprintEditor final : public FBlueprintEditor
 {
 public:
