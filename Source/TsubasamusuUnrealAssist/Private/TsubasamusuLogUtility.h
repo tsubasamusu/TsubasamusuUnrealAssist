@@ -25,5 +25,5 @@ DECLARE_LOG_CATEGORY_EXTERN(LogTsubasamusuUnrealAssist, Log, All);
 class FTsubasamusuLogUtility final
 {
 public:
-	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState);
+	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState = SNotificationItem::ECompletionState::CS_None);
 };

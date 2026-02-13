@@ -5,6 +5,7 @@
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
+#include "TsubasamusuLogUtility.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/TimelineComponent.h"
@@ -16,7 +17,7 @@
 void FTsubasamusuBlueprintEditor::InitTsubasamusuBlueprintEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode)
 {
 	InitBlueprintEditor(Mode, InitToolkitHost, InBlueprints, bShouldOpenInDefaultsMode);
-	RegisterOriginalMenus();
+	RegisterAdditionalMenus();
 }
 
 TWeakPtr<SGraphEditor> FTsubasamusuBlueprintEditor::GetFocusedGraphEditor() const
@@ -30,12 +31,12 @@ void FTsubasamusuBlueprintEditor::CreateDefaultCommands()
 	
 	FTsubasamusuBlueprintEditorCommands::Register();
 	
-	ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().ChangeMemberVariablesAccessSpecifierToPrivate,
-		FExecuteAction::CreateSP(this, &FTsubasamusuBlueprintEditor::ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked),
+	ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
+		FExecuteAction::CreateSP(this, &FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked),
 		FCanExecuteAction::CreateSP(this, &FBlueprintEditor::IsInAScriptingMode));
 }
 
-void FTsubasamusuBlueprintEditor::RegisterOriginalMenus() const
+void FTsubasamusuBlueprintEditor::RegisterAdditionalMenus() const
 {
 	const FName EditMenuName = *(GetToolMenuName().ToString() + TEXT(".Edit"));
 	const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
@@ -49,16 +50,16 @@ void FTsubasamusuBlueprintEditor::RegisterOriginalMenus() const
 	FToolMenuSection& ToolMenuSection = ToolMenu->AddSection(SectionName, SectionLabel);
 	ToolMenuSection.InsertPosition = FToolMenuInsert(AboveSectionName, EToolMenuInsertType::After);
 	
-	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().ChangeMemberVariablesAccessSpecifierToPrivate);
+	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers);
 }
 
-void FTsubasamusuBlueprintEditor::ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked()
+void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 {
 }
 
-TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBlueprint* InBlueprint)
+TArray<FProperty*> FTsubasamusuBlueprintEditor::GetVariables(const UBlueprint* InBlueprint)
 {
-	TArray<FProperty*> MemberVariables;
+	TArray<FProperty*> Variables;
 	
 	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIteratorFlags::ExcludeSuper); PropertyFieldIterator; ++PropertyFieldIterator)
 	{
@@ -67,12 +68,10 @@ TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBluepr
 		const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
 		const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
 		const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
-		const bool bIsMemberVariable = !bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty;
-
-		if (bIsMemberVariable)
+		
+		if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
 		{
-			const FName VariableName = Property->GetFName();
-			const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, VariableName);
+			const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
 			const bool bFoundVariable = VariableIndex != INDEX_NONE;
 
 			const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
@@ -80,22 +79,22 @@ TArray<FProperty*> FTsubasamusuBlueprintEditor::GetMemberVariables(const UBluepr
 	
 			if (bFoundVariable && !bIsTimelineComponent)
 			{
-				MemberVariables.Add(Property);
+				Variables.Add(Property);
 			}
 		}
 	}
 	
-	return MemberVariables;
+	return Variables;
 }
 
-void FTsubasamusuBlueprintEditor::RemoveVariablesDoNotNeedToBeChangedToPrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariableOwnerBlueprint)
+void FTsubasamusuBlueprintEditor::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint)
 {
-	OutVariables.RemoveAll([VariableOwnerBlueprint](const FProperty* InVariable)
+	OutVariables.RemoveAll([VariablesOwnerBlueprint](const FProperty* InVariable)
 	{
 		FString PrivateMetaDataValue;
-		FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
+		FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariablesOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
 		
-		return PrivateMetaDataValue == TEXT("true") || IsVariableReferencedFromAnyOtherClass(InVariable, VariableOwnerBlueprint);
+		return PrivateMetaDataValue == TEXT("true") || IsVariableReferencedFromAnyOtherClass(InVariable, VariablesOwnerBlueprint);
 	});
 }
 

@@ -15,11 +15,11 @@ protected:
 	virtual void CreateDefaultCommands() override;
 	
 private:
-	void RegisterOriginalMenus() const;
-	void ChangeMemberVariablesAccessSpecifierToPrivate_OnClicked();
+	void RegisterAdditionalMenus() const;
+	void OptimizeAccessSpecifiers_OnClicked();
 	
-	static TArray<FProperty*> GetMemberVariables(const UBlueprint* InBlueprint);
-	static void RemoveVariablesDoNotNeedToBeChangedToPrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariableOwnerBlueprint);
+	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
+	static void RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint);
 	
 	static bool IsVariableReferencedFromAnyOtherClass(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint);
 	static bool IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint);

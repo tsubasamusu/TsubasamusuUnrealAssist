@@ -12,5 +12,5 @@ public:
 
 	virtual void RegisterCommands() override;
 
-	TSharedPtr<FUICommandInfo> ChangeMemberVariablesAccessSpecifierToPrivate;
+	TSharedPtr<FUICommandInfo> OptimizeAccessSpecifiers;
 };

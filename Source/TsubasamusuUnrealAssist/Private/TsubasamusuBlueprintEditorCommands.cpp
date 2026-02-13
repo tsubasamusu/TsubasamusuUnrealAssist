@@ -6,7 +6,8 @@
 
 void FTsubasamusuBlueprintEditorCommands::RegisterCommands()
 {
-	UI_COMMAND(ChangeMemberVariablesAccessSpecifierToPrivate, "Change Member Variables Access Specifier to Private", "Change the access specifier of member variables not referenced by other classes to private.", EUserInterfaceActionType::Button, FInputChord());
+	//TODO: 変数以外にも対応させた際はここのツールチップテキストも修正する
+	UI_COMMAND(OptimizeAccessSpecifiers, "Optimize Access Specifiers", "Change the access specifiers of the variables defined in this blueprint to the appropriate ones.", EUserInterfaceActionType::Button, FInputChord());
 }
 
 #undef LOCTEXT_NAMESPACE
