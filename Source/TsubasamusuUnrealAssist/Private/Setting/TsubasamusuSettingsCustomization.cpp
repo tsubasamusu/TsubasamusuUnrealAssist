@@ -172,9 +172,9 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
             [
                 SNew(SEditableTextBox)
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
-                .Font(FEditorStyle::GetFontStyle("PropertyWindow.NormalFont"))
+                .Font(FEditorStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 #else
-                .Font(FAppStyle::GetFontStyle("PropertyWindow.NormalFont"))
+                .Font(FAppStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 #endif
                 .HintText(HintText)
                 .Text_Lambda([PropertyHandle]()

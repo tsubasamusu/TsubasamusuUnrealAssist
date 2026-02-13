@@ -11,7 +11,7 @@
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {
-	FGraphEditorModule& GraphEditorModule = FModuleManager::LoadModuleChecked<FGraphEditorModule>("GraphEditor");
+	FGraphEditorModule& GraphEditorModule = FModuleManager::LoadModuleChecked<FGraphEditorModule>(TEXT("GraphEditor"));
 	GraphEditorModule.GetAllGraphEditorContextMenuExtender().Add(FGraphEditorModule::FGraphEditorMenuExtender_SelectedNode::CreateStatic(ExtendSelectedNodeMenu));
 }
 
@@ -31,7 +31,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 	if (SelectedNodes.Num() >= 2)
 	{
 		// Copy Node Information
-		Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph](FMenuBuilder& MenuBuilder)
+		Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph](FMenuBuilder& MenuBuilder)
 		{
 			FCopyNodeInformationUtility::AddCopyNodeInformationMenu(WeakGraph, MenuBuilder);
 		}));
@@ -44,7 +44,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 			{
 				if (!FGraphNodeUtility::IsExecPinType(*SelectedNodesOutputPinsCommonType.Get()))
 				{
-					Extender->AddMenuExtension("SchemaActionComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
+					Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
 					{
 						FCreateArrayNodeUtility::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
 					}));
@@ -62,7 +62,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 		{
 			const TWeakObjectPtr<UEdGraphNode_Comment> WeakCommentNode = CommentNode;
 			
-			Extender->AddMenuExtension("GraphNodeComment", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
+			Extender->AddMenuExtension(TEXT("GraphNodeComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
 			{
 				FCommentTranslationUtility::AddCommentTranslationMenu(MenuBuilder, WeakCommentNode);
 				FCommentGenerationUtility::AddCommentGenerationMenu(MenuBuilder, WeakCommentNode);
