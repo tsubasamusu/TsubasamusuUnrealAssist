@@ -1,8 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AssetTypeActions_TsubasamusuBlueprint.h"
-#include "FMessageDialogUtility.h"
 #include "TsubasamusuBlueprintEditor.h"
+#include "TsubasamusuLogUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
@@ -22,7 +22,7 @@ void FAssetTypeActions_TsubasamusuBlueprint::OpenAssetEditor(const TArray<UObjec
 			if (!Blueprint->SkeletonGeneratedClass || !Blueprint->GeneratedClass)
 			{
 				const FText WarningMessage = LOCTEXT("FailedToLoadTsubasamusuBlueprintWithContinue", "Blueprint could not be loaded because it derives from an invalid class.  Check to make sure the parent class for this blueprint hasn't been removed! Do you want to continue (it can crash the editor)?");
-				bLetOpen = EAppReturnType::Yes == FMessageDialogUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage);
+				bLetOpen = EAppReturnType::Yes == FTsubasamusuLogUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage);
 			}
 			
 			if (bLetOpen)
@@ -40,7 +40,7 @@ void FAssetTypeActions_TsubasamusuBlueprint::OpenAssetEditor(const TArray<UObjec
 		else
 		{
 			const FText WarningMessage = LOCTEXT("FailedToLoadTusbasamusuBlueprint", "Blueprint could not be loaded because it derives from an invalid class.  Check to make sure the parent class for this blueprint hasn't been removed!");
-			FMessageDialogUtility::OpenWarningMessageDialog(EAppMsgType::Ok, WarningMessage);
+			FTsubasamusuLogUtility::OpenWarningMessageDialog(EAppMsgType::Ok, WarningMessage);
 		}
 	}
 }

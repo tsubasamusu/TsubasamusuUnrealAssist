@@ -26,4 +26,5 @@ class FTsubasamusuLogUtility final
 {
 public:
 	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState = SNotificationItem::ECompletionState::CS_None);
+	static EAppReturnType::Type OpenWarningMessageDialog(const EAppMsgType::Type InMessageType, const FText& InMessage);
 };
