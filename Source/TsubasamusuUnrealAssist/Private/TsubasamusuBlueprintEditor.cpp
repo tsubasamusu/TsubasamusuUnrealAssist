@@ -102,36 +102,70 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 		(
 			SNew(SHeaderRow)
 			+ SHeaderRow::Column(CheckBoxColumnId)
-			  .DefaultLabel(FText::GetEmpty())
-			  .MinSize(30.f)
-			  .FillSized(30.f)
-			  [
-				  SNew(SBox)
-				  .HAlign(HAlign_Center)
-				  [
-					  SNew(SCheckBox)
-					  .IsChecked(ECheckBoxState::Checked)
-					  .OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState NewState)
-					  {
-						  for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
-						  {
-							  if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != NewState)
-							  {
-						  		  RowItem->CheckBox->ToggleCheckedState();
-							  }
-						  }
-					  })
-				  ]
-			  ]
+			.DefaultLabel(FText::GetEmpty())
+			.MinSize(30.f)
+			.FillSized(30.f)
+			[
+				SNew(SBox)
+				.HAlign(HAlign_Center)
+				[
+					SNew(SCheckBox)
+					.IsChecked_Lambda([RowItems]()
+					{
+						bool bFoundSelectedRowItem = false;
+						bool bFoundUnselectedRowItem = false;
+
+						if (RowItems.IsValid())
+						{
+							for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
+							{
+								if (!RowItem.IsValid())
+								{
+									continue;
+								}
+
+								if (RowItem->bSelected)
+								{
+									bFoundSelectedRowItem = true;
+								}
+								else
+								{
+									bFoundUnselectedRowItem = true;
+								}
+
+								if (bFoundSelectedRowItem && bFoundUnselectedRowItem)
+								{
+									return ECheckBoxState::Undetermined;
+								}
+							}
+						}
+
+						return bFoundSelectedRowItem ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+					})
+					.OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState NewState)
+					{
+						if (NewState != ECheckBoxState::Undetermined)
+						{
+							for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
+							{
+								if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != NewState)
+								{
+							  		RowItem->CheckBox->ToggleCheckedState();
+								}
+							}
+						}
+					})
+				]
+			]
 			+ SHeaderRow::Column(MemberNameColumnId)
-			  .DefaultLabel(LOCTEXT("HeaderLabel_MemberName", "Member Name"))
-			  .HAlignHeader(HAlign_Center)
+			.DefaultLabel(LOCTEXT("HeaderLabel_MemberName", "Member Name"))
+			.HAlignHeader(HAlign_Center)
 			+ SHeaderRow::Column(CurrentAccessSpecifierColumnId)
-			  .DefaultLabel(LOCTEXT("HeaderLabel_CurrentAccessSpecifier", "Current"))
-			  .HAlignHeader(HAlign_Center)
+			.DefaultLabel(LOCTEXT("HeaderLabel_CurrentAccessSpecifier", "Current"))
+			.HAlignHeader(HAlign_Center)
 			+ SHeaderRow::Column(RecommendedAccessSpecifierColumnId)
-			  .DefaultLabel(LOCTEXT("HeaderLabel_RecommendedAccessSpecifier", "Recommended"))
-			  .HAlignHeader(HAlign_Center)
+			.DefaultLabel(LOCTEXT("HeaderLabel_RecommendedAccessSpecifier", "Recommended"))
+			.HAlignHeader(HAlign_Center)
 		)
 		.OnGenerateRow_Lambda([&CheckBoxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem, const TSharedRef<STableViewBase>& OwnerTableView)
 		{
