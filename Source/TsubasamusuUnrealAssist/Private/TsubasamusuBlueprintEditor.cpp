@@ -319,4 +319,22 @@ bool FTsubasamusuBlueprintEditor::IsBlueprintReferencesVariable(const UBlueprint
 	return false;
 }
 
+FText FTsubasamusuBlueprintEditor::ConvertAccessSpecifierToText(const TsubasamusuBlueprintEditor::EAccessSpecifier InAccessSpecifier)
+{
+	switch (InAccessSpecifier)
+	{
+		case TsubasamusuBlueprintEditor::EAccessSpecifier::None:
+			return LOCTEXT("AccessSpecifier_None", "None");
+		case TsubasamusuBlueprintEditor::EAccessSpecifier::Private:
+			return LOCTEXT("AccessSpecifier_Private", "Private");
+		case TsubasamusuBlueprintEditor::EAccessSpecifier::Protected:
+			return LOCTEXT("AccessSpecifier_Protected", "Protected");
+		case TsubasamusuBlueprintEditor::EAccessSpecifier::Public:
+			return LOCTEXT("AccessSpecifier_Public", "Public");
+		default:
+			checkNoEntry();
+			return LOCTEXT("AccessSpecifier_Unknown", "Unknown");
+	}
+}
+
 #undef LOCTEXT_NAMESPACE

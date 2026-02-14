@@ -46,4 +46,6 @@ private:
 	static TArray<UBlueprint*> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 	
 	static bool IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint);
+
+	static FText ConvertAccessSpecifierToText(const TsubasamusuBlueprintEditor::EAccessSpecifier InAccessSpecifier);
 };
