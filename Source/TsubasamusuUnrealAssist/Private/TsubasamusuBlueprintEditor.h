@@ -7,13 +7,20 @@
 
 namespace TsubasamusuBlueprintEditor
 {
-	UENUM()
 	enum class EAccessSpecifier : uint8
 	{
 		None,
 		Private,
 		Protected,
 		Public
+	};
+	
+	enum class EMemberType
+	{
+		None,
+		Variable,
+		Function,
+		CustomEvent
 	};
 }
 
