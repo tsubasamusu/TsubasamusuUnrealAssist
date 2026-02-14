@@ -77,7 +77,7 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 		return;
 	}
 	
-	TArray<TSharedPtr<FAccessSpecifierOptimizationRow>> RowItems;
+	TSharedPtr<TArray<TSharedPtr<FAccessSpecifierOptimizationRow>>> RowItems = MakeShared<TArray<TSharedPtr<FAccessSpecifierOptimizationRow>>>();
 	
 	for (const FProperty* Variable : Variables)
 	{
@@ -87,7 +87,7 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 			GetCurrentAccessSpecifier(Variable, CurrentlyOpenBlueprint),
 			GetOptimalAccessSpecifier(Variable, CurrentlyOpenBlueprint));
 		
-		RowItems.Add(RowItem);
+		RowItems->Add(RowItem);
 	}
 
 	const FName CheckBoxColumnId = TEXT("CheckBox");
@@ -96,7 +96,7 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 	const FName RecommendedAccessSpecifierColumnId = TEXT("RecommendedAccessSpecifier");
 	
 	const TSharedRef<SListView<TSharedPtr<FAccessSpecifierOptimizationRow>>> DialogContent = SNew(SListView<TSharedPtr<FAccessSpecifierOptimizationRow>>)
-		.ListItemsSource(&RowItems)
+		.ListItemsSource(RowItems.Get())
 		.SelectionMode(ESelectionMode::Type::None)
 		.HeaderRow
 		(
@@ -113,7 +113,7 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 					  .IsChecked(ECheckBoxState::Checked)
 					  .OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState NewState)
 					  {
-						  for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : RowItems)
+						  for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
 						  {
 							  if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != NewState)
 							  {
@@ -142,20 +142,33 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 				.CurrentAccessSpecifierColumnId(CurrentAccessSpecifierColumnId)
 				.RecommendedAccessSpecifierColumnId(RecommendedAccessSpecifierColumnId);
 		});
+
+	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([RowItems]()
+	{
+		for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
+		{
+			if (RowItem->bSelected)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	});
 	
 	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
 	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Recommended Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 	
-	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
+	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
 
 	if (PressedButton != FTsubasamusuLogUtility::EDialogButton::OK)
 	{
 		return;
 	}
 	
-	for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : RowItems)
+	for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
 	{
 		if (!RowItem->bSelected)
 		{
