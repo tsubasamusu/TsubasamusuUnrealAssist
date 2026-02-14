@@ -16,7 +16,7 @@ class SAccessSpecifierOptimizationRow final : public SMultiColumnTableRow<TShare
 public:
     SLATE_BEGIN_ARGS(SAccessSpecifierOptimizationRow) {}
 	    SLATE_ARGUMENT(TSharedPtr<FAccessSpecifierOptimizationRow>, RowItem)
-	    SLATE_ARGUMENT(FName, CheckboxColumnId)
+	    SLATE_ARGUMENT(FName, CheckBoxColumnId)
 	    SLATE_ARGUMENT(FName, MemberNameColumnId)
 	    SLATE_ARGUMENT(FName, CurrentAccessSpecifierColumnId)
 	    SLATE_ARGUMENT(FName, RecommendedAccessSpecifierColumnId)
@@ -31,7 +31,7 @@ public:
 private:
     TSharedPtr<FAccessSpecifierOptimizationRow> RowItem;
 	
-	FName CheckboxColumnId;
+	FName CheckBoxColumnId;
 	FName MemberNameColumnId;
 	FName CurrentAccessSpecifierColumnId;
 	FName RecommendedAccessSpecifierColumnId;

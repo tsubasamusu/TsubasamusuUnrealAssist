@@ -44,6 +44,7 @@ public:
 	TsubasamusuBlueprintEditor::EAccessSpecifier CurrentAccessSpecifier;
 	TsubasamusuBlueprintEditor::EAccessSpecifier RecommendedAccessSpecifier;
 	bool bSelected;
+	TSharedPtr<SCheckBox> CheckBox;
 };
 
 class FTsubasamusuBlueprintEditor final : public FBlueprintEditor

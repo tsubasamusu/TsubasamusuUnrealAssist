@@ -8,7 +8,7 @@
 void SAccessSpecifierOptimizationRow::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView)
 {
 	RowItem = InArgs._RowItem;
-	CheckboxColumnId = InArgs._CheckboxColumnId;
+	CheckBoxColumnId = InArgs._CheckBoxColumnId;
 	MemberNameColumnId = InArgs._MemberNameColumnId;
 	CurrentAccessSpecifierColumnId = InArgs._CurrentAccessSpecifierColumnId;
 	RecommendedAccessSpecifierColumnId = InArgs._RecommendedAccessSpecifierColumnId;
@@ -20,14 +20,16 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 {
 	TSharedPtr<SWidget> ColumnContent;
 	
-	if (InColumnName == CheckboxColumnId)
+	if (InColumnName == CheckBoxColumnId)
 	{
-		ColumnContent = SNew(SCheckBox)
+		RowItem->CheckBox = SNew(SCheckBox)
 			.IsChecked(ECheckBoxState::Checked)
 			.OnCheckStateChanged_Lambda([this](const ECheckBoxState NewState)
 			{
 				RowItem->bSelected = NewState == ECheckBoxState::Checked;
 			});
+		
+		ColumnContent = RowItem->CheckBox;
 	}
 	else if (InColumnName == MemberNameColumnId)
 	{

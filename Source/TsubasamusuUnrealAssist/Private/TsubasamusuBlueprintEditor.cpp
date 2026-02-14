@@ -90,7 +90,7 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 		RowItems.Add(RowItem);
 	}
 
-	const FName CheckboxColumnId = TEXT("Checkbox");
+	const FName CheckBoxColumnId = TEXT("CheckBox");
 	const FName MemberNameColumnId = TEXT("MemberName");
 	const FName CurrentAccessSpecifierColumnId = TEXT("CurrentAccessSpecifier");
 	const FName RecommendedAccessSpecifierColumnId = TEXT("RecommendedAccessSpecifier");
@@ -101,11 +101,28 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 		.HeaderRow
 		(
 			SNew(SHeaderRow)
-			.Visibility(EVisibility::HitTestInvisible)
-			+ SHeaderRow::Column(CheckboxColumnId)
+			+ SHeaderRow::Column(CheckBoxColumnId)
 			  .DefaultLabel(FText::GetEmpty())
 			  .MinSize(30.f)
 			  .FillSized(30.f)
+			  [
+				  SNew(SBox)
+				  .HAlign(HAlign_Center)
+				  [
+					  SNew(SCheckBox)
+					  .IsChecked(ECheckBoxState::Checked)
+					  .OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState NewState)
+					  {
+						  for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : RowItems)
+						  {
+							  if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != NewState)
+							  {
+						  		  RowItem->CheckBox->ToggleCheckedState();
+							  }
+						  }
+					  })
+				  ]
+			  ]
 			+ SHeaderRow::Column(MemberNameColumnId)
 			  .DefaultLabel(LOCTEXT("HeaderLabel_MemberName", "Member Name"))
 			  .HAlignHeader(HAlign_Center)
@@ -116,11 +133,11 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 			  .DefaultLabel(LOCTEXT("HeaderLabel_RecommendedAccessSpecifier", "Recommended"))
 			  .HAlignHeader(HAlign_Center)
 		)
-		.OnGenerateRow_Lambda([&CheckboxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem, const TSharedRef<STableViewBase>& OwnerTableView)
+		.OnGenerateRow_Lambda([&CheckBoxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem, const TSharedRef<STableViewBase>& OwnerTableView)
 		{
 			return SNew(SAccessSpecifierOptimizationRow, OwnerTableView)
 				.RowItem(RowItem)
-				.CheckboxColumnId(CheckboxColumnId)
+				.CheckBoxColumnId(CheckBoxColumnId)
 				.MemberNameColumnId(MemberNameColumnId)
 				.CurrentAccessSpecifierColumnId(CurrentAccessSpecifierColumnId)
 				.RecommendedAccessSpecifierColumnId(RecommendedAccessSpecifierColumnId);
