@@ -4,6 +4,7 @@
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
+#include "SAccessSpecifierOptimizationRow.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
 #include "TsubasamusuLogUtility.h"
 #include "Algo/AnyOf.h"
@@ -76,13 +77,82 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 		return;
 	}
 	
+	TArray<TSharedPtr<FAccessSpecifierOptimizationRow>> RowItems;
+	
+	for (const FProperty* Variable : Variables)
+	{
+		const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem = MakeShared<FAccessSpecifierOptimizationRow>(
+			Variable->GetFName(),
+			TsubasamusuBlueprintEditor::EMemberType::Variable,
+			GetCurrentAccessSpecifier(Variable, CurrentlyOpenBlueprint),
+			GetOptimalAccessSpecifier(Variable, CurrentlyOpenBlueprint));
+		
+		RowItems.Add(RowItem);
+	}
+
+	const FName CheckboxColumnId = TEXT("Checkbox");
+	const FName MemberNameColumnId = TEXT("MemberName");
+	const FName CurrentAccessSpecifierColumnId = TEXT("CurrentAccessSpecifier");
+	const FName RecommendedAccessSpecifierColumnId = TEXT("RecommendedAccessSpecifier");
+	
+	const TSharedRef<SListView<TSharedPtr<FAccessSpecifierOptimizationRow>>> DialogContent = SNew(SListView<TSharedPtr<FAccessSpecifierOptimizationRow>>)
+		.ListItemsSource(&RowItems)
+		.SelectionMode(ESelectionMode::Type::None)
+		.HeaderRow
+		(
+			SNew(SHeaderRow)
+			.Visibility(EVisibility::HitTestInvisible)
+			+ SHeaderRow::Column(CheckboxColumnId)
+			  .DefaultLabel(FText::GetEmpty())
+			  .MinSize(30.f)
+			  .FillSized(30.f)
+			+ SHeaderRow::Column(MemberNameColumnId)
+			  .DefaultLabel(LOCTEXT("HeaderLabel_MemberName", "Member Name"))
+			  .HAlignHeader(HAlign_Center)
+			+ SHeaderRow::Column(CurrentAccessSpecifierColumnId)
+			  .DefaultLabel(LOCTEXT("HeaderLabel_CurrentAccessSpecifier", "Current"))
+			  .HAlignHeader(HAlign_Center)
+			+ SHeaderRow::Column(RecommendedAccessSpecifierColumnId)
+			  .DefaultLabel(LOCTEXT("HeaderLabel_RecommendedAccessSpecifier", "Recommended"))
+			  .HAlignHeader(HAlign_Center)
+		)
+		.OnGenerateRow_Lambda([&CheckboxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem, const TSharedRef<STableViewBase>& OwnerTableView)
+		{
+			return SNew(SAccessSpecifierOptimizationRow, OwnerTableView)
+				.RowItem(RowItem)
+				.CheckboxColumnId(CheckboxColumnId)
+				.MemberNameColumnId(MemberNameColumnId)
+				.CurrentAccessSpecifierColumnId(CurrentAccessSpecifierColumnId)
+				.RecommendedAccessSpecifierColumnId(RecommendedAccessSpecifierColumnId);
+		});
+	
 	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
 	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Recommended Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 	
-	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText);
+	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
 
+	if (PressedButton != FTsubasamusuLogUtility::EDialogButton::OK)
+	{
+		return;
+	}
+	
+	for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : RowItems)
+	{
+		if (!RowItem->bSelected)
+		{
+			continue;
+		}
+		
+		if (RowItem->MemberType == TsubasamusuBlueprintEditor::EMemberType::Variable)
+		{
+			FBlueprintEditorUtils::SetBlueprintVariableMetaData(CurrentlyOpenBlueprint, RowItem->MemberName, nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
+		}
+	}
+	
+	const FText NotificationText = LOCTEXT("SuccessfullyAppliedRecommendedAccessSpecifiers", "Successfully applied recommended access specifiers.");
+	FTsubasamusuLogUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
 TArray<FProperty*> FTsubasamusuBlueprintEditor::GetVariables(const UBlueprint* InBlueprint)
@@ -325,24 +395,6 @@ bool FTsubasamusuBlueprintEditor::IsBlueprintReferencesVariable(const UBlueprint
 	}
 
 	return false;
-}
-
-FText FTsubasamusuBlueprintEditor::ConvertAccessSpecifierToText(const TsubasamusuBlueprintEditor::EAccessSpecifier InAccessSpecifier)
-{
-	switch (InAccessSpecifier)
-	{
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::None:
-			return LOCTEXT("AccessSpecifier_None", "None");
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::Private:
-			return LOCTEXT("AccessSpecifier_Private", "Private");
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::Protected:
-			return LOCTEXT("AccessSpecifier_Protected", "Protected");
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::Public:
-			return LOCTEXT("AccessSpecifier_Public", "Public");
-		default:
-			checkNoEntry();
-			return LOCTEXT("AccessSpecifier_Unknown", "Unknown");
-	}
 }
 
 #undef LOCTEXT_NAMESPACE
