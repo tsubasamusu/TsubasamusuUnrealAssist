@@ -149,6 +149,14 @@ TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetOpt
 	return TsubasamusuBlueprintEditor::EAccessSpecifier::Protected;
 }
 
+TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+{
+	FString PrivateMetaDataValue;
+	FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
+		
+	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuBlueprintEditor::EAccessSpecifier::Private : TsubasamusuBlueprintEditor::EAccessSpecifier::Public;
+}
+
 TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
 {
 	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(VariableOwnerBlueprint);
