@@ -24,6 +24,28 @@ namespace TsubasamusuBlueprintEditor
 	};
 }
 
+struct FAccessSpecifierOptimizationRow
+{
+public:
+	explicit FAccessSpecifierOptimizationRow(
+		const FName& InMemberName = NAME_None,
+		const TsubasamusuBlueprintEditor::EMemberType InMemberType = TsubasamusuBlueprintEditor::EMemberType::None,
+		const TsubasamusuBlueprintEditor::EAccessSpecifier InCurrentAccessSpecifier = TsubasamusuBlueprintEditor::EAccessSpecifier::None,
+		const TsubasamusuBlueprintEditor::EAccessSpecifier InRecommendedAccessSpecifier = TsubasamusuBlueprintEditor::EAccessSpecifier::None,
+		const bool bInSelected = true)
+		: MemberName(InMemberName),
+		  MemberType(InMemberType),
+		  CurrentAccessSpecifier(InCurrentAccessSpecifier),
+		  RecommendedAccessSpecifier(InRecommendedAccessSpecifier),
+		  bSelected(bInSelected) {}
+	
+	FName MemberName;
+	TsubasamusuBlueprintEditor::EMemberType MemberType;
+	TsubasamusuBlueprintEditor::EAccessSpecifier CurrentAccessSpecifier;
+	TsubasamusuBlueprintEditor::EAccessSpecifier RecommendedAccessSpecifier;
+	bool bSelected;
+};
+
 class FTsubasamusuBlueprintEditor final : public FBlueprintEditor
 {
 public:
