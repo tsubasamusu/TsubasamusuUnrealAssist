@@ -12,7 +12,7 @@ class UTsubasamusuEditorUtility final : public UEditorUtilityLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "TSUBASAMUSU|EditorUtility")
+	UFUNCTION(BlueprintCallable, Category = "TsubasamusuUnrealAssist|EditorUtility")
 	static UMaterialInstance* CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory);
 
 	static bool SavePackage(UPackage* InPackage, UObject* BaseAsset, const FString& FileName);

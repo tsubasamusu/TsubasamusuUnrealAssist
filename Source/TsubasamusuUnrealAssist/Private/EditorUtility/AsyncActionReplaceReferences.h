@@ -17,7 +17,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnCompletedReplaceReferences Completed;
 
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "TSUBASAMUSU|EditorUtility")
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "TsubasamusuUnrealAssist|EditorUtility")
 	static UAsyncActionReplaceReferences* AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> From, TSoftObjectPtr<UObject> To);
 
 	virtual void Activate() override;
