@@ -38,7 +38,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "ContentBrowserAssetDataSource",
             "AssetRegistry",
             "EditorStyle",
-            "ToolWidgets"
+            "ToolWidgets",
+            "EditorFramework"
 		});
 	}
 }

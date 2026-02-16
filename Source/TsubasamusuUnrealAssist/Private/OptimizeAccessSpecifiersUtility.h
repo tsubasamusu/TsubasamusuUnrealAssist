@@ -47,18 +47,14 @@ public:
 	TSharedPtr<SCheckBox> CheckBox;
 };
 
-class FTsubasamusuBlueprintEditor final : public FBlueprintEditor
+class FOptimizeAccessSpecifiersUtility final
 {
 public:
-	void InitTsubasamusuBlueprintEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode);
-	TWeakPtr<SGraphEditor> GetFocusedGraphEditor() const;
-	
-protected:
-	virtual void CreateDefaultCommands() override;
+	static void OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint);
 	
 private:
-	void RegisterAdditionalMenus() const;
-	void OptimizeAccessSpecifiers_OnClicked();
+	static void RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
+	static void OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
 	
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static void RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint);

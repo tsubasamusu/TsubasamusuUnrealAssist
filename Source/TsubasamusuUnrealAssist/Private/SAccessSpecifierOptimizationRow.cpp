@@ -1,7 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "SAccessSpecifierOptimizationRow.h"
-#include "TsubasamusuBlueprintEditor.h"
+#include "OptimizeAccessSpecifiersUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 

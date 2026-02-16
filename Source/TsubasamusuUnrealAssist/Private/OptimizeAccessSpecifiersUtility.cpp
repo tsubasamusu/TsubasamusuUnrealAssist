@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "TsubasamusuBlueprintEditor.h"
+#include "OptimizeAccessSpecifiersUtility.h"
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
@@ -12,34 +12,32 @@
 #include "Components/TimelineComponent.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Toolkits/ToolkitManager.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
-void FTsubasamusuBlueprintEditor::InitTsubasamusuBlueprintEditor(const EToolkitMode::Type Mode, const TSharedPtr<IToolkitHost>& InitToolkitHost, const TArray<UBlueprint*>& InBlueprints, bool bShouldOpenInDefaultsMode)
+void FOptimizeAccessSpecifiersUtility::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)
 {
-	InitBlueprintEditor(Mode, InitToolkitHost, InBlueprints, bShouldOpenInDefaultsMode);
-	RegisterAdditionalMenus();
-}
-
-TWeakPtr<SGraphEditor> FTsubasamusuBlueprintEditor::GetFocusedGraphEditor() const
-{
-	return FocusedGraphEdPtr;
-}
-
-void FTsubasamusuBlueprintEditor::CreateDefaultCommands()
-{
-	FBlueprintEditor::CreateDefaultCommands();
+	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InOpenedBlueprint);
 	
-	FTsubasamusuBlueprintEditorCommands::Register();
-	
-	ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-		FExecuteAction::CreateSP(this, &FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked),
-		FCanExecuteAction::CreateSP(this, &FBlueprintEditor::IsInAScriptingMode));
+	if (Toolkit.IsValid())
+	{
+		FTsubasamusuBlueprintEditorCommands::Register();
+		
+		const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
+		const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
+		
+		ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
+			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, BlueprintEditor),
+			FCanExecuteAction::CreateSP(BlueprintEditor.Get(), &FBlueprintEditor::IsInAScriptingMode));
+		
+		RegisterAdditionalMenus(BlueprintEditor);
+	}
 }
 
-void FTsubasamusuBlueprintEditor::RegisterAdditionalMenus() const
+void FOptimizeAccessSpecifiersUtility::RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
 {
-	const FName EditMenuName = *(GetToolMenuName().ToString() + TEXT(".Edit"));
+	const FName EditMenuName = *(InBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
 	const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
 	
 	UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
@@ -54,9 +52,9 @@ void FTsubasamusuBlueprintEditor::RegisterAdditionalMenus() const
 	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers);
 }
 
-void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
+void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
 {
-	UBlueprint* CurrentlyOpenBlueprint = GetBlueprintObj();
+	UBlueprint* CurrentlyOpenBlueprint = InBlueprintEditor->GetBlueprintObj();
 	check(IsValid(CurrentlyOpenBlueprint));
 	
 	TArray<FProperty*> Variables = GetVariables(CurrentlyOpenBlueprint);
@@ -220,7 +218,7 @@ void FTsubasamusuBlueprintEditor::OptimizeAccessSpecifiers_OnClicked()
 	FTsubasamusuLogUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
-TArray<FProperty*> FTsubasamusuBlueprintEditor::GetVariables(const UBlueprint* InBlueprint)
+TArray<FProperty*> FOptimizeAccessSpecifiersUtility::GetVariables(const UBlueprint* InBlueprint)
 {
 	TArray<FProperty*> Variables;
 	
@@ -250,7 +248,7 @@ TArray<FProperty*> FTsubasamusuBlueprintEditor::GetVariables(const UBlueprint* I
 	return Variables;
 }
 
-void FTsubasamusuBlueprintEditor::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint)
+void FOptimizeAccessSpecifiersUtility::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint)
 {
 	OutVariables.RemoveAll([VariablesOwnerBlueprint](const FProperty* InVariable)
 	{
@@ -261,7 +259,7 @@ void FTsubasamusuBlueprintEditor::RemoveVariablesShouldNotBePrivate(TArray<FProp
 	});
 }
 
-TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuBlueprintEditor::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, VariableOwnerBlueprint);
 	
@@ -284,7 +282,7 @@ TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetOpt
 	return TsubasamusuBlueprintEditor::EAccessSpecifier::Protected;
 }
 
-TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuBlueprintEditor::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	FString PrivateMetaDataValue;
 	FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
@@ -292,7 +290,7 @@ TsubasamusuBlueprintEditor::EAccessSpecifier FTsubasamusuBlueprintEditor::GetCur
 	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuBlueprintEditor::EAccessSpecifier::Private : TsubasamusuBlueprintEditor::EAccessSpecifier::Public;
 }
 
-TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
+TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
 {
 	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(VariableOwnerBlueprint);
 	
@@ -309,7 +307,7 @@ TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetBlueprintsReferenceVariable(
 	return BlueprintsReferenceVariable;
 }
 
-TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
+TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {
 	TArray<UBlueprint*> ReferencerBlueprints;
 	
@@ -364,7 +362,7 @@ TArray<UBlueprint*> FTsubasamusuBlueprintEditor::GetReferencerBlueprints(const U
 	return ReferencerBlueprints;
 }
 
-bool FTsubasamusuBlueprintEditor::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
+bool FOptimizeAccessSpecifiersUtility::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
 {
 	const FName VariableNameToCheck = VariableToCheck->GetFName();
 	
