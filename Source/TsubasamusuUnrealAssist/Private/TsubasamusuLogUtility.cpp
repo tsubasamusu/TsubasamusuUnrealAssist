@@ -33,7 +33,11 @@ EAppReturnType::Type FTsubasamusuLogUtility::OpenWarningMessageDialog(const EApp
 #endif
 }
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget, TAttribute<bool> OkButtonIsEnabled)
+#else
+FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget)
+#endif
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
 		.Title(Title)
@@ -57,8 +61,10 @@ FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(c
 		.Buttons(
 		{
 			SCustomDialog::FButton(OkButtonText)
-				.SetPrimary(true)
-				.SetIsEnabled(OkButtonIsEnabled),
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
+				.SetIsEnabled(OkButtonIsEnabled)
+#endif
+				.SetPrimary(true),
 			SCustomDialog::FButton(CancelButtonText)
 		});
 

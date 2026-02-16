@@ -176,6 +176,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 				.RecommendedAccessSpecifierColumnId(RecommendedAccessSpecifierColumnId);
 		});
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([RowItems]()
 	{
 		for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
@@ -188,15 +189,30 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 		
 		return false;
 	});
+#endif
 	
 	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
 	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Recommended Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
-	
-	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
+	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
+#else
+	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
+#endif
+	
 	if (PressedButton != FTsubasamusuLogUtility::EDialogButton::OK)
+	{
+		return;
+	}
+	
+	auto IsSelectedRowItem = [](const TSharedPtr<FAccessSpecifierOptimizationRow> InRowItem)
+	{
+		return InRowItem->bSelected;
+	};
+
+	if (!Algo::AnyOf(*RowItems, IsSelectedRowItem))
 	{
 		return;
 	}
