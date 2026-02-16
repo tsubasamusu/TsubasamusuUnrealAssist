@@ -447,7 +447,11 @@ bool FOptimizeAccessSpecifiersUtility::IsBlueprintReferencesVariable(const UBlue
 		
 			auto IsComponentBoundEventNodeReferencesVariable = [&VariableNameToCheck](const UK2Node_ComponentBoundEvent* InComponentBoundEventNode)
 			{
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
 				return InComponentBoundEventNode->GetComponentPropertyName() == VariableNameToCheck;
+#else
+				return InComponentBoundEventNode->ComponentPropertyName == VariableNameToCheck;
+#endif
 			};
 		
 			if (Algo::AnyOf(ComponentBoundEventNodes, IsComponentBoundEventNodeReferencesVariable))
