@@ -14,6 +14,10 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Toolkits/ToolkitManager.h"
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#include "ToolMenus.h"
+#endif
+
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
 #include "Misc/FeedbackContext.h"
 #endif

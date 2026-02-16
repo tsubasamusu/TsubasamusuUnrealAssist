@@ -1,8 +1,13 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "TsubasamusuLogUtility.h"
-#include "Dialog/SCustomDialog.h"
 #include "Framework/Notifications/NotificationManager.h"
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#include "Dialogs/CustomDialog.h"
+#else
+#include "Dialog/SCustomDialog.h"
+#endif
 
 DEFINE_LOG_CATEGORY(LogTsubasamusuUnrealAssist);
 
@@ -41,8 +46,12 @@ FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(c
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
 		.Title(Title)
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+		.DialogContent(
+#else
 		.Content()
 		[
+#endif
 			SNew(SVerticalBox)
 			+ SVerticalBox::Slot()
 			.Padding(10)
@@ -57,14 +66,21 @@ FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(c
 			[
 				(ContentWidget.IsValid() ? ContentWidget.ToSharedRef() : SNullWidget::NullWidget)
 			]
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+		)
+#else
 		]
+#endif
 		.Buttons(
 		{
 			SCustomDialog::FButton(OkButtonText)
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 				.SetIsEnabled(OkButtonIsEnabled)
 #endif
-				.SetPrimary(true),
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+				.SetPrimary(true)
+#endif
+			,
 			SCustomDialog::FButton(CancelButtonText)
 		});
 

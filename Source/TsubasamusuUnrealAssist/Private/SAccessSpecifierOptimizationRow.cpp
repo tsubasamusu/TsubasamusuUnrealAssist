@@ -66,7 +66,11 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	
 	return SNew(SBox)
 		.HAlign(HAlign_Center)
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+		.Padding(FMargin(5.f, 0.f))
+#else
 		.Padding(5.f, 0.f)
+#endif
 		[
 			ColumnContent.ToSharedRef()
 		];
