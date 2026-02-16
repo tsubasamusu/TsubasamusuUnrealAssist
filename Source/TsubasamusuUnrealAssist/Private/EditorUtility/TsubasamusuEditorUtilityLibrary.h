@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "EditorUtilityLibrary.h"
-#include "TsubasamusuEditorUtility.generated.h"
+#include "TsubasamusuEditorUtilityLibrary.generated.h"
 
 UCLASS()
-class UTsubasamusuEditorUtility final : public UEditorUtilityLibrary
+class UTsubasamusuEditorUtilityLibrary final : public UEditorUtilityLibrary
 {
 	GENERATED_BODY()
 
@@ -15,5 +15,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "TsubasamusuUnrealAssist|EditorUtility")
 	static UMaterialInstance* CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory);
 
+private:
 	static bool SavePackage(UPackage* InPackage, UObject* BaseAsset, const FString& FileName);
 };

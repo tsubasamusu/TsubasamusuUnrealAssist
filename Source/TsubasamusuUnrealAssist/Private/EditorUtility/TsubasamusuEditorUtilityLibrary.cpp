@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "EditorUtility/TsubasamusuEditorUtility.h"
+#include "EditorUtility/TsubasamusuEditorUtilityLibrary.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "TsubasamusuLogUtility.h"
@@ -10,7 +10,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #endif
 
-UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory)
+UMaterialInstance* UTsubasamusuEditorUtilityLibrary::CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory)
 {
     if (!IsValid(InMaterialInstanceDynamic))
     {
@@ -73,7 +73,7 @@ UMaterialInstance* UTsubasamusuEditorUtility::CreateMaterialInstanceAsset(const 
     return CastChecked<UMaterialInstance>(MaterialInstanceConstant);
 }
 
-bool UTsubasamusuEditorUtility::SavePackage(UPackage* InPackage, UObject* BaseAsset, const FString& FileName)
+bool UTsubasamusuEditorUtilityLibrary::SavePackage(UPackage* InPackage, UObject* BaseAsset, const FString& FileName)
 {
     FSavePackageArgs SavePackageArgs;
 
