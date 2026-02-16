@@ -11,7 +11,7 @@
 #include "Widgets/Text/STextBlock.h"
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
-#include "TsubasamusuEditorSettingsUtility.h"
+#include "RecommendedEditorSettingsApplier.h"
 #include "TsubasamusuLogUtility.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
@@ -268,7 +268,7 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
                 
                 if (FTsubasamusuLogUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
                 {
-                    FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
+                    FRecommendedEditorSettingsApplier::ApplyRecommendedEditorSettings();
                 }
                 
                 return FReply::Handled();

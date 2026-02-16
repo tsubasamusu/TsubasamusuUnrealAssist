@@ -1,9 +1,10 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "Setting/TsubasamusuEditorSettingsUtility.h"
+#include "Setting/RecommendedEditorSettingsApplier.h"
 #include "GraphEditorSettings.h"
 #include "InternationalizationSettingsModel.h"
 #include "BlueprintEditorSettings.h"
+#include "EditorSettingsUtility.h"
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
 #include "Settings/EditorStyleSettings.h"
@@ -12,23 +13,23 @@
 #include "Classes/EditorStyleSettings.h"
 #endif
 
-void FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedEditorSettings()
 {
-    ChangeLoadingSavingSettingsForTsubasamusu();
-    ChangeStyleSettingsForTsubasamusu();
-    ChangeGraphEditorSettingsForTsubasamusu();
-    ChangeInternationalizationSettingsForTsubasamusu();
-    ChangeBlueprintEditorSettingsForTsubasamusu();
-    ChangeLevelEditorPlaySettingsForTsubasamusu();
+    ApplyRecommendedLoadingSavingSettings();
+    ApplyRecommendedStyleSettings();
+    ApplyRecommendedGraphEditorSettings();
+    ApplyRecommendedInternationalizationSettings();
+    ApplyRecommendedBlueprintEditorSettings();
+    ApplyRecommendedLevelEditorPlaySettings();
     
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
-    ChangeOutputLogSettingsForTsubasamusu();
+    ApplyRecommendedOutputLogSettings();
 #endif
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedLoadingSavingSettings()
 {
-    UEditorLoadingSavingSettings* EditorLoadingSavingSettings = GetSettingsChecked<UEditorLoadingSavingSettings>();
+    UEditorLoadingSavingSettings* EditorLoadingSavingSettings = FEditorSettingsUtility::GetSettingsChecked<UEditorLoadingSavingSettings>();
 
     EditorLoadingSavingSettings->bAutoSaveEnable = false;
 
@@ -42,9 +43,9 @@ void FTsubasamusuEditorSettingsUtility::ChangeLoadingSavingSettingsForTsubasamus
     EditorLoadingSavingSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeStyleSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedStyleSettings()
 {
-    UEditorStyleSettings* EditorStyleSettings = GetSettingsChecked<UEditorStyleSettings>();
+    UEditorStyleSettings* EditorStyleSettings = FEditorSettingsUtility::GetSettingsChecked<UEditorStyleSettings>();
 
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
     EditorStyleSettings->bUseSmallToolBarIcons = true;
@@ -57,9 +58,9 @@ void FTsubasamusuEditorSettingsUtility::ChangeStyleSettingsForTsubasamusu()
     EditorStyleSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeGraphEditorSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedGraphEditorSettings()
 {
-    UGraphEditorSettings* GraphEditorSettings = GetSettingsChecked<UGraphEditorSettings>();
+    UGraphEditorSettings* GraphEditorSettings = FEditorSettingsUtility::GetSettingsChecked<UGraphEditorSettings>();
 
     GraphEditorSettings->bShowCommentBubbleWhenZoomedOut = true;
     GraphEditorSettings->DefaultCommentNodeTitleColor = FLinearColor::Black;
@@ -68,9 +69,9 @@ void FTsubasamusuEditorSettingsUtility::ChangeGraphEditorSettingsForTsubasamusu(
     GraphEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeInternationalizationSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedInternationalizationSettings()
 {
-    UInternationalizationSettingsModel* InternationalizationSettingsModel = GetSettingsChecked<UInternationalizationSettingsModel>();
+    UInternationalizationSettingsModel* InternationalizationSettingsModel = FEditorSettingsUtility::GetSettingsChecked<UInternationalizationSettingsModel>();
 
     FInternationalization::Get().SetCurrentLanguageAndLocale(TEXT("en"));
 
@@ -82,9 +83,9 @@ void FTsubasamusuEditorSettingsUtility::ChangeInternationalizationSettingsForTsu
     InternationalizationSettingsModel->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeBlueprintEditorSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedBlueprintEditorSettings()
 {
-    UBlueprintEditorSettings* BlueprintEditorSettings = GetSettingsChecked<UBlueprintEditorSettings>();
+    UBlueprintEditorSettings* BlueprintEditorSettings = FEditorSettingsUtility::GetSettingsChecked<UBlueprintEditorSettings>();
 
     BlueprintEditorSettings->bSpawnDefaultBlueprintNodes = false;
     BlueprintEditorSettings->bFavorPureCastNodes = true;
@@ -93,9 +94,9 @@ void FTsubasamusuEditorSettingsUtility::ChangeBlueprintEditorSettingsForTsubasam
     BlueprintEditorSettings->PostEditChange();
 }
 
-void FTsubasamusuEditorSettingsUtility::ChangeLevelEditorPlaySettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedLevelEditorPlaySettings()
 {
-    ULevelEditorPlaySettings* LevelEditorPlaySettings = GetSettingsChecked<ULevelEditorPlaySettings>();
+    ULevelEditorPlaySettings* LevelEditorPlaySettings = FEditorSettingsUtility::GetSettingsChecked<ULevelEditorPlaySettings>();
     
     LevelEditorPlaySettings->GameGetsMouseControl = true;
     
@@ -104,9 +105,9 @@ void FTsubasamusuEditorSettingsUtility::ChangeLevelEditorPlaySettingsForTsubasam
 }
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
-void FTsubasamusuEditorSettingsUtility::ChangeOutputLogSettingsForTsubasamusu()
+void FRecommendedEditorSettingsApplier::ApplyRecommendedOutputLogSettings()
 {
-    UOutputLogSettings* OutputLogSettings = GetSettingsChecked<UOutputLogSettings>();
+    UOutputLogSettings* OutputLogSettings = FEditorSettingsUtility::GetSettingsChecked<UOutputLogSettings>();
     
     OutputLogSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
     
