@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class IAssetTypeActions;
 class FNodePreviewer;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface

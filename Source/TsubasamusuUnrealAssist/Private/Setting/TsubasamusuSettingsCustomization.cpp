@@ -3,6 +3,7 @@
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
+#include "EditorSettingsUtility.h"
 #include "Setting/SLanguageComboButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Input/SButton.h"
@@ -118,12 +119,12 @@ void FTsubasamusuSettingsCustomization::AddCommentGenerationLanguageProperty(IDe
         SNew(SLanguageComboButton, LocalizedCulturesFlyweight)
         .OnLanguageSelected_Lambda([](const FCulturePtr& SelectedLanguageCulture)
         {
-            UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+            UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
             TsubasamusuUnrealAssistSettings->SetCommentGenerationLanguageCulture(SelectedLanguageCulture);
         })
         .IsEnabled_Lambda([]()
         {
-	        const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	        const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
             return !TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration;
         })
     ];

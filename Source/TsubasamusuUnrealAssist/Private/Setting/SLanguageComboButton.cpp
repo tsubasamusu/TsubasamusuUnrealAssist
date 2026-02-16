@@ -1,9 +1,9 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/SLanguageComboButton.h"
+#include "EditorSettingsUtility.h"
 #include "Internationalization/Culture.h"
 #include "SCulturePicker.h"
-#include "TsubasamusuEditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Input/SComboButton.h"
 
@@ -29,14 +29,14 @@ void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<
 
 FText SLanguageComboButton::GetDesiredComboButtonText()
 {
-    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
     const FString GptLanguageName = TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetNativeName();
     return FText::FromString(GptLanguageName);
 }
 
 TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
 {
-    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 
     const TSharedRef<SCulturePicker> CulturePicker = SNew(SCulturePicker)
         .InitialSelection(TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture())

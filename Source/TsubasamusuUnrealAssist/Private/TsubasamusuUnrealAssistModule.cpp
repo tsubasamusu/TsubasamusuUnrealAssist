@@ -8,7 +8,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
 #include "NodeUtility/NodePreviewer.h"
-#include "Setting/TsubasamusuEditorSettingsUtility.h"
+#include "Setting/EditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -89,7 +89,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
 {
 	OnEditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([]()
 	{
-		UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+		UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 		
 		if (TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration)
 		{
@@ -132,7 +132,7 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
 
 void FTsubasamusuUnrealAssistModule::RegisterTicker()
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	TickHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FTsubasamusuUnrealAssistModule::Tick), TsubasamusuUnrealAssistSettings->TickInterval);
 }
 
@@ -162,7 +162,7 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 
 bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	if (TsubasamusuUnrealAssistSettings->bEnableNodePreview && !NodePreviewer.IsValid())
 	{

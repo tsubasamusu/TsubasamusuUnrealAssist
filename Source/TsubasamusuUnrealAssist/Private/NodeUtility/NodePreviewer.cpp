@@ -7,7 +7,7 @@
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
-#include "Setting/TsubasamusuEditorSettingsUtility.h"
+#include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
@@ -64,7 +64,7 @@ void FNodePreviewer::TryPreviewNode()
 		return;
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	if (TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && Node->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
 	{

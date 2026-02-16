@@ -10,7 +10,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
-#include "Setting/TsubasamusuEditorSettingsUtility.h"
+#include "Setting/EditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -90,7 +90,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
         return;
     }
 
-    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
     const FString ApiKey = TsubasamusuUnrealAssistSettings->DeeplApiKey;
     
     const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *TranslationTargetLanguage);
