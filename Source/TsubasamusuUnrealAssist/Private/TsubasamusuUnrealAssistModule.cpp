@@ -89,11 +89,11 @@ void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
 {
 	OnEditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([]()
 	{
-		UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
+		UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 		
-		if (Settings->bUseEditorLanguageForCommentGeneration)
+		if (TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration)
 		{
-			Settings->MakeCommentGenerationLanguageSameAsEditorLanguage();
+			TsubasamusuUnrealAssistSettings->MakeCommentGenerationLanguageSameAsEditorLanguage();
 		}
 	});
 }
@@ -162,7 +162,7 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 
 bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
 {
-	UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	if (TsubasamusuUnrealAssistSettings->bEnableNodePreview && !NodePreviewer.IsValid())
 	{
