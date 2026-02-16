@@ -2,6 +2,7 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
+#include "OptimizeAccessSpecifiersUtility.h"
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
@@ -113,6 +114,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 		
 		if (IsValid(OpenedBlueprint))
 		{
+			FOptimizeAccessSpecifiersUtility::OnBlueprintEditorOpened(OpenedBlueprint);
 		}
 	});
 }
