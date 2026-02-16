@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class IAssetTypeActions;
 class FNodePreviewer;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
@@ -28,6 +29,9 @@ private:
 	void RegisterOnEditorLanguageChangedEvent();
 	void UnregisterOnEditorLanguageChangedEvent();
 	
+	void RegisterOnAssetEditorOpenedEvent();
+	void UnregisterOnAssetEditorOpenedEvent();
+	
 	void RegisterTicker();
 	void UnregisterTicker();
 	
@@ -38,6 +42,7 @@ private:
 	
 	FDelegateHandle OnPostEngineInitHandle;
 	FDelegateHandle OnEditorLanguageChangedHandle;
+	FDelegateHandle OnAssetEditorOpenedHandle;
 	FTSTicker::FDelegateHandle TickHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");

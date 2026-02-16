@@ -11,6 +11,7 @@
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
 #include "TsubasamusuEditorSettingsUtility.h"
+#include "TsubasamusuLogUtility.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
@@ -171,9 +172,9 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
             [
                 SNew(SEditableTextBox)
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
-                .Font(FEditorStyle::GetFontStyle("PropertyWindow.NormalFont"))
+                .Font(FEditorStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 #else
-                .Font(FAppStyle::GetFontStyle("PropertyWindow.NormalFont"))
+                .Font(FAppStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 #endif
                 .HintText(HintText)
                 .Text_Lambda([PropertyHandle]()
@@ -263,13 +264,8 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
             .OnClicked_Lambda([]()
             {
                 const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
-                const FText WarningTitle = LOCTEXT("ApplyRecommendedEditorSettingsWarningTitle", "Tsubasamusu Unreal Assist Warning");
                 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
-                if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, WarningTitle))
-#else
-                if (FMessageDialog::Open(EAppMsgType::YesNo, WarningMessage, &WarningTitle))
-#endif
+                if (FTsubasamusuLogUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
                 {
                     FTsubasamusuEditorSettingsUtility::ChangeEditorSettingsForTsubasamusu();
                 }

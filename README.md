@@ -433,6 +433,11 @@ When you check “Enable Node Preview,” the following properties become editab
 ----|----
 | Preview Scale  | The scale of node preview. The default value is 1.0. |
 | Also Preview Advanced View  | Whether to display pins that are hidden by default in node preview. For example, pins such as TextColor, Duration, and Key of the PrintString node. |
+### Optimize Access Specifiers
+When this plugin is enabled and you open the Blueprint Editor, a new menu item called "Optimize Access Specifiers" is added under "Edit" at the top of the editor. Selecting this menu displays a list of members defined in the Blueprint whose access specifiers should be changed. For example, it identifies members that are not set to Private even though they are only referenced within the same class, or members that are set to Public even though they are only referenced by derived classes of that class. By checking the members whose access specifiers you want to modify and clicking the "Apply Recommended Access Specifiers" button, you can automatically apply the optimal access specifiers to all selected members at once.
+(Currently, this feature is available only for variables.)
+
+<img width="700" src="https://github.com/user-attachments/assets/14ec6a38-4500-4ad8-bbf0-e1fada49e808">
 
 ## Blueprint Function Library for Editor Utilty
 ### Replace Assets References

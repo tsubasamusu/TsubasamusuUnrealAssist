@@ -2,6 +2,7 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
+#include "OptimizeAccessSpecifiersUtility.h"
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
@@ -23,6 +24,7 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 	UnregisterOnPostEngineInitEvent();
 	UnregisterOnEditorLanguageChangedEvent();
+	UnregisterOnAssetEditorOpenedEvent();
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
 	UnregisterTicker();
@@ -56,6 +58,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
 	{
 		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
 		RegisterOnEditorLanguageChangedEvent();
+		RegisterOnAssetEditorOpenedEvent();
 	});
 }
 
@@ -98,6 +101,33 @@ void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
 void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent()
 {
 	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
+{
+	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	check(IsValid(AssetEditorSubsystem));
+	
+	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([](UObject* OpenedAsset)
+	{
+		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(OpenedAsset);
+		
+		if (IsValid(OpenedBlueprint))
+		{
+			FOptimizeAccessSpecifiersUtility::OnBlueprintEditorOpened(OpenedBlueprint);
+		}
+	});
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
+{
+	if (IsValid(GEditor))
+	{
+		UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+		check(IsValid(AssetEditorSubsystem));
+		
+		AssetEditorSubsystem->OnAssetEditorOpened().Remove(OnAssetEditorOpenedHandle);
+	}
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterTicker()

@@ -1,0 +1,13 @@
+// Copyright (c) 2026, tsubasamusu All rights reserved.
+
+#include "TsubasamusuBlueprintEditorCommands.h"
+
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+
+void FTsubasamusuBlueprintEditorCommands::RegisterCommands()
+{
+	//TODO: 変数以外にも対応させた際はここのツールチップテキストも修正する
+	UI_COMMAND(OptimizeAccessSpecifiers, "Optimize Access Specifiers", "Change the access specifiers of the variables defined in this blueprint to the appropriate ones.", EUserInterfaceActionType::Button, FInputChord());
+}
+
+#undef LOCTEXT_NAMESPACE
