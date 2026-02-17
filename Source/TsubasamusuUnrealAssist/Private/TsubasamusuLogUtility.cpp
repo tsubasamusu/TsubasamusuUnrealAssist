@@ -39,9 +39,9 @@ EAppReturnType::Type FTsubasamusuLogUtility::OpenWarningMessageDialog(const EApp
 }
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget, TAttribute<bool> OkButtonIsEnabled)
+TsubasamusuUnrealAssist::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget, TAttribute<bool> OkButtonIsEnabled)
 #else
-FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget)
+TsubasamusuUnrealAssist::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget)
 #endif
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
@@ -89,14 +89,14 @@ FTsubasamusuLogUtility::EDialogButton FTsubasamusuLogUtility::ShowCustomDialog(c
 	switch (PressedButtonIndex)
 	{
 		case -1:
-			return EDialogButton::Close;
+			return TsubasamusuUnrealAssist::EDialogButton::Close;
 		case 0:
-			return EDialogButton::OK;
+			return TsubasamusuUnrealAssist::EDialogButton::OK;
 		case 1:
-			return EDialogButton::Cancel;
+			return TsubasamusuUnrealAssist::EDialogButton::Cancel;
 		default:
 			checkNoEntry()
-			return EDialogButton::Close;
+			return TsubasamusuUnrealAssist::EDialogButton::Close;
 	}
 }
 

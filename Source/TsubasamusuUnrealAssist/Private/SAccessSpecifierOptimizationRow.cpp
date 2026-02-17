@@ -2,6 +2,7 @@
 
 #include "SAccessSpecifierOptimizationRow.h"
 #include "OptimizeAccessSpecifiersUtility.h"
+#include "Types/TsubasamusuUnrealAssistEnums.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -38,21 +39,21 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	}
 	else
 	{
-		const TsubasamusuBlueprintEditor::EAccessSpecifier AccessSpecifier = InColumnName == CurrentAccessSpecifierColumnId ? RowItem->CurrentAccessSpecifier : RowItem->RecommendedAccessSpecifier;
+		const TsubasamusuUnrealAssist::EAccessSpecifier AccessSpecifier = InColumnName == CurrentAccessSpecifierColumnId ? RowItem->CurrentAccessSpecifier : RowItem->RecommendedAccessSpecifier;
 		FText AccessSpecifierText;
 		
 		switch (AccessSpecifier)
 		{
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::None:
+		case TsubasamusuUnrealAssist::EAccessSpecifier::None:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_None", "None");
 			break;
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::Private:
+		case TsubasamusuUnrealAssist::EAccessSpecifier::Private:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Private", "Private");
 			break;
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::Protected:
+		case TsubasamusuUnrealAssist::EAccessSpecifier::Protected:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Protected", "Protected");
 			break;
-		case TsubasamusuBlueprintEditor::EAccessSpecifier::Public:
+		case TsubasamusuUnrealAssist::EAccessSpecifier::Public:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Public", "Public");
 			break;
 		default:

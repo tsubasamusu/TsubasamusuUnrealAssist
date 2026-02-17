@@ -89,7 +89,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	{
 		const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem = MakeShared<FAccessSpecifierOptimizationRow>(
 			Variable->GetFName(),
-			TsubasamusuBlueprintEditor::EMemberType::Variable,
+			TsubasamusuUnrealAssist::EBlueprintMember::Variable,
 			GetCurrentAccessSpecifier(Variable, CurrentlyOpenBlueprint),
 			GetOptimalAccessSpecifier(Variable, CurrentlyOpenBlueprint));
 		
@@ -204,12 +204,12 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
 #else
-	const FTsubasamusuLogUtility::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
 #endif
 	
-	if (PressedButton != FTsubasamusuLogUtility::EDialogButton::OK)
+	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK)
 	{
 		return;
 	}
@@ -231,7 +231,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 			continue;
 		}
 		
-		if (RowItem->MemberType == TsubasamusuBlueprintEditor::EMemberType::Variable)
+		if (RowItem->MemberType == TsubasamusuUnrealAssist::EBlueprintMember::Variable)
 		{
 			FBlueprintEditorUtils::SetBlueprintVariableMetaData(CurrentlyOpenBlueprint, RowItem->MemberName, nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
 		}
@@ -282,13 +282,13 @@ void FOptimizeAccessSpecifiersUtility::RemoveVariablesShouldNotBePrivate(TArray<
 	});
 }
 
-TsubasamusuBlueprintEditor::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuUnrealAssist::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, VariableOwnerBlueprint);
 	
 	if (BlueprintsReferencesVariable.IsEmpty())
 	{
-		return TsubasamusuBlueprintEditor::EAccessSpecifier::Private;
+		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
 	}
 	
 	for (const UBlueprint* BlueprintReferencesVariable : BlueprintsReferencesVariable)
@@ -298,19 +298,19 @@ TsubasamusuBlueprintEditor::EAccessSpecifier FOptimizeAccessSpecifiersUtility::G
 		
 		if (!BlueprintReferencesVariableClass->IsChildOf(VariableOwnerBlueprintClass))
 		{
-			return TsubasamusuBlueprintEditor::EAccessSpecifier::Public;
+			return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
 		}
 	}
 	
-	return TsubasamusuBlueprintEditor::EAccessSpecifier::Protected;
+	return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
 }
 
-TsubasamusuBlueprintEditor::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuUnrealAssist::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	FString PrivateMetaDataValue;
 	FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
 		
-	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuBlueprintEditor::EAccessSpecifier::Private : TsubasamusuBlueprintEditor::EAccessSpecifier::Public;
+	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuUnrealAssist::EAccessSpecifier::Private : TsubasamusuUnrealAssist::EAccessSpecifier::Public;
 }
 
 TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)

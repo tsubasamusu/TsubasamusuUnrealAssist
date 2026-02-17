@@ -4,11 +4,6 @@
 
 #include "CoreMinimal.h"
 
-namespace TsubasamusuBlueprintEditor
-{
-	enum class EAccessSpecifier : uint8;
-}
-
 struct FAccessSpecifierOptimizationRow;
 
 class SAccessSpecifierOptimizationRow final : public SMultiColumnTableRow<TSharedPtr<FAccessSpecifierOptimizationRow>>
