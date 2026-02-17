@@ -9,8 +9,8 @@
 
 void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
-	const FText LabelText = LOCTEXT("CreateArrayNodeLabelText", "Make Array");
-	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTipText", "Make an array with all selected nodes connected.");
+	const FText LabelText = LOCTEXT("CreateArrayNodeLabel", "Make Array");
+	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
 

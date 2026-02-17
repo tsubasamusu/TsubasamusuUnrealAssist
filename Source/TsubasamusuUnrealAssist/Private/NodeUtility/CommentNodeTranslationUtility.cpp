@@ -17,12 +17,12 @@
 void FCommentTranslationUtility::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-    const TAttribute<FText> HeadingText = LOCTEXT("CommentTranslationHeadingText", "Tsubasamusu Unreal Assist");
+    const TAttribute<FText> HeadingText = LOCTEXT("CommentTranslationHeading", "Tsubasamusu Unreal Assist");
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-    const TAttribute<FText> LabelText = LOCTEXT("CommentTranslationLabelText", "Translate to...");
-    const TAttribute<FText> ToolTipText = LOCTEXT("CommentTranslationToolTipText", "Translate comment of selected comment node.");
+    const TAttribute<FText> LabelText = LOCTEXT("CommentTranslationLabel", "Translate to...");
+    const TAttribute<FText> ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node.");
 
     const auto MenuAction = [InCommentNode](FMenuBuilder& MenuBuilder)
     {
