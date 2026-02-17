@@ -5,6 +5,8 @@
 #include "Widgets/Notifications/SNotificationList.h"
 #include "CoreMinimal.h"
 
+#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+
 DECLARE_LOG_CATEGORY_EXTERN(LogTsubasamusuUnrealAssist, Log, All);
 
 #define TUA_LOG(Format, ...) \
@@ -36,8 +38,10 @@ public:
 	static EAppReturnType::Type OpenWarningMessageDialog(const EAppMsgType::Type InMessageType, const FText& InMessage);
 	
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-	static EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = FText::FromString(TEXT("OK")), const FText& CancelButtonText = FText::FromString(TEXT("Cancel")), const TSharedPtr<SWidget> ContentWidget = nullptr, TAttribute<bool> OkButtonIsEnabled = true);
+	static EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& CancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> ContentWidget = nullptr, TAttribute<bool> OkButtonIsEnabled = true);
 #else
-	static EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = FText::FromString(TEXT("OK")), const FText& CancelButtonText = FText::FromString(TEXT("Cancel")), const TSharedPtr<SWidget> ContentWidget = nullptr);
+	static EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& CancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> ContentWidget = nullptr);
 #endif
 };
+
+#undef LOCTEXT_NAMESPACE

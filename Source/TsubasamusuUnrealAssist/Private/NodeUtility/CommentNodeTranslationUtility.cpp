@@ -54,8 +54,8 @@ void FCommentTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder
         }
 
         const TAttribute LabelText = FText::FromString(Culture->GetEnglishName());
-        const TAttribute ToolTipText = FText::FromString(TEXT("Translate comment of selected comment node to ") + Culture->GetEnglishName() + TEXT("."));
-
+        const TAttribute ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), FText::FromString(Culture->GetEnglishName()));
+        
         const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
         
         InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()

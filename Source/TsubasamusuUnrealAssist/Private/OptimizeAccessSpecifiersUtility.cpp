@@ -108,7 +108,6 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 		(
 			SNew(SHeaderRow)
 			+ SHeaderRow::Column(CheckBoxColumnId)
-			.DefaultLabel(FText::GetEmpty())
 			.FixedWidth(30.f)
 			[
 				SNew(SBox)
