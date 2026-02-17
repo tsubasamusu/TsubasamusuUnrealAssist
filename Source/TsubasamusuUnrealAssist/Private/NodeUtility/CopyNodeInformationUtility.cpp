@@ -15,7 +15,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPt
 	}
 	
 	const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-	const TAttribute HeadingText = LOCTEXT("CopyNodeInformationHeadingText", "Tsubasamusu Unreal Assist");
+	const TAttribute<FText> HeadingText = LOCTEXT("CopyNodeInformationHeadingText", "Tsubasamusu Unreal Assist");
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
@@ -39,8 +39,8 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationSubMenus(FMenuBuilder& I
 {
 	// JSON
 	{
-		const TAttribute CopyNodeInformationInJsonFormatLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabelText", "JSON");
-		const TAttribute CopyNodeInformationInJsonFormatToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTipText", "Copy selected nodes in JSON Format.");
+		const TAttribute<FText> CopyNodeInformationInJsonFormatLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabelText", "JSON");
+		const TAttribute<FText> CopyNodeInformationInJsonFormatToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTipText", "Copy selected nodes in JSON Format.");
 
 		InMenuBuilder.AddMenuEntry(CopyNodeInformationInJsonFormatLabelText, CopyNodeInformationInJsonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()
 		{
@@ -54,8 +54,8 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationSubMenus(FMenuBuilder& I
 	
 	// TOON
 	{
-		const TAttribute CopyNodeInformationInToonFormatLabelText = LOCTEXT("CopyNodeInformationInToonFormatLabelText", "TOON");
-		const TAttribute CopyNodeInformationInToonFormatToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTipText", "Copy selected nodes in TOON Format.");
+		const TAttribute<FText> CopyNodeInformationInToonFormatLabelText = LOCTEXT("CopyNodeInformationInToonFormatLabelText", "TOON");
+		const TAttribute<FText> CopyNodeInformationInToonFormatToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTipText", "Copy selected nodes in TOON Format.");
 
 		InMenuBuilder.AddMenuEntry(CopyNodeInformationInToonFormatLabelText, CopyNodeInformationInToonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()
 		{

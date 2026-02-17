@@ -17,12 +17,12 @@
 void FCommentTranslationUtility::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-    const TAttribute HeadingText = LOCTEXT("CommentTranslationHeadingText", "Tsubasamusu Unreal Assist");
+    const TAttribute<FText> HeadingText = LOCTEXT("CommentTranslationHeadingText", "Tsubasamusu Unreal Assist");
     
 	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
 
-    const TAttribute LabelText = LOCTEXT("CommentTranslationLabelText", "Translate to...");
-    const TAttribute ToolTipText = LOCTEXT("CommentTranslationToolTipText", "Translate comment of selected comment node.");
+    const TAttribute<FText> LabelText = LOCTEXT("CommentTranslationLabelText", "Translate to...");
+    const TAttribute<FText> ToolTipText = LOCTEXT("CommentTranslationToolTipText", "Translate comment of selected comment node.");
 
     const auto MenuAction = [InCommentNode](FMenuBuilder& MenuBuilder)
     {
@@ -53,8 +53,8 @@ void FCommentTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder
             continue;
         }
 
-        const TAttribute LabelText = FText::FromString(Culture->GetEnglishName());
-        const TAttribute ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), FText::FromString(Culture->GetEnglishName()));
+        const TAttribute<FText> LabelText = FText::FromString(Culture->GetEnglishName());
+        const TAttribute<FText> ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), FText::FromString(Culture->GetEnglishName()));
         
         const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
         

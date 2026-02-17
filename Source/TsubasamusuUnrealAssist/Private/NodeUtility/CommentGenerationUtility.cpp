@@ -16,8 +16,8 @@
 
 void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-    const TAttribute LabelText = LOCTEXT("CommentGenerationLabelText", "Generate Comment");
-    const TAttribute ToolTipText = LOCTEXT("CommentGenerationToolTipText", "Generate a comment based on the nodes contained in the comment node.");
+    const TAttribute<FText> LabelText = LOCTEXT("CommentGenerationLabelText", "Generate Comment");
+    const TAttribute<FText> ToolTipText = LOCTEXT("CommentGenerationToolTipText", "Generate a comment based on the nodes contained in the comment node.");
 
     InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode]()
     {
