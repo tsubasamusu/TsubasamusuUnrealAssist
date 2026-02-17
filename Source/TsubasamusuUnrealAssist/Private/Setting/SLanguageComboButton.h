@@ -3,24 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Types/TsubasamusuUnrealAssistStructs.h"
 #include "Widgets/SCompoundWidget.h"
-
-class SComboButton;
-class SWidget;
-
-struct FLocalizedCulturesFlyweight
-{
-    TArray<FCultureRef> LocalizedCultures;
-
-    FLocalizedCulturesFlyweight()
-    {
-        constexpr bool bIncludeDerivedCultures = false;
-
-        const TArray<FString> LocalizedCultureNames = FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
-
-        LocalizedCultures = FInternationalization::Get().GetAvailableCultures(LocalizedCultureNames, bIncludeDerivedCultures);
-    }
-};
 
 DECLARE_DELEGATE_OneParam(FOnLanguageSelected, const FCulturePtr&)
 

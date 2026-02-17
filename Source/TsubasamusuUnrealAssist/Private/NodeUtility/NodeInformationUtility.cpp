@@ -4,6 +4,7 @@
 #include "EdGraphNode_Comment.h"
 #include "GraphNodeUtility.h"
 #include "JsonObjectConverter.h"
+#include "Types/TsubasamusuUnrealAssistStructs.h"
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
 {

@@ -5,6 +5,7 @@
 #include "Internationalization/Culture.h"
 #include "SCulturePicker.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "Types/TsubasamusuUnrealAssistStructs.h"
 #include "Widgets/Input/SComboButton.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"

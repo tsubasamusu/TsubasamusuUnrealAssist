@@ -3,67 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "NodeInformationUtility.generated.h"
 
-USTRUCT()
-struct FPinData
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY();
-	FString PinName;
-
-	UPROPERTY()
-	FString PinDirection;
-
-	UPROPERTY()
-	FString PinType;
-    
-	UPROPERTY()
-	FString PinId;
-
-	UPROPERTY()
-	FString DefaultValue;
-
-	UPROPERTY()
-	bool bThisPinUsesDefaultValue = false;
-
-	UPROPERTY()
-	TArray<FString> ConnectedPinIds;
-};
-
-USTRUCT()
-struct FNodeData
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FString NodeName;
-
-	UPROPERTY()
-	FString Comment;
-
-	UPROPERTY()
-	bool bIsCommentNode = false;
-
-	UPROPERTY()
-	TArray<FPinData> PinDataList;
-};
-
-USTRUCT()
-struct FNodeDataList
-{
-	GENERATED_BODY()
-
-public:
-	FNodeDataList() : NodeDataList(TArray<FNodeData>()){}
-	explicit FNodeDataList(const TArray<FNodeData>& InNodeDataList) : NodeDataList(InNodeDataList){}
-    
-	UPROPERTY()
-	TArray<FNodeData> NodeDataList;
-};
+struct FNodeDataList;
+struct FPinData;
 
 class FNodeInformationUtility final
 {

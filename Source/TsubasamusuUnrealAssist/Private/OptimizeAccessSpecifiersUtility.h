@@ -6,29 +6,6 @@
 #include "BlueprintEditor.h"
 #include "CoreMinimal.h"
 
-struct FAccessSpecifierOptimizationRow
-{
-public:
-	explicit FAccessSpecifierOptimizationRow(
-		const FName& InMemberName = NAME_None,
-		const TsubasamusuUnrealAssist::EBlueprintMember InMemberType = TsubasamusuUnrealAssist::EBlueprintMember::None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InCurrentAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InRecommendedAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None,
-		const bool bInSelected = true)
-		: MemberName(InMemberName),
-		  MemberType(InMemberType),
-		  CurrentAccessSpecifier(InCurrentAccessSpecifier),
-		  RecommendedAccessSpecifier(InRecommendedAccessSpecifier),
-		  bSelected(bInSelected) {}
-	
-	FName MemberName;
-	TsubasamusuUnrealAssist::EBlueprintMember MemberType;
-	TsubasamusuUnrealAssist::EAccessSpecifier CurrentAccessSpecifier;
-	TsubasamusuUnrealAssist::EAccessSpecifier RecommendedAccessSpecifier;
-	bool bSelected;
-	TSharedPtr<SCheckBox> CheckBox;
-};
-
 class FOptimizeAccessSpecifiersUtility final
 {
 public:

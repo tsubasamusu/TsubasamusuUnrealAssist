@@ -1,8 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "SAccessSpecifierOptimizationRow.h"
-#include "OptimizeAccessSpecifiersUtility.h"
 #include "Types/TsubasamusuUnrealAssistEnums.h"
+#include "Types/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
