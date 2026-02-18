@@ -5,7 +5,7 @@
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
-#include "TsubasamusuBlueprintEditorCommands.h"
+#include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/TimelineComponent.h"
