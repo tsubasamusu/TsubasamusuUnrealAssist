@@ -247,8 +247,7 @@ FString FCommentGenerator::GetDesiredPrompt(const FString& NodeDataListString)
 
 TArray<UEdGraphNode*> FCommentGenerator::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	//TODO: コメントノード内のノードの更新
-	// HandleSelection(true, true) を SGraphNodeComment::OnMouseButtonUp() 経由で間接的に呼び出すか？
+	//TODO: Update nodes within the comment node. Indirectly call HandleSelection(true, true) via SGraphNodeComment::OnMouseButtonUp()?
 
 	TArray<UEdGraphNode*> NodesUnderComment;
 
