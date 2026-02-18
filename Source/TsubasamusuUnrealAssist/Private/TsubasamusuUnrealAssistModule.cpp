@@ -10,7 +10,7 @@
 #include "Blueprint/NodePreviewer.h"
 #include "Setting/EditorSettingsUtility.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 
 void FTsubasamusuUnrealAssistModule::StartupModule()
 {

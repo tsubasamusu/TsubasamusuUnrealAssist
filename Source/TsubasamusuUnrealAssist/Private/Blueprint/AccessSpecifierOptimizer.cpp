@@ -23,7 +23,7 @@
 #include "Misc/FeedbackContext.h"
 #endif
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FAccessSpecifierOptimizer"
 
 void FAccessSpecifierOptimizer::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)
 {

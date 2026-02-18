@@ -9,7 +9,7 @@
 #include "Dialog/SCustomDialog.h"
 #endif
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FEditorMessageUtility"
 
 void FEditorMessageUtility::DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState)
 {

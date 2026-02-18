@@ -15,7 +15,7 @@
 #include "TsubasamusuUnrealAssistSettings.h"
 #include "Debug/EditorMessageUtility.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FTsubasamusuSettingsCustomization"
 
 TSharedRef<IDetailCustomization> FTsubasamusuSettingsCustomization::Create()
 {

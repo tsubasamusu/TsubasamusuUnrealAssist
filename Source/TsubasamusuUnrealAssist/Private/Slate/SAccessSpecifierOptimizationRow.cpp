@@ -4,7 +4,7 @@
 #include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "SAccessSpecifierOptimizationRow"
 
 void SAccessSpecifierOptimizationRow::Construct(const FArguments& InArgs, const TSharedRef<STableViewBase>& InOwnerTableView)
 {

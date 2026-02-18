@@ -13,7 +13,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FCommentGenerator"
 
 void FCommentGenerator::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {

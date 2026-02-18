@@ -6,7 +6,7 @@
 #include "Widgets/Notifications/SNotificationList.h"
 #include "CoreMinimal.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FEditorMessageUtility"
 
 class FEditorMessageUtility final
 {

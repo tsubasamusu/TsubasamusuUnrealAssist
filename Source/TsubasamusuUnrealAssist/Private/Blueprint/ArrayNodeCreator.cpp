@@ -5,7 +5,7 @@
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FArrayNodeCreator"
 
 void FArrayNodeCreator::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {

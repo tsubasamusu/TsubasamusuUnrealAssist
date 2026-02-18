@@ -2,7 +2,7 @@
 
 #include "TsubasamusuBlueprintEditorCommands.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FTsubasamusuBlueprintEditorCommands"
 
 void FTsubasamusuBlueprintEditorCommands::RegisterCommands()
 {

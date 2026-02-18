@@ -5,7 +5,7 @@
 #include "Blueprint/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FNodeInformationCopier"
 
 void FNodeInformationCopier::AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder)
 {
