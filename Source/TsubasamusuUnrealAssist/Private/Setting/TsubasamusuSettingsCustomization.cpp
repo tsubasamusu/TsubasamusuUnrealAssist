@@ -12,7 +12,7 @@
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
 #include "RecommendedEditorSettingsApplier.h"
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"

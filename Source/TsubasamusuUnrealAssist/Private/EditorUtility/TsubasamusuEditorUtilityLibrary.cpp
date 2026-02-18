@@ -3,7 +3,7 @@
 #include "EditorUtility/TsubasamusuEditorUtilityLibrary.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 #include "UObject/SavePackage.h"
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
