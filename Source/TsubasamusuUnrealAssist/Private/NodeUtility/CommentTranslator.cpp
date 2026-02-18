@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/CommentTranslationUtility.h"
+#include "NodeUtility/CommentTranslator.h"
 #include "EdGraphNode_Comment.h"
 #include "Debug/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
@@ -14,7 +14,7 @@
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
-void FCommentTranslationUtility::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentTranslator::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
     const TAttribute<FText> HeadingText = LOCTEXT("CommentTranslationHeading", "Tsubasamusu Unreal Assist");
@@ -34,7 +34,7 @@ void FCommentTranslationUtility::AddCommentTranslationMenu(FMenuBuilder& InMenuB
     InMenuBuilder.EndSection();
 }
 
-void FCommentTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentTranslator::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const TArray<FString> EditorLanguages = GetEditorLanguages();
 
@@ -65,7 +65,7 @@ void FCommentTranslationUtility::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder
     }
 }
 
-TArray<FString> FCommentTranslationUtility::GetEditorLanguages()
+TArray<FString> FCommentTranslator::GetEditorLanguages()
 {
     const FTextLocalizationManager& TextLocalizationManager = FTextLocalizationManager::Get();
     const TArray<FString> LocalizedCultureNames = TextLocalizationManager.GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
@@ -83,7 +83,7 @@ TArray<FString> FCommentTranslationUtility::GetEditorLanguages()
     return EditorLanguages;
 }
 
-void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
+void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
 {
     if (!InCommentNode.IsValid() || !TranslationTargetLanguage.IsValid())
     {
@@ -174,7 +174,7 @@ void FCommentTranslationUtility::TranslateComment(const TWeakObjectPtr<UEdGraphN
     }
 }
 
-FString FCommentTranslationUtility::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
+FString FCommentTranslator::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
 {
     const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
     const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(SourceText) };
@@ -193,7 +193,7 @@ FString FCommentTranslationUtility::GetDeeplJsonRequest(const FString& SourceTex
     return DeeplJsonRequest;
 }
 
-void FCommentTranslationUtility::FixLanguage(FString& OutLanguage)
+void FCommentTranslator::FixLanguage(FString& OutLanguage)
 {
     if (OutLanguage == TEXT("es-419"))
     {
