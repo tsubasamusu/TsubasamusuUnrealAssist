@@ -6,7 +6,7 @@
 #include "BlueprintEditor.h"
 #include "CoreMinimal.h"
 
-class FOptimizeAccessSpecifiersUtility final
+class FAccessSpecifierOptimizer final
 {
 public:
 	static void OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint);

@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "OptimizeAccessSpecifiersUtility.h"
+#include "AccessSpecifierOptimizer.h"
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
@@ -25,7 +25,7 @@
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
-void FOptimizeAccessSpecifiersUtility::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)
+void FAccessSpecifierOptimizer::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)
 {
 	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InOpenedBlueprint);
 	
@@ -44,7 +44,7 @@ void FOptimizeAccessSpecifiersUtility::OnBlueprintEditorOpened(UBlueprint* InOpe
 	}
 }
 
-void FOptimizeAccessSpecifiersUtility::RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
+void FAccessSpecifierOptimizer::RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
 {
 	const FName EditMenuName = *(InBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
 	const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
@@ -61,7 +61,7 @@ void FOptimizeAccessSpecifiersUtility::RegisterAdditionalMenus(const TSharedPtr<
 	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers);
 }
 
-void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
+void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
 {
 	UBlueprint* CurrentlyOpenBlueprint = InBlueprintEditor->GetBlueprintObj();
 	check(IsValid(CurrentlyOpenBlueprint));
@@ -242,7 +242,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	FEditorMessageUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
-TArray<FProperty*> FOptimizeAccessSpecifiersUtility::GetVariables(const UBlueprint* InBlueprint)
+TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InBlueprint)
 {
 	TArray<FProperty*> Variables;
 	
@@ -272,7 +272,7 @@ TArray<FProperty*> FOptimizeAccessSpecifiersUtility::GetVariables(const UBluepri
 	return Variables;
 }
 
-void FOptimizeAccessSpecifiersUtility::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint)
+void FAccessSpecifierOptimizer::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint)
 {
 	OutVariables.RemoveAll([VariablesOwnerBlueprint](const FProperty* InVariable)
 	{
@@ -283,7 +283,7 @@ void FOptimizeAccessSpecifiersUtility::RemoveVariablesShouldNotBePrivate(TArray<
 	});
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, VariableOwnerBlueprint);
 	
@@ -306,7 +306,7 @@ TsubasamusuUnrealAssist::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetO
 	return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
 {
 	FString PrivateMetaDataValue;
 	FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
@@ -314,7 +314,7 @@ TsubasamusuUnrealAssist::EAccessSpecifier FOptimizeAccessSpecifiersUtility::GetC
 	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuUnrealAssist::EAccessSpecifier::Private : TsubasamusuUnrealAssist::EAccessSpecifier::Public;
 }
 
-TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
+TArray<UBlueprint*> FAccessSpecifierOptimizer::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
 {
 	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(VariableOwnerBlueprint);
 	
@@ -331,7 +331,7 @@ TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetBlueprintsReferenceVari
 	return BlueprintsReferenceVariable;
 }
 
-TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
+TArray<UBlueprint*> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {
 	TArray<UBlueprint*> ReferencerBlueprints;
 	
@@ -387,7 +387,7 @@ TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetReferencerBlueprints(co
 	return ReferencerBlueprints;
 }
 
-bool FOptimizeAccessSpecifiersUtility::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
+bool FAccessSpecifierOptimizer::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
 {
 	const FName VariableNameToCheck = VariableToCheck->GetFName();
 	
