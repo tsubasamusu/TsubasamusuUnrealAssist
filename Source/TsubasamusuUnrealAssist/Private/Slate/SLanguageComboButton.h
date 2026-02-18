@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Types/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "Widgets/SCompoundWidget.h"
 
 DECLARE_DELEGATE_OneParam(FOnLanguageSelected, const FCulturePtr&)

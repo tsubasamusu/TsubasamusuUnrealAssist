@@ -11,7 +11,7 @@
 #include "Internationalization/Culture.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
-#include "Types/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 

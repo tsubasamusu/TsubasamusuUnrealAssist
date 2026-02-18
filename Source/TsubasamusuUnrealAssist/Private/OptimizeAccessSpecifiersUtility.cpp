@@ -13,7 +13,7 @@
 #include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Toolkits/ToolkitManager.h"
-#include "Types/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
 #include "ToolMenus.h"

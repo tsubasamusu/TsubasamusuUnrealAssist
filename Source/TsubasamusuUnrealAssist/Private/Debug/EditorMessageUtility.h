@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Types/TsubasamusuUnrealAssistEnums.h"
+#include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "Widgets/Notifications/SNotificationList.h"
 #include "CoreMinimal.h"
 

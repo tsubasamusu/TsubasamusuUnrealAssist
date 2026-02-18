@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Types/TsubasamusuUnrealAssistEnums.h"
+#include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "BlueprintEditor.h"
 #include "CoreMinimal.h"
 
