@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/NodeUtility.h"
+#include "Blueprint/NodeUtility.h"
 #include "Editor.h"
 #include "EdGraph/EdGraphNode.h"
 

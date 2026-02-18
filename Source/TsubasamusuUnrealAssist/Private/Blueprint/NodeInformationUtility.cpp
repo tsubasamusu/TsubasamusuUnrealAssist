@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/NodeInformationUtility.h"
+#include "Blueprint/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "NodeUtility.h"
 #include "JsonObjectConverter.h"

@@ -1,7 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/ArrayNodeCreator.h"
-#include "NodeUtility/NodeUtility.h"
+#include "Blueprint/ArrayNodeCreator.h"
+#include "Blueprint/NodeUtility.h"
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 

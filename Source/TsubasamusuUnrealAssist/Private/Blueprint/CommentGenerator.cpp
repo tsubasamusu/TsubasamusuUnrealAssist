@@ -1,10 +1,10 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/CommentGenerator.h"
+#include "Blueprint/CommentGenerator.h"
 #include "EdGraphNode_Comment.h"
 #include "HttpModule.h"
 #include "JsonObjectConverter.h"
-#include "NodeUtility/NodeInformationUtility.h"
+#include "Blueprint/NodeInformationUtility.h"
 #include "Debug/TsubasamusuLogUtility.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"

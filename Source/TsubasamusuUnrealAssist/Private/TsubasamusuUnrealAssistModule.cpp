@@ -2,12 +2,12 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
-#include "NodeUtility/AccessSpecifierOptimizer.h"
-#include "NodeUtility/SelectedNodeMenuExtender.h"
+#include "Blueprint/AccessSpecifierOptimizer.h"
+#include "Blueprint/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
-#include "NodeUtility/NodePreviewer.h"
+#include "Blueprint/NodePreviewer.h"
 #include "Setting/EditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"

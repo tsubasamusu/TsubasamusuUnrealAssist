@@ -1,13 +1,13 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/SelectedNodeMenuExtender.h"
-#include "NodeUtility/CommentTranslator.h"
-#include "NodeUtility/ArrayNodeCreator.h"
+#include "Blueprint/SelectedNodeMenuExtender.h"
+#include "Blueprint/CommentTranslator.h"
+#include "Blueprint/ArrayNodeCreator.h"
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
-#include "NodeUtility/NodeUtility.h"
-#include "NodeUtility/NodeInformationCopier.h"
-#include "NodeUtility/CommentGenerator.h"
+#include "Blueprint/NodeUtility.h"
+#include "Blueprint/NodeInformationCopier.h"
+#include "Blueprint/CommentGenerator.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {

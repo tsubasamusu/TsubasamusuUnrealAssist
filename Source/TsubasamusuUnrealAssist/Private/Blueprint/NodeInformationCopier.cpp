@@ -1,8 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/NodeInformationCopier.h"
-#include "NodeUtility/NodeUtility.h"
-#include "NodeUtility/NodeInformationUtility.h"
+#include "Blueprint/NodeInformationCopier.h"
+#include "Blueprint/NodeUtility.h"
+#include "Blueprint/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
