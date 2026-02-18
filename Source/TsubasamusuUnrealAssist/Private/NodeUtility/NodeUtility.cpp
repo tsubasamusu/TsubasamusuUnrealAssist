@@ -1,10 +1,10 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/NodeUtility.h"
 #include "Editor.h"
 #include "EdGraph/EdGraphNode.h"
 
-TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
+TArray<UEdGraphNode*> FNodeUtility::GetSelectedNodes(const UEdGraph* InGraph)
 {
 	TArray<UEdGraphNode*> SelectedNodes;
 
@@ -35,13 +35,13 @@ TArray<UEdGraphNode*> FGraphNodeUtility::GetSelectedNodes(const UEdGraph* InGrap
 	return SelectedNodes;
 }
 
-TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::GetSelectedWeakNodes(const UEdGraph* InGraph)
+TArray<TWeakObjectPtr<UEdGraphNode>> FNodeUtility::GetSelectedWeakNodes(const UEdGraph* InGraph)
 {
 	TArray<UEdGraphNode*> SelectedNodes = GetSelectedNodes(InGraph);
 	return ConvertToWeakNodes(SelectedNodes);
 }
 
-bool FGraphNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
+bool FNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNode*>& InNodes, FEdGraphPinType& OutNodesOutputPinsCommonType)
 {
 	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
 	
@@ -68,7 +68,7 @@ bool FGraphNodeUtility::TryGetNodesOutputPinsCommonType(const TArray<UEdGraphNod
 	return false;
 }
 
-bool FGraphNodeUtility::NodeHasSameTypeOutputPins(const UEdGraphNode* InNode, const FEdGraphPinType& InPinType)
+bool FNodeUtility::NodeHasSameTypeOutputPins(const UEdGraphNode* InNode, const FEdGraphPinType& InPinType)
 {
 	if (!IsValid(InNode))
 	{
@@ -88,12 +88,12 @@ bool FGraphNodeUtility::NodeHasSameTypeOutputPins(const UEdGraphNode* InNode, co
 	return false;
 }
 
-bool FGraphNodeUtility::IsExecPinType(const FEdGraphPinType& InPinType)
+bool FNodeUtility::IsExecPinType(const FEdGraphPinType& InPinType)
 {
 	return InPinType.PinCategory == UEdGraphSchema_K2::PC_Exec;
 }
 
-TArray<UEdGraphPin*> FGraphNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes)
+TArray<UEdGraphPin*> FNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes)
 {
 	TArray<UEdGraphPin*> OutputPins;
 
@@ -118,7 +118,7 @@ TArray<UEdGraphPin*> FGraphNodeUtility::GetNodesOutputPins(const TArray<UEdGraph
 	return OutputPins;
 }
 
-TArray<UEdGraphPin*> FGraphNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType)
+TArray<UEdGraphPin*> FNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType)
 {
 	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
 	TArray<UEdGraphPin*> SpecificTypeOutputPins;
@@ -134,7 +134,7 @@ TArray<UEdGraphPin*> FGraphNodeUtility::GetNodesOutputPins(const TArray<UEdGraph
 	return SpecificTypeOutputPins;
 }
 
-TArray<UEdGraphPin*> FGraphNodeUtility::GetNodeInputPins(const UEdGraphNode* InNode)
+TArray<UEdGraphPin*> FNodeUtility::GetNodeInputPins(const UEdGraphNode* InNode)
 {
 	TArray<UEdGraphPin*> NodeInputPins;
 
@@ -156,7 +156,7 @@ TArray<UEdGraphPin*> FGraphNodeUtility::GetNodeInputPins(const UEdGraphNode* InN
 	return NodeInputPins;
 }
 
-void FGraphNodeUtility::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
+void FNodeUtility::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
 {
 	TArray<int32> OutPinsIndexes;
 	OutPinsIndexes.SetNum(OutPins.Num());
@@ -185,7 +185,7 @@ void FGraphNodeUtility::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
 	OutPins = SortedPins;
 }
 
-FIntPoint FGraphNodeUtility::GetPinPosition(const UEdGraphPin* InPin)
+FIntPoint FNodeUtility::GetPinPosition(const UEdGraphPin* InPin)
 {
 	if (!InPin)
 	{
@@ -202,7 +202,7 @@ FIntPoint FGraphNodeUtility::GetPinPosition(const UEdGraphPin* InPin)
 	return FIntPoint(PinNode->NodePosX, PinNode->NodePosY);
 }
 
-TArray<UEdGraphNode*> FGraphNodeUtility::ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+TArray<UEdGraphNode*> FNodeUtility::ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
 {
 	TArray<UEdGraphNode*> Nodes;
 
@@ -214,7 +214,7 @@ TArray<UEdGraphNode*> FGraphNodeUtility::ConvertToHardNodes(const TArray<TWeakOb
 	return Nodes;
 }
 
-TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::ConvertToWeakNodes(const TArray<UEdGraphNode*>& InHardNodes)
+TArray<TWeakObjectPtr<UEdGraphNode>> FNodeUtility::ConvertToWeakNodes(const TArray<UEdGraphNode*>& InHardNodes)
 {
 	TArray<TWeakObjectPtr<UEdGraphNode>> WeakNodes;
 	
@@ -226,7 +226,7 @@ TArray<TWeakObjectPtr<UEdGraphNode>> FGraphNodeUtility::ConvertToWeakNodes(const
 	return WeakNodes;
 }
 
-void FGraphNodeUtility::RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes)
+void FNodeUtility::RemoveInvalidWeakNodes(TArray<TWeakObjectPtr<UEdGraphNode>>& OutWeakNodes)
 {
 	for (TWeakObjectPtr<UEdGraphNode> WeakNode : OutWeakNodes)
 	{

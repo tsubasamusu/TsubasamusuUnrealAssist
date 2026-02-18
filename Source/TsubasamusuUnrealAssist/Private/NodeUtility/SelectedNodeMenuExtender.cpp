@@ -5,7 +5,7 @@
 #include "NodeUtility/CreateArrayNodeUtility.h"
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
-#include "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/NodeUtility.h"
 #include "NodeUtility/CopyNodeInformationUtility.h"
 #include "NodeUtility/CommentGenerationUtility.h"
 
@@ -18,7 +18,7 @@ void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedRef<FUICommandList> CommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging)
 {
 	TSharedRef<FExtender> Extender = MakeShared<FExtender>();
-	const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph);
+	const TArray<UEdGraphNode*> SelectedNodes = FNodeUtility::GetSelectedNodes(InGraph);
 
 	if (SelectedNodes.Num() == 0)
 	{
@@ -40,9 +40,9 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 		{
 			TSharedPtr<FEdGraphPinType> SelectedNodesOutputPinsCommonType = MakeShared<FEdGraphPinType>();
 
-			if (FGraphNodeUtility::TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
+			if (FNodeUtility::TryGetNodesOutputPinsCommonType(SelectedNodes, *SelectedNodesOutputPinsCommonType))
 			{
-				if (!FGraphNodeUtility::IsExecPinType(*SelectedNodesOutputPinsCommonType.Get()))
+				if (!FNodeUtility::IsExecPinType(*SelectedNodesOutputPinsCommonType.Get()))
 				{
 					Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
 					{

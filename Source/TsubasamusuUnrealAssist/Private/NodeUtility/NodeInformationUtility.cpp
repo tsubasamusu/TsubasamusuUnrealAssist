@@ -2,7 +2,7 @@
 
 #include "NodeUtility/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
-#include "GraphNodeUtility.h"
+#include "NodeUtility.h"
 #include "JsonObjectConverter.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
@@ -14,7 +14,7 @@ bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListS
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
 {
-	const TArray<UEdGraphNode*> HardNodes = FGraphNodeUtility::ConvertToHardNodes(InWeakNodes);
+	const TArray<UEdGraphNode*> HardNodes = FNodeUtility::ConvertToHardNodes(InWeakNodes);
 	return TryGetNodeDataListString(OutNodeDataListString, HardNodes);
 }
 
@@ -107,7 +107,7 @@ bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataL
 
 bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
 {
-	const TArray<UEdGraphNode*> HardNodes = FGraphNodeUtility::ConvertToHardNodes(InWeakNodes);
+	const TArray<UEdGraphNode*> HardNodes = FNodeUtility::ConvertToHardNodes(InWeakNodes);
 	return TryGetNodeDataListToonString(OutNodeDataListString, HardNodes);
 }
 

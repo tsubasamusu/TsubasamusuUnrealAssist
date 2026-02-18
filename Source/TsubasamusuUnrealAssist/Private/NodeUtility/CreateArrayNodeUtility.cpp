@@ -1,7 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "NodeUtility/CreateArrayNodeUtility.h"
-#include "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/NodeUtility.h"
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
@@ -18,7 +18,7 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGra
 	{
 		if (InGraph.IsValid())
 		{
-			const TArray<UEdGraphNode*> SelectedNodes = FGraphNodeUtility::GetSelectedNodes(InGraph.Get());
+			const TArray<UEdGraphNode*> SelectedNodes = FNodeUtility::GetSelectedNodes(InGraph.Get());
 		
 			CreateArrayNode(InGraph, SelectedNodes, *ArrayNodePinType);
 		}
@@ -45,8 +45,8 @@ UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr
 		Blueprint->Modify();
 	}
 	
-	TArray<UEdGraphPin*> NodesOutputPins = FGraphNodeUtility::GetNodesOutputPins(InNodes, ArrayNodePinType);
-	FGraphNodeUtility::SortPinsByPositionY(NodesOutputPins);
+	TArray<UEdGraphPin*> NodesOutputPins = FNodeUtility::GetNodesOutputPins(InNodes, ArrayNodePinType);
+	FNodeUtility::SortPinsByPositionY(NodesOutputPins);
 	
 	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*Graph);
 	
@@ -70,7 +70,7 @@ UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr
 
 	ArrayNodeCreator.Finalize();
 	
-	const TArray<UEdGraphPin*> CreatedArrayNodeInputPins = FGraphNodeUtility::GetNodeInputPins(CreatedArrayNode);
+	const TArray<UEdGraphPin*> CreatedArrayNodeInputPins = FNodeUtility::GetNodeInputPins(CreatedArrayNode);
 
 	for (UEdGraphPin* NodesOutputPin : NodesOutputPins)
 	{

@@ -1,7 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "NodeUtility/CopyNodeInformationUtility.h"
-#include "NodeUtility/GraphNodeUtility.h"
+#include "NodeUtility/NodeUtility.h"
 #include "NodeUtility/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
@@ -24,7 +24,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPt
 
 	const FSlateIcon MainMenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GenericCommands.Copy");
 
-	const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedWeakNodes = FGraphNodeUtility::GetSelectedWeakNodes(InGraph.Get());
+	const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedWeakNodes = FNodeUtility::GetSelectedWeakNodes(InGraph.Get());
 	const auto MenuAction = [SelectedWeakNodes](FMenuBuilder& MenuBuilder)
 	{
 		AddCopyNodeInformationSubMenus(MenuBuilder, SelectedWeakNodes);
