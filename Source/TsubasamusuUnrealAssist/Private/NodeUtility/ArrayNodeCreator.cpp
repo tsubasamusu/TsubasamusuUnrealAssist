@@ -1,13 +1,13 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/CreateArrayNodeUtility.h"
+#include "NodeUtility/ArrayNodeCreator.h"
 #include "NodeUtility/NodeUtility.h"
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
-void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
+void FArrayNodeCreator::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
 {
 	const FText LabelText = LOCTEXT("CreateArrayNodeLabel", "Make Array");
 	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected.");
@@ -25,7 +25,7 @@ void FCreateArrayNodeUtility::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGra
 	})));
 }
 
-UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)
+UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)
 {
 	if (!InGraph.IsValid())
 	{
@@ -98,7 +98,7 @@ UK2Node_MakeArray* FCreateArrayNodeUtility::CreateArrayNode(const TWeakObjectPtr
 	return CreatedArrayNode;
 }
 
-FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes)
+FIntPoint FArrayNodeCreator::GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes)
 {
 	const int32 DesiredArrayNodePositionX = GetNodesMaxPositionX(InNodes) + 200;
 	const int32 DesiredArrayNodePositionY = GetNodesAveragePositionY(InNodes);
@@ -106,7 +106,7 @@ FIntPoint FCreateArrayNodeUtility::GetDesiredArrayNodePosition(const TArray<UEdG
 	return FIntPoint(DesiredArrayNodePositionX, DesiredArrayNodePositionY);
 }
 
-int32 FCreateArrayNodeUtility::GetNodesMaxPositionX(const TArray<UEdGraphNode*>& InNodes)
+int32 FArrayNodeCreator::GetNodesMaxPositionX(const TArray<UEdGraphNode*>& InNodes)
 {
 	int32 MaxPositionX = 0;
 
@@ -133,7 +133,7 @@ int32 FCreateArrayNodeUtility::GetNodesMaxPositionX(const TArray<UEdGraphNode*>&
 	return MaxPositionX;
 }
 
-int32 FCreateArrayNodeUtility::GetNodesAveragePositionY(const TArray<UEdGraphNode*>& InNodes)
+int32 FArrayNodeCreator::GetNodesAveragePositionY(const TArray<UEdGraphNode*>& InNodes)
 {
 	int32 TotalPositionY = 0;
 	

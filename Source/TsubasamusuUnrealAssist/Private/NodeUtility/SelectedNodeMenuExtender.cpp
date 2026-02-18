@@ -2,7 +2,7 @@
 
 #include "NodeUtility/SelectedNodeMenuExtender.h"
 #include "NodeUtility/CommentTranslationUtility.h"
-#include "NodeUtility/CreateArrayNodeUtility.h"
+#include "NodeUtility/ArrayNodeCreator.h"
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
 #include "NodeUtility/NodeUtility.h"
@@ -46,7 +46,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 				{
 					Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
 					{
-						FCreateArrayNodeUtility::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
+						FArrayNodeCreator::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
 					}));
 				}
 			}
