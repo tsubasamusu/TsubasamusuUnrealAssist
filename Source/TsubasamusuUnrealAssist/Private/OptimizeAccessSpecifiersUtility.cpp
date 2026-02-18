@@ -345,44 +345,45 @@ TArray<UBlueprint*> FOptimizeAccessSpecifiersUtility::GetReferencerBlueprints(co
 		return ReferencerBlueprints;
 	}
 	
-	GWarn->BeginSlowTask(LOCTEXT("LoadingReferencerAssets", "Loading Referencing Assets ..."), true);
+	AssetRegistryFilter.TagsAndValues.Add(FBlueprintTags::IsDataOnly, TOptional<FString>(TEXT("false")));
+	TArray<FAssetData> ReferencerAssetDataArray;
+	AssetRegistryModule.Get().GetAssets(AssetRegistryFilter, ReferencerAssetDataArray);
+
+	FScopedSlowTask ScopedSlowTask(ReferencerAssetDataArray.Num(), LOCTEXT("CheckReferencerAssets", "Check Referencer Assets..."));
+	ScopedSlowTask.MakeDialog();
+	
+	for (const FAssetData& ReferencerAssetData : ReferencerAssetDataArray)
 	{
-		AssetRegistryFilter.TagsAndValues.Add(FBlueprintTags::IsDataOnly, TOptional<FString>(TEXT("false")));
-		TArray<FAssetData> ReferencerAssetDataArray;
-		AssetRegistryModule.Get().GetAssets(AssetRegistryFilter, ReferencerAssetDataArray);
+		ScopedSlowTask.EnterProgressFrame(1.f, FText::Format(LOCTEXT("CheckReferencerAssetsProgress", "Check Referencer Assets: {0}"), FText::FromName(ReferencerAssetData.AssetName)));
+	
+		UObject* ReferencerAsset = ReferencerAssetData.GetAsset();
+		UBlueprint* ReferencerBlueprint = Cast<UBlueprint>(ReferencerAsset);
 
-		for (const FAssetData& ReferencerAssetData : ReferencerAssetDataArray)
+		if (IsValid(ReferencerBlueprint) && ReferencerBlueprint != InReferencedBlueprint)
 		{
-			UObject* ReferencerAsset = ReferencerAssetData.GetAsset();
-			UBlueprint* ReferencerBlueprint = Cast<UBlueprint>(ReferencerAsset);
-
-			if (IsValid(ReferencerBlueprint) && ReferencerBlueprint != InReferencedBlueprint)
-			{
-				ReferencerBlueprints.AddUnique(ReferencerBlueprint);
-				continue;
-			}
+			ReferencerBlueprints.AddUnique(ReferencerBlueprint);
+			continue;
+		}
+		
+		const UWorld* ReferencerWorld = Cast<const UWorld>(ReferencerAsset);
+		
+		if (IsValid(ReferencerWorld))
+		{
+			const TObjectPtr<ULevel>& PersistentLevel = ReferencerWorld->PersistentLevel;
 			
-			const UWorld* ReferencerWorld = Cast<const UWorld>(ReferencerAsset);
-			
-			if (IsValid(ReferencerWorld))
+			if (IsValid(PersistentLevel) && IsValid(PersistentLevel->OwningWorld))
 			{
-				const TObjectPtr<ULevel>& PersistentLevel = ReferencerWorld->PersistentLevel;
-				
-				if (IsValid(PersistentLevel) && IsValid(PersistentLevel->OwningWorld))
+				ULevelScriptBlueprint* PersistentLevelBlueprint = PersistentLevel->GetLevelScriptBlueprint();
+			
+				if (IsValid(PersistentLevelBlueprint) && PersistentLevelBlueprint != InReferencedBlueprint)
 				{
-					ULevelScriptBlueprint* PersistentLevelBlueprint = PersistentLevel->GetLevelScriptBlueprint();
-				
-					if (IsValid(PersistentLevelBlueprint) && PersistentLevelBlueprint != InReferencedBlueprint)
-					{
-						ReferencerBlueprints.AddUnique(PersistentLevelBlueprint);
-						continue;
-					}
+					ReferencerBlueprints.AddUnique(PersistentLevelBlueprint);
+					continue;
 				}
 			}
 		}
 	}
 	
-	GWarn->EndSlowTask();
 	return ReferencerBlueprints;
 }
 
