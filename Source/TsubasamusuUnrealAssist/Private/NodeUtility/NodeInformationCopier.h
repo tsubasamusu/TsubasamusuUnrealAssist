@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 
-class FCopyNodeInformationUtility final
+class FNodeInformationCopier final
 {
 public:
 	static void AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder);

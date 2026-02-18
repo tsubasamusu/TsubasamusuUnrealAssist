@@ -6,7 +6,7 @@
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorModule.h"
 #include "NodeUtility/NodeUtility.h"
-#include "NodeUtility/CopyNodeInformationUtility.h"
+#include "NodeUtility/NodeInformationCopier.h"
 #include "NodeUtility/CommentGenerationUtility.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
@@ -33,7 +33,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 		// Copy Node Information
 		Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph](FMenuBuilder& MenuBuilder)
 		{
-			FCopyNodeInformationUtility::AddCopyNodeInformationMenu(WeakGraph, MenuBuilder);
+			FNodeInformationCopier::AddCopyNodeInformationMenu(WeakGraph, MenuBuilder);
 		}));
 
 		// Create Array Node

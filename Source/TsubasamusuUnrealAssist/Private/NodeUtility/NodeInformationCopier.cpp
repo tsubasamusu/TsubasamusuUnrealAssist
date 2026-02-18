@@ -1,13 +1,13 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/CopyNodeInformationUtility.h"
+#include "NodeUtility/NodeInformationCopier.h"
 #include "NodeUtility/NodeUtility.h"
 #include "NodeUtility/NodeInformationUtility.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
-void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder)
+void FNodeInformationCopier::AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder)
 {
 	if (!InGraph.IsValid())
 	{
@@ -35,7 +35,7 @@ void FCopyNodeInformationUtility::AddCopyNodeInformationMenu(const TWeakObjectPt
 	InMenuBuilder.EndSection();
 }
 
-void FCopyNodeInformationUtility::AddCopyNodeInformationSubMenus(FMenuBuilder& InMenuBuilder, const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
+void FNodeInformationCopier::AddCopyNodeInformationSubMenus(FMenuBuilder& InMenuBuilder, const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
 {
 	// JSON
 	{
