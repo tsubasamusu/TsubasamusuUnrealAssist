@@ -20,8 +20,8 @@ The following engine versions have been confirmed to work with this plugin.
 - 5.7
 
 # Features
-## Features in Blueprint Graph
-### Generate Comments
+## Features in Blueprint Editor
+### Comment Generator
 Generate comments using Open AI's API key. Please pay close attention to API usage when using this feature.
 
 <img width="500" src="https://github.com/user-attachments/assets/7fc80cb9-6c61-4002-8aea-bd5e06a00488">
@@ -39,17 +39,17 @@ The settings related to this feature are as follows.
 | Ignore Comment Nodes | Whether to ignore comment nodes contained within a comment node when generating comments. |
 | Conditions | Conditions that GPT must adhere to when generating comments. Example: “answer briefly” |
 
-### Make Array
+### Array Node Creator
 When multiple nodes with output pins of the same type are selected and right-clicked, the “Make Array” menu appears, and selecting the menu creates a Make Array node with all of those output pins connected.
 
 <img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
 
-### Translate Comments
+### Comment Translator
 When you right-click on a comment node, a menu labeled 'Translate to...' appears, allowing you to select the target language and translate the comment. This translation feature uses the DeepL API, and the API key can be configured in the editor settings under "Comment Translation > DeepL API Key."
 
 <img width="500" src="https://github.com/user-attachments/assets/6768ed5d-5c88-42e7-b2f4-e33a4e4b24c8">
 
-### Copy Nodes Information as String
+### Node Information Copier
 Copies information about the selected nodes as a string in JSON format or [TOON](https://toonformat.dev) format. This string includes the node name and pin names, node comments, pin direction (input or output), pin types, and the GUIDs of connected pins. This string is saved to the clipboard. When “JSON” is selected, the character count is about one-third of the text obtainable with the standard Unreal Engine copy function. Furthermore, when “TOON” is selected, the character count is less than half of that of “JSON”.
 
 <img width="700" src="https://github.com/user-attachments/assets/7a4b25c9-46c1-4b39-a6b6-09251ca1801b">
@@ -422,7 +422,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 In this example, the character count for JSON is 7,986 characters. The character count for TOON is 3,316 characters. With Unreal Engine’s standard copy function, it is 23,278 characters.
 
-### Node Preview
+### Node Previewer
 Display a preview of the node you’re hovering over in the Blueprint node search window. Previews can be shown not only for nodes already defined inside the engine, but also for functions, custom events, variables, macros, and more that were added in the Blueprint. To enable this feature, you need to check “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Enable Node Preview.”
 
 <img width="500" src="https://github.com/user-attachments/assets/df8661ec-6444-460e-82f3-b7b540351108">
@@ -433,25 +433,26 @@ When you check “Enable Node Preview,” the following properties become editab
 ----|----
 | Preview Scale  | The scale of node preview. The default value is 1.0. |
 | Also Preview Advanced View  | Whether to display pins that are hidden by default in node preview. For example, pins such as TextColor, Duration, and Key of the PrintString node. |
-### Optimize Access Specifiers
+
+### Access Specifier Optimizer
 When this plugin is enabled and you open the Blueprint Editor, a new menu item called "Optimize Access Specifiers" is added under "Edit" at the top of the editor. Selecting this menu displays a list of members defined in the Blueprint whose access specifiers should be changed. For example, it identifies members that are not set to Private even though they are only referenced within the same class, or members that are set to Public even though they are only referenced by derived classes of that class. By checking the members whose access specifiers you want to modify and clicking the "Apply Recommended Access Specifiers" button, you can automatically apply the optimal access specifiers to all selected members at once.
 (Currently, this feature is available only for variables.)
 
 <img width="700" src="https://github.com/user-attachments/assets/14ec6a38-4500-4ad8-bbf0-e1fada49e808">
 
 ## Blueprint Function Library for Editor Utilty
-### Replace Assets References
+### Async Replace References
 Replace reference to `From` with `To`.
 
 <img width="300" src="https://github.com/user-attachments/assets/1435b874-ef23-45e7-8ee6-03ce2aeaf54a">
 
-### Create a Material Instance Asset
+### Create Material Instance Asset
 Create a Material Instance asset in the content browser based on `InMaterialInstanceDynamic`. `InAssetDirectory` should be set to a string such as "/Game/FolderName1/FolderName2/."
 
 <img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
 
-## Other
-### Apply Recommended Editor Settings
+## Other Features
+### Recommended Editor Settings Applier
 In “Editor Preferences > Plugins > Tsubasamusu Unreal Assist > General” there is a property named “Apply Recommended Editor Settings” and a button labeled “Apply.” By clicking this button, you can apply the editor settings preferred by the developer of this plugin. Specifically, as follows:
 
 - Disable auto save.
