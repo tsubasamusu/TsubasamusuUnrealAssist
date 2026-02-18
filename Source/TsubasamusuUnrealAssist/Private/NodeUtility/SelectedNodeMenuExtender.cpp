@@ -7,7 +7,7 @@
 #include "GraphEditorModule.h"
 #include "NodeUtility/NodeUtility.h"
 #include "NodeUtility/NodeInformationCopier.h"
-#include "NodeUtility/CommentGenerationUtility.h"
+#include "NodeUtility/CommentGenerator.h"
 
 void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 {
@@ -65,7 +65,7 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 			Extender->AddMenuExtension(TEXT("GraphNodeComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
 			{
 				FCommentTranslator::AddCommentTranslationMenu(MenuBuilder, WeakCommentNode);
-				FCommentGenerationUtility::AddCommentGenerationMenu(MenuBuilder, WeakCommentNode);
+				FCommentGenerator::AddCommentGenerationMenu(MenuBuilder, WeakCommentNode);
 			}));
 		}
 	}

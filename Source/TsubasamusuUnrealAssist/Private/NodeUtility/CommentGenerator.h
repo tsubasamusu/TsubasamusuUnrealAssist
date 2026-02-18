@@ -6,7 +6,7 @@
 
 class UEdGraphNode_Comment;
 
-class FCommentGenerationUtility final
+class FCommentGenerator final
 {
 public:
 	static void AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);

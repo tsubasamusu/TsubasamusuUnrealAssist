@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "NodeUtility/CommentGenerationUtility.h"
+#include "NodeUtility/CommentGenerator.h"
 #include "EdGraphNode_Comment.h"
 #include "HttpModule.h"
 #include "JsonObjectConverter.h"
@@ -15,7 +15,7 @@
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
-void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentGenerator::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
     const TAttribute<FText> LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment");
     const TAttribute<FText> ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.");
@@ -29,7 +29,7 @@ void FCommentGenerationUtility::AddCommentGenerationMenu(FMenuBuilder& InMenuBui
     })));
 }
 
-void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentGenerator::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
 	if (!InCommentNode.IsValid())
 	{
@@ -66,7 +66,7 @@ void FCommentGenerationUtility::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraph
 	});
 }
 
-TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEdGraphNode*>& InNodes)
+TArray<UEdGraphNode*> FCommentGenerator::GetActiveNodes(const TArray<UEdGraphNode*>& InNodes)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
@@ -100,7 +100,7 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetActiveNodes(const TArray<UEd
 	return ActiveNodes;
 }
 
-bool FCommentGenerationUtility::HasConnectedPins(const UEdGraphNode* InNode)
+bool FCommentGenerator::HasConnectedPins(const UEdGraphNode* InNode)
 {
 	TArray<UEdGraphPin*> Pins = InNode->GetAllPins();
 	
@@ -115,7 +115,7 @@ bool FCommentGenerationUtility::HasConnectedPins(const UEdGraphNode* InNode)
 	return false;
 }
 
-int32 FCommentGenerationUtility::GetCharNum(const FString& InString, const TCHAR& InChar)
+int32 FCommentGenerator::GetCharNum(const FString& InString, const TCHAR& InChar)
 {
 	int32 CharNum = 0;
 
@@ -130,7 +130,7 @@ int32 FCommentGenerationUtility::GetCharNum(const FString& InString, const TCHAR
 	return CharNum;
 }
 
-void FCommentGenerationUtility::GenerateComment(const FString& NodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& OnGeneratedComment)
+void FCommentGenerator::GenerateComment(const FString& NodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& OnGeneratedComment)
 {
 	FString GptRequestString;
 
@@ -198,7 +198,7 @@ void FCommentGenerationUtility::GenerateComment(const FString& NodeDataListStrin
 	}
 }
 
-bool FCommentGenerationUtility::TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString)
+bool FCommentGenerator::TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 
@@ -227,7 +227,7 @@ bool FCommentGenerationUtility::TryGetGptRequestString(const FString& NodeDataLi
 	return FJsonObjectConverter::UStructToJsonObjectString(GptRequest, OutGptRequestString, 0, 0);
 }
 
-FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListString)
+FString FCommentGenerator::GetDesiredPrompt(const FString& NodeDataListString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
@@ -245,7 +245,7 @@ FString FCommentGenerationUtility::GetDesiredPrompt(const FString& NodeDataListS
 	return Prompt;
 }
 
-TArray<UEdGraphNode*> FCommentGenerationUtility::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+TArray<UEdGraphNode*> FCommentGenerator::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
 	//TODO: コメントノード内のノードの更新
 	// HandleSelection(true, true) を SGraphNodeComment::OnMouseButtonUp() 経由で間接的に呼び出すか？
@@ -272,7 +272,7 @@ TArray<UEdGraphNode*> FCommentGenerationUtility::GetNodesUnderComment(const TWea
 	return NodesUnderComment;
 }
 
-bool FCommentGenerationUtility::TryGetNodeDataListStringUnderComment(FString& OutNodeDataListString, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+bool FCommentGenerator::TryGetNodeDataListStringUnderComment(FString& OutNodeDataListString, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
 	if (!InCommentNode.IsValid())
 	{
