@@ -4,7 +4,7 @@
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
-#include "SAccessSpecifierOptimizationRow.h"
+#include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
 #include "TsubasamusuLogUtility.h"
 #include "Algo/AnyOf.h"

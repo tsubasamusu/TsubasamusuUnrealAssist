@@ -4,7 +4,7 @@
 #include "DetailLayoutBuilder.h"
 #include "DetailWidgetRow.h"
 #include "EditorSettingsUtility.h"
-#include "Setting/SLanguageComboButton.h"
+#include "Slate/SLanguageComboButton.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Input/SButton.h"
 #include "Widgets/Input/SEditableTextBox.h"
