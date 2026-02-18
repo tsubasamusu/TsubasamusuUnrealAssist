@@ -12,8 +12,8 @@
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
 #include "RecommendedEditorSettingsApplier.h"
-#include "Debug/TsubasamusuLogUtility.h"
 #include "TsubasamusuUnrealAssistSettings.h"
+#include "Debug/EditorMessageUtility.h"
 
 #define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
 
@@ -266,7 +266,7 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
             {
                 const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
                 
-                if (FTsubasamusuLogUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
+                if (FEditorMessageUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
                 {
                     FRecommendedEditorSettingsApplier::ApplyRecommendedEditorSettings();
                 }

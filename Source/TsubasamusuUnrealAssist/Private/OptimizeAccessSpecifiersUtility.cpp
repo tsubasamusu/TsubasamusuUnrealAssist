@@ -6,10 +6,10 @@
 #include "K2Node_Variable.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "TsubasamusuBlueprintEditorCommands.h"
-#include "Debug/TsubasamusuLogUtility.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Components/TimelineComponent.h"
+#include "Debug/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Toolkits/ToolkitManager.h"
@@ -71,7 +71,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	if (Variables.IsEmpty())
 	{
 		const FText NotificationText = LOCTEXT("NoVariablesToCheck", "No variables to check for.");
-		FTsubasamusuLogUtility::DisplaySimpleNotification(NotificationText);
+		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
 		return;
 	}
 	
@@ -80,7 +80,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	if (Variables.IsEmpty())
 	{
 		const FText NotificationText = LOCTEXT("NoVariablesShouldBePrivate", "There are no variables that should be private.");
-		FTsubasamusuLogUtility::DisplaySimpleNotification(NotificationText);
+		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
 		return;
 	}
 	
@@ -205,9 +205,9 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
 #else
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FTsubasamusuLogUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
 #endif
 	
 	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK)
@@ -239,7 +239,7 @@ void FOptimizeAccessSpecifiersUtility::OnOptimizeAccessSpecifiersClicked(const T
 	}
 	
 	const FText NotificationText = LOCTEXT("SuccessfullyAppliedRecommendedAccessSpecifiers", "Successfully applied recommended access specifiers.");
-	FTsubasamusuLogUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
+	FEditorMessageUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
 TArray<FProperty*> FOptimizeAccessSpecifiersUtility::GetVariables(const UBlueprint* InBlueprint)
