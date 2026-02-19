@@ -25,9 +25,9 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	{
 		RowItem->CheckBox = SNew(SCheckBox)
 			.IsChecked(ECheckBoxState::Checked)
-			.OnCheckStateChanged_Lambda([this](const ECheckBoxState NewState)
+			.OnCheckStateChanged_Lambda([this](const ECheckBoxState InNewState)
 			{
-				RowItem->bSelected = NewState == ECheckBoxState::Checked;
+				RowItem->bSelected = InNewState == ECheckBoxState::Checked;
 			});
 		
 		ColumnContent = RowItem->CheckBox;
