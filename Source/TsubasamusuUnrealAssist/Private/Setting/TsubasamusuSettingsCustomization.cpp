@@ -22,19 +22,19 @@ TSharedRef<IDetailCustomization> FTsubasamusuSettingsCustomization::Create()
     return MakeShared<FTsubasamusuSettingsCustomization>();
 }
 
-void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& DetailBuilder)
+void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& InDetailLayoutBuilder)
 {
-	ChangePropertyDisplayAsPassword(DetailBuilder, TEXT("Comment Generation"), TEXT("OpenAiApiKey"));
-    ChangePropertyDisplayAsPassword(DetailBuilder, TEXT("Comment Translation"), TEXT("DeeplApiKey"));
+	ChangePropertyDisplayAsPassword(InDetailLayoutBuilder, TEXT("Comment Generation"), TEXT("OpenAiApiKey"));
+    ChangePropertyDisplayAsPassword(InDetailLayoutBuilder, TEXT("Comment Translation"), TEXT("DeeplApiKey"));
     
-	AddCommentGenerationLanguageProperty(DetailBuilder);
-    AddGptModelsDocumentButton(DetailBuilder);
-    AddButtonToApplyRecommendedEditorSettings(DetailBuilder);
+	AddCommentGenerationLanguageProperty(InDetailLayoutBuilder);
+    AddGptModelsDocumentButton(InDetailLayoutBuilder);
+    AddButtonToApplyRecommendedEditorSettings(InDetailLayoutBuilder);
 }
 
-void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& CategoryName, const FName& PropertyName)
+void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)
 {
-    IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
+    IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(InCategoryName);
     
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
     check(!DetailCategoryBuilder.IsEmpty());
@@ -46,9 +46,9 @@ void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailL
     for (const TSharedRef<IPropertyHandle>& PropertyHandle : PropertyHandles)
     {
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
-        if (PropertyHandle->GetProperty()->GetName() != PropertyName)
+        if (PropertyHandle->GetProperty()->GetName() != InPropertyName)
 #else
-        if (PropertyHandle->GetProperty()->GetName() != PropertyName.ToString())
+        if (PropertyHandle->GetProperty()->GetName() != InPropertyName.ToString())
 #endif
         {
             continue;
@@ -74,9 +74,9 @@ void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailL
                     PropertyHandle->GetValue(Value);
                     return FText::FromString(Value);
                 })
-                .OnTextCommitted_Lambda([PropertyHandle](const FText& NewText, ETextCommit::Type)
+                .OnTextCommitted_Lambda([PropertyHandle](const FText& InCommittedText, ETextCommit::Type)
                 {
-                    PropertyHandle->SetValue(NewText.ToString());
+                    PropertyHandle->SetValue(InCommittedText.ToString());
                 })
                 .IsPassword(true)
             ]
@@ -117,10 +117,10 @@ void FTsubasamusuSettingsCustomization::AddCommentGenerationLanguageProperty(IDe
     .ValueContent()
     [
         SNew(SLanguageComboButton, LocalizedCulturesFlyweight)
-        .OnLanguageSelected_Lambda([](const FCulturePtr& SelectedLanguageCulture)
+        .OnLanguageSelected_Lambda([](FCulturePtr InSelectedLanguageCulture)
         {
             UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-            TsubasamusuUnrealAssistSettings->SetCommentGenerationLanguageCulture(SelectedLanguageCulture);
+            TsubasamusuUnrealAssistSettings->SetCommentGenerationLanguageCulture(InSelectedLanguageCulture);
         })
         .IsEnabled_Lambda([]()
         {
@@ -184,9 +184,9 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
                     PropertyHandle->GetValue(Value);
                     return FText::FromString(Value);
                 })
-                .OnTextCommitted_Lambda([PropertyHandle](const FText& NewText, ETextCommit::Type)
+                .OnTextCommitted_Lambda([PropertyHandle](const FText& InCommittedText, ETextCommit::Type)
                 {
-                    PropertyHandle->SetValue(NewText.ToString());
+                    PropertyHandle->SetValue(InCommittedText.ToString());
                 })
             ]
             + SHorizontalBox::Slot()
