@@ -10,5 +10,5 @@ public:
 	static void RegisterSelectedNodeMenu();
 
 private:
-	static TSharedRef<FExtender> ExtendSelectedNodeMenu(TSharedRef<FUICommandList> CommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging);
+	static TSharedRef<FExtender> ExtendSelectedNodeMenu(TSharedRef<FUICommandList> InUiCommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging);
 };

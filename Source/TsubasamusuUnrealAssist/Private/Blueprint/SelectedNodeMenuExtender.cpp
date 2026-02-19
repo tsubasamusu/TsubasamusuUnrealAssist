@@ -15,7 +15,7 @@ void FSelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 	GraphEditorModule.GetAllGraphEditorContextMenuExtender().Add(FGraphEditorModule::FGraphEditorMenuExtender_SelectedNode::CreateStatic(ExtendSelectedNodeMenu));
 }
 
-TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedRef<FUICommandList> CommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging)
+TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedRef<FUICommandList> InUiCommandList, const UEdGraph* InGraph, const UEdGraphNode* InNode, const UEdGraphPin* InPin, bool bIsDebugging)
 {
 	TSharedRef<FExtender> Extender = MakeShared<FExtender>();
 	const TArray<UEdGraphNode*> SelectedNodes = FNodeUtility::GetSelectedNodes(InGraph);
@@ -31,9 +31,9 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 	if (SelectedNodes.Num() >= 2)
 	{
 		// Copy Node Information
-		Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph](FMenuBuilder& MenuBuilder)
+		Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph](FMenuBuilder& InMenuBuilder)
 		{
-			FNodeInformationCopier::AddCopyNodeInformationMenu(WeakGraph, MenuBuilder);
+			FNodeInformationCopier::AddCopyNodeInformationMenu(WeakGraph, InMenuBuilder);
 		}));
 
 		// Create Array Node
@@ -44,9 +44,9 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 			{
 				if (!FNodeUtility::IsExecPinType(*SelectedNodesOutputPinsCommonType.Get()))
 				{
-					Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& MenuBuilder)
+					Extender->AddMenuExtension(TEXT("SchemaActionComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakGraph, SelectedNodesOutputPinsCommonType](FMenuBuilder& InMenuBuilder)
 					{
-						FArrayNodeCreator::AddCreateArrayNodeMenu(WeakGraph, MenuBuilder, SelectedNodesOutputPinsCommonType);
+						FArrayNodeCreator::AddCreateArrayNodeMenu(WeakGraph, InMenuBuilder, SelectedNodesOutputPinsCommonType);
 					}));
 				}
 			}
@@ -62,10 +62,10 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 		{
 			const TWeakObjectPtr<UEdGraphNode_Comment> WeakCommentNode = CommentNode;
 			
-			Extender->AddMenuExtension(TEXT("GraphNodeComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& MenuBuilder)
+			Extender->AddMenuExtension(TEXT("GraphNodeComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& InMenuBuilder)
 			{
-				FCommentTranslator::AddCommentTranslationMenu(MenuBuilder, WeakCommentNode);
-				FCommentGenerator::AddCommentGenerationMenu(MenuBuilder, WeakCommentNode);
+				FCommentTranslator::AddCommentTranslationMenu(InMenuBuilder, WeakCommentNode);
+				FCommentGenerator::AddCommentGenerationMenu(InMenuBuilder, WeakCommentNode);
 			}));
 		}
 	}
