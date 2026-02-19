@@ -118,14 +118,14 @@ TArray<UEdGraphPin*> FNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*
 	return OutputPins;
 }
 
-TArray<UEdGraphPin*> FNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType)
+TArray<UEdGraphPin*> FNodeUtility::GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& InPinType)
 {
 	const TArray<UEdGraphPin*> NodesOutputPins = GetNodesOutputPins(InNodes);
 	TArray<UEdGraphPin*> SpecificTypeOutputPins;
 
 	for (UEdGraphPin* NodeOutputPin : NodesOutputPins)
 	{
-		if (NodeOutputPin && NodeOutputPin->PinType == SpecificPinType)
+		if (NodeOutputPin && NodeOutputPin->PinType == InPinType)
 		{
 			SpecificTypeOutputPins.Add(NodeOutputPin);
 		}
@@ -166,10 +166,10 @@ void FNodeUtility::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
 		OutPinsIndexes[i] = i;
 	}
 
-	OutPinsIndexes.StableSort([&OutPins](const int32 FirstIndex, const int32 SecondIndex)
+	OutPinsIndexes.StableSort([&OutPins](const int32 InFirstIndex, const int32 InSecondIndex)
 	{
-		const int32 FirstPinPositionY = GetPinPosition(OutPins[FirstIndex]).Y;
-		const int32 SecondPinPositionY = GetPinPosition(OutPins[SecondIndex]).Y;
+		const int32 FirstPinPositionY = GetPinPosition(OutPins[InFirstIndex]).Y;
+		const int32 SecondPinPositionY = GetPinPosition(OutPins[InSecondIndex]).Y;
 		
 		return FirstPinPositionY < SecondPinPositionY;
 	});

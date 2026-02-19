@@ -15,7 +15,7 @@ public:
 	static bool IsExecPinType(const FEdGraphPinType& InPinType);
 
 	static TArray<UEdGraphPin*> GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes);
-	static TArray<UEdGraphPin*> GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& SpecificPinType);
+	static TArray<UEdGraphPin*> GetNodesOutputPins(const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& InPinType);
 	static TArray<UEdGraphPin*> GetNodeInputPins(const UEdGraphNode* InNode);
 
 	static void SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins);
