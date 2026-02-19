@@ -9,8 +9,8 @@ class UK2Node_MakeArray;
 class FArrayNodeCreator final
 {
 public:
-	static void AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType);
-	static UK2Node_MakeArray* CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType);
+	static void AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> InArrayNodePinType);
+	static UK2Node_MakeArray* CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& InArrayNodePinType);
 
 private:
 	static FIntPoint GetDesiredArrayNodePosition(const TArray<UEdGraphNode*>& InNodes);

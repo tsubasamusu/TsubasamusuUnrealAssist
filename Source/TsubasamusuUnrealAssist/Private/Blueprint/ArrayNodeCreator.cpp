@@ -7,25 +7,25 @@
 
 #define LOCTEXT_NAMESPACE "FArrayNodeCreator"
 
-void FArrayNodeCreator::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> ArrayNodePinType)
+void FArrayNodeCreator::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> InArrayNodePinType)
 {
 	const FText LabelText = LOCTEXT("CreateArrayNodeLabel", "Make Array");
 	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected.");
 
 	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
 
-	InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, ArrayNodePinType]()
+	InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, InArrayNodePinType]()
 	{
 		if (InGraph.IsValid())
 		{
 			const TArray<UEdGraphNode*> SelectedNodes = FNodeUtility::GetSelectedNodes(InGraph.Get());
 		
-			CreateArrayNode(InGraph, SelectedNodes, *ArrayNodePinType);
+			CreateArrayNode(InGraph, SelectedNodes, *InArrayNodePinType);
 		}
 	})));
 }
 
-UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& ArrayNodePinType)
+UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& InArrayNodePinType)
 {
 	if (!InGraph.IsValid())
 	{
@@ -45,7 +45,7 @@ UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TWeakObjectPtr<UEdGr
 		Blueprint->Modify();
 	}
 	
-	TArray<UEdGraphPin*> NodesOutputPins = FNodeUtility::GetNodesOutputPins(InNodes, ArrayNodePinType);
+	TArray<UEdGraphPin*> NodesOutputPins = FNodeUtility::GetNodesOutputPins(InNodes, InArrayNodePinType);
 	FNodeUtility::SortPinsByPositionY(NodesOutputPins);
 	
 	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*Graph);
