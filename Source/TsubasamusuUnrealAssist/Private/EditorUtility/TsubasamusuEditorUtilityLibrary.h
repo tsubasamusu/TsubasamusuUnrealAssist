@@ -16,5 +16,5 @@ public:
 	static UMaterialInstance* CreateMaterialInstanceAsset(const UMaterialInstanceDynamic* InMaterialInstanceDynamic, const FString& InAssetDirectory);
 
 private:
-	static bool SavePackage(UPackage* InPackage, UObject* BaseAsset, const FString& FileName);
+	static bool SavePackage(UPackage* InPackage, UObject* InBaseAsset, const FString& InFileName);
 };

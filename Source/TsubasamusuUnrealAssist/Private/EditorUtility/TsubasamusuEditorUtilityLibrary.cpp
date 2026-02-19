@@ -73,14 +73,14 @@ UMaterialInstance* UTsubasamusuEditorUtilityLibrary::CreateMaterialInstanceAsset
     return CastChecked<UMaterialInstance>(MaterialInstanceConstant);
 }
 
-bool UTsubasamusuEditorUtilityLibrary::SavePackage(UPackage* InPackage, UObject* BaseAsset, const FString& FileName)
+bool UTsubasamusuEditorUtilityLibrary::SavePackage(UPackage* InPackage, UObject* InBaseAsset, const FString& InFileName)
 {
     FSavePackageArgs SavePackageArgs;
 
-    SavePackageArgs.TopLevelFlags = EObjectFlags::RF_Public | EObjectFlags::RF_Standalone;
+    SavePackageArgs.TopLevelFlags = RF_Public | RF_Standalone;
     SavePackageArgs.Error = GError;
     SavePackageArgs.bForceByteSwapping = true;
     SavePackageArgs.SaveFlags = SAVE_NoError;
 
-    return UPackage::SavePackage(InPackage, BaseAsset, *FileName, SavePackageArgs);
+    return UPackage::SavePackage(InPackage, InBaseAsset, *InFileName, SavePackageArgs);
 }
