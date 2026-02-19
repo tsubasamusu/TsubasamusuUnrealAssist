@@ -6,7 +6,7 @@
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "Widgets/SCompoundWidget.h"
 
-DECLARE_DELEGATE_OneParam(FOnLanguageSelected, const FCulturePtr&)
+DECLARE_DELEGATE_OneParam(FOnLanguageSelected, FCulturePtr)
 
 class SLanguageComboButton final : public SCompoundWidget
 {
@@ -20,8 +20,6 @@ public:
 private:
     static FText GetDesiredComboButtonText();
     TSharedRef<SWidget> OnGetComboButtonMenuContent();
-    void OnSelectionChanged(FCulturePtr InSelectedCulture, ESelectInfo::Type /*SelectInfo*/) const;
-    bool IsCulturePickable(FCulturePtr InCulture) const;
     
     FOnLanguageSelected OnLanguageSelected;
     TSharedPtr<FLocalizedCulturesFlyweight> LocalizedCulturesFlyweight;

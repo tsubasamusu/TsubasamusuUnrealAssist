@@ -41,8 +41,19 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
 
     const TSharedRef<SCulturePicker> CulturePicker = SNew(SCulturePicker)
         .InitialSelection(TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture())
-        .OnSelectionChanged(this, &SLanguageComboButton::OnSelectionChanged)
-        .IsCulturePickable(this, &SLanguageComboButton::IsCulturePickable)
+        .OnSelectionChanged_Lambda([this](FCulturePtr InSelectedCulture, ESelectInfo::Type /*InSelectInfo*/)
+        {
+            OnLanguageSelected.ExecuteIfBound(InSelectedCulture);
+
+            if (ComboButton.IsValid())
+            {
+                ComboButton->SetIsOpen(false);
+            }
+        })
+        .IsCulturePickable_Lambda([this](FCulturePtr InCulture)
+        {
+            return LocalizedCulturesFlyweight->LocalizedCultures.Contains(InCulture);
+        })
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2)
         .ViewMode(SCulturePicker::ECulturesViewMode::Flat)
 #endif
@@ -56,21 +67,6 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
         ];
     
     return Content;
-}
-
-void SLanguageComboButton::OnSelectionChanged(FCulturePtr InSelectedCulture, ESelectInfo::Type /*SelectInfo*/) const
-{
-    OnLanguageSelected.ExecuteIfBound(InSelectedCulture);
-
-    if (ComboButton.IsValid())
-    {
-        ComboButton->SetIsOpen(false);
-    }
-}
-
-bool SLanguageComboButton::IsCulturePickable(FCulturePtr InCulture) const
-{
-    return LocalizedCulturesFlyweight->LocalizedCultures.Contains(InCulture);
 }
 
 #undef LOCTEXT_NAMESPACE
