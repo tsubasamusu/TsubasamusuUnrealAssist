@@ -24,9 +24,9 @@ void FCommentTranslator::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, 
     const TAttribute<FText> LabelText = LOCTEXT("CommentTranslationLabel", "Translate to...");
     const TAttribute<FText> ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node.");
 
-    const auto MenuAction = [InCommentNode](FMenuBuilder& MenuBuilder)
+    const auto MenuAction = [InCommentNode](FMenuBuilder& InSubMenuBuilder)
     {
-        AddLanguageSubMenus(MenuBuilder, InCommentNode);
+        AddLanguageSubMenus(InSubMenuBuilder, InCommentNode);
     };
     
     InMenuBuilder.AddSubMenu(LabelText, ToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None);
@@ -83,9 +83,9 @@ TArray<FString> FCommentTranslator::GetEditorLanguages()
     return EditorLanguages;
 }
 
-void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage)
+void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> InTranslationTargetLanguage)
 {
-    if (!InCommentNode.IsValid() || !TranslationTargetLanguage.IsValid())
+    if (!InCommentNode.IsValid() || !InTranslationTargetLanguage.IsValid())
     {
         return;
     }
@@ -93,7 +93,7 @@ void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comm
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
     const FString ApiKey = TsubasamusuUnrealAssistSettings->DeeplApiKey;
     
-    const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *TranslationTargetLanguage);
+    const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *InTranslationTargetLanguage);
     
     const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
     
@@ -103,23 +103,23 @@ void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comm
     HttpRequest->SetHeader(TEXT("Authorization"), TEXT("DeepL-Auth-Key ") + ApiKey);
     HttpRequest->SetContentAsString(DeeplJsonRequest);
 
-    HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr HttpResponse, const bool bSucceeded)
+    HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr InHttpResponse, const bool bInSucceeded)
     {
-        if (!bSucceeded)
+        if (!bInSucceeded)
         {
             TUA_ERROR(TEXT("Failed to send a HTTP request."));
 
             return;
         }
 
-        if (!HttpResponse.IsValid())
+        if (!InHttpResponse.IsValid())
         {
             TUA_ERROR(TEXT("Failed to get a HTTP response."));
 
             return;
         }
         
-        const FString JsonResponse = HttpResponse->GetContentAsString();
+        const FString JsonResponse = InHttpResponse->GetContentAsString();
         
         TSharedPtr<FJsonObject> JsonObject;
         const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonResponse);
@@ -174,12 +174,12 @@ void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comm
     }
 }
 
-FString FCommentTranslator::GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage)
+FString FCommentTranslator::GetDeeplJsonRequest(const FString& InSourceText, const FString& InTargetLanguage)
 {
     const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
-    const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(SourceText) };
+    const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(InSourceText) };
 
-    FString FixedLanguage = TargetLanguage;
+    FString FixedLanguage = InTargetLanguage;
     FixLanguage(FixedLanguage);
     
     JsonObject->SetArrayField(TEXT("text"), SourceTexts);

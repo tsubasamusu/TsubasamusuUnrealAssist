@@ -15,7 +15,7 @@ private:
 	static void AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 	static TArray<FString> GetEditorLanguages();
 	
-	static void TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> TranslationTargetLanguage);
-	static FString GetDeeplJsonRequest(const FString& SourceText, const FString& TargetLanguage);
+	static void TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> InTranslationTargetLanguage);
+	static FString GetDeeplJsonRequest(const FString& InSourceText, const FString& InTargetLanguage);
 	static void FixLanguage(FString& OutLanguage);
 };
