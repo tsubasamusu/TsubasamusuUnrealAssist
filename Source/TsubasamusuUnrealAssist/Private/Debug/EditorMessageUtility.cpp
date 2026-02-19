@@ -11,7 +11,7 @@
 
 #define LOCTEXT_NAMESPACE "FEditorMessageUtility"
 
-void FEditorMessageUtility::DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState)
+void FEditorMessageUtility::DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState InCompletionState)
 {
 	FNotificationInfo NotificationInfo(InNotificationText);
 	NotificationInfo.ExpireDuration = 3.f;
@@ -21,7 +21,7 @@ void FEditorMessageUtility::DisplaySimpleNotification(const FText& InNotificatio
 	
 	if (NotificationItem.IsValid())
 	{
-		NotificationItem->SetCompletionState(CompletionState);
+		NotificationItem->SetCompletionState(InCompletionState);
 	}
 }
 
@@ -37,13 +37,13 @@ EAppReturnType::Type FEditorMessageUtility::OpenWarningMessageDialog(const EAppM
 }
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget, TAttribute<bool> OkButtonIsEnabled)
+TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText, const FText& InCancelButtonText, const TSharedPtr<SWidget> InContentWidget, TAttribute<bool> InOkButtonIsEnabled)
 #else
-TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText, const FText& CancelButtonText, const TSharedPtr<SWidget> ContentWidget)
+TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText, const FText& InCancelButtonText, const TSharedPtr<SWidget> InContentWidget)
 #endif
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
-		.Title(Title)
+		.Title(InTitle)
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
 		.DialogContent(
 #else
@@ -56,13 +56,13 @@ TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(c
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(Message)
+				.Text(InMessage)
 				.AutoWrapText(true)
 			]
 			+ SVerticalBox::Slot()
 			.FillHeight(0.8)
 			[
-				(ContentWidget.IsValid() ? ContentWidget.ToSharedRef() : SNullWidget::NullWidget)
+				(InContentWidget.IsValid() ? InContentWidget.ToSharedRef() : SNullWidget::NullWidget)
 			]
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
 		)
@@ -71,15 +71,15 @@ TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(c
 #endif
 		.Buttons(
 		{
-			SCustomDialog::FButton(OkButtonText)
+			SCustomDialog::FButton(InOkButtonText)
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-				.SetIsEnabled(OkButtonIsEnabled)
+				.SetIsEnabled(InOkButtonIsEnabled)
 #endif
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
 				.SetPrimary(true)
 #endif
 			,
-			SCustomDialog::FButton(CancelButtonText)
+			SCustomDialog::FButton(InCancelButtonText)
 		});
 
 	const int32 PressedButtonIndex = CustomDialog->ShowModal();

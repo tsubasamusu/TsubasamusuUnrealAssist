@@ -11,14 +11,14 @@
 class FEditorMessageUtility final
 {
 public:
-	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState CompletionState = SNotificationItem::ECompletionState::CS_None);
+	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState InCompletionState = SNotificationItem::ECompletionState::CS_None);
 	
 	static EAppReturnType::Type OpenWarningMessageDialog(const EAppMsgType::Type InMessageType, const FText& InMessage);
 	
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-	static TsubasamusuUnrealAssist::EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& CancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> ContentWidget = nullptr, TAttribute<bool> OkButtonIsEnabled = true);
+	static TsubasamusuUnrealAssist::EDialogButton ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& InCancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> InContentWidget = nullptr, TAttribute<bool> InOkButtonIsEnabled = true);
 #else
-	static EDialogButton ShowCustomDialog(const FText& Title, const FText& Message, const FText& OkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& CancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> ContentWidget = nullptr);
+	static TsubasamusuUnrealAssist::EDialogButton ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& InCancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> InContentWidget = nullptr);
 #endif
 };
 
