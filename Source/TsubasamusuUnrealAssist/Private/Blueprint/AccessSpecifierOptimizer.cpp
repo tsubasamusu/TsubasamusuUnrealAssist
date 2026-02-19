@@ -147,13 +147,13 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 
 						return bFoundSelectedRowItem ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
 					})
-					.OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState NewState)
+					.OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState InNewState)
 					{
-						if (NewState != ECheckBoxState::Undetermined)
+						if (InNewState != ECheckBoxState::Undetermined)
 						{
 							for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
 							{
-								if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != NewState)
+								if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != InNewState)
 								{
 							  		RowItem->CheckBox->ToggleCheckedState();
 								}
@@ -174,10 +174,10 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 			.HAlignHeader(HAlign_Center)
 			.FixedWidth(110.f)
 		)
-		.OnGenerateRow_Lambda([&CheckBoxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem, const TSharedRef<STableViewBase>& OwnerTableView)
+		.OnGenerateRow_Lambda([&CheckBoxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> InRowItem, const TSharedRef<STableViewBase>& InOwnerTableView)
 		{
-			return SNew(SAccessSpecifierOptimizationRow, OwnerTableView)
-				.RowItem(RowItem)
+			return SNew(SAccessSpecifierOptimizationRow, InOwnerTableView)
+				.RowItem(InRowItem)
 				.CheckBoxColumnId(CheckBoxColumnId)
 				.MemberNameColumnId(MemberNameColumnId)
 				.CurrentAccessSpecifierColumnId(CurrentAccessSpecifierColumnId)
@@ -272,20 +272,20 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 	return Variables;
 }
 
-void FAccessSpecifierOptimizer::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* VariablesOwnerBlueprint)
+void FAccessSpecifierOptimizer::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* InVariablesOwnerBlueprint)
 {
-	OutVariables.RemoveAll([VariablesOwnerBlueprint](const FProperty* InVariable)
+	OutVariables.RemoveAll([InVariablesOwnerBlueprint](const FProperty* InVariable)
 	{
 		FString PrivateMetaDataValue;
-		FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariablesOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
+		FBlueprintEditorUtils::GetBlueprintVariableMetaData(InVariablesOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
 		
-		return PrivateMetaDataValue == TEXT("true") || !GetBlueprintsReferenceVariable(InVariable, VariablesOwnerBlueprint).IsEmpty();
+		return PrivateMetaDataValue == TEXT("true") || !GetBlueprintsReferenceVariable(InVariable, InVariablesOwnerBlueprint).IsEmpty();
 	});
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint)
 {
-	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, VariableOwnerBlueprint);
+	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, InVariableOwnerBlueprint);
 	
 	if (BlueprintsReferencesVariable.IsEmpty())
 	{
@@ -295,7 +295,7 @@ TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetOptimalA
 	for (const UBlueprint* BlueprintReferencesVariable : BlueprintsReferencesVariable)
 	{
 		const UClass* BlueprintReferencesVariableClass = BlueprintReferencesVariable->GeneratedClass;
-		const UClass* VariableOwnerBlueprintClass = VariableOwnerBlueprint->GeneratedClass;
+		const UClass* VariableOwnerBlueprintClass = InVariableOwnerBlueprint->GeneratedClass;
 		
 		if (!BlueprintReferencesVariableClass->IsChildOf(VariableOwnerBlueprintClass))
 		{
@@ -306,26 +306,26 @@ TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetOptimalA
 	return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint)
+TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint)
 {
 	FString PrivateMetaDataValue;
-	FBlueprintEditorUtils::GetBlueprintVariableMetaData(VariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
+	FBlueprintEditorUtils::GetBlueprintVariableMetaData(InVariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
 		
 	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuUnrealAssist::EAccessSpecifier::Private : TsubasamusuUnrealAssist::EAccessSpecifier::Public;
 }
 
-TArray<UBlueprint*> FAccessSpecifierOptimizer::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* VariableOwnerBlueprint, const bool bExcludeVariableOwnerBlueprint)
+TArray<UBlueprint*> FAccessSpecifierOptimizer::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint, const bool bInExcludeVariableOwnerBlueprint)
 {
-	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(VariableOwnerBlueprint);
+	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(InVariableOwnerBlueprint);
 	
-	BlueprintsReferenceVariable.RemoveAll([InVariable, VariableOwnerBlueprint](const UBlueprint* InReferencerBlueprint)
+	BlueprintsReferenceVariable.RemoveAll([InVariable, InVariableOwnerBlueprint](const UBlueprint* InReferencerBlueprint)
 	{
-		return !IsBlueprintReferencesVariable(InReferencerBlueprint, InVariable, VariableOwnerBlueprint);
+		return !IsBlueprintReferencesVariable(InReferencerBlueprint, InVariable, InVariableOwnerBlueprint);
 	});
 	
-	if (!bExcludeVariableOwnerBlueprint)
+	if (!bInExcludeVariableOwnerBlueprint)
 	{
-		BlueprintsReferenceVariable.AddUnique(const_cast<UBlueprint*>(VariableOwnerBlueprint));
+		BlueprintsReferenceVariable.AddUnique(const_cast<UBlueprint*>(InVariableOwnerBlueprint));
 	}
 	
 	return BlueprintsReferenceVariable;
@@ -387,16 +387,16 @@ TArray<UBlueprint*> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBl
 	return ReferencerBlueprints;
 }
 
-bool FAccessSpecifierOptimizer::IsBlueprintReferencesVariable(const UBlueprint* BlueprintToCheck, const FProperty* VariableToCheck, const UBlueprint* VariableOwnerBlueprint)
+bool FAccessSpecifierOptimizer::IsBlueprintReferencesVariable(const UBlueprint* InBlueprintToCheck, const FProperty* InVariableToCheck, const UBlueprint* InVariableOwnerBlueprint)
 {
-	const FName VariableNameToCheck = VariableToCheck->GetFName();
+	const FName VariableNameToCheck = InVariableToCheck->GetFName();
 	
 	FGuid VariableGuidToCheck;
-	UBlueprint::GetGuidFromClassByFieldName<FProperty>(VariableOwnerBlueprint->SkeletonGeneratedClass, VariableNameToCheck, VariableGuidToCheck);
+	UBlueprint::GetGuidFromClassByFieldName<FProperty>(InVariableOwnerBlueprint->SkeletonGeneratedClass, VariableNameToCheck, VariableGuidToCheck);
 	check(VariableGuidToCheck.IsValid());
 	
 	TArray<UEdGraph*> AllGraphsToCheck;
-	BlueprintToCheck->GetAllGraphs(AllGraphsToCheck);
+	InBlueprintToCheck->GetAllGraphs(AllGraphsToCheck);
 
 	for (TArray<UEdGraph*>::TConstIterator GraphConstIterator(AllGraphsToCheck); GraphConstIterator; ++GraphConstIterator)
 	{
@@ -428,9 +428,9 @@ bool FAccessSpecifierOptimizer::IsBlueprintReferencesVariable(const UBlueprint* 
 			TArray<UK2Node_GetClassDefaults*> ClassDefaultsNodesInGraph;
 			GraphToCheck->GetNodesOfClass(ClassDefaultsNodesInGraph);
 		
-			auto IsClassDefaultsNodeReferencesVariable = [&VariableNameToCheck, &VariableOwnerBlueprint](const UK2Node_GetClassDefaults* InClassDefaultsNode)
+			auto IsClassDefaultsNodeReferencesVariable = [&VariableNameToCheck, &InVariableOwnerBlueprint](const UK2Node_GetClassDefaults* InClassDefaultsNode)
 			{
-				if (InClassDefaultsNode->GetInputClass() == VariableOwnerBlueprint->SkeletonGeneratedClass)
+				if (InClassDefaultsNode->GetInputClass() == InVariableOwnerBlueprint->SkeletonGeneratedClass)
 				{
 					const UEdGraphPin* VariablePin = InClassDefaultsNode->FindPin(VariableNameToCheck);
 				
@@ -474,9 +474,9 @@ bool FAccessSpecifierOptimizer::IsBlueprintReferencesVariable(const UBlueprint* 
 			TArray<const UK2Node*> NodesInGraph;
 			GraphToCheck->GetNodesOfClass(NodesInGraph);
 		
-			auto IsNodeReferencesVariable = [&VariableNameToCheck, &VariableOwnerBlueprint](const UK2Node* InNode)
+			auto IsNodeReferencesVariable = [&VariableNameToCheck, &InVariableOwnerBlueprint](const UK2Node* InNode)
 			{
-				return InNode->ReferencesVariable(VariableNameToCheck, VariableOwnerBlueprint->SkeletonGeneratedClass);
+				return InNode->ReferencesVariable(VariableNameToCheck, InVariableOwnerBlueprint->SkeletonGeneratedClass);
 			};
 		
 			if (Algo::AnyOf(NodesInGraph, IsNodeReferencesVariable))
