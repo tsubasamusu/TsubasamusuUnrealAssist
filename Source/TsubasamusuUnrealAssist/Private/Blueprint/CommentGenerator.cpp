@@ -50,18 +50,18 @@ void FCommentGenerator::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Com
 
 	InCommentNode->OnUpdateCommentText(TEXT("Start generating comment..."));
 
-	GenerateComment(NodeDataListString, [InCommentNode](const bool bSucceeded, const FString& Message)
+	GenerateComment(NodeDataListString, [InCommentNode](const bool bInSucceeded, const FString& InMessage)
 	{
 		if (!InCommentNode.IsValid())
 		{
 			return;
 		}
 		
-		InCommentNode->OnUpdateCommentText(Message);
+		InCommentNode->OnUpdateCommentText(InMessage);
 
-		if (!bSucceeded)
+		if (!bInSucceeded)
 		{
-			TUA_ERROR(TEXT("%s"), *Message);
+			TUA_ERROR(TEXT("%s"), *InMessage);
 		}
 	});
 }
@@ -130,13 +130,13 @@ int32 FCommentGenerator::GetCharNum(const FString& InString, const TCHAR& InChar
 	return CharNum;
 }
 
-void FCommentGenerator::GenerateComment(const FString& NodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& OnGeneratedComment)
+void FCommentGenerator::GenerateComment(const FString& InNodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& InGeneratedCommentFunction)
 {
 	FString GptRequestString;
 
-	if (!TryGetGptRequestString(NodeDataListString, GptRequestString))
+	if (!TryGetGptRequestString(InNodeDataListString, GptRequestString))
 	{
-		OnGeneratedComment(false, TEXT("Failed to create a GPT request."));
+		InGeneratedCommentFunction(false, TEXT("Failed to create a GPT request."));
 		return;
 	}
 
@@ -151,27 +151,27 @@ void FCommentGenerator::GenerateComment(const FString& NodeDataListString, const
 	HttpRequest->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + OpenAiApiKey);
 	HttpRequest->SetContentAsString(GptRequestString);
 
-	HttpRequest->OnProcessRequestComplete().BindLambda([OnGeneratedComment](FHttpRequestPtr, const FHttpResponsePtr& HttpResponsePtr, const bool bSucceeded)
+	HttpRequest->OnProcessRequestComplete().BindLambda([InGeneratedCommentFunction](FHttpRequestPtr, const FHttpResponsePtr& InHttpResponse, const bool bInSucceeded)
 	{
-		if (!bSucceeded)
+		if (!bInSucceeded)
 		{
-			OnGeneratedComment(false, TEXT("Failed to send a HTTP request."));
+			InGeneratedCommentFunction(false, TEXT("Failed to send a HTTP request."));
 			return;
 		}
 
-		if (!HttpResponsePtr.IsValid())
+		if (!InHttpResponse.IsValid())
 		{
-			OnGeneratedComment(false, TEXT("Failed to get a HTTP response."));
+			InGeneratedCommentFunction(false, TEXT("Failed to get a HTTP response."));
 			return;
 		}
 
-		const FString JsonResponse = HttpResponsePtr->GetContentAsString();
+		const FString JsonResponse = InHttpResponse->GetContentAsString();
 
 		FGptErrorResponse GptErrorResponse;
 
 		if (FJsonObjectConverter::JsonObjectStringToUStruct(JsonResponse, &GptErrorResponse, 0, 0) && !GptErrorResponse.IsEmpty())
 		{
-			OnGeneratedComment(false, GptErrorResponse.error.message);
+			InGeneratedCommentFunction(false, GptErrorResponse.error.message);
 			return;
 		}
 
@@ -179,33 +179,33 @@ void FCommentGenerator::GenerateComment(const FString& NodeDataListString, const
 
 		if (!FJsonObjectConverter::JsonObjectStringToUStruct(JsonResponse, &GptResponse, 0, 0))
 		{
-			OnGeneratedComment(false, TEXT("Failed to get a GPT response."));
+			InGeneratedCommentFunction(false, TEXT("Failed to get a GPT response."));
 			return;
 		}
 
 		if (GptResponse.IsEmpty())
 		{
-			OnGeneratedComment(false, TEXT("Failed to get a GPT response."));
+			InGeneratedCommentFunction(false, TEXT("Failed to get a GPT response."));
 			return;
 		}
 
-		OnGeneratedComment(true, GptResponse.GetGptMessage());
+		InGeneratedCommentFunction(true, GptResponse.GetGptMessage());
 	});
 
 	if (!HttpRequest->ProcessRequest())
 	{
-		OnGeneratedComment(false, TEXT("Failed to process a HTTP request."));
+		InGeneratedCommentFunction(false, TEXT("Failed to process a HTTP request."));
 	}
 }
 
-bool FCommentGenerator::TryGetGptRequestString(const FString& NodeDataListString, FString& OutGptRequestString)
+bool FCommentGenerator::TryGetGptRequestString(const FString& InNodeDataListString, FString& OutGptRequestString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
 	FGptMessage GptMessage;
 	GptMessage.role = TEXT("user");
-	GptMessage.content = GetDesiredPrompt(NodeDataListString);
+	GptMessage.content = GetDesiredPrompt(InNodeDataListString);
 	
 	FGptRequest GptRequest;
 	GptRequest.model = TsubasamusuUnrealAssistSettings->GptModelName;
@@ -218,7 +218,7 @@ bool FCommentGenerator::TryGetGptRequestString(const FString& NodeDataListString
 		{
 			{
 				.role = TEXT("user"),
-				.content = GetDesiredPrompt(NodeDataListString)
+				.content = GetDesiredPrompt(InNodeDataListString)
 			}
 		}
 	};
@@ -227,7 +227,7 @@ bool FCommentGenerator::TryGetGptRequestString(const FString& NodeDataListString
 	return FJsonObjectConverter::UStructToJsonObjectString(GptRequest, OutGptRequestString, 0, 0);
 }
 
-FString FCommentGenerator::GetDesiredPrompt(const FString& NodeDataListString)
+FString FCommentGenerator::GetDesiredPrompt(const FString& InNodeDataListString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
@@ -240,7 +240,7 @@ FString FCommentGenerator::GetDesiredPrompt(const FString& NodeDataListString)
 		Prompt += TEXT("\n- ") + CommentGenerationCondition;
 	}
 
-	Prompt += TEXT("\n\n") + NodeDataListString;
+	Prompt += TEXT("\n\n") + InNodeDataListString;
 
 	return Prompt;
 }
