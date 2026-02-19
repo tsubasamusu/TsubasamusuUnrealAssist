@@ -109,10 +109,10 @@ void FNodePreviewer::TryPreviewNode()
 	LastBeforeEditingToolTipWidget = CurrentToolTipWidget;
 }
 
-void FNodePreviewer::AddReferencedObjects(FReferenceCollector& Collector)
+void FNodePreviewer::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
 {
-	Collector.AddReferencedObject(CachedTemporaryBlueprint);
-	Collector.AddReferencedObject(CachedTemporaryGraph);
+	InReferenceCollector.AddReferencedObject(CachedTemporaryBlueprint);
+	InReferenceCollector.AddReferencedObject(CachedTemporaryGraph);
 }
 
 TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()

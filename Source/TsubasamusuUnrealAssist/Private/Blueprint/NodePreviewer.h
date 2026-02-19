@@ -12,7 +12,7 @@ public:
 	void TryPreviewNode();
 	
 	//~ Begin FGCObject Interface
-	virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
+	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
 	virtual FString GetReferencerName() const override
 	{
 		return TEXT("FNodePreviewer");
