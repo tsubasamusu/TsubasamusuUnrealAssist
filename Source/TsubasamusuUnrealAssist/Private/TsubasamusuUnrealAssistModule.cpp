@@ -98,7 +98,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
 	});
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent()
+void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent() const
 {
 	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
 }
@@ -108,9 +108,9 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
 	check(IsValid(AssetEditorSubsystem));
 	
-	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([](UObject* OpenedAsset)
+	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([](UObject* InOpenedAsset)
 	{
-		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(OpenedAsset);
+		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
 		
 		if (IsValid(OpenedBlueprint))
 		{
@@ -119,7 +119,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 	});
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
+void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent() const
 {
 	if (IsValid(GEditor))
 	{
@@ -136,7 +136,7 @@ void FTsubasamusuUnrealAssistModule::RegisterTicker()
 	TickHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FTsubasamusuUnrealAssistModule::Tick), TsubasamusuUnrealAssistSettings->TickInterval);
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterTicker()
+void FTsubasamusuUnrealAssistModule::UnregisterTicker() const
 {
 	if (TickHandle.IsValid())
 	{
@@ -160,7 +160,7 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
 }
 
-bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
+bool FTsubasamusuUnrealAssistModule::Tick(const float /* InDeltaTime */)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	

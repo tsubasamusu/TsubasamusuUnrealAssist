@@ -26,18 +26,18 @@ private:
 	void UnregisterSettings() const;
 
 	void RegisterOnEditorLanguageChangedEvent();
-	void UnregisterOnEditorLanguageChangedEvent();
+	void UnregisterOnEditorLanguageChangedEvent() const;
 	
 	void RegisterOnAssetEditorOpenedEvent();
-	void UnregisterOnAssetEditorOpenedEvent();
+	void UnregisterOnAssetEditorOpenedEvent() const;
 	
 	void RegisterTicker();
-	void UnregisterTicker();
+	void UnregisterTicker() const;
 	
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
-	bool Tick(float /* DeltaTime */);
+	bool Tick(const float /* InDeltaTime */);
 	
 	FDelegateHandle OnPostEngineInitHandle;
 	FDelegateHandle OnEditorLanguageChangedHandle;
