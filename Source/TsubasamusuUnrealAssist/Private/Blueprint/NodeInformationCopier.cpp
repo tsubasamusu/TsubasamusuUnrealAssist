@@ -25,9 +25,9 @@ void FNodeInformationCopier::AddCopyNodeInformationMenu(const TWeakObjectPtr<UEd
 	const FSlateIcon MainMenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GenericCommands.Copy");
 
 	const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedWeakNodes = FNodeUtility::GetSelectedWeakNodes(InGraph.Get());
-	const auto MenuAction = [SelectedWeakNodes](FMenuBuilder& MenuBuilder)
+	const auto MenuAction = [SelectedWeakNodes](FMenuBuilder& InSubMenuBuilder)
 	{
-		AddCopyNodeInformationSubMenus(MenuBuilder, SelectedWeakNodes);
+		AddCopyNodeInformationSubMenus(InSubMenuBuilder, SelectedWeakNodes);
 	};
     
 	InMenuBuilder.AddSubMenu(MainMenuLabelText, MainMenuToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None, false, MainMenuIcon);
