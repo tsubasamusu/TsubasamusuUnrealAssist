@@ -454,7 +454,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 <img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
 
-## その他
+## その他の機能
 ### Recommended Editor Settings Applier
 このプラグインを有効化すると、「Apply Recommended Editor Settings」という名前のプロパティと、「Apply」と書かれたボタンが「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ General」に表示されます。このボタンをクリックすると、[このプラグインの開発者](https://x.com/tsubasamusu)が個人的に推奨しているエディタ設定を一括で適用することができます。具体的な設定内容は以下の通りです。
 
