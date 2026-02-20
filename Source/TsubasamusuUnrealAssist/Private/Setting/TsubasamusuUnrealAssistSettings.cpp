@@ -5,7 +5,7 @@
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 
-UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
 	// General
 	TickInterval = 0.f;
@@ -29,11 +29,11 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	NodePreviewScale = 1.f;
 }
 
-void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
 {
-	Super::PostEditChangeProperty(PropertyChangedEvent);
+	Super::PostEditChangeProperty(InPropertyChangedEvent);
 
-	const FName PropertyName = PropertyChangedEvent.Property ? PropertyChangedEvent.Property->GetFName() : NAME_None;
+	const FName PropertyName = InPropertyChangedEvent.Property ? InPropertyChangedEvent.Property->GetFName() : NAME_None;
 
 	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration))
 	{
@@ -70,9 +70,9 @@ FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCultur
 	return CommentGenerationLanguageCulture;
 }
 
-void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture)
+void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture)
 {
-	LanguageCultureNameForCommentGeneration = NewCommentGenerationLanguageCulture->GetName();
+	LanguageCultureNameForCommentGeneration = InCommentGenerationLanguageCulture->GetName();
 	SaveConfig();
 }
 

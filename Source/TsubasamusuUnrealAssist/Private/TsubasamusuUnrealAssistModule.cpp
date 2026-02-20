@@ -2,15 +2,15 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
-#include "OptimizeAccessSpecifiersUtility.h"
-#include "NodeUtility/SelectedNodeMenuExtender.h"
+#include "Blueprint/AccessSpecifierOptimizer.h"
+#include "Blueprint/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
-#include "NodeUtility/NodePreviewer.h"
-#include "Setting/TsubasamusuEditorSettingsUtility.h"
+#include "Blueprint/NodePreviewer.h"
+#include "Setting/EditorSettingsUtility.h"
 
-#define LOCTEXT_NAMESPACE "TsubasamusuUnrealAssist"
+#define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 
 void FTsubasamusuUnrealAssistModule::StartupModule()
 {
@@ -72,8 +72,8 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
 
 void FTsubasamusuUnrealAssistModule::RegisterSettings() const
 {
-	const FText SettingsDisplayName = LOCTEXT("TsubasamusuUnrealAssistSettingsDisplayName", "Tsubasamusu Unreal Assist");
-	const FText SettingsDescription = LOCTEXT("TsubasamusuUnrealAssistSettingsDescription", "Configure the Tsubasamusu Unreal Assist plugin");
+	const FText SettingsDisplayName = LOCTEXT("SettingsDisplayName", "Tsubasamusu Unreal Assist");
+	const FText SettingsDescription = LOCTEXT("SettingsDescription", "Configure the Tsubasamusu Unreal Assist plugin");
 	
 	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
 	SettingsModule.RegisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName, SettingsDisplayName, SettingsDescription, GetMutableDefault<UTsubasamusuUnrealAssistSettings>());
@@ -89,16 +89,16 @@ void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
 {
 	OnEditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([]()
 	{
-		UTsubasamusuUnrealAssistSettings* Settings = GetMutableDefault<UTsubasamusuUnrealAssistSettings>();
+		UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 		
-		if (Settings->bUseEditorLanguageForCommentGeneration)
+		if (TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration)
 		{
-			Settings->MakeCommentGenerationLanguageSameAsEditorLanguage();
+			TsubasamusuUnrealAssistSettings->MakeCommentGenerationLanguageSameAsEditorLanguage();
 		}
 	});
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent()
+void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent() const
 {
 	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
 }
@@ -108,18 +108,18 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
 	check(IsValid(AssetEditorSubsystem));
 	
-	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([](UObject* OpenedAsset)
+	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([](UObject* InOpenedAsset)
 	{
-		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(OpenedAsset);
+		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
 		
 		if (IsValid(OpenedBlueprint))
 		{
-			FOptimizeAccessSpecifiersUtility::OnBlueprintEditorOpened(OpenedBlueprint);
+			FAccessSpecifierOptimizer::OnBlueprintEditorOpened(OpenedBlueprint);
 		}
 	});
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
+void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent() const
 {
 	if (IsValid(GEditor))
 	{
@@ -132,11 +132,11 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
 
 void FTsubasamusuUnrealAssistModule::RegisterTicker()
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	TickHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FTsubasamusuUnrealAssistModule::Tick), TsubasamusuUnrealAssistSettings->TickInterval);
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterTicker()
+void FTsubasamusuUnrealAssistModule::UnregisterTicker() const
 {
 	if (TickHandle.IsValid())
 	{
@@ -160,9 +160,9 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
 }
 
-bool FTsubasamusuUnrealAssistModule::Tick(float /* DeltaTime */)
+bool FTsubasamusuUnrealAssistModule::Tick(const float /* InDeltaTime */)
 {
-	UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FTsubasamusuEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	if (TsubasamusuUnrealAssistSettings->bEnableNodePreview && !NodePreviewer.IsValid())
 	{

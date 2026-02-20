@@ -17,8 +17,8 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnCompletedReplaceReferences Completed;
 
-	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject"), Category = "TSUBASAMUSU|EditorUtility")
-	static UAsyncActionReplaceReferences* AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> From, TSoftObjectPtr<UObject> To);
+	UFUNCTION(BlueprintCallable, meta = (BlueprintInternalUseOnly = "true", WorldContext = "WorldContextObject", DisplayName = "Async Replace References"), Category = "TsubasamusuUnrealAssist|EditorUtility")
+	static UAsyncActionReplaceReferences* AsyncReplaceReferences(const UObject* WorldContextObject, UPARAM(DisplayName = "From") TSoftObjectPtr<UObject> InSourceAsset, UPARAM(DisplayName = "To") TSoftObjectPtr<UObject> InDestinationAsset);
 
 	virtual void Activate() override;
 
@@ -35,5 +35,5 @@ private:
 	UPROPERTY()
 	TObjectPtr<UObject> LoadedDestinationAsset;
 
-	void OnCompleted(const bool bSucceeded);
+	void OnCompleted(const bool bInSucceeded);
 };

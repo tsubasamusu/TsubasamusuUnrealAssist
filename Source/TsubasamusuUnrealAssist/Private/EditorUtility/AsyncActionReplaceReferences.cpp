@@ -2,9 +2,9 @@
 
 #include "EditorUtility/AsyncActionReplaceReferences.h"
 #include "AssetDeleteModel.h"
-#include "TsubasamusuLogUtility.h"
+#include "Debug/TsubasamusuLogUtility.h"
 
-UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> From, TSoftObjectPtr<UObject> To)
+UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> InSourceAsset, TSoftObjectPtr<UObject> InDestinationAsset)
 {
     if (!IsValid(WorldContextObject))
     {
@@ -15,8 +15,8 @@ UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceRefere
     
     UAsyncActionReplaceReferences* Action = NewObject<UAsyncActionReplaceReferences>();
 
-    Action->SourceAsset = From;
-    Action->DestinationAsset = To;
+    Action->SourceAsset = InSourceAsset;
+    Action->DestinationAsset = InDestinationAsset;
     
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
     Action->RegisterWithGameInstance(WorldContextObject);
@@ -48,9 +48,9 @@ void UAsyncActionReplaceReferences::Activate()
     
     TSharedPtr<FAssetData> DestinationAssetData = MakeShared<FAssetData>(LoadedDestinationAsset);
 
-    AssetDeleteModel->OnStateChanged().AddLambda([this, ScanSpan, AssetDeleteModel, DestinationAssetData](const FAssetDeleteModel::EState NewState)
+    AssetDeleteModel->OnStateChanged().AddLambda([this, ScanSpan, AssetDeleteModel, DestinationAssetData](const FAssetDeleteModel::EState InNewState)
     {
-        if (NewState == FAssetDeleteModel::EState::Finished)
+        if (InNewState == FAssetDeleteModel::EState::Finished)
         {
             const bool bSucceeded = AssetDeleteModel->DoReplaceReferences(*DestinationAssetData);
 
@@ -65,9 +65,9 @@ void UAsyncActionReplaceReferences::Activate()
     AssetDeleteModel->Tick(ScanSpan);
 }
 
-void UAsyncActionReplaceReferences::OnCompleted(const bool bSucceeded)
+void UAsyncActionReplaceReferences::OnCompleted(const bool bInSucceeded)
 {
-	Completed.Broadcast(bSucceeded);
+	Completed.Broadcast(bInSucceeded);
 
 	SetReadyToDestroy();
 }

@@ -11,10 +11,10 @@ class FTsubasamusuSettingsCustomization final : public IDetailCustomization
 {
 public:
 	static TSharedRef<IDetailCustomization> Create();
-	virtual void CustomizeDetails(IDetailLayoutBuilder& DetailBuilder) override;
+	virtual void CustomizeDetails(IDetailLayoutBuilder& InDetailLayoutBuilder) override;
 
 private:
-	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& CategoryName, const FName& PropertyName);
+	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
 	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);

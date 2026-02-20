@@ -11,8 +11,8 @@ class UTsubasamusuUnrealAssistSettings final : public UObject
 	GENERATED_BODY()
 
 public:
-	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& ObjectInitializer);
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer);
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent) override;
 
 #pragma region General
 	/* The tick interval of Tsubasamusu Unreal Assist. If set to 0 seconds, the tick processing will run every frame. */
@@ -74,7 +74,7 @@ public:
 #pragma endregion
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
-	void SetCommentGenerationLanguageCulture(const FCulturePtr& NewCommentGenerationLanguageCulture);
+	void SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture);
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
 private:
