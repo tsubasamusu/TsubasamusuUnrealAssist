@@ -23,6 +23,10 @@
 #include "Misc/FeedbackContext.h"
 #endif
 
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3)
+#include "Misc/ScopedSlowTask.h"
+#endif
+
 #define LOCTEXT_NAMESPACE "FAccessSpecifierOptimizer"
 
 void FAccessSpecifierOptimizer::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)

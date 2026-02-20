@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "0.10.1",
+	"VersionName": "0.10.2",
 	"FriendlyName": "Tsubasamusu Unreal Assist",
 	"Description": "An editor extension plugin that adds features I personally want in Unreal Editor, as well as features I've seen on social media that people want.",
 	"Category": "Editor",

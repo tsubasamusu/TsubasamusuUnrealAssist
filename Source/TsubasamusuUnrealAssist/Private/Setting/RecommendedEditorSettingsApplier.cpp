@@ -73,8 +73,24 @@ void FRecommendedEditorSettingsApplier::ApplyRecommendedInternationalizationSett
 {
     UInternationalizationSettingsModel* InternationalizationSettingsModel = FEditorSettingsUtility::GetSettingsChecked<UInternationalizationSettingsModel>();
 
-    FInternationalization::Get().SetCurrentLanguageAndLocale(TEXT("en"));
+    // Set the editor language to English.
+    {
+        const FString EnglishCultureName = TEXT("en");
+        InternationalizationSettingsModel->SetEditorLanguage(EnglishCultureName);
+        FInternationalization::Get().SetCurrentLanguage(EnglishCultureName);
 
+        for (TObjectIterator<UClass> ClassIterator; ClassIterator; ++ClassIterator)
+        {
+            const UClass* CurrentClass = *ClassIterator;
+            const UEdGraphSchema* Schema = Cast<UEdGraphSchema>(CurrentClass->GetDefaultObject());
+
+            if (IsValid(Schema))
+            {
+                Schema->ForceVisualizationCacheClear();
+            }
+        }
+    }
+    
     InternationalizationSettingsModel->SetShouldUseLocalizedNodeAndPinNames(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedNumericInput(false);
     InternationalizationSettingsModel->SetShouldUseLocalizedPropertyNames(false);
