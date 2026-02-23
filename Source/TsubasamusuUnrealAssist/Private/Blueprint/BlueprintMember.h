@@ -51,3 +51,25 @@ private:
 	TSharedPtr<FAccessSpecifierOptimizationRow> AccessSpecifierOptimizationRow;
 	bool bCheckedMemberReferencerBlueprints = false;
 };
+
+class FBlueprintMember_Variable final : public FBlueprintMember
+{
+public:
+	FBlueprintMember_Variable(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, FProperty* InVariable)
+		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Variable(InVariable){}
+
+	//~ Begin FBlueprintMember Interface
+	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
+	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetOptimalAccessSpecifier() const override;
+	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) override;
+	virtual FName GetMemberName() const override;
+	//~ End FBlueprintMember Interface
+	
+protected:
+	//~ Begin FBlueprintMember Interface
+	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const override;
+	//~ End FBlueprintMember Interface
+	
+private:
+	FProperty* Variable;
+};
