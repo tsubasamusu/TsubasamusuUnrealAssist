@@ -59,15 +59,22 @@ TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember::GetOptimalAccessSpec
 
 TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Variable::GetCurrentAccessSpecifier() const
 {
-	if (IsValid(OwnerBlueprint) && Variable)
+	if (!Variable)
 	{
-		FString PrivateMetaDataValue;
-		FBlueprintEditorUtils::GetBlueprintVariableMetaData(OwnerBlueprint, GetMemberName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
-	
-		return PrivateMetaDataValue == TEXT("true") ? TsubasamusuUnrealAssist::EAccessSpecifier::Private : TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+		return TsubasamusuUnrealAssist::EAccessSpecifier::None;
 	}
 	
-	return TsubasamusuUnrealAssist::EAccessSpecifier::None;
+	if (Variable->GetBoolMetaData(FBlueprintMetadata::MD_Private))
+	{
+		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
+	}
+	
+	if (Variable->GetBoolMetaData(FBlueprintMetadata::MD_Protected))
+	{
+		return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
+	}
+
+	return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
 }
 
 TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Variable::GetOptimalAccessSpecifier() const
