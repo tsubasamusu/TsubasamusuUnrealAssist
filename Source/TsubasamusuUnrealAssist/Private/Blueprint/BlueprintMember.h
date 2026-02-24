@@ -73,3 +73,13 @@ protected:
 private:
 	FProperty* Variable;
 };
+
+class FBlueprintMember_Function final : public FBlueprintMember
+{
+public:
+	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction)
+		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction){}
+
+private:
+	TObjectPtr<UFunction> Function;
+};
