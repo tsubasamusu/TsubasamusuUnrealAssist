@@ -173,7 +173,7 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 			+ SHeaderRow::Column(OptimalAccessSpecifierColumnId)
 			.DefaultLabel(LOCTEXT("HeaderLabel_OptimalAccessSpecifier", "Optimal"))
 			.HAlignHeader(HAlign_Center)
-			.FixedWidth(110.f)
+			.FixedWidth(80.f)
 		)
 		.OnGenerateRow_Lambda([CheckBoxColumnId, MemberNameColumnId, CurrentAccessSpecifierColumnId, OptimalAccessSpecifierColumnId, Members](const TSharedPtr<FAccessSpecifierOptimizationRow> InRowItem, const TSharedRef<STableViewBase>& InOwnerTableView)
 		{
@@ -248,6 +248,18 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		for (FProperty* Variable : Variables)
 		{
 			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Variable>(InBlueprint, ReferencerBlueprints, Variable);
+			Member->Initialize();
+			Members->Add(Member);
+		}
+	}
+	
+	// Functions
+	{
+		const TArray<UFunction*> Functions = GetFunctions(InBlueprint);
+		
+		for (UFunction* Function : Functions)
+		{
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function);
 			Member->Initialize();
 			Members->Add(Member);
 		}
