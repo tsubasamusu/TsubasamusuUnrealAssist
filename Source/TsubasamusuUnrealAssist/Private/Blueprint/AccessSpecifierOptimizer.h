@@ -18,6 +18,7 @@ private:
 	
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
+	static const UEdGraph* FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint);
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 };

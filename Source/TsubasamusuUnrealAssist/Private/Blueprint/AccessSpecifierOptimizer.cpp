@@ -287,6 +287,25 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 	return Variables;
 }
 
+const UEdGraph* FAccessSpecifierOptimizer::FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint)
+{
+	if (IsValid(InFunction) && IsValid(InFunctionOwnerBlueprint))
+	{
+		TArray<UEdGraph*> AllGraphs;
+		InFunctionOwnerBlueprint->GetAllGraphs(AllGraphs);
+	
+		for (const UEdGraph* Graph : AllGraphs)
+		{
+			if (IsValid(Graph) && Graph->GetFName() == InFunction->GetFName())
+			{
+				return Graph;
+			}
+		}
+	}
+	
+	return nullptr;
+}
+
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {
 	TArray<TObjectPtr<const UBlueprint>> ReferencerBlueprints;
