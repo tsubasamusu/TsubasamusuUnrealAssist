@@ -1,6 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "BlueprintMember.h"
+#include "K2Node_CallFunction.h"
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_GetClassDefaults.h"
@@ -301,3 +302,85 @@ FName FBlueprintMember_Function::GetMemberName() const
 	
 	return NAME_None;
 }
+
+bool FBlueprintMember_Function::IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const
+{
+	if (!IsValid(Function) || !IsValid(OwnerBlueprint) || !IsValid(InBlueprint))
+	{
+		return false;
+	}
+	
+	const FName FunctionNameToCheck = GetMemberName();
+	
+	// Check whether that function is overridden
+	{
+		const UClass* ClassToCheck = InBlueprint->GeneratedClass;
+		const UClass* OwnerClass = OwnerBlueprint->GeneratedClass;
+		
+		if (ClassToCheck->IsChildOf(OwnerClass))
+		{
+			for (const UClass* SuperClass = ClassToCheck; IsValid(SuperClass) && SuperClass != OwnerClass; SuperClass = SuperClass->GetSuperClass())
+			{
+				const UFunction* OverriddenFunction = SuperClass->FindFunctionByName(FunctionNameToCheck, EIncludeSuperFlag::ExcludeSuper);
+				
+				if (IsValid(OverriddenFunction))
+				{
+					return true;
+				}
+			}
+		}
+	}
+	
+	FGuid FunctionGuidToCheck;
+	UBlueprint::GetFunctionGuidFromClassByFieldName(OwnerBlueprint->SkeletonGeneratedClass, FunctionNameToCheck, FunctionGuidToCheck);
+	check(FunctionGuidToCheck.IsValid());
+	
+	TArray<UEdGraph*> AllGraphsToCheck;
+	InBlueprint->GetAllGraphs(AllGraphsToCheck);
+
+	for (TArray<UEdGraph*>::TConstIterator GraphConstIterator(AllGraphsToCheck); GraphConstIterator; ++GraphConstIterator)
+	{
+		const UEdGraph* GraphToCheck = *GraphConstIterator;
+		
+		if (!IsValid(GraphToCheck))
+		{
+			continue;
+		}
+		
+		// Check call function nodes
+		{
+			TArray<const UK2Node_CallFunction*> CallFunctionNodesInGraph;
+			GraphToCheck->GetNodesOfClass(CallFunctionNodesInGraph);
+			
+			auto IsCallFunctionNodeReferencesFunction = [&FunctionGuidToCheck, &FunctionNameToCheck](const UK2Node_CallFunction* InCallFunctionNode)
+			{
+				return FunctionGuidToCheck == InCallFunctionNode->FunctionReference.GetMemberGuid() && FunctionNameToCheck == InCallFunctionNode->GetFunctionName();
+			};
+
+			if (Algo::AnyOf(CallFunctionNodesInGraph, IsCallFunctionNodeReferencesFunction))
+			{
+				return true;
+			}
+		}
+
+		// Check other K2 nodes
+		{
+			TArray<const UK2Node*> NodesInGraph;
+			GraphToCheck->GetNodesOfClass(NodesInGraph);
+			
+			auto IsNodeReferencesFunction = [&FunctionNameToCheck, this](const UK2Node* InNode)
+			{
+				return InNode->ReferencesFunction(FunctionNameToCheck, OwnerBlueprint->SkeletonGeneratedClass);
+			};
+
+			if (Algo::AnyOf(NodesInGraph, IsNodeReferencesFunction))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+#undef LOCTEXT_NAMESPACE

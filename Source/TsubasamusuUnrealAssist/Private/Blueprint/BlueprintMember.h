@@ -91,6 +91,11 @@ public:
 	virtual FName GetMemberName() const override;
 	//~ End FBlueprintMember Interface
 	
+protected:
+	//~ Begin FBlueprintMember Interface
+	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const override;
+	//~ End FBlueprintMember Interface
+	
 private:
 	TObjectPtr<UFunction> Function;
 	TObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
