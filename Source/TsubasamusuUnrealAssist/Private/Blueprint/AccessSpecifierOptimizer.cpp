@@ -255,11 +255,11 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 	
 	// Functions
 	{
-		const TArray<UFunction*> Functions = GetFunctions(InBlueprint);
+		const TMap<UFunction*, UK2Node_FunctionEntry*> Functions = GetFunctions(InBlueprint);
 		
-		for (UFunction* Function : Functions)
+		for (TPair<UFunction*, UK2Node_FunctionEntry*> Function : Functions)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function);
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function.Key, Function.Value);
 			Member->Initialize();
 			Members->Add(Member);
 		}
@@ -301,9 +301,9 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 	return Variables;
 }
 
-TArray<UFunction*> FAccessSpecifierOptimizer::GetFunctions(const UBlueprint* InBlueprint)
+TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(const UBlueprint* InBlueprint)
 {
-	TArray<UFunction*> Functions;
+	TMap<UFunction*, UK2Node_FunctionEntry*> Functions;
 	
 	for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
 	{
@@ -311,11 +311,17 @@ TArray<UFunction*> FAccessSpecifierOptimizer::GetFunctions(const UBlueprint* InB
 		
 		if (IsValid(Function))
 		{
+			const FName FunctionName = Function->GetFName();
 			const UEdGraph* FunctionGraph = FindGraphForFunction(Function, InBlueprint);
 			
-			if (IsValid(FunctionGraph) && AccessSpecifierIsEditable(FunctionGraph, Function->GetFName()))
+			if (IsValid(FunctionGraph))
 			{
-				Functions.Add(Function);
+				UK2Node_EditablePinBase* EntryNode = FindEntryNode(FunctionGraph, FunctionName);
+				
+				if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
+				{
+					Functions.Add(Function, Cast<UK2Node_FunctionEntry>(EntryNode));
+				}
 			}
 		}
 	}
@@ -342,36 +348,29 @@ const UEdGraph* FAccessSpecifierOptimizer::FindGraphForFunction(const UFunction*
 	return nullptr;
 }
 
-bool FAccessSpecifierOptimizer::AccessSpecifierIsEditable(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
+UK2Node_EditablePinBase* FAccessSpecifierOptimizer::FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
 {
 	if (IsValid(InGraph))
 	{
-		TArray<const UK2Node_EditablePinBase*> EditablePinNodes;
+		TArray<UK2Node_EditablePinBase*> EditablePinNodes;
 		InGraph->GetNodesOfClass(EditablePinNodes);
 	
 		if (!EditablePinNodes.IsEmpty())
 		{
-			for (const UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
+			for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
 			{
 				if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName)
 				{
-					const UBlueprint* Blueprint = EditablePinNode->GetBlueprint();
-				
-					if (IsValid(Blueprint) && FBlueprintEditorUtils::IsInterfaceBlueprint(Blueprint))
+					if (EditablePinNode->IsA<UK2Node_FunctionEntry>() || EditablePinNode->IsA<UK2Node_Event>())
 					{
-						return false;
-					}
-					
-					if (EditablePinNode->IsEditable() && (EditablePinNode->IsA<UK2Node_FunctionEntry>() || EditablePinNode->IsA<UK2Node_Event>()))
-					{
-						return true;
+						return EditablePinNode;
 					}
 				}
 			}
 		}
 	}
 	
-	return false;
+	return nullptr;
 }
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)

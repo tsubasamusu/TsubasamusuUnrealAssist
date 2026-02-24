@@ -18,9 +18,9 @@ private:
 	
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
-	static TArray<UFunction*> GetFunctions(const UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(const UBlueprint* InBlueprint);
 	static const UEdGraph* FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint);
-	static bool AccessSpecifierIsEditable(const UEdGraph* InGraph, const FName& InFunctionOrEventName);
+	static UK2Node_EditablePinBase* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName);
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 };
