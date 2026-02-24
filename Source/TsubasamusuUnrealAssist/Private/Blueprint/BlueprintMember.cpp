@@ -225,3 +225,33 @@ void FBlueprintMember_Function::AddReferencedObjects(FReferenceCollector& InRefe
 	FBlueprintMember::AddReferencedObjects(InReferenceCollector);
 	InReferenceCollector.AddReferencedObject(Function);
 }
+
+TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Function::GetCurrentAccessSpecifier() const
+{
+	if (!IsValid(Function))
+	{
+		return TsubasamusuUnrealAssist::EAccessSpecifier::None;
+	}
+	
+	if (Function->HasAnyFunctionFlags(FUNC_Private))
+	{
+		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
+	}
+	
+	if (Function->HasAnyFunctionFlags(FUNC_Protected))
+	{
+		return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
+	}
+	
+	return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+}
+
+FName FBlueprintMember_Function::GetMemberName() const
+{
+	if (IsValid(Function))
+	{
+		return Function->GetFName();
+	}
+	
+	return NAME_None;
+}

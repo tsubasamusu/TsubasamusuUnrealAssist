@@ -84,6 +84,11 @@ public:
 	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
 	//~ End FGCObject Interface
 	
+	//~ Begin FBlueprintMember Interface
+	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
+	virtual FName GetMemberName() const override;
+	//~ End FBlueprintMember Interface
+	
 private:
 	TObjectPtr<UFunction> Function;
 };
