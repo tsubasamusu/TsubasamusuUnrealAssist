@@ -266,6 +266,18 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		}
 	}
 	
+	// Events
+	{
+		const TMap<UFunction*, UK2Node_Event*> Events = GetEvents(InBlueprint);
+		
+		for (TPair<UFunction*, UK2Node_Event*> Event : Events)
+		{
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Event>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
+			Member->Initialize();
+			Members->Add(Member);
+		}
+	}
+	
 	return Members;
 }
 
