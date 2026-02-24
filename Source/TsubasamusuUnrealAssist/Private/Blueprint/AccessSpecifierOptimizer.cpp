@@ -258,25 +258,28 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 {
 	TArray<FProperty*> Variables;
 	
-	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIteratorFlags::ExcludeSuper); PropertyFieldIterator; ++PropertyFieldIterator)
+	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); PropertyFieldIterator; ++PropertyFieldIterator)
 	{
 		FProperty* Property = *PropertyFieldIterator;
 		
-		const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
-		const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
-		const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
-		
-		if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
+		if (Property)
 		{
-			const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
-			const bool bFoundVariable = VariableIndex != INDEX_NONE;
-
-			const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
-			const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
-	
-			if (bFoundVariable && !bIsTimelineComponent)
+			const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
+			const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
+			const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
+		
+			if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
 			{
-				Variables.Add(Property);
+				const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
+				const bool bFoundVariable = VariableIndex != INDEX_NONE;
+
+				const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
+				const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
+	
+				if (bFoundVariable && !bIsTimelineComponent)
+				{
+					Variables.Add(Property);
+				}
 			}
 		}
 	}
