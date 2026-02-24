@@ -39,7 +39,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "AssetRegistry",
             "EditorStyle",
             "ToolWidgets",
-            "EditorFramework"
+            "EditorFramework",
+            "BlueprintEditorLibrary"
 		});
 	}
 }

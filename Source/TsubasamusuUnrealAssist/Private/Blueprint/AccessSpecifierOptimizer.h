@@ -3,6 +3,7 @@
 #pragma once
 
 #include "BlueprintEditor.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 #include "CoreMinimal.h"
 
 class FBlueprintMember;
@@ -22,6 +23,35 @@ private:
 	static const UEdGraph* FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint);
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
+	
+	template<typename EntryNodeType, typename FunctionToFindGraph>
+	static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph)
+	{
+		TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
+	
+		for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
+		{
+			UFunction* Function = *FunctionFieldIterator;
+		
+			if (IsValid(Function))
+			{
+				const FName FunctionName = Function->GetFName();
+				const UEdGraph* Graph = InFunctionToFindGraph(FunctionName, InBlueprint);
+			
+				if (IsValid(Graph))
+				{
+					EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(Graph, FunctionName);
+				
+					if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
+					{
+						FunctionBaseMembers.Add(Function, EntryNode);
+					}
+				}
+			}
+		}
+	
+		return FunctionBaseMembers;
+	}
 	
 	template<typename EntryNodeType>
 	static EntryNodeType* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
