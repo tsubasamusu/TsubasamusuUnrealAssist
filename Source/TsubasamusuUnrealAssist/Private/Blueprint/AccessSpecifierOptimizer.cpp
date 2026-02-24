@@ -301,51 +301,30 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 	return Variables;
 }
 
-TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(const UBlueprint* InBlueprint)
+TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(UBlueprint* InBlueprint)
 {
-	TMap<UFunction*, UK2Node_FunctionEntry*> Functions;
-	
-	for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
+	if (IsValid(InBlueprint))
 	{
-		UFunction* Function = *FunctionFieldIterator;
-		
-		if (IsValid(Function))
+		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
 		{
-			const FName FunctionName = Function->GetFName();
-			const UEdGraph* FunctionGraph = FindGraphForFunction(Function, InBlueprint);
-			
-			if (IsValid(FunctionGraph))
+			TArray<UEdGraph*> AllGraphs;
+			InBlueprintToFindGraph->GetAllGraphs(AllGraphs);
+
+			for (const UEdGraph* Graph : AllGraphs)
 			{
-				UK2Node_FunctionEntry* EntryNode = FindEntryNode<UK2Node_FunctionEntry>(FunctionGraph, FunctionName);
-				
-				if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
+				if (IsValid(Graph) && Graph->GetFName() == InFunctionName)
 				{
-					Functions.Add(Function, EntryNode);
+					return Graph;
 				}
 			}
-		}
+		
+			return nullptr;
+		};
+	
+		return GetFunctionBaseMembers<UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph);
 	}
 	
-	return Functions;
-}
-
-const UEdGraph* FAccessSpecifierOptimizer::FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint)
-{
-	if (IsValid(InFunction) && IsValid(InFunctionOwnerBlueprint))
-	{
-		TArray<UEdGraph*> AllGraphs;
-		InFunctionOwnerBlueprint->GetAllGraphs(AllGraphs);
-	
-		for (const UEdGraph* Graph : AllGraphs)
-		{
-			if (IsValid(Graph) && Graph->GetFName() == InFunction->GetFName())
-			{
-				return Graph;
-			}
-		}
-	}
-	
-	return nullptr;
+	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
