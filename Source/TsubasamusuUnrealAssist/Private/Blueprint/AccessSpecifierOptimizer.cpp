@@ -289,6 +289,28 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 	return Variables;
 }
 
+TArray<UFunction*> FAccessSpecifierOptimizer::GetFunctions(const UBlueprint* InBlueprint)
+{
+	TArray<UFunction*> Functions;
+	
+	for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
+	{
+		UFunction* Function = *FunctionFieldIterator;
+		
+		if (IsValid(Function))
+		{
+			const UEdGraph* FunctionGraph = FindGraphForFunction(Function, InBlueprint);
+			
+			if (IsValid(FunctionGraph) && AccessSpecifierIsEditable(FunctionGraph, Function->GetFName()))
+			{
+				Functions.Add(Function);
+			}
+		}
+	}
+	
+	return Functions;
+}
+
 const UEdGraph* FAccessSpecifierOptimizer::FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint)
 {
 	if (IsValid(InFunction) && IsValid(InFunctionOwnerBlueprint))
