@@ -388,4 +388,11 @@ void FBlueprintMember_Function::SetEntryNodeAccessSpecifier(const EFunctionFlags
 	FunctionEntryNode->SetExtraFlags(ExtraFlags);
 }
 
+void FBlueprintMember_Event::SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
+{
+	UK2Node_Event* EventEntryNode = GetEntryNodeChecked<UK2Node_Event>();
+	EventEntryNode->FunctionFlags &= InClearAccessSpecifierMask;
+	EventEntryNode->FunctionFlags |= InAccessSpecifierFlag;
+}
+
 #undef LOCTEXT_NAMESPACE

@@ -121,3 +121,15 @@ protected:
 	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) override;
 	//~ End FBlueprintMember_FunctionBase Interface
 };
+
+class FBlueprintMember_Event final : public FBlueprintMember_FunctionBase
+{
+public:
+	FBlueprintMember_Event(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+	: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
+
+protected:
+	//~ Begin FBlueprintMember_FunctionBase Interface
+	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) override;
+	//~ End FBlueprintMember_FunctionBase Interface
+};
