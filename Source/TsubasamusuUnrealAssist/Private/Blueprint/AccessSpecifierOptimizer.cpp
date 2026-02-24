@@ -1,6 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AccessSpecifierOptimizer.h"
+#include "BlueprintEditorLibrary.h"
 #include "BlueprintMember.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
@@ -325,6 +326,21 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 	}
 	
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
+}
+
+TMap<UFunction*, UK2Node_Event*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
+{
+	if (IsValid(InBlueprint))
+	{
+		auto FunctionToFindGraph = [](const FName& /*InFunctionName*/, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
+		{
+			return UBlueprintEditorLibrary::FindEventGraph(InBlueprintToFindGraph);
+		};
+	
+		return GetFunctionBaseMembers<UK2Node_Event>(InBlueprint, FunctionToFindGraph);
+	}
+	
+	return TMap<UFunction*, UK2Node_Event*>();
 }
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)

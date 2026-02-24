@@ -20,6 +20,7 @@ private:
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_Event*> GetEvents(UBlueprint* InBlueprint);
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 	
