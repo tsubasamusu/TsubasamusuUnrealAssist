@@ -80,6 +80,10 @@ public:
 	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction)
 		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction){}
 
+	//~ Begin FGCObject Interface
+	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
+	//~ End FGCObject Interface
+	
 private:
 	TObjectPtr<UFunction> Function;
 };

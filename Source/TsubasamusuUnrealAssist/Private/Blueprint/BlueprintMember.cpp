@@ -219,3 +219,9 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 
 	return false;
 }
+
+void FBlueprintMember_Function::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
+{
+	FBlueprintMember::AddReferencedObjects(InReferenceCollector);
+	InReferenceCollector.AddReferencedObject(Function);
+}
