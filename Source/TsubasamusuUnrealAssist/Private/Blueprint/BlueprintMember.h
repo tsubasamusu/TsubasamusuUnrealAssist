@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 
 struct FAccessSpecifierOptimizationRow;
+class UK2Node_FunctionEntry;
 class SAccessSpecifierOptimizationRow;
 
 class FBlueprintMember : public FGCObject
@@ -77,8 +78,8 @@ private:
 class FBlueprintMember_Function final : public FBlueprintMember
 {
 public:
-	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction)
-		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction){}
+	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_FunctionEntry> InFunctionEntryNode)
+		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction), FunctionEntryNode(InFunctionEntryNode){}
 
 	//~ Begin FGCObject Interface
 	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
@@ -86,9 +87,11 @@ public:
 	
 	//~ Begin FBlueprintMember Interface
 	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
+	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) override;
 	virtual FName GetMemberName() const override;
 	//~ End FBlueprintMember Interface
 	
 private:
 	TObjectPtr<UFunction> Function;
+	TObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
 };

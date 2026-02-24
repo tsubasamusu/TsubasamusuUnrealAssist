@@ -2,11 +2,14 @@
 
 #include "BlueprintMember.h"
 #include "K2Node_ComponentBoundEvent.h"
+#include "K2Node_FunctionEntry.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
 #include "Algo/AnyOf.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+
+#define LOCTEXT_NAMESPACE "FBlueprintMember"
 
 void FBlueprintMember::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
 {
@@ -224,6 +227,7 @@ void FBlueprintMember_Function::AddReferencedObjects(FReferenceCollector& InRefe
 {
 	FBlueprintMember::AddReferencedObjects(InReferenceCollector);
 	InReferenceCollector.AddReferencedObject(Function);
+	InReferenceCollector.AddReferencedObject(FunctionEntryNode);
 }
 
 TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Function::GetCurrentAccessSpecifier() const
@@ -244,6 +248,48 @@ TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Function::GetCurrentA
 	}
 	
 	return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+}
+
+void FBlueprintMember_Function::SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier)
+{
+	if(!IsValid(Function) || !IsValid(FunctionEntryNode) || !IsValid(OwnerBlueprint))
+	{
+		return;
+	}
+	
+	const FScopedTransaction Transaction(LOCTEXT("ChangeFunctionAccessSpecifier", "Change Function Access Specifier"));
+
+	FunctionEntryNode->Modify();
+	Function->Modify();
+
+	EFunctionFlags AccessSpecifierFlag;
+	switch (InAccessSpecifier)
+	{
+	case TsubasamusuUnrealAssist::EAccessSpecifier::Private:
+		AccessSpecifierFlag = FUNC_Private;
+		break;
+	case TsubasamusuUnrealAssist::EAccessSpecifier::Protected:
+		AccessSpecifierFlag = FUNC_Protected;
+		break;
+	case TsubasamusuUnrealAssist::EAccessSpecifier::Public:
+		AccessSpecifierFlag = FUNC_Public;
+		break;
+	default:
+		checkNoEntry();
+		return;
+	}
+
+	constexpr EFunctionFlags ClearAccessSpecifierMask = ~FUNC_AccessSpecifiers;
+	
+	int32 ExtraFlags = FunctionEntryNode->GetExtraFlags();
+	ExtraFlags &= ClearAccessSpecifierMask;
+	ExtraFlags |= AccessSpecifierFlag;
+	FunctionEntryNode->SetExtraFlags(ExtraFlags);
+
+	Function->FunctionFlags &= ClearAccessSpecifierMask;
+	Function->FunctionFlags |= AccessSpecifierFlag;
+
+	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(OwnerBlueprint);
 }
 
 FName FBlueprintMember_Function::GetMemberName() const
