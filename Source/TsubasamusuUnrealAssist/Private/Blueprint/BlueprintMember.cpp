@@ -224,14 +224,14 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 	return false;
 }
 
-void FBlueprintMember_Function::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
+void FBlueprintMember_FunctionBase::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
 {
 	FBlueprintMember::AddReferencedObjects(InReferenceCollector);
+	InReferenceCollector.AddReferencedObject(EntryNode);
 	InReferenceCollector.AddReferencedObject(Function);
-	InReferenceCollector.AddReferencedObject(FunctionEntryNode);
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Function::GetCurrentAccessSpecifier() const
+TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_FunctionBase::GetCurrentAccessSpecifier() const
 {
 	if (!IsValid(Function))
 	{
@@ -251,16 +251,16 @@ TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Function::GetCurrentA
 	return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
 }
 
-void FBlueprintMember_Function::SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier)
+void FBlueprintMember_FunctionBase::SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier)
 {
-	if(!IsValid(Function) || !IsValid(FunctionEntryNode) || !IsValid(OwnerBlueprint))
+	if(!IsValid(Function) || !IsValid(EntryNode) || !IsValid(OwnerBlueprint))
 	{
 		return;
 	}
 	
 	const FScopedTransaction Transaction(LOCTEXT("ChangeFunctionAccessSpecifier", "Change Function Access Specifier"));
 
-	FunctionEntryNode->Modify();
+	EntryNode->Modify();
 	Function->Modify();
 
 	EFunctionFlags AccessSpecifierFlag;
@@ -281,19 +281,15 @@ void FBlueprintMember_Function::SetAccessSpecifier(const TsubasamusuUnrealAssist
 	}
 
 	constexpr EFunctionFlags ClearAccessSpecifierMask = ~FUNC_AccessSpecifiers;
+	SetEntryNodeAccessSpecifier(AccessSpecifierFlag, ClearAccessSpecifierMask);
 	
-	int32 ExtraFlags = FunctionEntryNode->GetExtraFlags();
-	ExtraFlags &= ClearAccessSpecifierMask;
-	ExtraFlags |= AccessSpecifierFlag;
-	FunctionEntryNode->SetExtraFlags(ExtraFlags);
-
 	Function->FunctionFlags &= ClearAccessSpecifierMask;
 	Function->FunctionFlags |= AccessSpecifierFlag;
 
 	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(OwnerBlueprint);
 }
 
-FName FBlueprintMember_Function::GetMemberName() const
+FName FBlueprintMember_FunctionBase::GetMemberName() const
 {
 	if (IsValid(Function))
 	{
@@ -303,7 +299,7 @@ FName FBlueprintMember_Function::GetMemberName() const
 	return NAME_None;
 }
 
-bool FBlueprintMember_Function::IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const
+bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const
 {
 	if (!IsValid(Function) || !IsValid(OwnerBlueprint) || !IsValid(InBlueprint))
 	{
@@ -381,6 +377,15 @@ bool FBlueprintMember_Function::IsMemberReferencerBlueprint(const UBlueprint* In
 	}
 
 	return false;
+}
+
+void FBlueprintMember_Function::SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
+{
+	UK2Node_FunctionEntry* FunctionEntryNode = GetEntryNodeChecked<UK2Node_FunctionEntry>();
+	int32 ExtraFlags = FunctionEntryNode->GetExtraFlags();
+	ExtraFlags &= InClearAccessSpecifierMask;
+	ExtraFlags |= InAccessSpecifierFlag;
+	FunctionEntryNode->SetExtraFlags(ExtraFlags);
 }
 
 #undef LOCTEXT_NAMESPACE

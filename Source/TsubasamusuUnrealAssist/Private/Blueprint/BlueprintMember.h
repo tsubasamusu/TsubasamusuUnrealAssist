@@ -75,11 +75,11 @@ private:
 	FProperty* Variable;
 };
 
-class FBlueprintMember_Function final : public FBlueprintMember
+class FBlueprintMember_FunctionBase : public FBlueprintMember
 {
 public:
-	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_FunctionEntry> InFunctionEntryNode)
-		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction), FunctionEntryNode(InFunctionEntryNode){}
+	FBlueprintMember_FunctionBase(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction), EntryNode(InEntryNode){}
 
 	//~ Begin FGCObject Interface
 	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
@@ -96,7 +96,28 @@ protected:
 	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const override;
 	//~ End FBlueprintMember Interface
 	
+	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) = 0;
+	
+	template<typename EntryNodeType>
+	FORCEINLINE EntryNodeType* GetEntryNodeChecked() const
+	{
+		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
+		return CastChecked<EntryNodeType>(EntryNode);
+	}
+	
 private:
 	TObjectPtr<UFunction> Function;
-	TObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
+	TObjectPtr<UK2Node_EditablePinBase> EntryNode;
+};
+
+class FBlueprintMember_Function final : public FBlueprintMember_FunctionBase
+{
+public:
+	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+		: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
+
+protected:
+	//~ Begin FBlueprintMember_FunctionBase Interface
+	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) override;
+	//~ End FBlueprintMember_FunctionBase Interface
 };
