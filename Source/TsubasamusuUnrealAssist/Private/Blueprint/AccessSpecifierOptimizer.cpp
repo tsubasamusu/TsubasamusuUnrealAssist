@@ -316,11 +316,11 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 			
 			if (IsValid(FunctionGraph))
 			{
-				UK2Node_EditablePinBase* EntryNode = FindEntryNode(FunctionGraph, FunctionName);
+				UK2Node_FunctionEntry* EntryNode = FindEntryNode<UK2Node_FunctionEntry>(FunctionGraph, FunctionName);
 				
 				if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
 				{
-					Functions.Add(Function, Cast<UK2Node_FunctionEntry>(EntryNode));
+					Functions.Add(Function, EntryNode);
 				}
 			}
 		}
@@ -341,31 +341,6 @@ const UEdGraph* FAccessSpecifierOptimizer::FindGraphForFunction(const UFunction*
 			if (IsValid(Graph) && Graph->GetFName() == InFunction->GetFName())
 			{
 				return Graph;
-			}
-		}
-	}
-	
-	return nullptr;
-}
-
-UK2Node_EditablePinBase* FAccessSpecifierOptimizer::FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
-{
-	if (IsValid(InGraph))
-	{
-		TArray<UK2Node_EditablePinBase*> EditablePinNodes;
-		InGraph->GetNodesOfClass(EditablePinNodes);
-	
-		if (!EditablePinNodes.IsEmpty())
-		{
-			for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
-			{
-				if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName)
-				{
-					if (EditablePinNode->IsA<UK2Node_FunctionEntry>() || EditablePinNode->IsA<UK2Node_Event>())
-					{
-						return EditablePinNode;
-					}
-				}
 			}
 		}
 	}

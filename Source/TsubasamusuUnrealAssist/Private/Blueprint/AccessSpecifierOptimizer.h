@@ -20,7 +20,36 @@ private:
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(const UBlueprint* InBlueprint);
 	static const UEdGraph* FindGraphForFunction(const UFunction* InFunction, const UBlueprint* InFunctionOwnerBlueprint);
-	static UK2Node_EditablePinBase* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName);
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
+	
+	template<typename EntryNodeType>
+	static EntryNodeType* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
+	{
+		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
+
+		if (IsValid(InGraph))
+		{
+			TArray<UK2Node_EditablePinBase*> EditablePinNodes;
+			InGraph->GetNodesOfClass(EditablePinNodes);
+	
+			if (!EditablePinNodes.IsEmpty())
+			{
+				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
+				{
+					if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName)
+					{
+						EntryNodeType* EntryNode = Cast<EntryNodeType>(EditablePinNode);
+						
+						if (IsValid(EntryNode))
+						{
+							return EntryNode;
+						}
+					}
+				}
+			}
+		}
+	
+		return nullptr;
+	}
 };
