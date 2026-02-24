@@ -120,7 +120,7 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 		return false;
 	}
 	
-	const FName VariableNameToCheck = Variable->GetFName();
+	const FName VariableNameToCheck = GetMemberName();
 	
 	FGuid VariableGuidToCheck;
 	UBlueprint::GetGuidFromClassByFieldName<FProperty>(OwnerBlueprint->SkeletonGeneratedClass, VariableNameToCheck, VariableGuidToCheck);
@@ -140,7 +140,7 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 		
 		// Check variable nodes
 		{
-			TArray<UK2Node_Variable*> VariableNodesInGraph;
+			TArray<const UK2Node_Variable*> VariableNodesInGraph;
 			GraphToCheck->GetNodesOfClass(VariableNodesInGraph);
 		
 			auto IsVariableNodeReferencesVariable = [&VariableGuidToCheck, &VariableNameToCheck](const UK2Node_Variable* InVariableNode)
@@ -156,7 +156,7 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 
 		// Check class default nodes
 		{
-			TArray<UK2Node_GetClassDefaults*> ClassDefaultsNodesInGraph;
+			TArray<const UK2Node_GetClassDefaults*> ClassDefaultsNodesInGraph;
 			GraphToCheck->GetNodesOfClass(ClassDefaultsNodesInGraph);
 		
 			auto IsClassDefaultsNodeReferencesVariable = [&VariableNameToCheck, this](const UK2Node_GetClassDefaults* InClassDefaultsNode)
@@ -182,7 +182,7 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 
 		// Check component bound event nodes
 		{
-			TArray<UK2Node_ComponentBoundEvent*> ComponentBoundEventNodes;
+			TArray<const UK2Node_ComponentBoundEvent*> ComponentBoundEventNodes;
 			GraphToCheck->GetNodesOfClass(ComponentBoundEventNodes);
 		
 			auto IsComponentBoundEventNodeReferencesVariable = [&VariableNameToCheck](const UK2Node_ComponentBoundEvent* InComponentBoundEventNode)
