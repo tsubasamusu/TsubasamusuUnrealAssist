@@ -12,6 +12,8 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Toolkits/ToolkitManager.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "K2Node_FunctionEntry.h"
+#include "K2Node_Event.h"
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
 #include "ToolMenus.h"
@@ -304,6 +306,38 @@ const UEdGraph* FAccessSpecifierOptimizer::FindGraphForFunction(const UFunction*
 	}
 	
 	return nullptr;
+}
+
+bool FAccessSpecifierOptimizer::AccessSpecifierIsEditable(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
+{
+	if (IsValid(InGraph))
+	{
+		TArray<const UK2Node_EditablePinBase*> EditablePinNodes;
+		InGraph->GetNodesOfClass(EditablePinNodes);
+	
+		if (!EditablePinNodes.IsEmpty())
+		{
+			for (const UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
+			{
+				if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName)
+				{
+					const UBlueprint* Blueprint = EditablePinNode->GetBlueprint();
+				
+					if (IsValid(Blueprint) && FBlueprintEditorUtils::IsInterfaceBlueprint(Blueprint))
+					{
+						return false;
+					}
+					
+					if (EditablePinNode->IsEditable() && (EditablePinNode->IsA<UK2Node_FunctionEntry>() || EditablePinNode->IsA<UK2Node_Event>()))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	
+	return false;
 }
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
