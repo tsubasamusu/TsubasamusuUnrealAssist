@@ -3,6 +3,7 @@
 #include "BlueprintMember.h"
 #include "K2Node_CallFunction.h"
 #include "K2Node_ComponentBoundEvent.h"
+#include "K2Node_CreateDelegate.h"
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
@@ -354,6 +355,22 @@ bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const UBlueprint
 			};
 
 			if (Algo::AnyOf(CallFunctionNodesInGraph, IsCallFunctionNodeReferencesFunction))
+			{
+				return true;
+			}
+		}
+		
+		// Check create delegate nodes
+		{
+			TArray<const UK2Node_CreateDelegate*> CreateDelegateNodesInGraph;
+			GraphToCheck->GetNodesOfClass(CreateDelegateNodesInGraph);
+			
+			auto IsCreateDelegateNodeReferencesFunction = [&FunctionGuidToCheck, &FunctionNameToCheck](const UK2Node_CreateDelegate* InCreateDelegateNode)
+			{
+				return FunctionGuidToCheck == InCreateDelegateNode->SelectedFunctionGuid && FunctionNameToCheck == InCreateDelegateNode->GetFunctionName();
+			};
+
+			if (Algo::AnyOf(CreateDelegateNodesInGraph, IsCreateDelegateNodeReferencesFunction))
 			{
 				return true;
 			}
