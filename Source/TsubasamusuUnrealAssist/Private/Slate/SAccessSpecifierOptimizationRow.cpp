@@ -12,7 +12,7 @@ void SAccessSpecifierOptimizationRow::Construct(const FArguments& InArgs, const 
 	CheckBoxColumnId = InArgs._CheckBoxColumnId;
 	MemberNameColumnId = InArgs._MemberNameColumnId;
 	CurrentAccessSpecifierColumnId = InArgs._CurrentAccessSpecifierColumnId;
-	RecommendedAccessSpecifierColumnId = InArgs._RecommendedAccessSpecifierColumnId;
+	OptimalAccessSpecifierColumnId = InArgs._OptimalAccessSpecifierColumnId;
 	
 	SMultiColumnTableRow<TSharedPtr<FAccessSpecifierOptimizationRow>>::Construct(FSuperRowType::FArguments(), InOwnerTableView);
 }
@@ -23,14 +23,8 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	
 	if (InColumnName == CheckBoxColumnId)
 	{
-		RowItem->CheckBox = SNew(SCheckBox)
-			.IsChecked(ECheckBoxState::Checked)
-			.OnCheckStateChanged_Lambda([this](const ECheckBoxState InNewState)
-			{
-				RowItem->bSelected = InNewState == ECheckBoxState::Checked;
-			});
-		
-		ColumnContent = RowItem->CheckBox;
+		ColumnContent = SAssignNew(CheckBox, SCheckBox)
+			.IsChecked(ECheckBoxState::Checked);
 	}
 	else if (InColumnName == MemberNameColumnId)
 	{
@@ -39,14 +33,11 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	}
 	else
 	{
-		const TsubasamusuUnrealAssist::EAccessSpecifier AccessSpecifier = InColumnName == CurrentAccessSpecifierColumnId ? RowItem->CurrentAccessSpecifier : RowItem->RecommendedAccessSpecifier;
+		const TsubasamusuUnrealAssist::EAccessSpecifier AccessSpecifier = InColumnName == CurrentAccessSpecifierColumnId ? RowItem->CurrentAccessSpecifier : RowItem->OptimalAccessSpecifier;
 		FText AccessSpecifierText;
 		
 		switch (AccessSpecifier)
 		{
-		case TsubasamusuUnrealAssist::EAccessSpecifier::None:
-			AccessSpecifierText = LOCTEXT("AccessSpecifier_None", "None");
-			break;
 		case TsubasamusuUnrealAssist::EAccessSpecifier::Private:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Private", "Private");
 			break;
@@ -75,6 +66,29 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 		[
 			ColumnContent.ToSharedRef()
 		];
+}
+
+bool SAccessSpecifierOptimizationRow::IsChecked() const
+{
+	return GetCheckedState() == ECheckBoxState::Checked;
+}
+
+ECheckBoxState SAccessSpecifierOptimizationRow::GetCheckedState() const
+{
+	if (CheckBox.IsValid())
+	{
+		return CheckBox->GetCheckedState();
+	}
+	
+	return ECheckBoxState::Undetermined;
+}
+
+void SAccessSpecifierOptimizationRow::ToggleCheckedState() const
+{
+	if (CheckBox.IsValid())
+	{
+		return CheckBox->ToggleCheckedState();
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

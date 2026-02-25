@@ -5,12 +5,12 @@
 class FEditorSettingsUtility final
 {
 public:
-	template<typename T>
-	FORCEINLINE static T* GetSettingsChecked()
+	template<typename SettingsClass>
+	static SettingsClass* GetSettingsChecked()
 	{
-		static_assert(TIsDerivedFrom<T, UObject>::Value, "T must be a subclass of UObject.");
+		static_assert(TIsDerivedFrom<SettingsClass, UObject>::Value, "SettingsClass must be derived from UObject.");
 
-		T* MutableDefault = GetMutableDefault<T>();
+		SettingsClass* MutableDefault = GetMutableDefault<SettingsClass>();
 		check(IsValid(MutableDefault));
 
 		return MutableDefault;

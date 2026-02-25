@@ -7,7 +7,7 @@
 ## 概要
 個人的に Unreal Editor に欲しいと思っている機能や、「こういう機能が欲しい！」とSNSで見かけた機能をひたすら追加していくエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると、「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
 
-※このプラグインは実験的機能（Experimental）であり、このプラグインを使用したことによって生じた、いかなる問題に対しても責任を負いません。
+※このプラグインは実験的機能（Experimental）かつ[MITライセンス](https://opensource.org/license/mit)で公開しており、このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
 
 ## エンジンバージョン
 サポート対象のエンジンバージョンは以下の通りです。
@@ -438,10 +438,13 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 | Also Preview Advanced View  | デフォルトで折り畳まれているピンをプレビューに表示するかどうか。例えば PrintString ノードの TextColor や Duration、Key などがそれにあたります。 |
 
 ### Access Specifier Optimizer
-このプラグインを有効化してブループリントエディタを開くと、「Optimize Access Specifiers」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されているメンバの中でアクセス修飾子を変更した方がいいものが一覧で表示されます。例えば、そのクラス内でしか参照されていないにも関わらず、アクセス修飾子が Private になっていないものや、他のクラスから参照されていてもそれらのクラスが基のクラスの派生クラスしかないにも関わらず、アクセス修飾子が Public になっているものなどです。アクセス修飾子を変更したいメンバにチェックを付けて「Apply Recommended Access Specifiers」というボタンを押すと、それらのメンバに最適なアクセス修飾子を一括で適用することができます。
-（現在、この機能は変数に対してのみ使用可能です。）
+このプラグインを有効化してブループリントエディタを開くと、「Optimize Access Specifiers」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されているメンバの中でアクセス修飾子を変更した方がいいものが一覧で表示されます。例えば、そのクラス内でしか参照されていないにも関わらず、アクセス修飾子が Private になっていないものや、他のクラスから参照されていてもそれらのクラスが基のクラスの派生クラスしかないにも関わらず、アクセス修飾子が Public になっているものなどです。アクセス修飾子を変更したいメンバにチェックを付けて「Apply Optimal Access Specifiers」というボタンを押すと、それらのメンバに最適なアクセス修飾子を一括で適用することができます。
 
-<img width="700" src="https://github.com/user-attachments/assets/14ec6a38-4500-4ad8-bbf0-e1fada49e808">
+※「Access Specifier Optimizer」は UE 5.3 以降のエンジンバージョンでのみ、カスタムイベントに対応しています。
+
+※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
+
+<img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
 
 ## Editor Utility 用のノード
 ### Async Replace References
@@ -454,7 +457,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 <img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
 
-## その他
+## その他の機能
 ### Recommended Editor Settings Applier
 このプラグインを有効化すると、「Apply Recommended Editor Settings」という名前のプロパティと、「Apply」と書かれたボタンが「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ General」に表示されます。このボタンをクリックすると、[このプラグインの開発者](https://x.com/tsubasamusu)が個人的に推奨しているエディタ設定を一括で適用することができます。具体的な設定内容は以下の通りです。
 

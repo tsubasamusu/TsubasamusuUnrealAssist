@@ -229,5 +229,5 @@ bool FNodeInformationUtility::IsPinUsesDefaultValue(const UEdGraphPin* InPin)
 
 bool FNodeInformationUtility::IsCommentNode(const UEdGraphNode* InNode)
 {
-	return IsValid(Cast<UEdGraphNode_Comment>(InNode));
+	return InNode->IsA<UEdGraphNode_Comment>();
 }

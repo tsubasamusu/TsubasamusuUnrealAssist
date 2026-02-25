@@ -11,14 +11,6 @@ namespace TsubasamusuUnrealAssist
 		Close
 	};
 	
-	enum class EBlueprintMember : uint8
-	{
-		None,
-		Variable,
-		Function,
-		CustomEvent
-	};
-	
 	enum class EAccessSpecifier : uint8
 	{
 		None,

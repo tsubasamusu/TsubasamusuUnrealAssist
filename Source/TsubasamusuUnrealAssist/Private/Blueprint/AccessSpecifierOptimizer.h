@@ -2,9 +2,11 @@
 
 #pragma once
 
-#include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "BlueprintEditor.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 #include "CoreMinimal.h"
+
+class FBlueprintMember;
 
 class FAccessSpecifierOptimizer final
 {
@@ -15,14 +17,69 @@ private:
 	static void RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
 	static void OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
 	
+	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
-	static void RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* InVariablesOwnerBlueprint);
+	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_CustomEvent*> GetEvents(UBlueprint* InBlueprint);
+	
+	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
+	
+	template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
+	static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+	{
+		TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
+	
+		for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
+		{
+			UFunction* Function = *FunctionFieldIterator;
+		
+			if (IsValid(Function))
+			{
+				const FName FunctionName = Function->GetFName();
+				const UEdGraph* Graph = InFunctionToFindGraph(FunctionName, InBlueprint);
+			
+				if (IsValid(Graph))
+				{
+					EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(Graph, FunctionName, InFunctionToCheckEditablePinNode);
+					
+					if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
+					{
+						FunctionBaseMembers.Add(Function, EntryNode);
+					}
+				}
+			}
+		}
+	
+		return FunctionBaseMembers;
+	}
+	
+	template<typename EntryNodeType, typename FunctionToCheckEditablePinNode>
+	static EntryNodeType* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+	{
+		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
 
-	static TsubasamusuUnrealAssist::EAccessSpecifier GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint);
-	static TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint);
+		if (IsValid(InGraph))
+		{
+			TArray<UK2Node_EditablePinBase*> EditablePinNodes;
+			InGraph->GetNodesOfClass(EditablePinNodes);
 	
-	static TArray<UBlueprint*> GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint, const bool bInExcludeVariableOwnerBlueprint = true);
-	static TArray<UBlueprint*> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
+			if (!EditablePinNodes.IsEmpty())
+			{
+				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
+				{
+					if (InFunctionToCheckEditablePinNode(InFunctionOrEventName, EditablePinNode))
+					{
+						EntryNodeType* EntryNode = Cast<EntryNodeType>(EditablePinNode);
+						
+						if (IsValid(EntryNode))
+						{
+							return EntryNode;
+						}
+					}
+				}
+			}
+		}
 	
-	static bool IsBlueprintReferencesVariable(const UBlueprint* InBlueprintToCheck, const FProperty* InVariableToCheck, const UBlueprint* InVariableOwnerBlueprint);
+		return nullptr;
+	}
 };

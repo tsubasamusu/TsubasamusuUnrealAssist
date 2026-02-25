@@ -1,9 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AccessSpecifierOptimizer.h"
-#include "K2Node_ComponentBoundEvent.h"
-#include "K2Node_GetClassDefaults.h"
-#include "K2Node_Variable.h"
+#include "BlueprintMember.h"
+#include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
@@ -14,6 +13,8 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Toolkits/ToolkitManager.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "K2Node_FunctionEntry.h"
+#include "K2Node_Event.h"
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
 #include "ToolMenus.h"
@@ -70,41 +71,39 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 	UBlueprint* CurrentlyOpenBlueprint = InBlueprintEditor->GetBlueprintObj();
 	check(IsValid(CurrentlyOpenBlueprint));
 	
-	TArray<FProperty*> Variables = GetVariables(CurrentlyOpenBlueprint);
+	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(CurrentlyOpenBlueprint);
 	
-	if (Variables.IsEmpty())
+	if (!Members.IsValid() || Members->IsEmpty())
 	{
-		const FText NotificationText = LOCTEXT("NoVariablesToCheck", "No variables to check for.");
+		const FText NotificationText = LOCTEXT("NoMembersToCheck", "No members to check for.");
 		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
 		return;
 	}
 	
-	RemoveVariablesShouldNotBePrivate(Variables, CurrentlyOpenBlueprint);
-	
-	if (Variables.IsEmpty())
+	// Remove members that already have the optimal access specifier set
+	Members->RemoveAll([](const TSharedPtr<FBlueprintMember> InMember)
 	{
-		const FText NotificationText = LOCTEXT("NoVariablesShouldBePrivate", "There are no variables that should be private.");
+		return InMember->GetCurrentAccessSpecifier() == InMember->GetOptimalAccessSpecifier();
+	});
+	
+	if (Members->IsEmpty())
+	{
+		const FText NotificationText = LOCTEXT("NoMembersShouldChangeAccessSpecifier", "There are no members that should change access specifier.");
 		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
 		return;
-	}
-	
-	TSharedPtr<TArray<TSharedPtr<FAccessSpecifierOptimizationRow>>> RowItems = MakeShared<TArray<TSharedPtr<FAccessSpecifierOptimizationRow>>>();
-	
-	for (const FProperty* Variable : Variables)
-	{
-		const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem = MakeShared<FAccessSpecifierOptimizationRow>(
-			Variable->GetFName(),
-			TsubasamusuUnrealAssist::EBlueprintMember::Variable,
-			GetCurrentAccessSpecifier(Variable, CurrentlyOpenBlueprint),
-			GetOptimalAccessSpecifier(Variable, CurrentlyOpenBlueprint));
-		
-		RowItems->Add(RowItem);
 	}
 
+	const TSharedPtr<TArray<TSharedPtr<FAccessSpecifierOptimizationRow>>> RowItems = MakeShared<TArray<TSharedPtr<FAccessSpecifierOptimizationRow>>>();
+	
+	for (const TSharedPtr<FBlueprintMember> Member : *Members)
+	{
+		RowItems->Add(Member->GetAccessSpecifierOptimizationRow());
+	}
+	
 	const FName CheckBoxColumnId = TEXT("CheckBox");
 	const FName MemberNameColumnId = TEXT("MemberName");
 	const FName CurrentAccessSpecifierColumnId = TEXT("CurrentAccessSpecifier");
-	const FName RecommendedAccessSpecifierColumnId = TEXT("RecommendedAccessSpecifier");
+	const FName OptimalAccessSpecifierColumnId = TEXT("OptimalAccessSpecifier");
 	
 	const TSharedRef<SListView<TSharedPtr<FAccessSpecifierOptimizationRow>>> DialogContent = SNew(SListView<TSharedPtr<FAccessSpecifierOptimizationRow>>)
 		.ListItemsSource(RowItems.Get())
@@ -119,47 +118,46 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 				.HAlign(HAlign_Center)
 				[
 					SNew(SCheckBox)
-					.IsChecked_Lambda([RowItems]()
+					.IsChecked_Lambda([Members]()
 					{
-						bool bFoundSelectedRowItem = false;
-						bool bFoundUnselectedRowItem = false;
+						bool bFoundCheckedRowItem = false;
 
-						if (RowItems.IsValid())
+						if (Members.IsValid())
 						{
-							for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
+							for (const TSharedPtr<FBlueprintMember> Member : *Members)
 							{
-								if (!RowItem.IsValid())
+								bool bFoundUncheckedRowItem = false;
+								
+								if (Member->AccessSpecifierOptimizationRowWidget.IsValid())
 								{
-									continue;
+									if (Member->AccessSpecifierOptimizationRowWidget->IsChecked())
+									{
+										bFoundCheckedRowItem = true;
+									}
+									else
+									{
+										bFoundUncheckedRowItem = true;
+									}
 								}
 
-								if (RowItem->bSelected)
-								{
-									bFoundSelectedRowItem = true;
-								}
-								else
-								{
-									bFoundUnselectedRowItem = true;
-								}
-
-								if (bFoundSelectedRowItem && bFoundUnselectedRowItem)
+								if (bFoundCheckedRowItem && bFoundUncheckedRowItem)
 								{
 									return ECheckBoxState::Undetermined;
 								}
 							}
 						}
 
-						return bFoundSelectedRowItem ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
+						return bFoundCheckedRowItem ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
 					})
-					.OnCheckStateChanged_Lambda([RowItems](const ECheckBoxState InNewState)
+					.OnCheckStateChanged_Lambda([Members](const ECheckBoxState InNewState)
 					{
 						if (InNewState != ECheckBoxState::Undetermined)
 						{
-							for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
+							for (const TSharedPtr<FBlueprintMember> Member : *Members)
 							{
-								if (RowItem->CheckBox.IsValid() && RowItem->CheckBox->GetCheckedState() != InNewState)
+								if (Member->AccessSpecifierOptimizationRowWidget.IsValid() && Member->AccessSpecifierOptimizationRowWidget->GetCheckedState() != InNewState)
 								{
-							  		RowItem->CheckBox->ToggleCheckedState();
+							  		Member->AccessSpecifierOptimizationRowWidget->ToggleCheckedState();
 								}
 							}
 						}
@@ -173,39 +171,46 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 			.DefaultLabel(LOCTEXT("HeaderLabel_CurrentAccessSpecifier", "Current"))
 			.HAlignHeader(HAlign_Center)
 			.FixedWidth(80.f)
-			+ SHeaderRow::Column(RecommendedAccessSpecifierColumnId)
-			.DefaultLabel(LOCTEXT("HeaderLabel_RecommendedAccessSpecifier", "Recommended"))
+			+ SHeaderRow::Column(OptimalAccessSpecifierColumnId)
+			.DefaultLabel(LOCTEXT("HeaderLabel_OptimalAccessSpecifier", "Optimal"))
 			.HAlignHeader(HAlign_Center)
-			.FixedWidth(110.f)
+			.FixedWidth(80.f)
 		)
-		.OnGenerateRow_Lambda([&CheckBoxColumnId, &MemberNameColumnId, &CurrentAccessSpecifierColumnId, &RecommendedAccessSpecifierColumnId](const TSharedPtr<FAccessSpecifierOptimizationRow> InRowItem, const TSharedRef<STableViewBase>& InOwnerTableView)
+		.OnGenerateRow_Lambda([CheckBoxColumnId, MemberNameColumnId, CurrentAccessSpecifierColumnId, OptimalAccessSpecifierColumnId, Members](const TSharedPtr<FAccessSpecifierOptimizationRow> InRowItem, const TSharedRef<STableViewBase>& InOwnerTableView)
 		{
-			return SNew(SAccessSpecifierOptimizationRow, InOwnerTableView)
+			TSharedRef<SAccessSpecifierOptimizationRow> AccessSpecifierOptimizationRowWidget = SNew(SAccessSpecifierOptimizationRow, InOwnerTableView)
 				.RowItem(InRowItem)
 				.CheckBoxColumnId(CheckBoxColumnId)
 				.MemberNameColumnId(MemberNameColumnId)
 				.CurrentAccessSpecifierColumnId(CurrentAccessSpecifierColumnId)
-				.RecommendedAccessSpecifierColumnId(RecommendedAccessSpecifierColumnId);
+				.OptimalAccessSpecifierColumnId(OptimalAccessSpecifierColumnId);
+			
+			const TSharedPtr<FBlueprintMember>* Member = Members->FindByPredicate([InRowItem](const TSharedPtr<FBlueprintMember> InMember)
+			{
+				return InMember->GetMemberName() == InRowItem->MemberName;
+			});
+			
+			check(Member && Member->IsValid())
+			(*Member)->AccessSpecifierOptimizationRowWidget = AccessSpecifierOptimizationRowWidget;
+			
+			return AccessSpecifierOptimizationRowWidget;
 		});
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
-	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([RowItems]()
+	auto IsCheckedMember = [](const TSharedPtr<FBlueprintMember> InMember)
 	{
-		for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
-		{
-			if (RowItem->bSelected)
-			{
-				return true;
-			}
-		}
-		
-		return false;
+		return InMember->AccessSpecifierOptimizationRowWidget.IsValid() && InMember->AccessSpecifierOptimizationRowWidget->IsChecked();
+	};
+
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
+	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([Members, &IsCheckedMember]()
+	{
+		return Algo::AnyOf(*Members, IsCheckedMember);
 	});
 #endif
 	
 	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
 	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
-	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Recommended Access Specifiers");
+	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Optimal Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
@@ -214,61 +219,96 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
 #endif
 	
-	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK)
+	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
 	{
 		return;
 	}
 	
-	auto IsSelectedRowItem = [](const TSharedPtr<FAccessSpecifierOptimizationRow> InRowItem)
+	for (const TSharedPtr<FBlueprintMember> Member : *Members)
 	{
-		return InRowItem->bSelected;
-	};
-
-	if (!Algo::AnyOf(*RowItems, IsSelectedRowItem))
-	{
-		return;
-	}
-	
-	for (const TSharedPtr<FAccessSpecifierOptimizationRow> RowItem : *RowItems)
-	{
-		if (!RowItem->bSelected)
+		if (IsCheckedMember(Member))
 		{
-			continue;
-		}
-		
-		if (RowItem->MemberType == TsubasamusuUnrealAssist::EBlueprintMember::Variable)
-		{
-			FBlueprintEditorUtils::SetBlueprintVariableMetaData(CurrentlyOpenBlueprint, RowItem->MemberName, nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
+			const TsubasamusuUnrealAssist::EAccessSpecifier OptimalAccessSpecifier = Member->GetOptimalAccessSpecifier();
+			Member->SetAccessSpecifier(OptimalAccessSpecifier);
 		}
 	}
 	
-	const FText NotificationText = LOCTEXT("SuccessfullyAppliedRecommendedAccessSpecifiers", "Successfully applied recommended access specifiers.");
+	const FText NotificationText = LOCTEXT("SuccessfullyAppliedOptimalAccessSpecifiers", "Successfully applied optimal access specifiers.");
 	FEditorMessageUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
+}
+
+TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetMembers(UBlueprint* InBlueprint)
+{
+	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = MakeShared<TArray<TSharedPtr<FBlueprintMember>>>();
+	const TArray<TObjectPtr<const UBlueprint>> ReferencerBlueprints = GetReferencerBlueprints(InBlueprint);
+	
+	// Variables
+	{
+		const TArray<FProperty*> Variables = GetVariables(InBlueprint);
+		
+		for (FProperty* Variable : Variables)
+		{
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Variable>(InBlueprint, ReferencerBlueprints, Variable);
+			Member->Initialize();
+			Members->Add(Member);
+		}
+	}
+	
+	// Functions
+	{
+		const TMap<UFunction*, UK2Node_FunctionEntry*> Functions = GetFunctions(InBlueprint);
+		
+		for (TPair<UFunction*, UK2Node_FunctionEntry*> Function : Functions)
+		{
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function.Key, Function.Value);
+			Member->Initialize();
+			Members->Add(Member);
+		}
+	}
+	
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+	// Events
+	{
+		const TMap<UFunction*, UK2Node_CustomEvent*> Events = GetEvents(InBlueprint);
+		
+		for (TPair<UFunction*, UK2Node_CustomEvent*> Event : Events)
+		{
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Event>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
+			Member->Initialize();
+			Members->Add(Member);
+		}
+	}
+#endif
+	
+	return Members;
 }
 
 TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InBlueprint)
 {
 	TArray<FProperty*> Variables;
 	
-	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIteratorFlags::ExcludeSuper); PropertyFieldIterator; ++PropertyFieldIterator)
+	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); PropertyFieldIterator; ++PropertyFieldIterator)
 	{
 		FProperty* Property = *PropertyFieldIterator;
 		
-		const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
-		const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
-		const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
-		
-		if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
+		if (Property)
 		{
-			const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
-			const bool bFoundVariable = VariableIndex != INDEX_NONE;
-
-			const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
-			const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
-	
-			if (bFoundVariable && !bIsTimelineComponent)
+			const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
+			const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
+			const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
+		
+			if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
 			{
-				Variables.Add(Property);
+				const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
+				const bool bFoundVariable = VariableIndex != INDEX_NONE;
+
+				const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
+				const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
+	
+				if (bFoundVariable && !bIsTimelineComponent)
+				{
+					Variables.Add(Property);
+				}
 			}
 		}
 	}
@@ -276,68 +316,79 @@ TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InB
 	return Variables;
 }
 
-void FAccessSpecifierOptimizer::RemoveVariablesShouldNotBePrivate(TArray<FProperty*>& OutVariables, const UBlueprint* InVariablesOwnerBlueprint)
+TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(UBlueprint* InBlueprint)
 {
-	OutVariables.RemoveAll([InVariablesOwnerBlueprint](const FProperty* InVariable)
+	if (IsValid(InBlueprint))
 	{
-		FString PrivateMetaDataValue;
-		FBlueprintEditorUtils::GetBlueprintVariableMetaData(InVariablesOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
-		
-		return PrivateMetaDataValue == TEXT("true") || !GetBlueprintsReferenceVariable(InVariable, InVariablesOwnerBlueprint).IsEmpty();
-	});
-}
-
-TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetOptimalAccessSpecifier(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint)
-{
-	const TArray<UBlueprint*> BlueprintsReferencesVariable = GetBlueprintsReferenceVariable(InVariable, InVariableOwnerBlueprint);
-	
-	if (BlueprintsReferencesVariable.IsEmpty())
-	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
-	}
-	
-	for (const UBlueprint* BlueprintReferencesVariable : BlueprintsReferencesVariable)
-	{
-		const UClass* BlueprintReferencesVariableClass = BlueprintReferencesVariable->GeneratedClass;
-		const UClass* VariableOwnerBlueprintClass = InVariableOwnerBlueprint->GeneratedClass;
-		
-		if (!BlueprintReferencesVariableClass->IsChildOf(VariableOwnerBlueprintClass))
+		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
 		{
-			return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
-		}
-	}
-	
-	return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
-}
-
-TsubasamusuUnrealAssist::EAccessSpecifier FAccessSpecifierOptimizer::GetCurrentAccessSpecifier(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint)
-{
-	FString PrivateMetaDataValue;
-	FBlueprintEditorUtils::GetBlueprintVariableMetaData(InVariableOwnerBlueprint, InVariable->GetFName(), nullptr, FBlueprintMetadata::MD_Private, PrivateMetaDataValue);
+			for (const TObjectPtr<UEdGraph> FunctionGraph : InBlueprintToFindGraph->FunctionGraphs)
+			{
+				if (IsValid(FunctionGraph) && FunctionGraph->GetFName() == InFunctionName)
+				{
+					return FunctionGraph;
+				}
+			}
 		
-	return PrivateMetaDataValue == TEXT("true") ? TsubasamusuUnrealAssist::EAccessSpecifier::Private : TsubasamusuUnrealAssist::EAccessSpecifier::Public;
-}
-
-TArray<UBlueprint*> FAccessSpecifierOptimizer::GetBlueprintsReferenceVariable(const FProperty* InVariable, const UBlueprint* InVariableOwnerBlueprint, const bool bInExcludeVariableOwnerBlueprint)
-{
-	TArray<UBlueprint*> BlueprintsReferenceVariable = GetReferencerBlueprints(InVariableOwnerBlueprint);
+			return nullptr;
+		};
+		
+		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+		{
+			return IsValid(InEditablePinNode) && InEditablePinNode->IsA<UK2Node_FunctionEntry>();
+		};
 	
-	BlueprintsReferenceVariable.RemoveAll([InVariable, InVariableOwnerBlueprint](const UBlueprint* InReferencerBlueprint)
-	{
-		return !IsBlueprintReferencesVariable(InReferencerBlueprint, InVariable, InVariableOwnerBlueprint);
-	});
-	
-	if (!bInExcludeVariableOwnerBlueprint)
-	{
-		BlueprintsReferenceVariable.AddUnique(const_cast<UBlueprint*>(InVariableOwnerBlueprint));
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
 	}
 	
-	return BlueprintsReferenceVariable;
+	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
-TArray<UBlueprint*> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
+TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
 {
-	TArray<UBlueprint*> ReferencerBlueprints;
+	if (IsValid(InBlueprint))
+	{
+		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
+		{
+			return IsValid(InEditablePinNode) &&
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
+#else 
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
+#endif
+		};
+		
+		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
+		{
+			for (const TObjectPtr<UEdGraph> EventGraph : InBlueprintToFindGraph->UbergraphPages)
+			{
+				if (IsValid(EventGraph))
+				{
+					TArray<UK2Node_CustomEvent*> CustomEventNodes;
+					EventGraph->GetNodesOfClass(CustomEventNodes);
+				
+					for (const UK2Node_CustomEvent* CustomEventNode : CustomEventNodes)
+					{
+						if (FunctionToCheckEditablePinNode(InFunctionName, CustomEventNode))
+						{
+							return EventGraph;
+						}
+					}
+				}
+			}
+
+			return nullptr;
+		};
+	
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_CustomEvent>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
+	}
+	
+	return TMap<UFunction*, UK2Node_CustomEvent*>();
+}
+
+TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
+{
+	TArray<TObjectPtr<const UBlueprint>> ReferencerBlueprints;
 	
 	const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 	
@@ -389,108 +440,6 @@ TArray<UBlueprint*> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBl
 	}
 	
 	return ReferencerBlueprints;
-}
-
-bool FAccessSpecifierOptimizer::IsBlueprintReferencesVariable(const UBlueprint* InBlueprintToCheck, const FProperty* InVariableToCheck, const UBlueprint* InVariableOwnerBlueprint)
-{
-	const FName VariableNameToCheck = InVariableToCheck->GetFName();
-	
-	FGuid VariableGuidToCheck;
-	UBlueprint::GetGuidFromClassByFieldName<FProperty>(InVariableOwnerBlueprint->SkeletonGeneratedClass, VariableNameToCheck, VariableGuidToCheck);
-	check(VariableGuidToCheck.IsValid());
-	
-	TArray<UEdGraph*> AllGraphsToCheck;
-	InBlueprintToCheck->GetAllGraphs(AllGraphsToCheck);
-
-	for (TArray<UEdGraph*>::TConstIterator GraphConstIterator(AllGraphsToCheck); GraphConstIterator; ++GraphConstIterator)
-	{
-		const UEdGraph* GraphToCheck = *GraphConstIterator;
-
-		if (!IsValid(GraphToCheck))
-		{
-			continue;
-		}
-		
-		// Check variable nodes
-		{
-			TArray<UK2Node_Variable*> VariableNodesInGraph;
-			GraphToCheck->GetNodesOfClass(VariableNodesInGraph);
-		
-			auto IsVariableNodeReferencesVariable = [&VariableGuidToCheck, &VariableNameToCheck](const UK2Node_Variable* InVariableNode)
-			{
-				return VariableGuidToCheck == InVariableNode->VariableReference.GetMemberGuid() && VariableNameToCheck == InVariableNode->GetVarName();
-			};
-
-			if (Algo::AnyOf(VariableNodesInGraph, IsVariableNodeReferencesVariable))
-			{
-				return true;
-			}
-		}
-
-		// Check class default nodes
-		{
-			TArray<UK2Node_GetClassDefaults*> ClassDefaultsNodesInGraph;
-			GraphToCheck->GetNodesOfClass(ClassDefaultsNodesInGraph);
-		
-			auto IsClassDefaultsNodeReferencesVariable = [&VariableNameToCheck, &InVariableOwnerBlueprint](const UK2Node_GetClassDefaults* InClassDefaultsNode)
-			{
-				if (InClassDefaultsNode->GetInputClass() == InVariableOwnerBlueprint->SkeletonGeneratedClass)
-				{
-					const UEdGraphPin* VariablePin = InClassDefaultsNode->FindPin(VariableNameToCheck);
-				
-					if (VariablePin && VariablePin->Direction == EGPD_Output && VariablePin->LinkedTo.Num() > 0)
-					{
-						return true;
-					}
-				}
-
-				return false;
-			};
-		
-			if (Algo::AnyOf(ClassDefaultsNodesInGraph, IsClassDefaultsNodeReferencesVariable))
-			{
-				return true;
-			}
-		}
-
-		// Check component bound event nodes
-		{
-			TArray<UK2Node_ComponentBoundEvent*> ComponentBoundEventNodes;
-			GraphToCheck->GetNodesOfClass(ComponentBoundEventNodes);
-		
-			auto IsComponentBoundEventNodeReferencesVariable = [&VariableNameToCheck](const UK2Node_ComponentBoundEvent* InComponentBoundEventNode)
-			{
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
-				return InComponentBoundEventNode->GetComponentPropertyName() == VariableNameToCheck;
-#else
-				return InComponentBoundEventNode->ComponentPropertyName == VariableNameToCheck;
-#endif
-			};
-		
-			if (Algo::AnyOf(ComponentBoundEventNodes, IsComponentBoundEventNodeReferencesVariable))
-			{
-				return true;
-			}
-		}
-
-		// Check other K2 nodes
-		{
-			TArray<const UK2Node*> NodesInGraph;
-			GraphToCheck->GetNodesOfClass(NodesInGraph);
-		
-			auto IsNodeReferencesVariable = [&VariableNameToCheck, &InVariableOwnerBlueprint](const UK2Node* InNode)
-			{
-				return InNode->ReferencesVariable(VariableNameToCheck, InVariableOwnerBlueprint->SkeletonGeneratedClass);
-			};
-		
-			if (Algo::AnyOf(NodesInGraph, IsNodeReferencesVariable))
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 #undef LOCTEXT_NAMESPACE

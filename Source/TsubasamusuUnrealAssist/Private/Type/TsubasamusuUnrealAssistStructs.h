@@ -185,20 +185,13 @@ struct FAccessSpecifierOptimizationRow
 public:
 	explicit FAccessSpecifierOptimizationRow(
 		const FName& InMemberName = NAME_None,
-		const TsubasamusuUnrealAssist::EBlueprintMember InMemberType = TsubasamusuUnrealAssist::EBlueprintMember::None,
 		const TsubasamusuUnrealAssist::EAccessSpecifier InCurrentAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InRecommendedAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None,
-		const bool bInSelected = true)
+		const TsubasamusuUnrealAssist::EAccessSpecifier InOptimalAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None)
 		: MemberName(InMemberName),
-		  MemberType(InMemberType),
 		  CurrentAccessSpecifier(InCurrentAccessSpecifier),
-		  RecommendedAccessSpecifier(InRecommendedAccessSpecifier),
-		  bSelected(bInSelected) {}
+		  OptimalAccessSpecifier(InOptimalAccessSpecifier) {}
 	
 	FName MemberName;
-	TsubasamusuUnrealAssist::EBlueprintMember MemberType;
 	TsubasamusuUnrealAssist::EAccessSpecifier CurrentAccessSpecifier;
-	TsubasamusuUnrealAssist::EAccessSpecifier RecommendedAccessSpecifier;
-	bool bSelected;
-	TSharedPtr<SCheckBox> CheckBox;
+	TsubasamusuUnrealAssist::EAccessSpecifier OptimalAccessSpecifier;
 };
