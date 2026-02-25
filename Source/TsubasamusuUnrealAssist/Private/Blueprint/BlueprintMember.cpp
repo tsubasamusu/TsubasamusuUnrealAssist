@@ -4,6 +4,7 @@
 #include "K2Node_CallFunction.h"
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_CreateDelegate.h"
+#include "K2Node_CustomEvent.h"
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
@@ -407,7 +408,7 @@ void FBlueprintMember_Function::SetEntryNodeAccessSpecifier(const EFunctionFlags
 
 void FBlueprintMember_Event::SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
 {
-	UK2Node_Event* EventEntryNode = GetEntryNodeChecked<UK2Node_Event>();
+	UK2Node_CustomEvent* EventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
 	EventEntryNode->FunctionFlags &= InClearAccessSpecifierMask;
 	EventEntryNode->FunctionFlags |= InAccessSpecifierFlag;
 }

@@ -269,9 +269,9 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
 	// Events
 	{
-		const TMap<UFunction*, UK2Node_Event*> Events = GetEvents(InBlueprint);
+		const TMap<UFunction*, UK2Node_CustomEvent*> Events = GetEvents(InBlueprint);
 		
-		for (TPair<UFunction*, UK2Node_Event*> Event : Events)
+		for (TPair<UFunction*, UK2Node_CustomEvent*> Event : Events)
 		{
 			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Event>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
 			Member->Initialize();
@@ -344,7 +344,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
-TMap<UFunction*, UK2Node_Event*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
+TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
 	{
@@ -380,10 +380,10 @@ TMap<UFunction*, UK2Node_Event*> FAccessSpecifierOptimizer::GetEvents(UBlueprint
 			return nullptr;
 		};
 	
-		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_Event>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_CustomEvent>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
 	}
 	
-	return TMap<UFunction*, UK2Node_Event*>();
+	return TMap<UFunction*, UK2Node_CustomEvent*>();
 }
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
