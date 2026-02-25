@@ -1,8 +1,8 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AccessSpecifierOptimizer.h"
-#include "BlueprintEditorLibrary.h"
 #include "BlueprintMember.h"
+#include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
@@ -348,19 +348,36 @@ TMap<UFunction*, UK2Node_Event*> FAccessSpecifierOptimizer::GetEvents(UBlueprint
 {
 	if (IsValid(InBlueprint))
 	{
-		auto FunctionToFindGraph = [](const FName& /*InFunctionName*/, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
-		{
-			return UBlueprintEditorLibrary::FindEventGraph(InBlueprintToFindGraph);
-		};
-	
 		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
 		{
 			return IsValid(InEditablePinNode) &&
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
-					InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
 #else 
-					InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
 #endif
+		};
+		
+		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
+		{
+			for (const TObjectPtr<UEdGraph> EventGraph : InBlueprintToFindGraph->UbergraphPages)
+			{
+				if (IsValid(EventGraph))
+				{
+					TArray<UK2Node_CustomEvent*> CustomEventNodes;
+					EventGraph->GetNodesOfClass(CustomEventNodes);
+				
+					for (const UK2Node_CustomEvent* CustomEventNode : CustomEventNodes)
+					{
+						if (FunctionToCheckEditablePinNode(InFunctionName, CustomEventNode))
+						{
+							return EventGraph;
+						}
+					}
+				}
+			}
+
+			return nullptr;
 		};
 	
 		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_Event>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
