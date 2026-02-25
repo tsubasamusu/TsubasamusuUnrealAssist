@@ -335,8 +335,13 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 		
 			return nullptr;
 		};
+		
+		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+		{
+			return IsValid(InEditablePinNode) && InEditablePinNode->IsA<UK2Node_FunctionEntry>();
+		};
 	
-		return GetFunctionBaseMembers<UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph);
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
 	}
 	
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
@@ -351,7 +356,17 @@ TMap<UFunction*, UK2Node_Event*> FAccessSpecifierOptimizer::GetEvents(UBlueprint
 			return UBlueprintEditorLibrary::FindEventGraph(InBlueprintToFindGraph);
 		};
 	
-		return GetFunctionBaseMembers<UK2Node_Event>(InBlueprint, FunctionToFindGraph);
+		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
+		{
+			return IsValid(InEditablePinNode) &&
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+					InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
+#else 
+					InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
+#endif
+		};
+	
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_Event>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
 	}
 	
 	return TMap<UFunction*, UK2Node_Event*>();

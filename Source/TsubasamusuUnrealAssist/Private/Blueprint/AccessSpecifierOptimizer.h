@@ -24,8 +24,8 @@ private:
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 	
-	template<typename EntryNodeType, typename FunctionToFindGraph>
-	static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph)
+	template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
+	static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{
 		TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
 	
@@ -40,8 +40,8 @@ private:
 			
 				if (IsValid(Graph))
 				{
-					EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(Graph, FunctionName);
-				
+					EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(Graph, FunctionName, InFunctionToCheckEditablePinNode);
+					
 					if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
 					{
 						FunctionBaseMembers.Add(Function, EntryNode);
@@ -53,8 +53,8 @@ private:
 		return FunctionBaseMembers;
 	}
 	
-	template<typename EntryNodeType>
-	static EntryNodeType* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName)
+	template<typename EntryNodeType, typename FunctionToCheckEditablePinNode>
+	static EntryNodeType* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{
 		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
 
@@ -67,11 +67,7 @@ private:
 			{
 				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
 				{
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
-					if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName)
-#else
-					if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString())
-#endif
+					if (InFunctionToCheckEditablePinNode(InFunctionOrEventName, EditablePinNode))
 					{
 						EntryNodeType* EntryNode = Cast<EntryNodeType>(EditablePinNode);
 						
