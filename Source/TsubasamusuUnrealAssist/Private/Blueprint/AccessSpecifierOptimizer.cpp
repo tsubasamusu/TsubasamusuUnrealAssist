@@ -266,6 +266,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		}
 	}
 	
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
 	// Events
 	{
 		const TMap<UFunction*, UK2Node_Event*> Events = GetEvents(InBlueprint);
@@ -277,6 +278,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 			Members->Add(Member);
 		}
 	}
+#endif
 	
 	return Members;
 }
