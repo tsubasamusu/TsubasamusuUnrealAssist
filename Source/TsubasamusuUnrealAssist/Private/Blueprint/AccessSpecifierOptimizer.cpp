@@ -121,13 +121,13 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedP
 					.IsChecked_Lambda([Members]()
 					{
 						bool bFoundCheckedRowItem = false;
-
+						// ReSharper disable once CppTooWideScope
+						bool bFoundUncheckedRowItem = false;
+								
 						if (Members.IsValid())
 						{
 							for (const TSharedPtr<FBlueprintMember> Member : *Members)
 							{
-								bool bFoundUncheckedRowItem = false;
-								
 								if (Member->AccessSpecifierOptimizationRowWidget.IsValid())
 								{
 									if (Member->AccessSpecifierOptimizationRowWidget->IsChecked())
