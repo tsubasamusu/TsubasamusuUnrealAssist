@@ -142,41 +142,30 @@ TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 
 TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
 {
-	TSharedPtr<SWidget> TargetWidget = InWidget;
+	const TSharedPtr<STableRow<TSharedPtr<FGraphActionNode>>> TableRow = FindParentWidget<STableRow<TSharedPtr<FGraphActionNode>>>(InWidget, TEXT("STableRow< TSharedPtr<FGraphActionNode> >"));
 	
-	while (true)
+	if (TableRow.IsValid())
 	{
-		if (!TargetWidget.IsValid())
+		const TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> NodeTreeView= FindParentWidget<STreeView<TSharedPtr<FGraphActionNode>>>(TableRow, TEXT("STreeView< TSharedPtr<FGraphActionNode> >"));
+	
+		if (NodeTreeView.IsValid())
 		{
-			break;
-		}
-		
-		if (TargetWidget->GetType() == TEXT("STableRow< TSharedPtr<FGraphActionNode> >"))
-		{
-			TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> NodeTreeView= FindParentNodeTreeViewFromWidget(TargetWidget);
-			TSharedPtr<STableRow<TSharedPtr<FGraphActionNode>>> TableRow = StaticCastSharedPtr<STableRow<TSharedPtr<FGraphActionNode>>>(TargetWidget);
-			
-			if (NodeTreeView.IsValid())
-			{
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
-				const TObjectPtrWrapTypeOf<TSharedPtr<FGraphActionNode>>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
-				
-				if (GraphActionNodePtr->IsValid())
-				{
-					return GraphActionNodePtr->ToSharedRef();
-				}
-#else
-				const TSharedPtr<FGraphActionNode>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
-				
-				if (GraphActionNodePtr && GraphActionNodePtr->IsValid())
-				{
-					return *GraphActionNodePtr;
-				}
-#endif
+			const TObjectPtrWrapTypeOf<TSharedPtr<FGraphActionNode>>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
+			
+			if (GraphActionNodePtr->IsValid())
+			{
+				return GraphActionNodePtr->ToSharedRef();
 			}
+#else
+			const TSharedPtr<FGraphActionNode>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
+			
+			if (GraphActionNodePtr && GraphActionNodePtr->IsValid())
+			{
+				return *GraphActionNodePtr;
+			}
+#endif
 		}
-		
-		TargetWidget = TargetWidget->GetParentWidget();
 	}
 	
 	return nullptr;
@@ -184,24 +173,8 @@ TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const 
 
 bool FNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
 {
-	TSharedPtr<SWidget> TargetWidget = InWidget;
-	
-	while (true)
-	{
-		if (!TargetWidget.IsValid())
-		{
-			break;
-		}
-		
-		if (TargetWidget->GetType() == TEXT("SBlueprintPaletteItem"))
-		{
-			return true;
-		}
-		
-		TargetWidget = TargetWidget->GetParentWidget();
-	}
-	
-	return false;
+	const TSharedPtr<SWidget> SBlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
+	return SBlueprintPaletteItem.IsValid();
 }
 
 TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
@@ -257,28 +230,6 @@ UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGr
 	return BlueprintNodeSpawner->Invoke(CachedTemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 }
 
-TSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>> FNodePreviewer::FindParentNodeTreeViewFromWidget(const TSharedPtr<SWidget> InWidget)
-{
-	TSharedPtr<SWidget> TargetWidget = InWidget;
-	
-	while (true)
-	{
-		if (!TargetWidget.IsValid())
-		{
-			break;
-		}
-		
-		if (TargetWidget->GetType() == TEXT("STreeView< TSharedPtr<FGraphActionNode> >"))
-		{
-			return StaticCastSharedPtr<STreeView<TSharedPtr<FGraphActionNode>>>(TargetWidget);
-		}
-		
-		TargetWidget = TargetWidget->GetParentWidget();
-	}
-	
-	return nullptr;
-}
-
 TSharedPtr<SWidget> FNodePreviewer::FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget)
 {
 	if (InNodeSelectionWidget.IsValid())
@@ -288,34 +239,12 @@ TSharedPtr<SWidget> FNodePreviewer::FindWidgetDisplayingToolTipFromNodeSelection
 			return InNodeSelectionWidget;
 		}
 	
-		TSharedPtr<SInlineEditableTextBlock> InlineEditableTextBlock = FindParentInlineEditableTextBlock(InNodeSelectionWidget);
+		TSharedPtr<SInlineEditableTextBlock> InlineEditableTextBlock = FindParentWidget<SInlineEditableTextBlock>(InNodeSelectionWidget, TEXT("SInlineEditableTextBlock"));
 	
 		if (InlineEditableTextBlock.IsValid())
 		{
 			return InlineEditableTextBlock;
 		}
-	}
-	
-	return nullptr;
-}
-
-TSharedPtr<SInlineEditableTextBlock> FNodePreviewer::FindParentInlineEditableTextBlock(const TSharedPtr<SWidget> InWidget)
-{
-	TSharedPtr<SWidget> TargetWidget = InWidget;
-	
-	while (true)
-	{
-		if (!TargetWidget.IsValid())
-		{
-			break;
-		}
-		
-		if (TargetWidget->GetType() == TEXT("SInlineEditableTextBlock"))
-		{
-			return StaticCastSharedPtr<SInlineEditableTextBlock>(TargetWidget);
-		}
-		
-		TargetWidget = TargetWidget->GetParentWidget();
 	}
 	
 	return nullptr;
