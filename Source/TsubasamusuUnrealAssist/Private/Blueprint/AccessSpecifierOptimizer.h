@@ -67,7 +67,11 @@ private:
 			{
 				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
 				{
+#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
 					if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName)
+#else
+					if (IsValid(EditablePinNode) && EditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString())
+#endif
 					{
 						EntryNodeType* EntryNode = Cast<EntryNodeType>(EditablePinNode);
 						
