@@ -322,14 +322,11 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 	{
 		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
 		{
-			TArray<UEdGraph*> AllGraphs;
-			InBlueprintToFindGraph->GetAllGraphs(AllGraphs);
-
-			for (const UEdGraph* Graph : AllGraphs)
+			for (const TObjectPtr<UEdGraph> FunctionGraph : InBlueprintToFindGraph->FunctionGraphs)
 			{
-				if (IsValid(Graph) && Graph->GetFName() == InFunctionName)
+				if (IsValid(FunctionGraph) && FunctionGraph->GetFName() == InFunctionName)
 				{
-					return Graph;
+					return FunctionGraph;
 				}
 			}
 		
