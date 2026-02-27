@@ -13,4 +13,5 @@ public:
 	
 private:
 	static void OnDeleteUnusedFunctionsClicked(UBlueprint* InBlueprint);
+	static void DeleteFunction(UEdGraph* InFunctionGraph, UBlueprint* InBlueprint, const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
 };
