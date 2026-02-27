@@ -6,6 +6,8 @@
 #include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
 #include "K2Node_CreateDelegate.h"
+#include "SCheckBoxList.h"
+#include "Algo/AnyOf.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Debug/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -72,6 +74,29 @@ void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluep
 		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
 		return;
 	}
+
+	const TSharedRef<SCheckBoxList> CheckBoxList = SNew(SCheckBoxList)
+			.ItemHeaderLabel(LOCTEXT("DeleteUnusedFunctionsDialog_FunctionLabel", "Function"));
+	
+	for (const UEdGraph* UnusedFunctionGraph : UnusedFunctionGraphs)
+	{
+		CheckBoxList->AddItem(FText::FromString(UnusedFunctionGraph->GetName()), true);
+	}
+
+	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([CheckBoxList]()
+	{
+		return Algo::AnyOf(CheckBoxList->GetValues(), [](const bool bInValue)
+		{
+			return bInValue;
+		});
+	});
+	
+	const FText DialogTitle = LOCTEXT("DeleteUnusedFunctionsDialog_Title", "Delete Unused Functions");
+	const FText DialogMessage = LOCTEXT("DeleteUnusedFunctionsDialog_Message", "These functions are not used in the graph or in other blueprints' graphs.\nThey may be used in other places.\nYou may use 'Find in Blueprint' or the 'Asset Search' to find out if they are referenced elsewhere.");
+	const FText ApplyButtonText = LOCTEXT("DeleteUnusedFunctionsDialog_ApplyButton", "Delete Selected Functions");
+	const FText CancelButtonText = LOCTEXT("DeleteUnusedFunctionsDialog_CancelButton", "Cancel");
+
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, OkButtonIsEnabled);
 	
 }
 
@@ -79,7 +104,7 @@ void FUnusedFunctionsDeleter::DeleteFunction(UEdGraph* InFunctionGraph, UBluepri
 {
 	if (!IsValid(InFunctionGraph) || !IsValid(InBlueprint) || !InFunctionGraph->bAllowDeletion || !InBlueprintEditor.IsValid())
 	{
-		return;;
+		return;
 	}
 	
 	if (const UEdGraphSchema* Schema = InFunctionGraph->GetSchema())
