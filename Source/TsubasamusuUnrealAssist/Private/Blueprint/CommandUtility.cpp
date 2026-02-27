@@ -20,7 +20,7 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 		
 		if (Toolkit.IsValid())
 		{
-			const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit).ToWeakPtr();
+			const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
 			const TArray<FName> TargetModes = InBlueprintCommandContext.TargetModes;
 	
 			auto CanExecuteAction = [WeakBlueprintEditor, TargetModes]()
