@@ -181,23 +181,17 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 		return InMember->AccessSpecifierOptimizationRowWidget.IsValid() && InMember->AccessSpecifierOptimizationRowWidget->IsChecked();
 	};
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([Members, &IsCheckedMember]()
 	{
 		return Algo::AnyOf(*Members, IsCheckedMember);
 	});
-#endif
 	
 	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
 	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Optimal Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
-#else
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
-#endif
 	
 	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
 	{

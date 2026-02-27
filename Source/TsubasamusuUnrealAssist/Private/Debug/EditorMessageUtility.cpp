@@ -36,11 +36,7 @@ EAppReturnType::Type FEditorMessageUtility::OpenWarningMessageDialog(const EAppM
 #endif
 }
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText, const FText& InCancelButtonText, const TSharedPtr<SWidget> InContentWidget, TAttribute<bool> InOkButtonIsEnabled)
-#else
-TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText, const FText& InCancelButtonText, const TSharedPtr<SWidget> InContentWidget)
-#endif
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
 		.Title(InTitle)
