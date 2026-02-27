@@ -84,24 +84,27 @@ void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluep
 		CheckBoxList->AddItem(FText::FromString(UnusedFunctionGraph->GetName()), true);
 	}
 
-	auto IsCheckedValue = [](const bool bInValue)
+	auto OneOrMoreFunctionsAreChecked = [&UnusedFunctionGraphs, CheckBoxList]()
 	{
-		return bInValue;
+		for (int32 Index = 0; Index < UnusedFunctionGraphs.Num(); ++Index)
+		{
+			if (CheckBoxList->IsItemChecked(Index))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	};
-	
-	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([CheckBoxList, IsCheckedValue]()
-	{
-		return Algo::AnyOf(CheckBoxList->GetValues(), IsCheckedValue);
-	});
 	
 	const FText DialogTitle = LOCTEXT("DeleteUnusedFunctionsDialog_Title", "Delete Unused Functions");
 	const FText DialogMessage = LOCTEXT("DeleteUnusedFunctionsDialog_Message", "These functions are not used in the graph or in other blueprints' graphs.\nThey may be used in other places.\nYou may use 'Find in Blueprint' or the 'Asset Search' to find out if they are referenced elsewhere.");
 	const FText ApplyButtonText = LOCTEXT("DeleteUnusedFunctionsDialog_ApplyButton", "Delete Selected Functions");
 	const FText CancelButtonText = LOCTEXT("DeleteUnusedFunctionsDialog_CancelButton", "Cancel");
 
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, OkButtonIsEnabled);
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, TAttribute<bool>::CreateLambda(OneOrMoreFunctionsAreChecked));
 	
-	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(CheckBoxList->GetValues(), IsCheckedValue))
+	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !OneOrMoreFunctionsAreChecked())
 	{
 		return;
 	}
