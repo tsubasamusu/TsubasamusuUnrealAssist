@@ -20,20 +20,30 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 		
 		if (Toolkit.IsValid())
 		{
-			const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
+			const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit).ToWeakPtr();
+			const TArray<FName> TargetModes = InBlueprintCommandContext.TargetModes;
 	
-			auto IsModeMatchesTargetBlueprint = [BlueprintEditor](const FName& InTargetMode)
+			auto CanExecuteAction = [WeakBlueprintEditor, TargetModes]()
 			{
-				return BlueprintEditor->IsModeCurrent(InTargetMode);
+				if (WeakBlueprintEditor.IsValid())
+				{
+					auto IsModeMatchesTargetBlueprint = [WeakBlueprintEditor](const FName& InTargetMode)
+					{
+						return WeakBlueprintEditor.Pin()->IsModeCurrent(InTargetMode);
+					};
+			
+					return Algo::AnyOf(TargetModes, IsModeMatchesTargetBlueprint);
+				}
+				
+				return false;
 			};
 			
-			const bool bCanExecuteAction = Algo::AnyOf(InBlueprintCommandContext.TargetModes, IsModeMatchesTargetBlueprint);
-	
-			const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
-			ToolkitCommands->MapAction(InBlueprintCommandContext.UICommandInfo, InBlueprintCommandContext.ExecuteAction,
-				FCanExecuteAction::CreateLambda([bCanExecuteAction](){ return bCanExecuteAction; }));
+			const TSharedPtr<FBlueprintEditor> PinnedBlueprintEditor = WeakBlueprintEditor.Pin();
+			const TSharedPtr<FUICommandList> ToolkitCommands = PinnedBlueprintEditor->GetToolkitCommands();
 			
-			const FName EditMenuName = *(BlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
+			ToolkitCommands->MapAction(InBlueprintCommandContext.UICommandInfo, InBlueprintCommandContext.ExecuteAction, FCanExecuteAction::CreateLambda(CanExecuteAction));
+			
+			const FName EditMenuName = *(PinnedBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
 			const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
 	
 			UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
