@@ -11,11 +11,10 @@ class FBlueprintMember;
 class FAccessSpecifierOptimizer final
 {
 public:
-	static void OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint);
+	static void RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint);
 	
 private:
-	static void RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
-	static void OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint);
+	static void OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
 	
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);

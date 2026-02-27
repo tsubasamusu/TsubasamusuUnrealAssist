@@ -114,7 +114,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 		
 		if (IsValid(OpenedBlueprint))
 		{
-			FAccessSpecifierOptimizer::OnBlueprintEditorOpened(OpenedBlueprint);
+			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
 		}
 	});
 }

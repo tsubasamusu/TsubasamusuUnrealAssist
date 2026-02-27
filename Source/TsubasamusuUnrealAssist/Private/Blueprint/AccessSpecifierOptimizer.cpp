@@ -1,7 +1,10 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AccessSpecifierOptimizer.h"
+#include "BlueprintCommandContext.h"
+#include "BlueprintEditorModes.h"
 #include "BlueprintMember.h"
+#include "CommandUtility.h"
 #include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
@@ -14,11 +17,6 @@
 #include "Toolkits/ToolkitManager.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
-#include "K2Node_Event.h"
-
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
-#include "ToolMenus.h"
-#endif
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
 #include "Misc/FeedbackContext.h"
@@ -30,50 +28,31 @@
 
 #define LOCTEXT_NAMESPACE "FAccessSpecifierOptimizer"
 
-void FAccessSpecifierOptimizer::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)
+void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint)
 {
-	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InOpenedBlueprint);
+	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InBlueprint);
 	
 	if (Toolkit.IsValid())
 	{
 		FTsubasamusuBlueprintEditorCommands::Register();
-		
+	
 		const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
-		const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
+	
+		const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
+			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, BlueprintEditor),
+			InBlueprint,
+			TArray<FName>{ FBlueprintEditorApplicationModes::StandardBlueprintEditorMode });
 		
-		ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InOpenedBlueprint),
-			FCanExecuteAction::CreateSP(BlueprintEditor.Get(), &FBlueprintEditor::IsInAScriptingMode));
-		
-		RegisterAdditionalMenus(BlueprintEditor);
+		FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 	}
 }
 
-void FAccessSpecifierOptimizer::RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
+void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
 {
-	const FName EditMenuName = *(InBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
-	const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
+	UBlueprint* CurrentlyOpenBlueprint = InBlueprintEditor->GetBlueprintObj();
+	check(IsValid(CurrentlyOpenBlueprint));
 	
-	UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
-	
-	const FName SectionName = TEXT("EditTsubasamusuUnrealAssist");
-	const FText SectionLabel = LOCTEXT("EditMenu_TsubasamusuUnrealAssist", "Tsubasamusu Unreal Assist");
-	const FName AboveSectionName = TEXT("EditSearch");
-	
-	FToolMenuSection& ToolMenuSection = ToolMenu->AddSection(SectionName, SectionLabel);
-	ToolMenuSection.InsertPosition = FToolMenuInsert(AboveSectionName, EToolMenuInsertType::After);
-	
-	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers);
-}
-
-void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint)
-{
-	if (!IsValid(InBlueprint))
-	{
-		return;
-	}
-	
-	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(InBlueprint);
+	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(CurrentlyOpenBlueprint);
 	
 	if (!Members.IsValid() || Members->IsEmpty())
 	{

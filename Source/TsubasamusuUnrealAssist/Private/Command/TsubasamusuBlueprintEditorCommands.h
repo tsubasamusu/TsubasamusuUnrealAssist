@@ -2,7 +2,7 @@
 
 #pragma once
 
-class FTsubasamusuBlueprintEditorCommands  final : public TCommands<FTsubasamusuBlueprintEditorCommands>
+class FTsubasamusuBlueprintEditorCommands final : public TCommands<FTsubasamusuBlueprintEditorCommands>
 {
 public:
 	FTsubasamusuBlueprintEditorCommands()
