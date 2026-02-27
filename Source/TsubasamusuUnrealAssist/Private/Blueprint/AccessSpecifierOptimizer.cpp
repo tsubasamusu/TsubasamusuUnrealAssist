@@ -4,6 +4,7 @@
 #include "BlueprintCommandContext.h"
 #include "BlueprintEditorModes.h"
 #include "BlueprintMember.h"
+#include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
 #include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
@@ -301,15 +302,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 	{
 		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
 		{
-			for (const TObjectPtr<UEdGraph> FunctionGraph : InBlueprintToFindGraph->FunctionGraphs)
-			{
-				if (IsValid(FunctionGraph) && FunctionGraph->GetFName() == InFunctionName)
-				{
-					return FunctionGraph;
-				}
-			}
-		
-			return nullptr;
+			return FBlueprintMemberUtility::FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
 		};
 		
 		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
