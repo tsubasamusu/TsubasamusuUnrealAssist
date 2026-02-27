@@ -3,9 +3,11 @@
 #include "UnusedFunctionsDeleter.h"
 #include "BlueprintCommandContext.h"
 #include "BlueprintEditorModes.h"
+#include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
 #include "K2Node_CreateDelegate.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
+#include "Debug/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "FUnusedFunctionsDeleter"
@@ -29,6 +31,47 @@ void FUnusedFunctionsDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBl
 
 void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBlueprint)
 {
+	if (!IsValid(InBlueprint))
+	{
+		return;
+	}
+	
+	auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
+	{
+		return FBlueprintMemberUtility::FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
+	};
+	
+	int32 AllDeletableFunctionsCount = 0;
+	TArray<UEdGraph*> UnusedFunctionGraphs;
+	
+	auto FunctionForEachFunctionBaseMembersAndGraphs = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctionGraphs](UFunction* InFunction, UEdGraph* InGraph)
+	{
+		if (InGraph->bAllowDeletion)
+		{
+			AllDeletableFunctionsCount++;
+		
+			if (!FBlueprintEditorUtils::IsFunctionUsed(InBlueprint, InFunction->GetFName()))
+			{
+				UnusedFunctionGraphs.Add(InGraph);
+			}
+		}
+	};
+	
+	FBlueprintMemberUtility::ForEachFunctionBaseMembersAndGraphs(InBlueprint, FunctionToFindGraph, FunctionForEachFunctionBaseMembersAndGraphs);
+	
+	if (AllDeletableFunctionsCount == 0)
+	{
+		const FText NotificationText = LOCTEXT("NoFunctionsToCheck", "No functions to check for.");
+		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
+		return;
+	}
+	
+	if (UnusedFunctionGraphs.IsEmpty())
+	{
+		const FText NotificationText = LOCTEXT("NoUnusedFunctions", "There are no unused functions.");
+		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
+		return;
+	}
 	
 }
 
