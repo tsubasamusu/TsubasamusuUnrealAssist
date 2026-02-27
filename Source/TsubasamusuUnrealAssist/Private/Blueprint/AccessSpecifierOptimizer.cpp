@@ -14,7 +14,6 @@
 #include "Debug/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
-#include "Toolkits/ToolkitManager.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
 
@@ -30,29 +29,28 @@
 
 void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint)
 {
-	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InBlueprint);
+	FTsubasamusuBlueprintEditorCommands::Register();
 	
-	if (Toolkit.IsValid())
+	const TArray<FName> TargetModes =
 	{
-		FTsubasamusuBlueprintEditorCommands::Register();
+		FBlueprintEditorApplicationModes::StandardBlueprintEditorMode
+	};
 	
-		const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
+	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
+		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint),
+		InBlueprint, TargetModes);
 	
-		const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, BlueprintEditor),
-			InBlueprint,
-			TArray<FName>{ FBlueprintEditorApplicationModes::StandardBlueprintEditorMode });
-		
-		FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
-	}
+	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
 
-void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
+void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint)
 {
-	UBlueprint* CurrentlyOpenBlueprint = InBlueprintEditor->GetBlueprintObj();
-	check(IsValid(CurrentlyOpenBlueprint));
+	if (!IsValid(InBlueprint))
+	{
+		return;
+	}
 	
-	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(CurrentlyOpenBlueprint);
+	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(InBlueprint);
 	
 	if (!Members.IsValid() || Members->IsEmpty())
 	{

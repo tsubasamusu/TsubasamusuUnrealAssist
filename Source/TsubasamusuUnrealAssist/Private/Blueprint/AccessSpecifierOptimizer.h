@@ -14,7 +14,7 @@ public:
 	static void RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint);
 	
 private:
-	static void OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
+	static void OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint);
 	
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
