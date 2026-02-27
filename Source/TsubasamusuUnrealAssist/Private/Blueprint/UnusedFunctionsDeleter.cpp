@@ -11,6 +11,7 @@
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Debug/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Toolkits/ToolkitManager.h"
 
 #define LOCTEXT_NAMESPACE "FUnusedFunctionsDeleter"
 
@@ -83,12 +84,14 @@ void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluep
 		CheckBoxList->AddItem(FText::FromString(UnusedFunctionGraph->GetName()), true);
 	}
 
-	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([CheckBoxList]()
+	auto IsCheckedValue = [](const bool bInValue)
 	{
-		return Algo::AnyOf(CheckBoxList->GetValues(), [](const bool bInValue)
-		{
-			return bInValue;
-		});
+		return bInValue;
+	};
+	
+	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([CheckBoxList, IsCheckedValue]()
+	{
+		return Algo::AnyOf(CheckBoxList->GetValues(), IsCheckedValue);
 	});
 	
 	const FText DialogTitle = LOCTEXT("DeleteUnusedFunctionsDialog_Title", "Delete Unused Functions");
@@ -98,6 +101,24 @@ void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluep
 
 	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, OkButtonIsEnabled);
 	
+	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(CheckBoxList->GetValues(), IsCheckedValue))
+	{
+		return;
+	}
+	
+	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InBlueprint);
+	const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
+	
+	for (int32 Index = 0; Index < UnusedFunctionGraphs.Num(); ++Index)
+	{
+		if (CheckBoxList->IsItemChecked(Index))
+		{
+			DeleteFunction(UnusedFunctionGraphs[Index], InBlueprint, BlueprintEditor);
+		}
+	}
+
+	const FText NotificationText = LOCTEXT("SuccessfullyDeleteUnusedFunctions", "Successfully delete unused functions.");
+	FEditorMessageUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
 void FUnusedFunctionsDeleter::DeleteFunction(UEdGraph* InFunctionGraph, UBlueprint* InBlueprint, const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
