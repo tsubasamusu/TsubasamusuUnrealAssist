@@ -6,7 +6,7 @@
 
 class FBlueprintEditor;
 
-class FUnusedFunctionsDeleter final
+class FUnusedFunctionDeleter final
 {
 public:
 	static void RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBlueprint);

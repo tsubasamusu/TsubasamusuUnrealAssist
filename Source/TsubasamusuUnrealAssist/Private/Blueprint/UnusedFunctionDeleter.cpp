@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "UnusedFunctionsDeleter.h"
+#include "UnusedFunctionDeleter.h"
 #include "BlueprintCommandContext.h"
 #include "BlueprintEditorModes.h"
 #include "BlueprintMemberUtility.h"
@@ -15,7 +15,7 @@
 
 #define LOCTEXT_NAMESPACE "FUnusedFunctionsDeleter"
 
-void FUnusedFunctionsDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBlueprint)
+void FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBlueprint)
 {
 	FTsubasamusuBlueprintEditorCommands::Register();
 
@@ -32,7 +32,7 @@ void FUnusedFunctionsDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBl
 	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
 
-void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBlueprint)
+void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBlueprint)
 {
 	if (!IsValid(InBlueprint))
 	{
@@ -124,7 +124,7 @@ void FUnusedFunctionsDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluep
 	FEditorMessageUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
-void FUnusedFunctionsDeleter::DeleteFunction(UEdGraph* InFunctionGraph, UBlueprint* InBlueprint, const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
+void FUnusedFunctionDeleter::DeleteFunction(UEdGraph* InFunctionGraph, UBlueprint* InBlueprint, const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
 {
 	if (!IsValid(InFunctionGraph) || !IsValid(InBlueprint) || !InFunctionGraph->bAllowDeletion || !InBlueprintEditor.IsValid())
 	{
