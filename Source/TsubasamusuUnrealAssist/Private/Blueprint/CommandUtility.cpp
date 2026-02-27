@@ -22,18 +22,16 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 		{
 			const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
 	
-			auto CanExecuteAction = [BlueprintEditor, InBlueprintCommandContext]()
+			auto IsModeMatchesTargetBlueprint = [BlueprintEditor](const FName& InTargetMode)
 			{
-				auto IsModeMatchesTargetBlueprint = [BlueprintEditor](const FName& InTargetMode)
-				{
-					return BlueprintEditor->IsModeCurrent(InTargetMode);
-				};
-		
-				return Algo::AnyOf(InBlueprintCommandContext.TargetModes, IsModeMatchesTargetBlueprint);
+				return BlueprintEditor->IsModeCurrent(InTargetMode);
 			};
+			
+			const bool bCanExecuteAction = Algo::AnyOf(InBlueprintCommandContext.TargetModes, IsModeMatchesTargetBlueprint);
 	
 			const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
-			ToolkitCommands->MapAction(InBlueprintCommandContext.UICommandInfo, InBlueprintCommandContext.ExecuteAction, FCanExecuteAction::CreateLambda(CanExecuteAction));
+			ToolkitCommands->MapAction(InBlueprintCommandContext.UICommandInfo, InBlueprintCommandContext.ExecuteAction,
+				FCanExecuteAction::CreateLambda([bCanExecuteAction](){ return bCanExecuteAction; }));
 			
 			const FName EditMenuName = *(BlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
 			const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
