@@ -1,7 +1,11 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AccessSpecifierOptimizer.h"
+#include "BlueprintCommandContext.h"
+#include "BlueprintEditorModes.h"
 #include "BlueprintMember.h"
+#include "BlueprintMemberUtility.h"
+#include "CommandUtility.h"
 #include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
@@ -11,14 +15,8 @@
 #include "Debug/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Kismet2/BlueprintEditorUtils.h"
-#include "Toolkits/ToolkitManager.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
-#include "K2Node_Event.h"
-
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
-#include "ToolMenus.h"
-#endif
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
 #include "Misc/FeedbackContext.h"
@@ -30,40 +28,20 @@
 
 #define LOCTEXT_NAMESPACE "FAccessSpecifierOptimizer"
 
-void FAccessSpecifierOptimizer::OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint)
+void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint)
 {
-	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InOpenedBlueprint);
+	FTsubasamusuBlueprintEditorCommands::Register();
 	
-	if (Toolkit.IsValid())
+	const TArray<FName> TargetModes =
 	{
-		FTsubasamusuBlueprintEditorCommands::Register();
-		
-		const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
-		const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
-		
-		ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InOpenedBlueprint),
-			FCanExecuteAction::CreateSP(BlueprintEditor.Get(), &FBlueprintEditor::IsInAScriptingMode));
-		
-		RegisterAdditionalMenus(BlueprintEditor);
-	}
-}
-
-void FAccessSpecifierOptimizer::RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
-{
-	const FName EditMenuName = *(InBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
-	const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
+		FBlueprintEditorApplicationModes::StandardBlueprintEditorMode
+	};
 	
-	UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
+	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
+		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint),
+		InBlueprint, TargetModes);
 	
-	const FName SectionName = TEXT("EditTsubasamusuUnrealAssist");
-	const FText SectionLabel = LOCTEXT("EditMenu_TsubasamusuUnrealAssist", "Tsubasamusu Unreal Assist");
-	const FName AboveSectionName = TEXT("EditSearch");
-	
-	FToolMenuSection& ToolMenuSection = ToolMenu->AddSection(SectionName, SectionLabel);
-	ToolMenuSection.InsertPosition = FToolMenuInsert(AboveSectionName, EToolMenuInsertType::After);
-	
-	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers);
+	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
 
 void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint)
@@ -203,23 +181,17 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 		return InMember->AccessSpecifierOptimizationRowWidget.IsValid() && InMember->AccessSpecifierOptimizationRowWidget->IsChecked();
 	};
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 	const TAttribute<bool> OkButtonIsEnabled = TAttribute<bool>::CreateLambda([Members, &IsCheckedMember]()
 	{
 		return Algo::AnyOf(*Members, IsCheckedMember);
 	});
-#endif
 	
 	const FText DialogTitle = LOCTEXT("OptimizeAccessSpecifiersDialog_Title", "Optimize Access Specifiers");
 	const FText DialogMessage = LOCTEXT("OptimizeAccessSpecifiersDialog_Message", "You might want to change the access specifiers for these members.");
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Optimal Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
 	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
-#else
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent);
-#endif
 	
 	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
 	{
@@ -322,17 +294,9 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 {
 	if (IsValid(InBlueprint))
 	{
-		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
+		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
 		{
-			for (const TObjectPtr<UEdGraph> FunctionGraph : InBlueprintToFindGraph->FunctionGraphs)
-			{
-				if (IsValid(FunctionGraph) && FunctionGraph->GetFName() == InFunctionName)
-				{
-					return FunctionGraph;
-				}
-			}
-		
-			return nullptr;
+			return FBlueprintMemberUtility::FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
 		};
 		
 		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
@@ -360,7 +324,7 @@ TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlu
 #endif
 		};
 		
-		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> const UEdGraph*
+		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
 		{
 			for (const TObjectPtr<UEdGraph> EventGraph : InBlueprintToFindGraph->UbergraphPages)
 			{

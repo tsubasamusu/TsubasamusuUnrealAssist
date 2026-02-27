@@ -260,7 +260,7 @@ void FBlueprintMember_FunctionBase::SetAccessSpecifier(const TsubasamusuUnrealAs
 		return;
 	}
 	
-	const FScopedTransaction Transaction(LOCTEXT("ChangeFunctionAccessSpecifier", "Change Function Access Specifier"));
+	const FScopedTransaction Transaction(LOCTEXT("ChangeFunctionAccessSpecifierTransaction", "Change Function Access Specifier"));
 
 	EntryNode->Modify();
 	Function->Modify();

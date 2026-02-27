@@ -446,6 +446,11 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
 
+### Unused Function Deleter
+このプラグインを有効化してブループリントエディタを開くと、「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を削除することができます。
+
+<img width="700" src="https://github.com/user-attachments/assets/6f61565c-d701-43af-a99b-f1a291ac988a">
+
 ## Editor Utility 用のノード
 ### Async Replace References
 `From` に渡したアセットの参照を、`To` に渡したアセットの参照に置換します。

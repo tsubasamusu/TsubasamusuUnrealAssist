@@ -5,16 +5,16 @@
 #include "BlueprintEditor.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "CoreMinimal.h"
+#include "BlueprintMemberUtility.h"
 
 class FBlueprintMember;
 
 class FAccessSpecifierOptimizer final
 {
 public:
-	static void OnBlueprintEditorOpened(UBlueprint* InOpenedBlueprint);
+	static void RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint);
 	
 private:
-	static void RegisterAdditionalMenus(const TSharedPtr<FBlueprintEditor> InBlueprintEditor);
 	static void OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint);
 	
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
@@ -29,27 +29,17 @@ private:
 	{
 		TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
 	
-		for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
+		auto FunctionForEachFunctionBaseMembersAndGraphs = [&FunctionBaseMembers, InFunctionToCheckEditablePinNode](UFunction* InFunction, UEdGraph* InGraph)
 		{
-			UFunction* Function = *FunctionFieldIterator;
-		
-			if (IsValid(Function))
-			{
-				const FName FunctionName = Function->GetFName();
-				const UEdGraph* Graph = InFunctionToFindGraph(FunctionName, InBlueprint);
-			
-				if (IsValid(Graph))
-				{
-					EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(Graph, FunctionName, InFunctionToCheckEditablePinNode);
+			EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(InGraph, InFunction->GetFName(), InFunctionToCheckEditablePinNode);
 					
-					if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
-					{
-						FunctionBaseMembers.Add(Function, EntryNode);
-					}
-				}
+			if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
+			{
+				FunctionBaseMembers.Add(InFunction, EntryNode);
 			}
-		}
-	
+		};
+		
+		FBlueprintMemberUtility::ForEachFunctionBaseMembersAndGraphs(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembersAndGraphs);
 		return FunctionBaseMembers;
 	}
 	
