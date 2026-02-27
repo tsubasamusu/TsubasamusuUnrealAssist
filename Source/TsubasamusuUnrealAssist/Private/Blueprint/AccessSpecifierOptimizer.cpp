@@ -42,7 +42,7 @@ void FAccessSpecifierOptimizer::OnBlueprintEditorOpened(UBlueprint* InOpenedBlue
 		const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
 		
 		ToolkitCommands->MapAction(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, BlueprintEditor),
+			FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InOpenedBlueprint),
 			FCanExecuteAction::CreateSP(BlueprintEditor.Get(), &FBlueprintEditor::IsInAScriptingMode));
 		
 		RegisterAdditionalMenus(BlueprintEditor);
@@ -66,12 +66,14 @@ void FAccessSpecifierOptimizer::RegisterAdditionalMenus(const TSharedPtr<FBluepr
 	ToolMenuSection.AddMenuEntry(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers);
 }
 
-void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(const TSharedPtr<FBlueprintEditor> InBlueprintEditor)
+void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint)
 {
-	UBlueprint* CurrentlyOpenBlueprint = InBlueprintEditor->GetBlueprintObj();
-	check(IsValid(CurrentlyOpenBlueprint));
+	if (!IsValid(InBlueprint))
+	{
+		return;
+	}
 	
-	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(CurrentlyOpenBlueprint);
+	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = GetMembers(InBlueprint);
 	
 	if (!Members.IsValid() || Members->IsEmpty())
 	{
