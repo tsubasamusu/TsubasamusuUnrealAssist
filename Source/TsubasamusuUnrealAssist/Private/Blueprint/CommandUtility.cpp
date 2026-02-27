@@ -24,12 +24,12 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 	
 			auto CanExecuteAction = [BlueprintEditor, InBlueprintCommandContext]()
 			{
-				auto IsModeDoesNotMatchTargetBlueprint = [BlueprintEditor](const FName& InTargetMode)
+				auto IsModeMatchesTargetBlueprint = [BlueprintEditor](const FName& InTargetMode)
 				{
-					return !BlueprintEditor->IsModeCurrent(InTargetMode);
+					return BlueprintEditor->IsModeCurrent(InTargetMode);
 				};
 		
-				return !Algo::AnyOf(InBlueprintCommandContext.TargetModes, IsModeDoesNotMatchTargetBlueprint);
+				return Algo::AnyOf(InBlueprintCommandContext.TargetModes, IsModeMatchesTargetBlueprint);
 			};
 	
 			const TSharedPtr<FUICommandList> ToolkitCommands = BlueprintEditor->GetToolkitCommands();
