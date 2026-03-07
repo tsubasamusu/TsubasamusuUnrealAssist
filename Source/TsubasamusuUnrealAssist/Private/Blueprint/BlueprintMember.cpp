@@ -4,13 +4,16 @@
 #include "K2Node_CallFunction.h"
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_CreateDelegate.h"
-#include "K2Node_CustomEvent.h"
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
 #include "Algo/AnyOf.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#include "K2Node_CustomEvent.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "FBlueprintMember"
 
@@ -406,11 +409,13 @@ void FBlueprintMember_Function::SetEntryNodeAccessSpecifier(const EFunctionFlags
 	FunctionEntryNode->SetExtraFlags(ExtraFlags);
 }
 
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 void FBlueprintMember_Event::SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
 {
 	UK2Node_CustomEvent* EventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
 	EventEntryNode->FunctionFlags &= InClearAccessSpecifierMask;
 	EventEntryNode->FunctionFlags |= InAccessSpecifierFlag;
 }
+#endif
 
 #undef LOCTEXT_NAMESPACE

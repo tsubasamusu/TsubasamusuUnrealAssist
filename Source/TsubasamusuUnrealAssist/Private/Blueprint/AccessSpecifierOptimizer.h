@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "BlueprintEditor.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "CoreMinimal.h"
@@ -20,7 +21,9 @@ private:
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	static TMap<UFunction*, UK2Node_CustomEvent*> GetEvents(UBlueprint* InBlueprint);
+#endif
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 	

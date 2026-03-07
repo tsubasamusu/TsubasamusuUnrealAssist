@@ -6,7 +6,6 @@
 #include "BlueprintMember.h"
 #include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
-#include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
@@ -17,6 +16,10 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
+
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#include "K2Node_CustomEvent.h"
+#endif
 
 #if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
 #include "Misc/FeedbackContext.h"
@@ -240,7 +243,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		}
 	}
 	
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	// Events
 	{
 		const TMap<UFunction*, UK2Node_CustomEvent*> Events = GetEvents(InBlueprint);
@@ -310,6 +313,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
@@ -351,6 +355,7 @@ TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlu
 	
 	return TMap<UFunction*, UK2Node_CustomEvent*>();
 }
+#endif
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {
