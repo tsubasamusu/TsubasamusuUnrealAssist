@@ -2,8 +2,9 @@
 
 #include "EditorMessageUtility.h"
 #include "Framework/Notifications/NotificationManager.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
 #include "Dialogs/CustomDialog.h"
 #else
 #include "Dialog/SCustomDialog.h"
@@ -29,7 +30,7 @@ EAppReturnType::Type FEditorMessageUtility::OpenWarningMessageDialog(const EAppM
 {
 	const FText Title = LOCTEXT("WarningMessageDialogTitle", "Tsubasamusu Unreal Assist Warning");
                 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 	return FMessageDialog::Open(InMessageType, InMessage, Title);
 #else
 	return FMessageDialog::Open(InMessageType, InMessage, &Title);
@@ -40,7 +41,7 @@ TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(c
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
 		.Title(InTitle)
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
 		.DialogContent(
 #else
 		.Content()
@@ -60,7 +61,7 @@ TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(c
 			[
 				(InContentWidget.IsValid() ? InContentWidget.ToSharedRef() : SNullWidget::NullWidget)
 			]
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
 		)
 #else
 		]
@@ -68,10 +69,10 @@ TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(c
 		.Buttons(
 		{
 			SCustomDialog::FButton(InOkButtonText)
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 6, 0)
 				.SetIsEnabled(InOkButtonIsEnabled)
 #endif
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
 				.SetPrimary(true)
 #endif
 			,

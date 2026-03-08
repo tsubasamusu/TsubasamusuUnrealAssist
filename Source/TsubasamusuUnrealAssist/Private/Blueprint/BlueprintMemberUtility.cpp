@@ -1,6 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "BlueprintMemberUtility.h"
+#include "K2Node_FunctionEntry.h"
 
 UEdGraph* FBlueprintMemberUtility::FindFunctionGraph(const FName& InFunctionName, const UBlueprint* InBlueprint)
 {
@@ -16,4 +17,9 @@ UEdGraph* FBlueprintMemberUtility::FindFunctionGraph(const FName& InFunctionName
 	}
 		
 	return nullptr;
+}
+
+bool FBlueprintMemberUtility::IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode)
+{
+	return InEditablePinNode->IsA<UK2Node_FunctionEntry>();
 }

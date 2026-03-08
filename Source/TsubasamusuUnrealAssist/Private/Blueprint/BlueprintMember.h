@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "CoreMinimal.h"
 
@@ -122,6 +123,7 @@ protected:
 	//~ End FBlueprintMember_FunctionBase Interface
 };
 
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 class FBlueprintMember_Event final : public FBlueprintMember_FunctionBase
 {
 public:
@@ -133,3 +135,4 @@ protected:
 	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) override;
 	//~ End FBlueprintMember_FunctionBase Interface
 };
+#endif

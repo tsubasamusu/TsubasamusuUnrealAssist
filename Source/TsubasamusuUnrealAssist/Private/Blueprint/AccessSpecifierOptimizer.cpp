@@ -2,11 +2,9 @@
 
 #include "AccessSpecifierOptimizer.h"
 #include "BlueprintCommandContext.h"
-#include "BlueprintEditorModes.h"
 #include "BlueprintMember.h"
 #include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
-#include "K2Node_CustomEvent.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
@@ -17,12 +15,17 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#include "K2Node_CustomEvent.h"
+#endif
+
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 #include "Misc/FeedbackContext.h"
 #endif
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3)
+#if UE_VERSION_OLDER_THAN(5, 4, 0)
 #include "Misc/ScopedSlowTask.h"
 #endif
 
@@ -32,14 +35,8 @@ void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint*
 {
 	FTsubasamusuBlueprintEditorCommands::Register();
 	
-	const TArray<FName> TargetModes =
-	{
-		FBlueprintEditorApplicationModes::StandardBlueprintEditorMode
-	};
-	
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint),
-		InBlueprint, TargetModes);
+		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint), InBlueprint);
 	
 	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
@@ -240,7 +237,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		}
 	}
 	
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	// Events
 	{
 		const TMap<UFunction*, UK2Node_CustomEvent*> Events = GetEvents(InBlueprint);
@@ -301,7 +298,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 		
 		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
 		{
-			return IsValid(InEditablePinNode) && InEditablePinNode->IsA<UK2Node_FunctionEntry>();
+			return FBlueprintMemberUtility::IsFunctionEntryNode(InEditablePinNode);
 		};
 	
 		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
@@ -310,14 +307,15 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
 	{
 		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
 		{
-			return IsValid(InEditablePinNode) &&
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+			return
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
 #else 
 				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
@@ -351,6 +349,7 @@ TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlu
 	
 	return TMap<UFunction*, UK2Node_CustomEvent*>();
 }
+#endif
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {

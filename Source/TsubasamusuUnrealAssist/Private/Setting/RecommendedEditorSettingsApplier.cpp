@@ -6,7 +6,7 @@
 #include "BlueprintEditorSettings.h"
 #include "EditorSettingsUtility.h"
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
 #include "Settings/EditorStyleSettings.h"
 #include "OutputLogSettings.h"
 #else
@@ -22,7 +22,7 @@ void FRecommendedEditorSettingsApplier::ApplyRecommendedEditorSettings()
     ApplyRecommendedBlueprintEditorSettings();
     ApplyRecommendedLevelEditorPlaySettings();
     
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
     ApplyRecommendedOutputLogSettings();
 #endif
 }
@@ -33,7 +33,7 @@ void FRecommendedEditorSettingsApplier::ApplyRecommendedLoadingSavingSettings()
 
     EditorLoadingSavingSettings->bAutoSaveEnable = false;
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
     EditorLoadingSavingSettings->RestoreOpenAssetTabsOnRestart = ERestoreOpenAssetTabsMethod::NeverRestore;
 #else
     EditorLoadingSavingSettings->bRestoreOpenAssetTabsOnRestart = false;
@@ -50,7 +50,7 @@ void FRecommendedEditorSettingsApplier::ApplyRecommendedStyleSettings()
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
     EditorStyleSettings->bUseSmallToolBarIcons = true;
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
     EditorStyleSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
 #endif
     
@@ -120,7 +120,7 @@ void FRecommendedEditorSettingsApplier::ApplyRecommendedLevelEditorPlaySettings(
     LevelEditorPlaySettings->PostEditChange();
 }
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
 void FRecommendedEditorSettingsApplier::ApplyRecommendedOutputLogSettings()
 {
     UOutputLogSettings* OutputLogSettings = FEditorSettingsUtility::GetSettingsChecked<UOutputLogSettings>();

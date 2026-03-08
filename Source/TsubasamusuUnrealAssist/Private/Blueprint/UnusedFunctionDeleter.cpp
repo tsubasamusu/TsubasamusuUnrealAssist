@@ -2,12 +2,10 @@
 
 #include "UnusedFunctionDeleter.h"
 #include "BlueprintCommandContext.h"
-#include "BlueprintEditorModes.h"
 #include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
 #include "K2Node_CreateDelegate.h"
 #include "SCheckBoxList.h"
-#include "Algo/AnyOf.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Debug/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -19,15 +17,8 @@ void FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBlu
 {
 	FTsubasamusuBlueprintEditorCommands::Register();
 
-	const TArray<FName> TargetModes =
-	{
-		FBlueprintEditorApplicationModes::StandardBlueprintEditorMode,
-		FBlueprintEditorApplicationModes::BlueprintInterfaceMode
-	};
-
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().DeleteUnusedFunctions,
-		FExecuteAction::CreateStatic(&OnDeleteUnusedFunctionsClicked, InBlueprint),
-		InBlueprint, TargetModes);
+		FExecuteAction::CreateStatic(&OnDeleteUnusedFunctionsClicked, InBlueprint), InBlueprint);
 	
 	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
@@ -47,7 +38,7 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 	int32 AllDeletableFunctionsCount = 0;
 	TArray<UEdGraph*> UnusedFunctionGraphs;
 	
-	auto FunctionForEachFunctionBaseMembersAndGraphs = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctionGraphs](UFunction* InFunction, UEdGraph* InGraph)
+	auto FunctionForEachFunctionBaseMembers = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctionGraphs](UFunction* InFunction, UEdGraph* InGraph, UK2Node_EditablePinBase* /*InEditablePinNode*/)
 	{
 		if (InGraph->bAllowDeletion)
 		{
@@ -60,7 +51,12 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 		}
 	};
 	
-	FBlueprintMemberUtility::ForEachFunctionBaseMembersAndGraphs(InBlueprint, FunctionToFindGraph, FunctionForEachFunctionBaseMembersAndGraphs);
+	auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+	{
+		return FBlueprintMemberUtility::IsFunctionEntryNode(InEditablePinNode);
+	};
+	
+	FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, FunctionToFindGraph, FunctionForEachFunctionBaseMembers, FunctionToCheckEditablePinNode);
 	
 	if (AllDeletableFunctionsCount == 0)
 	{

@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "BlueprintEditor.h"
-#include "Kismet2/BlueprintEditorUtils.h"
 #include "CoreMinimal.h"
 #include "BlueprintMemberUtility.h"
 
@@ -20,56 +20,30 @@ private:
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	static TMap<UFunction*, UK2Node_CustomEvent*> GetEvents(UBlueprint* InBlueprint);
+#endif
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 	
 	template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
 	static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{
+		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
+		
 		TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
 	
-		auto FunctionForEachFunctionBaseMembersAndGraphs = [&FunctionBaseMembers, InFunctionToCheckEditablePinNode](UFunction* InFunction, UEdGraph* InGraph)
+		auto FunctionForEachFunctionBaseMembers = [&FunctionBaseMembers](UFunction* InFunction, UEdGraph* /*InGraph*/, UK2Node_EditablePinBase* InEditablePinNode)
 		{
-			EntryNodeType* EntryNode = FindEntryNode<EntryNodeType>(InGraph, InFunction->GetFName(), InFunctionToCheckEditablePinNode);
-					
-			if (IsValid(EntryNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EntryNode->GetBlueprint()) && EntryNode->IsEditable())
+			EntryNodeType* EntryNode = Cast<EntryNodeType>(InEditablePinNode);
+			
+			if (IsValid(EntryNode))
 			{
 				FunctionBaseMembers.Add(InFunction, EntryNode);
 			}
 		};
 		
-		FBlueprintMemberUtility::ForEachFunctionBaseMembersAndGraphs(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembersAndGraphs);
+		FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembers, InFunctionToCheckEditablePinNode);
 		return FunctionBaseMembers;
-	}
-	
-	template<typename EntryNodeType, typename FunctionToCheckEditablePinNode>
-	static EntryNodeType* FindEntryNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
-	{
-		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
-
-		if (IsValid(InGraph))
-		{
-			TArray<UK2Node_EditablePinBase*> EditablePinNodes;
-			InGraph->GetNodesOfClass(EditablePinNodes);
-	
-			if (!EditablePinNodes.IsEmpty())
-			{
-				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
-				{
-					if (InFunctionToCheckEditablePinNode(InFunctionOrEventName, EditablePinNode))
-					{
-						EntryNodeType* EntryNode = Cast<EntryNodeType>(EditablePinNode);
-						
-						if (IsValid(EntryNode))
-						{
-							return EntryNode;
-						}
-					}
-				}
-			}
-		}
-	
-		return nullptr;
 	}
 };

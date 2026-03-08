@@ -36,7 +36,7 @@ void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailL
 {
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(InCategoryName);
     
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
     check(!DetailCategoryBuilder.IsEmpty());
 #endif
 
@@ -45,7 +45,7 @@ void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailL
 
     for (const TSharedRef<IPropertyHandle>& PropertyHandle : PropertyHandles)
     {
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
         if (PropertyHandle->GetProperty()->GetName() != InPropertyName)
 #else
         if (PropertyHandle->GetProperty()->GetName() != InPropertyName.ToString())
@@ -93,7 +93,7 @@ void FTsubasamusuSettingsCustomization::AddCommentGenerationLanguageProperty(IDe
 
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
     
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
     check(!DetailCategoryBuilder.IsEmpty());
 #endif
     
@@ -140,7 +140,7 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
 
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
     
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
     check(!DetailCategoryBuilder.IsEmpty());
 #endif
 
@@ -149,7 +149,7 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
 
     for (const TSharedRef<IPropertyHandle>& PropertyHandle : PropertyHandles)
     {
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
         if (PropertyHandle->GetProperty()->GetName() != PropertyName)
 #else
         if (PropertyHandle->GetProperty()->GetName() != PropertyName.ToString())
@@ -172,7 +172,7 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
             .AutoWidth()
             [
                 SNew(SEditableTextBox)
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
                 .Font(FEditorStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 #else
                 .Font(FAppStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
@@ -241,7 +241,7 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
     
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
     
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
     check(!DetailCategoryBuilder.IsEmpty());
 #endif
     

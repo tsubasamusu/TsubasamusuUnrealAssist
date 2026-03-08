@@ -3,6 +3,7 @@
 #include "SAccessSpecifierOptimizationRow.h"
 #include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "SAccessSpecifierOptimizationRow"
 
@@ -58,7 +59,7 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	
 	return SNew(SBox)
 		.HAlign(HAlign_Center)
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if (UE_VERSION_OLDER_THAN(5, 1, 0))
 		.Padding(FMargin(5.f, 0.f))
 #else
 		.Padding(5.f, 0.f)
