@@ -3,14 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Kismet2/BlueprintEditorUtils.h"
 
 class FBlueprintMemberUtility final
 {
 public:
 	static UEdGraph* FindFunctionGraph(const FName& InFunctionName, const UBlueprint* InBlueprint);
 	
-	template<typename FunctionToFindGraph, typename FunctionToExecute>
-	static void ForEachFunctionBaseMembersAndGraphs(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute)
+	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
+	static void ForEachFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{
 		for (TFieldIterator<UFunction> FunctionFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); FunctionFieldIterator; ++FunctionFieldIterator)
 		{
@@ -23,10 +24,38 @@ public:
 			
 				if (IsValid(Graph))
 				{
-					InFunctionToExecute(Function, Graph);
+					UK2Node_EditablePinBase* EditablePinNode = FindEditablePinNode(Graph, FunctionName, InFunctionToCheckEditablePinNode);
+					
+					if (IsValid(EditablePinNode) && !FBlueprintEditorUtils::IsInterfaceBlueprint(EditablePinNode->GetBlueprint()) && EditablePinNode->IsEditable())
+					{
+						InFunctionToExecute(Function, Graph, EditablePinNode);
+					}
 				}
 			}
 		}
+	}
+	
+	template<typename FunctionToCheckEditablePinNode>
+	static UK2Node_EditablePinBase* FindEditablePinNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+	{
+		if (IsValid(InGraph))
+		{
+			TArray<UK2Node_EditablePinBase*> EditablePinNodes;
+			InGraph->GetNodesOfClass(EditablePinNodes);
+	
+			if (!EditablePinNodes.IsEmpty())
+			{
+				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
+				{
+					if (IsValid(EditablePinNode) && InFunctionToCheckEditablePinNode(InFunctionOrEventName, EditablePinNode))
+					{
+						return EditablePinNode;
+					}
+				}
+			}
+		}
+	
+		return nullptr;
 	}
 	
 	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
