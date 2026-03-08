@@ -55,8 +55,8 @@ TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember::GetOptimalAccessSpec
 	
 	for (const TObjectPtr<const UBlueprint> MemberReferencerBlueprint : MemberReferencerBlueprints)
 	{
-		const UClass* MemberReferencerClass = MemberReferencerBlueprint->GeneratedClass;
-		const UClass* OwnerClass = OwnerBlueprint->GeneratedClass;
+		const UClass* MemberReferencerClass = MemberReferencerBlueprint->SkeletonGeneratedClass;
+		const UClass* OwnerClass = OwnerBlueprint->SkeletonGeneratedClass;
 	
 		if (!MemberReferencerClass->IsChildOf(OwnerClass))
 		{
@@ -316,8 +316,8 @@ bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const UBlueprint
 	
 	// Check whether that function is overridden
 	{
-		const UClass* ClassToCheck = InBlueprint->GeneratedClass;
-		const UClass* OwnerClass = OwnerBlueprint->GeneratedClass;
+		const UClass* ClassToCheck = InBlueprint->SkeletonGeneratedClass;
+		const UClass* OwnerClass = OwnerBlueprint->SkeletonGeneratedClass;
 		
 		if (ClassToCheck->IsChildOf(OwnerClass))
 		{
