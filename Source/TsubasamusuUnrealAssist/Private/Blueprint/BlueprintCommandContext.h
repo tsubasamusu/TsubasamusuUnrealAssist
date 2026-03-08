@@ -2,10 +2,12 @@
 
 #pragma once
 
+#include "BlueprintEditorModes.h"
+
 class FBlueprintCommandContext final : public FGCObject
 {
 public:
-	FBlueprintCommandContext(const TSharedPtr<const FUICommandInfo>& InUICommandInfo, const FExecuteAction& InExecuteAction, const TObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InTargetModes)
+	FBlueprintCommandContext(const TSharedPtr<const FUICommandInfo>& InUICommandInfo, const FExecuteAction& InExecuteAction, const TObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InTargetModes = { FBlueprintEditorApplicationModes::StandardBlueprintEditorMode })
 		: UICommandInfo(InUICommandInfo), ExecuteAction(InExecuteAction), Blueprint(InBlueprint), TargetModes(InTargetModes){}
 	
 	//~ Begin FGCObject Interface

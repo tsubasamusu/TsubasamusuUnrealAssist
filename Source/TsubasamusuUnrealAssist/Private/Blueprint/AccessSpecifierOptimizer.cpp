@@ -2,7 +2,6 @@
 
 #include "AccessSpecifierOptimizer.h"
 #include "BlueprintCommandContext.h"
-#include "BlueprintEditorModes.h"
 #include "BlueprintMember.h"
 #include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
@@ -36,14 +35,8 @@ void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint*
 {
 	FTsubasamusuBlueprintEditorCommands::Register();
 	
-	const TArray<FName> TargetModes =
-	{
-		FBlueprintEditorApplicationModes::StandardBlueprintEditorMode
-	};
-	
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
-		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint),
-		InBlueprint, TargetModes);
+		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint), InBlueprint);
 	
 	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }

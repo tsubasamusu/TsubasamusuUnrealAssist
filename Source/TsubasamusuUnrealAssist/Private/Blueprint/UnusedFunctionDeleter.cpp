@@ -2,12 +2,10 @@
 
 #include "UnusedFunctionDeleter.h"
 #include "BlueprintCommandContext.h"
-#include "BlueprintEditorModes.h"
 #include "BlueprintMemberUtility.h"
 #include "CommandUtility.h"
 #include "K2Node_CreateDelegate.h"
 #include "SCheckBoxList.h"
-#include "Algo/AnyOf.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Debug/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -19,15 +17,8 @@ void FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBlu
 {
 	FTsubasamusuBlueprintEditorCommands::Register();
 
-	const TArray<FName> TargetModes =
-	{
-		FBlueprintEditorApplicationModes::StandardBlueprintEditorMode,
-		FBlueprintEditorApplicationModes::BlueprintInterfaceMode
-	};
-
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().DeleteUnusedFunctions,
-		FExecuteAction::CreateStatic(&OnDeleteUnusedFunctionsClicked, InBlueprint),
-		InBlueprint, TargetModes);
+		FExecuteAction::CreateStatic(&OnDeleteUnusedFunctionsClicked, InBlueprint), InBlueprint);
 	
 	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
