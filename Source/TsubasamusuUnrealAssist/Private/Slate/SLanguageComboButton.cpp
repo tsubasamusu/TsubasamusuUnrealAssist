@@ -7,6 +7,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "Widgets/Input/SComboButton.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "SLanguageComboButton"
 
@@ -54,7 +55,7 @@ TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()
         {
             return LocalizedCulturesFlyweight->LocalizedCultures.Contains(InCulture);
         })
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 2, 0)
         .ViewMode(SCulturePicker::ECulturesViewMode::Flat)
 #endif
         .DisplayNameFormat(SCulturePicker::ECultureDisplayFormat::ActiveAndNativeCultureDisplayName);

@@ -5,8 +5,9 @@
 #include "Materials/MaterialInstanceConstant.h"
 #include "Debug/TsubasamusuLogUtility.h"
 #include "UObject/SavePackage.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 #include "Materials/MaterialInstanceDynamic.h"
 #endif
 

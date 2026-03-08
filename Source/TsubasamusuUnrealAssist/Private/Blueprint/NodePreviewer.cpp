@@ -11,8 +11,9 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 #include "GraphActionNode.h"
 #else
 #include "GraphEditor/Private/GraphActionNode.h"
@@ -119,7 +120,7 @@ TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();
 	
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 2)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 2, 0)
 	const FVector2f CursorPosition = SlateApplication.GetCursorPos();
 #else
 	const FVector2D CursorPosition = SlateApplication.GetCursorPos();
@@ -150,7 +151,7 @@ TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const 
 	
 		if (NodeTreeView.IsValid())
 		{
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
 			const TObjectPtrWrapTypeOf<TSharedPtr<FGraphActionNode>>* GraphActionNodePtr = NodeTreeView->Private_ItemFromWidget(TableRow.Get());
 			
 			if (GraphActionNodePtr->IsValid())

@@ -5,6 +5,7 @@
 #include "NodeUtility.h"
 #include "JsonObjectConverter.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<UEdGraphNode*>& InNodes)
 {
@@ -117,7 +118,7 @@ FNodeDataList FNodeInformationUtility::GetNodeDataList(const TArray<UEdGraphNode
 
 	for (const UEdGraphNode* Node : InNodes)
 	{
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 		FNodeData NodeData;
 		NodeData.NodeName = Node->GetNodeTitle(ENodeTitleType::FullTitle).ToString();
 		NodeData.Comment = Node->NodeComment;
@@ -145,7 +146,7 @@ TArray<FPinData> FNodeInformationUtility::GetPinDataList(const UEdGraphNode* InN
 
 	for (const UEdGraphPin* Pin : InNode->GetAllPins())
 	{
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 		FPinData PinData;
 		PinData.PinName = Pin->GetDisplayName().IsEmpty() ? Pin->PinName.ToString() : Pin->GetDisplayName().ToString();
 		PinData.PinDirection = GetPinDirectionAsString(Pin);
@@ -215,7 +216,7 @@ FString FNodeInformationUtility::GetPinTypeAsString(const UEdGraphPin* InPin)
 		return PinSubCategoryObject->GetName();
 	}
 	
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 1)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
 	return UEdGraphSchema_K2::GetCategoryText(InPin->PinType.PinCategory, PinSubCategoryName, true).ToString();
 #else
 	return UEdGraphSchema_K2::GetCategoryText(InPin->PinType.PinCategory, true).ToString();

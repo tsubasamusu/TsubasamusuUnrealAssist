@@ -12,6 +12,7 @@
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "FCommentGenerator"
 
@@ -202,7 +203,7 @@ bool FCommentGenerator::TryGetGptRequestString(const FString& InNodeDataListStri
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 	FGptMessage GptMessage;
 	GptMessage.role = TEXT("user");
 	GptMessage.content = GetDesiredPrompt(InNodeDataListString);

@@ -5,8 +5,9 @@
 #include "BlueprintEditor.h"
 #include "Algo/AnyOf.h"
 #include "Toolkits/ToolkitManager.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION == 0)
+#if UE_VERSION_OLDER_THAN(5, 1, 0)
 #include "ToolMenus.h"
 #endif
 

@@ -10,6 +10,7 @@
 #include "Algo/AnyOf.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
@@ -196,7 +197,7 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 		
 			auto IsComponentBoundEventNodeReferencesVariable = [&VariableNameToCheck](const UK2Node_ComponentBoundEvent* InComponentBoundEventNode)
 			{
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 4)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
 				return InComponentBoundEventNode->GetComponentPropertyName() == VariableNameToCheck;
 #else
 				return InComponentBoundEventNode->ComponentPropertyName == VariableNameToCheck;

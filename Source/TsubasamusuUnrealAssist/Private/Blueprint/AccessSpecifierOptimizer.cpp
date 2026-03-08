@@ -16,16 +16,17 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 2)
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
 #include "Misc/FeedbackContext.h"
 #endif
 
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION <= 3)
+#if UE_VERSION_OLDER_THAN(5, 4, 0)
 #include "Misc/ScopedSlowTask.h"
 #endif
 
@@ -321,7 +322,7 @@ TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlu
 		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
 		{
 			return IsValid(InEditablePinNode) &&
-#if (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
 #else 
 				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
