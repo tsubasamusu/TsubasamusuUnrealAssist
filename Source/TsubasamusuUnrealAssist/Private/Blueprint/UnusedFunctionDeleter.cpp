@@ -38,7 +38,7 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 	int32 AllDeletableFunctionsCount = 0;
 	TArray<UEdGraph*> UnusedFunctionGraphs;
 	
-	auto FunctionForEachFunctionBaseMembersAndGraphs = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctionGraphs](UFunction* InFunction, UEdGraph* InGraph)
+	auto FunctionForEachFunctionBaseMembers = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctionGraphs](UFunction* InFunction, UEdGraph* InGraph, UK2Node_EditablePinBase* /*InEditablePinNode*/)
 	{
 		if (InGraph->bAllowDeletion)
 		{
@@ -51,7 +51,12 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 		}
 	};
 	
-	FBlueprintMemberUtility::ForEachFunctionBaseMembersAndGraphs(InBlueprint, FunctionToFindGraph, FunctionForEachFunctionBaseMembersAndGraphs);
+	auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+	{
+		return FBlueprintMemberUtility::IsFunctionEntryNode(InEditablePinNode);
+	};
+	
+	FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, FunctionToFindGraph, FunctionForEachFunctionBaseMembers, FunctionToCheckEditablePinNode);
 	
 	if (AllDeletableFunctionsCount == 0)
 	{
