@@ -9,6 +9,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Blueprint/NodePreviewer.h"
 #include "Blueprint/UnusedFunctionDeleter.h"
+#include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Setting/EditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
@@ -115,6 +116,8 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 		
 		if (IsValid(OpenedBlueprint))
 		{
+			FTsubasamusuBlueprintEditorCommands::Register();
+	
 			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
 			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
 		}
