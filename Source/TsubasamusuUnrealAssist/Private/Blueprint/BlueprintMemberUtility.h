@@ -28,4 +28,6 @@ public:
 			}
 		}
 	}
+	
+	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
 };
