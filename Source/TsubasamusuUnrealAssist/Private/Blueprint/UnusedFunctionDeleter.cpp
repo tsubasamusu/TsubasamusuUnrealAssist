@@ -31,9 +31,9 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 	};
 	
 	int32 AllDeletableFunctionsCount = 0;
-	TArray<TSharedPtr<FUnusedItem_FunctionGraph>> UnusedFunctionGraphs;
+	TArray<TSharedPtr<FUnusedItem_Function>> UnusedFunctions;
 	
-	auto FunctionForEachFunctionBaseMembers = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctionGraphs](UFunction* InFunction, UEdGraph* InGraph, UK2Node_EditablePinBase* /*InEditablePinNode*/)
+	auto FunctionForEachFunctionBaseMembers = [InBlueprint, &AllDeletableFunctionsCount, &UnusedFunctions](UFunction* InFunction, UEdGraph* InGraph, UK2Node_EditablePinBase* /*InEditablePinNode*/)
 	{
 		if (InGraph->bAllowDeletion)
 		{
@@ -41,8 +41,8 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 		
 			if (!FBlueprintEditorUtils::IsFunctionUsed(InBlueprint, InFunction->GetFName()))
 			{
-				const TSharedPtr<FUnusedItem_FunctionGraph> UnusedFunctionGraph = MakeShared<FUnusedItem_FunctionGraph>(InGraph);
-				UnusedFunctionGraphs.Add(UnusedFunctionGraph);
+				const TSharedPtr<FUnusedItem_Function> UnusedFunction = MakeShared<FUnusedItem_Function>(InGraph);
+				UnusedFunctions.Add(UnusedFunction);
 			}
 		}
 	};
@@ -56,15 +56,15 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 	
 	const TSharedPtr<FBlueprintEditor> BlueprintEditor = FBlueprintEditorUtility::GetBlueprintEditor(InBlueprint);
 	
-	auto FunctionToDeleteUnusedItem = [&UnusedFunctionGraphs, InBlueprint, BlueprintEditor](const int32 ItemIndex)
+	auto FunctionToDeleteUnusedItem = [&UnusedFunctions, InBlueprint, BlueprintEditor](const int32 ItemIndex)
 	{
-		DeleteFunction(UnusedFunctionGraphs[ItemIndex]->FunctionGraph, InBlueprint, BlueprintEditor);
+		DeleteFunction(UnusedFunctions[ItemIndex]->FunctionGraph, InBlueprint, BlueprintEditor);
 	};
 	
 	TArray<TSharedPtr<FUnusedItem>> UnusedItems;
-	for (const TSharedPtr<FUnusedItem_FunctionGraph> UnusedFunctionGraph : UnusedFunctionGraphs)
+	for (const TSharedPtr<FUnusedItem_Function> UnusedFunction : UnusedFunctions)
 	{
-		UnusedItems.Add(UnusedFunctionGraph);
+		UnusedItems.Add(UnusedFunction);
 	}
 	
 	const FText ItemTypeText = LOCTEXT("ItemType", "functions");

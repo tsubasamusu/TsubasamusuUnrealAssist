@@ -9,12 +9,12 @@ void FUnusedItem::AddReferencedObjects(FReferenceCollector& InReferenceCollector
 	
 }
 
-void FUnusedItem_FunctionGraph::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
+void FUnusedItem_Function::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
 {
 	InReferenceCollector.AddReferencedObject(FunctionGraph);
 }
 
-FText FUnusedItem_FunctionGraph::GetItemNameText() const
+FText FUnusedItem_Function::GetItemNameText() const
 {
 	if (IsValid(FunctionGraph))
 	{

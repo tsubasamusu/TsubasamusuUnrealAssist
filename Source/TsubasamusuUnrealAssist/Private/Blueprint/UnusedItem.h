@@ -20,10 +20,10 @@ public:
 	virtual FText GetItemNameText() const = 0;
 };
 
-class FUnusedItem_FunctionGraph final : public FUnusedItem
+class FUnusedItem_Function final : public FUnusedItem
 {
 public:
-	explicit FUnusedItem_FunctionGraph(const TObjectPtr<UEdGraph> InFunctionGraph)
+	explicit FUnusedItem_Function(const TObjectPtr<UEdGraph> InFunctionGraph)
 		: FunctionGraph(InFunctionGraph){}
 	
 	//~ Begin FGCObject Interface
