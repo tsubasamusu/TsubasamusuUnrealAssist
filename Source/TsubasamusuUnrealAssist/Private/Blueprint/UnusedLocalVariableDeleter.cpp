@@ -2,13 +2,13 @@
 
 #include "UnusedLocalVariableDeleter.h"
 #include "BlueprintCommandContext.h"
-#include "CommandUtility.h"
+#include "BlueprintEditorUtility.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "K2Node_FunctionEntry.h"
 
 void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBlueprint* InBlueprint)
 {
-	TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = FCommandUtility::GetBlueprintEditor(InBlueprint);
+	TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = FBlueprintEditorUtility::GetBlueprintEditor(InBlueprint);
 	
 	const FCanExecuteAction IsFocusingFunctionGraph = FCanExecuteAction::CreateLambda([WeakBlueprintEditor]()
 	{
@@ -34,7 +34,7 @@ void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBluepr
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().DeleteUnusedLocalVariables,
 		FExecuteAction::CreateStatic(&OnDeleteUnusedLocalVariablesClicked, InBlueprint), InBlueprint, AdditionalConditionsToExecuteAction);
 	
-	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
+	FBlueprintEditorUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
 
 void FUnusedLocalVariableDeleter::OnDeleteUnusedLocalVariablesClicked(UBlueprint* InBlueprint)

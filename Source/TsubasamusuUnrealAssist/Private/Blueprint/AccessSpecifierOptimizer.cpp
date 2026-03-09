@@ -4,7 +4,7 @@
 #include "BlueprintCommandContext.h"
 #include "BlueprintMember.h"
 #include "BlueprintMemberUtility.h"
-#include "CommandUtility.h"
+#include "BlueprintEditorUtility.h"
 #include "Slate/SAccessSpecifierOptimizationRow.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
@@ -36,7 +36,7 @@ void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint*
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
 		FExecuteAction::CreateStatic(&OnOptimizeAccessSpecifiersClicked, InBlueprint), InBlueprint);
 	
-	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
+	FBlueprintEditorUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
 
 void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint)

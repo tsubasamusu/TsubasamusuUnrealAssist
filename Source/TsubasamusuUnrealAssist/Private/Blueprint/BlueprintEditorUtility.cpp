@@ -1,6 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "CommandUtility.h"
+#include "BlueprintEditorUtility.h"
 #include "BlueprintCommandContext.h"
 #include "BlueprintEditor.h"
 #include "Algo/AnyOf.h"
@@ -13,7 +13,7 @@
 
 #define LOCTEXT_NAMESPACE "FCommandUtility"
 
-void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommandContext& InBlueprintCommandContext)
+void FBlueprintEditorUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommandContext& InBlueprintCommandContext)
 {
 	if (InBlueprintCommandContext.IsValid())
 	{
@@ -69,7 +69,7 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 	}
 }
 
-TSharedPtr<FBlueprintEditor> FCommandUtility::GetBlueprintEditor(const UBlueprint* InBlueprint)
+TSharedPtr<FBlueprintEditor> FBlueprintEditorUtility::GetBlueprintEditor(const UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
 	{

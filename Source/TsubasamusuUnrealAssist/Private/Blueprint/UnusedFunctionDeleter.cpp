@@ -3,7 +3,7 @@
 #include "UnusedFunctionDeleter.h"
 #include "BlueprintCommandContext.h"
 #include "BlueprintMemberUtility.h"
-#include "CommandUtility.h"
+#include "BlueprintEditorUtility.h"
 #include "K2Node_CreateDelegate.h"
 #include "SCheckBoxList.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
@@ -18,7 +18,7 @@ void FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(UBlueprint* InBlu
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().DeleteUnusedFunctions,
 		FExecuteAction::CreateStatic(&OnDeleteUnusedFunctionsClicked, InBlueprint), InBlueprint);
 	
-	FCommandUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
+	FBlueprintEditorUtility::RegisterCommandInBlueprintEditMenu(BlueprintCommandContext);
 }
 
 void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBlueprint)
@@ -103,7 +103,7 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 		return;
 	}
 	
-	const TSharedPtr<FBlueprintEditor> BlueprintEditor = FCommandUtility::GetBlueprintEditor(InBlueprint);
+	const TSharedPtr<FBlueprintEditor> BlueprintEditor = FBlueprintEditorUtility::GetBlueprintEditor(InBlueprint);
 	
 	for (int32 Index = 0; Index < UnusedFunctionGraphs.Num(); ++Index)
 	{

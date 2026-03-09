@@ -7,7 +7,7 @@
 class FBlueprintEditor;
 class FBlueprintCommandContext;
 
-class FCommandUtility final
+class FBlueprintEditorUtility final
 {
 public:
 	static void RegisterCommandInBlueprintEditMenu(const FBlueprintCommandContext& InBlueprintCommandContext);
