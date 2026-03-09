@@ -80,4 +80,20 @@ TSharedPtr<FBlueprintEditor> FBlueprintEditorUtility::GetBlueprintEditor(const U
 	return nullptr;
 }
 
+FString FBlueprintEditorUtility::ConvertToTitleCaseString(const FString& InSourceString)
+{
+	TArray<FString> Words;
+	InSourceString.ParseIntoArray(Words, TEXT(" "), true);
+
+	for (FString& Word : Words)
+	{
+		if (!Word.IsEmpty())
+		{
+			Word = Word.Left(1).ToUpper() + Word.Mid(1).ToLower();
+		}
+	}
+
+	return FString::Join(Words, TEXT(" "));
+}
+
 #undef LOCTEXT_NAMESPACE
