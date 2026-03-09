@@ -9,6 +9,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Blueprint/NodePreviewer.h"
 #include "Blueprint/UnusedFunctionDeleter.h"
+#include "Blueprint/UnusedLocalVariableDeleter.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Setting/EditorSettingsUtility.h"
 
@@ -120,6 +121,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 	
 			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
 			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
+			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
 		}
 	});
 }
