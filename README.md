@@ -50,7 +50,7 @@ OpenAI のAPIキーを使用してコメントを生成します。
 ### Comment Translator
 コメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューでマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この翻訳機能には DeepL のAPIキーを使用しています。この機能を使用するにはエディタ設定の「Comment Translation > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
 
-<img width="500" src="https://github.com/user-attachments/assets/6768ed5d-5c88-42e7-b2f4-e33a4e4b24c8">
+<img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
 ### Node Information Copier
 選択しているノードの情報をJSONまたは[TOON](https://toonformat.dev)形式の文字列としてクリップボードにコピーできます。この文字列にはノード名やピン名、ノードコメント、ピンの方向（インプットかアウトプット）、ピンの型名、ピンのGUID、そのピンに接続されているピンのGUIDなどが含まれます。「JSON」を選択すると、Unreal Engine の標準のコピー機能でクリップボードにコピーされる文字数のおよそ3分の1ほどの文字数でコピーすることができます。さらに「TOON」を選択すると、JSONのときの半分ほどの文字数でコピーできます。
@@ -428,7 +428,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 ### Node Previewer
 ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Enable Node Preview」にチェックを付ける必要があります。
 
-<img width="500" src="https://github.com/user-attachments/assets/df8661ec-6444-460e-82f3-b7b540351108">
+<img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
 
 「Enable Node Preview」にチェックを付けると、以下の項目が編集できるようになります。
 
@@ -447,11 +447,16 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 ※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
 
 ### Unused Function Deleter
-このプラグインを有効化してブループリントエディタを開くと、「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を削除することができます。
+このプラグインを有効化してブループリントエディタを開くと、「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
 
-<img width="700" src="https://github.com/user-attachments/assets/6f61565c-d701-43af-a99b-f1a291ac988a">
+<img width="500" src="https://github.com/user-attachments/assets/2c0f2ce5-8998-483f-b74d-1be53de84aca">
 
 ※オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
+
+### Unused Local Variables Deleter
+このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると、「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
+
+<img width="500" src="https://github.com/user-attachments/assets/fa565e80-c798-4900-bcc7-fbb98d4686f0">
 
 ## Editor Utility 用のノード
 ### Async Replace References

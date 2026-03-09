@@ -14,4 +14,5 @@ public:
 
 	TSharedPtr<FUICommandInfo> OptimizeAccessSpecifiers;
 	TSharedPtr<FUICommandInfo> DeleteUnusedFunctions;
+	TSharedPtr<FUICommandInfo> DeleteUnusedLocalVariables;
 };
