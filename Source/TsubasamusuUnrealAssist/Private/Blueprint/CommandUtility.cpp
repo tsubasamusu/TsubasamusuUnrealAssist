@@ -17,47 +17,55 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 {
 	if (InBlueprintCommandContext.IsValid())
 	{
-		const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InBlueprintCommandContext.Blueprint);
-		
-		if (Toolkit.IsValid())
+		const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = GetBlueprintEditor(InBlueprintCommandContext.Blueprint);
+		const TArray<FCanExecuteAction> AdditionalConditionsToExecuteAction = InBlueprintCommandContext.AdditionalConditionsToExecuteAction;
+		const TArray<FName> TargetModes = InBlueprintCommandContext.TargetModes;
+
+		auto CanExecuteAction = [WeakBlueprintEditor, AdditionalConditionsToExecuteAction, TargetModes]()
 		{
-			const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
-			const TArray<FName> TargetModes = InBlueprintCommandContext.TargetModes;
-	
-			auto CanExecuteAction = [WeakBlueprintEditor, TargetModes]()
+			if (WeakBlueprintEditor.IsValid())
 			{
-				if (WeakBlueprintEditor.IsValid())
+				TSharedPtr<FBlueprintEditor> PinnedBlueprintEditor = WeakBlueprintEditor.Pin();
+				auto IsModeMatchesTargetBlueprint = [WeakBlueprintEditor, PinnedBlueprintEditor](const FName& InTargetMode)
 				{
-					auto IsModeMatchesTargetBlueprint = [WeakBlueprintEditor](const FName& InTargetMode)
+					return PinnedBlueprintEditor->IsModeCurrent(InTargetMode);
+				};
+		
+				if (Algo::AnyOf(TargetModes, IsModeMatchesTargetBlueprint))
+				{
+					for (const FCanExecuteAction& AdditionalConditionToExecuteAction : AdditionalConditionsToExecuteAction)
 					{
-						return WeakBlueprintEditor.Pin()->IsModeCurrent(InTargetMode);
-					};
-			
-					return Algo::AnyOf(TargetModes, IsModeMatchesTargetBlueprint);
+						if (!AdditionalConditionToExecuteAction.Execute())
+						{
+							return false;
+						}
+					}
+					
+					return true;
 				}
-				
-				return false;
-			};
+			}
 			
-			const TSharedPtr<FBlueprintEditor> PinnedBlueprintEditor = WeakBlueprintEditor.Pin();
-			const TSharedPtr<FUICommandList> ToolkitCommands = PinnedBlueprintEditor->GetToolkitCommands();
-			
-			ToolkitCommands->MapAction(InBlueprintCommandContext.UICommandInfo, InBlueprintCommandContext.ExecuteAction, FCanExecuteAction::CreateLambda(CanExecuteAction));
-			
-			const FName EditMenuName = *(PinnedBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
-			const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
-	
-			UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
-	
-			const FName SectionName = TEXT("EditTsubasamusuUnrealAssist");
-			const FText SectionLabel = LOCTEXT("EditMenu_TsubasamusuUnrealAssist", "Tsubasamusu Unreal Assist");
-			const FName AboveSectionName = TEXT("EditSearch");
-	
-			FToolMenuSection& ToolMenuSection = ToolMenu->AddSection(SectionName, SectionLabel);
-			ToolMenuSection.InsertPosition = FToolMenuInsert(AboveSectionName, EToolMenuInsertType::After);
-	
-			ToolMenuSection.AddMenuEntry(InBlueprintCommandContext.UICommandInfo);
-		}
+			return false;
+		};
+		
+		const TSharedPtr<FBlueprintEditor> PinnedBlueprintEditor = WeakBlueprintEditor.Pin();
+		const TSharedPtr<FUICommandList> ToolkitCommands = PinnedBlueprintEditor->GetToolkitCommands();
+		
+		ToolkitCommands->MapAction(InBlueprintCommandContext.UICommandInfo, InBlueprintCommandContext.ExecuteAction, FCanExecuteAction::CreateLambda(CanExecuteAction));
+		
+		const FName EditMenuName = *(PinnedBlueprintEditor->GetToolMenuName().ToString() + TEXT(".Edit"));
+		const FName ParentEditMenuName = TEXT("MainFrame.MainMenu.Edit");
+
+		UToolMenu* ToolMenu = UToolMenus::Get()->RegisterMenu(EditMenuName, ParentEditMenuName, EMultiBoxType::Menu, false);
+
+		const FName SectionName = TEXT("EditTsubasamusuUnrealAssist");
+		const FText SectionLabel = LOCTEXT("EditMenu_TsubasamusuUnrealAssist", "Tsubasamusu Unreal Assist");
+		const FName AboveSectionName = TEXT("EditSearch");
+
+		FToolMenuSection& ToolMenuSection = ToolMenu->AddSection(SectionName, SectionLabel);
+		ToolMenuSection.InsertPosition = FToolMenuInsert(AboveSectionName, EToolMenuInsertType::After);
+
+		ToolMenuSection.AddMenuEntry(InBlueprintCommandContext.UICommandInfo);
 	}
 }
 
