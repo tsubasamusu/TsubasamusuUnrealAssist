@@ -6,7 +6,9 @@
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_Variable.h"
+#include "SCheckBoxList.h"
 #include "Algo/AnyOf.h"
+#include "Debug/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "FUnusedLocalVariableDeleter"
@@ -42,7 +44,77 @@ void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBluepr
 
 void FUnusedLocalVariableDeleter::OnDeleteUnusedLocalVariablesClicked(UBlueprint* InBlueprint)
 {
+	const TSharedPtr<FBlueprintEditor> BlueprintEditor = FBlueprintEditorUtility::GetBlueprintEditor(InBlueprint);
+	const UEdGraph* FocusedGraph = BlueprintEditor->GetFocusedGraph();
+	UK2Node_FunctionEntry* FunctionEntryNode = FindFunctionEntryNode(FocusedGraph);
 	
+	if (FunctionEntryNode->LocalVariables.IsEmpty())
+	{
+		const FText NotificationText = LOCTEXT("NoLocalVariablesToCheck", "No local variables to check for.");
+		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
+		return;
+	}
+	
+	TArray<FBPVariableDescription> UnusedLocalVariables;
+	
+	for (const FBPVariableDescription& LocalVariable : FunctionEntryNode->LocalVariables)
+	{
+		if (!IsLocalVariableUsed(LocalVariable, FocusedGraph))
+		{
+			UnusedLocalVariables.Add(LocalVariable);
+		}
+	}
+	
+	if (UnusedLocalVariables.IsEmpty())
+	{
+		const FText NotificationText = LOCTEXT("NoUnusedLocalVariables", "There are no unused local variables.");
+		FEditorMessageUtility::DisplaySimpleNotification(NotificationText);
+		return;
+	}
+
+	const TSharedRef<SCheckBoxList> CheckBoxList = SNew(SCheckBoxList)
+			.ItemHeaderLabel(LOCTEXT("DeleteUnusedLocalVariablesDialog_LocalVariableLabel", "Local Variable"));
+	
+	for (const FBPVariableDescription& UnusedLocalVariable : UnusedLocalVariables)
+	{
+		CheckBoxList->AddItem(FText::FromName(UnusedLocalVariable.VarName), true);
+	}
+
+	auto OneOrMoreLocalVariablesAreChecked = [&UnusedLocalVariables, CheckBoxList]()
+	{
+		for (int32 Index = 0; Index < UnusedLocalVariables.Num(); ++Index)
+		{
+			if (CheckBoxList->IsItemChecked(Index))
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	};
+	
+	const FText DialogTitle = LOCTEXT("DeleteUnusedLocalVariablesDialog_Title", "Delete Unused Local Variables");
+	const FText DialogMessage = LOCTEXT("DeleteUnusedLocalVariablesDialog_Message", "These local variables are not used in the graph.");
+	const FText ApplyButtonText = LOCTEXT("DeleteUnusedLocalVariablesDialog_ApplyButton", "Delete Selected Local Variables");
+	const FText CancelButtonText = LOCTEXT("DeleteUnusedLocalVariablesDialog_CancelButton", "Cancel");
+
+	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, TAttribute<bool>::CreateLambda(OneOrMoreLocalVariablesAreChecked));
+	
+	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !OneOrMoreLocalVariablesAreChecked())
+	{
+		return;
+	}
+	
+	for (int32 Index = 0; Index < UnusedLocalVariables.Num(); ++Index)
+	{
+		if (CheckBoxList->IsItemChecked(Index))
+		{
+			DeleteLocalVariable(UnusedLocalVariables[Index], InBlueprint, FunctionEntryNode);
+		}
+	}
+
+	const FText NotificationText = LOCTEXT("SuccessfullyDeleteUnusedLocalVariables", "Successfully delete unused local variables.");
+	FEditorMessageUtility::DisplaySimpleNotification(NotificationText, SNotificationItem::ECompletionState::CS_Success);
 }
 
 bool FUnusedLocalVariableDeleter::IsLocalVariableUsed(const FBPVariableDescription& InLocalVariable, const UEdGraph* InFunctionGraph)
