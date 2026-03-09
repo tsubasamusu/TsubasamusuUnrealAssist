@@ -19,10 +19,8 @@ void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBluepr
 			
 			if (IsValid(FocusedGraph))
 			{
-				TArray<UK2Node_FunctionEntry*> FunctionEntryNodes;
-				FocusedGraph->GetNodesOfClass(FunctionEntryNodes);
-			
-				return !FunctionEntryNodes.IsEmpty();
+				const UK2Node_FunctionEntry* FunctionEntryNode = FindFunctionEntryNode(FocusedGraph);
+				return IsValid(FunctionEntryNode);
 			}
 		}
 		
@@ -40,4 +38,21 @@ void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBluepr
 void FUnusedLocalVariableDeleter::OnDeleteUnusedLocalVariablesClicked(UBlueprint* InBlueprint)
 {
 	
+}
+
+UK2Node_FunctionEntry* FUnusedLocalVariableDeleter::FindFunctionEntryNode(const UEdGraph* InGraph)
+{
+	if (IsValid(InGraph))
+	{
+		TArray<UK2Node_FunctionEntry*> FunctionEntryNodes;
+		InGraph->GetNodesOfClass(FunctionEntryNodes);
+	
+		if (!FunctionEntryNodes.IsEmpty())
+		{
+			check(FunctionEntryNodes.Num() == 1);
+			return FunctionEntryNodes[0];
+		}
+	}
+	
+	return nullptr;
 }

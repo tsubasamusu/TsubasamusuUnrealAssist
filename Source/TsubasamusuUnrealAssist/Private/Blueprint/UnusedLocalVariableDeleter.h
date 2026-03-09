@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+class UK2Node_FunctionEntry;
+
 class FUnusedLocalVariableDeleter final
 {
 public:
@@ -11,4 +13,5 @@ public:
 	
 private:
 	static void OnDeleteUnusedLocalVariablesClicked(UBlueprint* InBlueprint);
+	static UK2Node_FunctionEntry* FindFunctionEntryNode(const UEdGraph* InGraph);
 };
