@@ -5,6 +5,8 @@
 #include "BlueprintEditorUtility.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "K2Node_FunctionEntry.h"
+#include "K2Node_Variable.h"
+#include "Algo/AnyOf.h"
 
 void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBlueprint* InBlueprint)
 {
@@ -38,6 +40,23 @@ void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBluepr
 void FUnusedLocalVariableDeleter::OnDeleteUnusedLocalVariablesClicked(UBlueprint* InBlueprint)
 {
 	
+}
+
+bool FUnusedLocalVariableDeleter::IsLocalVariableUsed(const FBPVariableDescription& InLocalVariable, const UEdGraph* InFunctionGraph)
+{
+	TArray<UK2Node_Variable*> VariableNodes;
+	InFunctionGraph->GetNodesOfClass(VariableNodes);
+	
+	auto IsVariableNodeReferencesLocalVariable = [InLocalVariable](const UK2Node_Variable* InVariableNode)
+	{
+		UClass* BlueprintClass = InVariableNode->GetBlueprintClassFromNode();
+		const FProperty* Variable = InVariableNode->VariableReference.ResolveMember<FProperty>(BlueprintClass);
+		const bool bIsLocalVariableNode = Variable && !Variable->HasAnyPropertyFlags(CPF_Parm) && InVariableNode->VariableReference.IsLocalScope();
+		
+		return bIsLocalVariableNode && InVariableNode->GetVarName() == InLocalVariable.VarName;
+	};
+	
+	return Algo::AnyOf(VariableNodes, IsVariableNodeReferencesLocalVariable);
 }
 
 UK2Node_FunctionEntry* FUnusedLocalVariableDeleter::FindFunctionEntryNode(const UEdGraph* InGraph)
