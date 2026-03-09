@@ -25,9 +25,10 @@
 ## ブループリントエディタ関連
 ### Comment Generator
 OpenAI のAPIキーを使用してコメントを生成します。
-※APIの使用料については十分注意してください。
 
 <img width="500" src="https://github.com/user-attachments/assets/7fc80cb9-6c61-4002-8aea-bd5e06a00488">
+
+※APIの使用料については十分注意してください。
 
 この機能に関連したエディタ設定の項目は以下の通りです。
 
