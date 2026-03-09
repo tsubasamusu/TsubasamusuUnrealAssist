@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 
+class FBlueprintEditor;
 class FBlueprintCommandContext;
 
 class FCommandUtility final
 {
 public:
 	static void RegisterCommandInBlueprintEditMenu(const FBlueprintCommandContext& InBlueprintCommandContext);
+	static TSharedPtr<FBlueprintEditor> GetBlueprintEditor(const UBlueprint* InBlueprint);
 };

@@ -61,4 +61,15 @@ void FCommandUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommand
 	}
 }
 
+TSharedPtr<FBlueprintEditor> FCommandUtility::GetBlueprintEditor(const UBlueprint* InBlueprint)
+{
+	if (IsValid(InBlueprint))
+	{
+		const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InBlueprint);
+		return StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
+	}
+	
+	return nullptr;
+}
+
 #undef LOCTEXT_NAMESPACE

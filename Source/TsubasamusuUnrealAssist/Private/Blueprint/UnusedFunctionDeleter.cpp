@@ -103,8 +103,7 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 		return;
 	}
 	
-	const TSharedPtr<IToolkit> Toolkit = FToolkitManager::Get().FindEditorForAsset(InBlueprint);
-	const TSharedPtr<FBlueprintEditor> BlueprintEditor = StaticCastSharedPtr<FBlueprintEditor>(Toolkit);
+	const TSharedPtr<FBlueprintEditor> BlueprintEditor = FCommandUtility::GetBlueprintEditor(InBlueprint);
 	
 	for (int32 Index = 0; Index < UnusedFunctionGraphs.Num(); ++Index)
 	{
