@@ -10,10 +10,10 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	// General
 	TickInterval = 0.f;
 	
-	// Comment Translation
+	// Comment Translator
 	DeeplApiKey = TEXT("");
 
-	// Comment Generation
+	// Comment Generator
 	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4o-mini");
 	bUseEditorLanguageForCommentGeneration = true;
@@ -23,7 +23,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
 	
-	// Node Preview
+	// Node Previewer
 	bEnableNodePreview = false;
 	bAlsoPreviewAdvancedView = false;
 	NodePreviewScale = 1.f;

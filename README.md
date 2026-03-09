@@ -49,7 +49,7 @@ OpenAI のAPIキーを使用してコメントを生成します。
 <img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
 
 ### Comment Translator
-コメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューでマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この翻訳機能には DeepL のAPIキーを使用しています。この機能を使用するにはエディタ設定の「Comment Translation > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
+コメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューでマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この翻訳機能には DeepL のAPIキーを使用しています。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
 
 <img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
@@ -427,7 +427,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 この例ではJSONのときの文字数が7,986文字、TOONのときは3,316文字になっています。（Unreal Engine の標準のコピー機能では23,278文字になります。）
 
 ### Node Previewer
-ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Enable Node Preview」にチェックを付ける必要があります。
+ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview」にチェックを付ける必要があります。
 
 <img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
 
