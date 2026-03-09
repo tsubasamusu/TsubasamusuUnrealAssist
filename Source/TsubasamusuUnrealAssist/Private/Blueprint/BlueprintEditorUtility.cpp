@@ -11,7 +11,7 @@
 #include "ToolMenus.h"
 #endif
 
-#define LOCTEXT_NAMESPACE "FCommandUtility"
+#define LOCTEXT_NAMESPACE "FBlueprintEditorUtility"
 
 void FBlueprintEditorUtility::RegisterCommandInBlueprintEditMenu(const FBlueprintCommandContext& InBlueprintCommandContext)
 {
