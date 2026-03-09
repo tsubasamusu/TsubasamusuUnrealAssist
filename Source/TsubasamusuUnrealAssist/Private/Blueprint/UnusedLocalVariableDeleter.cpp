@@ -7,6 +7,9 @@
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_Variable.h"
 #include "Algo/AnyOf.h"
+#include "Kismet2/BlueprintEditorUtils.h"
+
+#define LOCTEXT_NAMESPACE "FUnusedLocalVariableDeleter"
 
 void FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(UBlueprint* InBlueprint)
 {
@@ -75,3 +78,19 @@ UK2Node_FunctionEntry* FUnusedLocalVariableDeleter::FindFunctionEntryNode(const 
 	
 	return nullptr;
 }
+
+void FUnusedLocalVariableDeleter::DeleteLocalVariable(const FBPVariableDescription& InLocalVariable, UBlueprint* InBlueprint, UK2Node_FunctionEntry* InFunctionEntryNode)
+{
+	if (IsValid(InBlueprint) && IsValid(InFunctionEntryNode))
+	{
+		const FScopedTransaction Transaction(LOCTEXT("DeleteLocalVariableTransaction", "Delete Local Variable"));
+
+		InBlueprint->Modify();
+		InFunctionEntryNode->Modify();
+
+		const UStruct* Scope = CastChecked<UStruct>(InFunctionEntryNode->FindSignatureFunction());
+		FBlueprintEditorUtils::RemoveLocalVariable(InBlueprint, Scope, InLocalVariable.VarName);
+	}
+}
+
+#undef LOCTEXT_NAMESPACE

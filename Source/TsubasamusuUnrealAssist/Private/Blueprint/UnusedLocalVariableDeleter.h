@@ -15,4 +15,5 @@ private:
 	static void OnDeleteUnusedLocalVariablesClicked(UBlueprint* InBlueprint);
 	static bool IsLocalVariableUsed(const FBPVariableDescription& InLocalVariable, const UEdGraph* InFunctionGraph);
 	static UK2Node_FunctionEntry* FindFunctionEntryNode(const UEdGraph* InGraph);
+	static void DeleteLocalVariable(const FBPVariableDescription& InLocalVariable, UBlueprint* InBlueprint, UK2Node_FunctionEntry* InFunctionEntryNode);
 };
