@@ -3,6 +3,8 @@
 #include "BlueprintMemberUtility.h"
 #include "K2Node_FunctionEntry.h"
 
+#define LOCTEXT_NAMESPACE "FBlueprintMemberUtility"
+
 UEdGraph* FBlueprintMemberUtility::FindFunctionGraph(const FName& InFunctionName, const UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
@@ -26,16 +28,27 @@ bool FBlueprintMemberUtility::IsFunctionEntryNode(const UK2Node_EditablePinBase*
 
 void FBlueprintMemberUtility::SetVariableAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, const FName& InVariableName, UBlueprint* InBlueprint)
 {
-	switch (InAccessSpecifier)
+	if (IsValid(InBlueprint))
 	{
-	case ETsubasamusuAccessSpecifier::Private:
-		FBlueprintEditorUtils::SetBlueprintVariableMetaData(InBlueprint, InVariableName, nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
-		break;
-	case ETsubasamusuAccessSpecifier::Public:
-		FBlueprintEditorUtils::RemoveBlueprintVariableMetaData(InBlueprint, InVariableName, nullptr, FBlueprintMetadata::MD_Private);
-		break;
-	default:
-		checkNoEntry()
-		break;
+		const FScopedTransaction Transaction(LOCTEXT("ChangeVariableAccessSpecifierTransaction", "Change Variable Access Specifier"));
+		
+		InBlueprint->Modify();
+		
+		switch (InAccessSpecifier)
+		{
+		case ETsubasamusuAccessSpecifier::Private:
+			FBlueprintEditorUtils::SetBlueprintVariableMetaData(InBlueprint, InVariableName, nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
+			break;
+		case ETsubasamusuAccessSpecifier::Public:
+			FBlueprintEditorUtils::RemoveBlueprintVariableMetaData(InBlueprint, InVariableName, nullptr, FBlueprintMetadata::MD_Private);
+			break;
+		default:
+			checkNoEntry()
+			break;
+		}
+
+		FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(InBlueprint);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
