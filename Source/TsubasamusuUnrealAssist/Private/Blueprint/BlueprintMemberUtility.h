@@ -5,6 +5,12 @@
 #include "CoreMinimal.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistEnums.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
+
+class UK2Node_FunctionEntry;
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+class UK2Node_CustomEvent;
+#endif
 
 class FBlueprintMemberUtility final
 {
@@ -13,6 +19,10 @@ public:
 	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
 	
 	static void SetVariableAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, const FName& InVariableName, UBlueprint* InBlueprint);
+	static void SetFunctionAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_FunctionEntry* InFunctionEntryNode, UBlueprint* InBlueprint);
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	static void SetCustomEventAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_CustomEvent* InCustomEventEntryNode, UBlueprint* InBlueprint);
+#endif
 	
 	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
 	static void ForEachFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
