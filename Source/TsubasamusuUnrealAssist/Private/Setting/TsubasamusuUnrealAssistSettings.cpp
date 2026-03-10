@@ -27,6 +27,14 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bEnableNodePreview = false;
 	bAlsoPreviewAdvancedView = false;
 	NodePreviewScale = 1.f;
+	
+	// Access Specifier Initializer
+	bOverrideVariableDefaultAccessSpecifier = false;
+	VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	bOverrideFunctionDefaultAccessSpecifier = false;
+	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	bOverrideEventDefaultAccessSpecifier = false;
+	EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
@@ -34,23 +42,17 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
 
 	const FName PropertyName = InPropertyChangedEvent.Property ? InPropertyChangedEvent.Property->GetFName() : NAME_None;
-
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration))
-	{
-		if (bUseEditorLanguageForCommentGeneration)
-		{
-			MakeCommentGenerationLanguageSameAsEditorLanguage();
-		}
-	}
-	
 	FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
+	{
+		MakeCommentGenerationLanguageSameAsEditorLanguage();
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
 	{
 		TsubasamusuUnrealAssist.ReregisterTicker();
 	}
-	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
 	{
 		if (bEnableNodePreview)
 		{
@@ -60,6 +62,18 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		{
 			TsubasamusuUnrealAssist.StopNodePreview();
 		}
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
+	{
+		VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideFunctionDefaultAccessSpecifier) && !bOverrideFunctionDefaultAccessSpecifier)
+	{
+		FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideEventDefaultAccessSpecifier) && !bOverrideEventDefaultAccessSpecifier)
+	{
+		EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 	}
 }
 

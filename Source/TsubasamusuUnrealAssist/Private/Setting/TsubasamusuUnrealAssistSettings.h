@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
 UCLASS(config = EditorPerProjectUserSettings)
@@ -12,7 +13,10 @@ class UTsubasamusuUnrealAssistSettings final : public UObject
 
 public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer);
+	
+	//~ Begin UObject Interface
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent) override;
+	//~ End UObject Interface
 
 #pragma region General
 	/* The tick interval of Tsubasamusu Unreal Assist. If set to 0 seconds, the tick processing will run every frame. */
@@ -71,6 +75,32 @@ public:
 	/* The scale of node preview. */
 	UPROPERTY(EditAnywhere, config, Category = "Node Previewer", meta = (DisplayName = "Preview Scale", ClampMin = "0.0", EditCondition = "bEnableNodePreview"))
 	float NodePreviewScale;
+#pragma endregion
+
+#pragma region Access Specifier Initializer
+	/* Whether to change the default value of variable access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer")
+	bool bOverrideVariableDefaultAccessSpecifier;
+	
+	/* The default value of variable access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None, Protected", EditCondition = "bOverrideVariableDefaultAccessSpecifier"))
+	ETsubasamusuAccessSpecifier VariableDefaultAccessSpecifier;
+	
+	/* Whether to change the default value of function access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer")
+	bool bOverrideFunctionDefaultAccessSpecifier;
+	
+	/* The default value of function access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideFunctionDefaultAccessSpecifier"))
+	ETsubasamusuAccessSpecifier FunctionDefaultAccessSpecifier;
+	
+	/* Whether to change the default value of event access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer")
+	bool bOverrideEventDefaultAccessSpecifier;
+	
+	/* The default value of event access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideEventDefaultAccessSpecifier"))
+	ETsubasamusuAccessSpecifier EventDefaultAccessSpecifier;
 #pragma endregion
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;

@@ -9,6 +9,7 @@ enum class ETsubasamusuDialogButton : uint8
 	Close
 };
 
+UENUM()
 enum class ETsubasamusuAccessSpecifier : uint8
 {
 	None,
