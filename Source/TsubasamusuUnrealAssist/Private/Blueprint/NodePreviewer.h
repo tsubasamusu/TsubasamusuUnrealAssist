@@ -30,22 +30,6 @@ private:
 	
 	static TSharedPtr<SWidget> FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget);
 	
-	template<typename WidgetClass>
-	static TSharedPtr<WidgetClass> FindParentWidget(const TSharedPtr<SWidget> InWidget, const FName& InWidgetTypeToFind)
-	{
-		static_assert(TIsDerivedFrom<WidgetClass, SWidget>::Value, "WidgetClass must be derived from SWidget.");
-
-		for (TSharedPtr<SWidget> Widget = InWidget; Widget.IsValid(); Widget = Widget->GetParentWidget())
-		{
-			if (Widget->GetType() == InWidgetTypeToFind)
-			{
-				return StaticCastSharedPtr<WidgetClass>(Widget);
-			}
-		}
-
-		return nullptr;
-	}
-	
 	TWeakPtr<SWidget> WidgetWhoseToolTipWasPreviouslyEdited;
 	TWeakPtr<SToolTip> LastBeforeEditingToolTipWidget;
 	

@@ -3,10 +3,10 @@
 #pragma once
 
 #include "Type/TsubasamusuUnrealAssistMacros.h"
-#include "BlueprintEditor.h"
 #include "CoreMinimal.h"
-#include "BlueprintMemberUtility.h"
 
+class UK2Node_FunctionEntry;
+class UK2Node_CustomEvent;
 class FBlueprintMember;
 
 class FAccessSpecifierOptimizer final
@@ -25,25 +25,4 @@ private:
 #endif
 	
 	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
-	
-	template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
-	static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
-	{
-		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
-		
-		TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
-	
-		auto FunctionForEachFunctionBaseMembers = [&FunctionBaseMembers](UFunction* InFunction, UEdGraph* /*InGraph*/, UK2Node_EditablePinBase* InEditablePinNode)
-		{
-			EntryNodeType* EntryNode = Cast<EntryNodeType>(InEditablePinNode);
-			
-			if (IsValid(EntryNode))
-			{
-				FunctionBaseMembers.Add(InFunction, EntryNode);
-			}
-		};
-		
-		FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembers, InFunctionToCheckEditablePinNode);
-		return FunctionBaseMembers;
-	}
 };

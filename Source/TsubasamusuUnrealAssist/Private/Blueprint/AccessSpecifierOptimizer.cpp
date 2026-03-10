@@ -31,6 +31,27 @@
 
 #define LOCTEXT_NAMESPACE "FAccessSpecifierOptimizer"
 
+template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
+static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+{
+	static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
+		
+	TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
+	
+	auto FunctionForEachFunctionBaseMembers = [&FunctionBaseMembers](UFunction* InFunction, UEdGraph* /*InGraph*/, UK2Node_EditablePinBase* InEditablePinNode)
+	{
+		EntryNodeType* EntryNode = Cast<EntryNodeType>(InEditablePinNode);
+			
+		if (IsValid(EntryNode))
+		{
+			FunctionBaseMembers.Add(InFunction, EntryNode);
+		}
+	};
+		
+	FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembers, InFunctionToCheckEditablePinNode);
+	return FunctionBaseMembers;
+}
+
 void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint)
 {
 	const FBlueprintCommandContext BlueprintCommandContext(FTsubasamusuBlueprintEditorCommands::Get().OptimizeAccessSpecifiers,
