@@ -9,15 +9,12 @@
 #include "K2Node_GetClassDefaults.h"
 #include "K2Node_Variable.h"
 #include "Algo/AnyOf.h"
-#include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
-
-#define LOCTEXT_NAMESPACE "FBlueprintMember"
 
 void FBlueprintMember::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
 {
@@ -247,44 +244,6 @@ ETsubasamusuAccessSpecifier FBlueprintMember_FunctionBase::GetCurrentAccessSpeci
 	return ETsubasamusuAccessSpecifier::Public;
 }
 
-void FBlueprintMember_FunctionBase::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
-{
-	if(!IsValid(Function) || !IsValid(EntryNode) || !IsValid(OwnerBlueprint))
-	{
-		return;
-	}
-	
-	const FScopedTransaction Transaction(LOCTEXT("ChangeFunctionAccessSpecifierTransaction", "Change Function Access Specifier"));
-
-	EntryNode->Modify();
-	Function->Modify();
-
-	EFunctionFlags AccessSpecifierFlag;
-	switch (InAccessSpecifier)
-	{
-	case ETsubasamusuAccessSpecifier::Private:
-		AccessSpecifierFlag = FUNC_Private;
-		break;
-	case ETsubasamusuAccessSpecifier::Protected:
-		AccessSpecifierFlag = FUNC_Protected;
-		break;
-	case ETsubasamusuAccessSpecifier::Public:
-		AccessSpecifierFlag = FUNC_Public;
-		break;
-	default:
-		checkNoEntry();
-		return;
-	}
-
-	constexpr EFunctionFlags ClearAccessSpecifierMask = ~FUNC_AccessSpecifiers;
-	SetEntryNodeAccessSpecifier(AccessSpecifierFlag, ClearAccessSpecifierMask);
-	
-	Function->FunctionFlags &= ClearAccessSpecifierMask;
-	Function->FunctionFlags |= AccessSpecifierFlag;
-
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(OwnerBlueprint);
-}
-
 FName FBlueprintMember_FunctionBase::GetMemberName() const
 {
 	if (IsValid(Function))
@@ -391,22 +350,16 @@ bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const UBlueprint
 	return false;
 }
 
-void FBlueprintMember_Function::SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
+void FBlueprintMember_Function::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
 	UK2Node_FunctionEntry* FunctionEntryNode = GetEntryNodeChecked<UK2Node_FunctionEntry>();
-	int32 ExtraFlags = FunctionEntryNode->GetExtraFlags();
-	ExtraFlags &= InClearAccessSpecifierMask;
-	ExtraFlags |= InAccessSpecifierFlag;
-	FunctionEntryNode->SetExtraFlags(ExtraFlags);
+	FBlueprintMemberUtility::SetFunctionAccessSpecifier(InAccessSpecifier, Function, FunctionEntryNode, OwnerBlueprint);
 }
 
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-void FBlueprintMember_Event::SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
+void FBlueprintMember_Event::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
-	UK2Node_CustomEvent* EventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
-	EventEntryNode->FunctionFlags &= InClearAccessSpecifierMask;
-	EventEntryNode->FunctionFlags |= InAccessSpecifierFlag;
+	UK2Node_CustomEvent* CustomEventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
+	FBlueprintMemberUtility::SetCustomEventAccessSpecifier(InAccessSpecifier, Function, CustomEventEntryNode, OwnerBlueprint);
 }
 #endif
-
-#undef LOCTEXT_NAMESPACE
