@@ -4,11 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Type/TsubasamusuUnrealAssistEnums.h"
 
 class FBlueprintMemberUtility final
 {
 public:
 	static UEdGraph* FindFunctionGraph(const FName& InFunctionName, const UBlueprint* InBlueprint);
+	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
+	
+	static void SetVariableAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, const FName& InVariableName, UBlueprint* InBlueprint);
 	
 	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
 	static void ForEachFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
@@ -57,6 +61,4 @@ public:
 	
 		return nullptr;
 	}
-	
-	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
 };

@@ -1,6 +1,7 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "BlueprintMember.h"
+#include "BlueprintMemberUtility.h"
 #include "K2Node_CallFunction.h"
 #include "K2Node_ComponentBoundEvent.h"
 #include "K2Node_CreateDelegate.h"
@@ -99,18 +100,7 @@ ETsubasamusuAccessSpecifier FBlueprintMember_Variable::GetOptimalAccessSpecifier
 
 void FBlueprintMember_Variable::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
-	switch (InAccessSpecifier)
-	{
-	case ETsubasamusuAccessSpecifier::Private:
-		FBlueprintEditorUtils::SetBlueprintVariableMetaData(OwnerBlueprint, GetMemberName(), nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
-		break;
-	case ETsubasamusuAccessSpecifier::Public:
-		FBlueprintEditorUtils::RemoveBlueprintVariableMetaData(OwnerBlueprint, GetMemberName(), nullptr, FBlueprintMetadata::MD_Private);
-		break;
-	default:
-		checkNoEntry()
-		break;
-	}
+	FBlueprintMemberUtility::SetVariableAccessSpecifier(InAccessSpecifier, GetMemberName(), OwnerBlueprint);
 }
 
 FName FBlueprintMember_Variable::GetMemberName() const

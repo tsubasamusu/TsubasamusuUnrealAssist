@@ -23,3 +23,19 @@ bool FBlueprintMemberUtility::IsFunctionEntryNode(const UK2Node_EditablePinBase*
 {
 	return InEditablePinNode->IsA<UK2Node_FunctionEntry>();
 }
+
+void FBlueprintMemberUtility::SetVariableAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, const FName& InVariableName, UBlueprint* InBlueprint)
+{
+	switch (InAccessSpecifier)
+	{
+	case ETsubasamusuAccessSpecifier::Private:
+		FBlueprintEditorUtils::SetBlueprintVariableMetaData(InBlueprint, InVariableName, nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
+		break;
+	case ETsubasamusuAccessSpecifier::Public:
+		FBlueprintEditorUtils::RemoveBlueprintVariableMetaData(InBlueprint, InVariableName, nullptr, FBlueprintMetadata::MD_Private);
+		break;
+	default:
+		checkNoEntry()
+		break;
+	}
+}
