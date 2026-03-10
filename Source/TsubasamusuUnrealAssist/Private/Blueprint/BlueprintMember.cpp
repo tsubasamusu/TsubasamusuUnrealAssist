@@ -41,16 +41,16 @@ void FBlueprintMember::Initialize()
 	AccessSpecifierOptimizationRow = MakeShared<FAccessSpecifierOptimizationRow>(GetMemberName(), GetCurrentAccessSpecifier(), GetOptimalAccessSpecifier());
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember::GetOptimalAccessSpecifier() const
+ETsubasamusuAccessSpecifier FBlueprintMember::GetOptimalAccessSpecifier() const
 {
 	if (!CheckedMemberReferencerBlueprints())
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::None;
+		return ETsubasamusuAccessSpecifier::None;
 	}
 	
 	if (MemberReferencerBlueprints.IsEmpty())
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
+		return ETsubasamusuAccessSpecifier::Private;
 	}
 	
 	for (const TObjectPtr<const UBlueprint> MemberReferencerBlueprint : MemberReferencerBlueprints)
@@ -60,51 +60,51 @@ TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember::GetOptimalAccessSpec
 	
 		if (!MemberReferencerClass->IsChildOf(OwnerClass))
 		{
-			return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+			return ETsubasamusuAccessSpecifier::Public;
 		}
 	}
 	
-	return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
+	return ETsubasamusuAccessSpecifier::Protected;
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Variable::GetCurrentAccessSpecifier() const
+ETsubasamusuAccessSpecifier FBlueprintMember_Variable::GetCurrentAccessSpecifier() const
 {
 	if (!Variable)
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::None;
+		return ETsubasamusuAccessSpecifier::None;
 	}
 	
 	if (Variable->GetBoolMetaData(FBlueprintMetadata::MD_Private))
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
+		return ETsubasamusuAccessSpecifier::Private;
 	}
 	
 	if (Variable->GetBoolMetaData(FBlueprintMetadata::MD_Protected))
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
+		return ETsubasamusuAccessSpecifier::Protected;
 	}
 
-	return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+	return ETsubasamusuAccessSpecifier::Public;
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_Variable::GetOptimalAccessSpecifier() const
+ETsubasamusuAccessSpecifier FBlueprintMember_Variable::GetOptimalAccessSpecifier() const
 {
 	if (!CheckedMemberReferencerBlueprints())
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::None;
+		return ETsubasamusuAccessSpecifier::None;
 	}
 	
-	return MemberReferencerBlueprints.IsEmpty() ? TsubasamusuUnrealAssist::EAccessSpecifier::Private : TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+	return MemberReferencerBlueprints.IsEmpty() ? ETsubasamusuAccessSpecifier::Private : ETsubasamusuAccessSpecifier::Public;
 }
 
-void FBlueprintMember_Variable::SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier)
+void FBlueprintMember_Variable::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
 	switch (InAccessSpecifier)
 	{
-	case TsubasamusuUnrealAssist::EAccessSpecifier::Private:
+	case ETsubasamusuAccessSpecifier::Private:
 		FBlueprintEditorUtils::SetBlueprintVariableMetaData(OwnerBlueprint, GetMemberName(), nullptr, FBlueprintMetadata::MD_Private, TEXT("true"));
 		break;
-	case TsubasamusuUnrealAssist::EAccessSpecifier::Public:
+	case ETsubasamusuAccessSpecifier::Public:
 		FBlueprintEditorUtils::RemoveBlueprintVariableMetaData(OwnerBlueprint, GetMemberName(), nullptr, FBlueprintMetadata::MD_Private);
 		break;
 	default:
@@ -237,27 +237,27 @@ void FBlueprintMember_FunctionBase::AddReferencedObjects(FReferenceCollector& In
 	InReferenceCollector.AddReferencedObject(Function);
 }
 
-TsubasamusuUnrealAssist::EAccessSpecifier FBlueprintMember_FunctionBase::GetCurrentAccessSpecifier() const
+ETsubasamusuAccessSpecifier FBlueprintMember_FunctionBase::GetCurrentAccessSpecifier() const
 {
 	if (!IsValid(Function))
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::None;
+		return ETsubasamusuAccessSpecifier::None;
 	}
 	
 	if (Function->HasAnyFunctionFlags(FUNC_Private))
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::Private;
+		return ETsubasamusuAccessSpecifier::Private;
 	}
 	
 	if (Function->HasAnyFunctionFlags(FUNC_Protected))
 	{
-		return TsubasamusuUnrealAssist::EAccessSpecifier::Protected;
+		return ETsubasamusuAccessSpecifier::Protected;
 	}
 	
-	return TsubasamusuUnrealAssist::EAccessSpecifier::Public;
+	return ETsubasamusuAccessSpecifier::Public;
 }
 
-void FBlueprintMember_FunctionBase::SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier)
+void FBlueprintMember_FunctionBase::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
 	if(!IsValid(Function) || !IsValid(EntryNode) || !IsValid(OwnerBlueprint))
 	{
@@ -272,13 +272,13 @@ void FBlueprintMember_FunctionBase::SetAccessSpecifier(const TsubasamusuUnrealAs
 	EFunctionFlags AccessSpecifierFlag;
 	switch (InAccessSpecifier)
 	{
-	case TsubasamusuUnrealAssist::EAccessSpecifier::Private:
+	case ETsubasamusuAccessSpecifier::Private:
 		AccessSpecifierFlag = FUNC_Private;
 		break;
-	case TsubasamusuUnrealAssist::EAccessSpecifier::Protected:
+	case ETsubasamusuAccessSpecifier::Protected:
 		AccessSpecifierFlag = FUNC_Protected;
 		break;
-	case TsubasamusuUnrealAssist::EAccessSpecifier::Public:
+	case ETsubasamusuAccessSpecifier::Public:
 		AccessSpecifierFlag = FUNC_Public;
 		break;
 	default:

@@ -25,9 +25,9 @@ public:
 	//~ End FGCObject Interface
 	
 	void Initialize();
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const = 0;
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetOptimalAccessSpecifier() const;
-	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) = 0;
+	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const = 0;
+	virtual ETsubasamusuAccessSpecifier GetOptimalAccessSpecifier() const;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) = 0;
 	virtual FName GetMemberName() const = 0;
 	
 	FORCEINLINE TSharedPtr<FAccessSpecifierOptimizationRow> GetAccessSpecifierOptimizationRow() const
@@ -61,9 +61,9 @@ public:
 		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Variable(InVariable){}
 
 	//~ Begin FBlueprintMember Interface
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetOptimalAccessSpecifier() const override;
-	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) override;
+	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const override;
+	virtual ETsubasamusuAccessSpecifier GetOptimalAccessSpecifier() const override;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
 	virtual FName GetMemberName() const override;
 	//~ End FBlueprintMember Interface
 	
@@ -87,8 +87,8 @@ public:
 	//~ End FGCObject Interface
 	
 	//~ Begin FBlueprintMember Interface
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
-	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) override;
+	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const override;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
 	virtual FName GetMemberName() const override;
 	//~ End FBlueprintMember Interface
 	

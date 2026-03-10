@@ -37,7 +37,7 @@ EAppReturnType::Type FEditorMessageUtility::OpenWarningMessageDialog(const EAppM
 #endif
 }
 
-TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText, const FText& InCancelButtonText, const TSharedPtr<SWidget> InContentWidget, TAttribute<bool> InOkButtonIsEnabled)
+ETsubasamusuDialogButton FEditorMessageUtility::ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText, const FText& InCancelButtonText, const TSharedPtr<SWidget> InContentWidget, TAttribute<bool> InOkButtonIsEnabled)
 {
 	const TSharedRef<SCustomDialog> CustomDialog = SNew(SCustomDialog)
 		.Title(InTitle)
@@ -84,14 +84,14 @@ TsubasamusuUnrealAssist::EDialogButton FEditorMessageUtility::ShowCustomDialog(c
 	switch (PressedButtonIndex)
 	{
 		case -1:
-			return TsubasamusuUnrealAssist::EDialogButton::Close;
+			return ETsubasamusuDialogButton::Close;
 		case 0:
-			return TsubasamusuUnrealAssist::EDialogButton::OK;
+			return ETsubasamusuDialogButton::OK;
 		case 1:
-			return TsubasamusuUnrealAssist::EDialogButton::Cancel;
+			return ETsubasamusuDialogButton::Cancel;
 		default:
 			checkNoEntry()
-			return TsubasamusuUnrealAssist::EDialogButton::Close;
+			return ETsubasamusuDialogButton::Close;
 	}
 }
 

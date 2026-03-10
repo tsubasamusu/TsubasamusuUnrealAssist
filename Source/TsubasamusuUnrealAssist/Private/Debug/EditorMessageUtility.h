@@ -14,7 +14,7 @@ public:
 	static void DisplaySimpleNotification(const FText& InNotificationText, const SNotificationItem::ECompletionState InCompletionState = SNotificationItem::ECompletionState::CS_None);
 	
 	static EAppReturnType::Type OpenWarningMessageDialog(const EAppMsgType::Type InMessageType, const FText& InMessage);
-	static TsubasamusuUnrealAssist::EDialogButton ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& InCancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> InContentWidget = nullptr, TAttribute<bool> InOkButtonIsEnabled = true);
+	static ETsubasamusuDialogButton ShowCustomDialog(const FText& InTitle, const FText& InMessage, const FText& InOkButtonText = LOCTEXT("OkButtonLabel", "OK"), const FText& InCancelButtonText = LOCTEXT("CancelButtonLabel", "Cancel"), const TSharedPtr<SWidget> InContentWidget = nullptr, TAttribute<bool> InOkButtonIsEnabled = true);
 };
 
 #undef LOCTEXT_NAMESPACE

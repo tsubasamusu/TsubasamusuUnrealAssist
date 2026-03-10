@@ -186,9 +186,9 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Optimal Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
+	const ETsubasamusuDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
 	
-	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
+	if (PressedButton != ETsubasamusuDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
 	{
 		return;
 	}
@@ -197,7 +197,7 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 	{
 		if (IsCheckedMember(Member))
 		{
-			const TsubasamusuUnrealAssist::EAccessSpecifier OptimalAccessSpecifier = Member->GetOptimalAccessSpecifier();
+			const ETsubasamusuAccessSpecifier OptimalAccessSpecifier = Member->GetOptimalAccessSpecifier();
 			Member->SetAccessSpecifier(OptimalAccessSpecifier);
 		}
 	}

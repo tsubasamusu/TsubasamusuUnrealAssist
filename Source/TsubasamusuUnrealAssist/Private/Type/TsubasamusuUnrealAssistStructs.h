@@ -185,13 +185,13 @@ struct FAccessSpecifierOptimizationRow
 public:
 	explicit FAccessSpecifierOptimizationRow(
 		const FName& InMemberName = NAME_None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InCurrentAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InOptimalAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None)
+		const ETsubasamusuAccessSpecifier InCurrentAccessSpecifier = ETsubasamusuAccessSpecifier::None,
+		const ETsubasamusuAccessSpecifier InOptimalAccessSpecifier = ETsubasamusuAccessSpecifier::None)
 		: MemberName(InMemberName),
 		  CurrentAccessSpecifier(InCurrentAccessSpecifier),
 		  OptimalAccessSpecifier(InOptimalAccessSpecifier) {}
 	
 	FName MemberName;
-	TsubasamusuUnrealAssist::EAccessSpecifier CurrentAccessSpecifier;
-	TsubasamusuUnrealAssist::EAccessSpecifier OptimalAccessSpecifier;
+	ETsubasamusuAccessSpecifier CurrentAccessSpecifier;
+	ETsubasamusuAccessSpecifier OptimalAccessSpecifier;
 };
