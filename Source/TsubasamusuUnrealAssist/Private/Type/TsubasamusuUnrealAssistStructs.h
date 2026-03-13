@@ -199,49 +199,49 @@ public:
 	ETsubasamusuAccessSpecifier OptimalAccessSpecifier;
 };
 
-struct FFunctionInformation
+struct FFunctionSet
 {
 public:
-	FFunctionInformation(const FName& InFunctionName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_FunctionEntry> InFunctionEntryNode)
+	FFunctionSet(const FName& InFunctionName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_FunctionEntry> InFunctionEntryNode)
 		: FunctionName(InFunctionName), Function(InFunction), FunctionEntryNode(InFunctionEntryNode){}
 	
 	FName FunctionName;
 	TWeakObjectPtr<UFunction> Function;
 	TWeakObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
 
-	bool operator==(const FFunctionInformation& InAnotherFunctionInformation) const
+	bool operator==(const FFunctionSet& InFunctionSet) const
 	{
-		return FunctionName == InAnotherFunctionInformation.FunctionName;
+		return FunctionName == InFunctionSet.FunctionName;
 	}
 };
 
-struct FCustomEventInformation
+struct FCustomEventSet
 {
 public:
-	FCustomEventInformation(const FName& InCustomEventName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_CustomEvent> InCustomEventEntryNode)
+	FCustomEventSet(const FName& InCustomEventName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_CustomEvent> InCustomEventEntryNode)
 		: CustomEventName(InCustomEventName), Function(InFunction), CustomEventEntryNode(InCustomEventEntryNode){}
 	
 	FName CustomEventName;
 	TWeakObjectPtr<UFunction> Function;
 	TWeakObjectPtr<UK2Node_CustomEvent> CustomEventEntryNode;
 
-	bool operator==(const FCustomEventInformation& InAnotherCustomEventInformation) const
+	bool operator==(const FCustomEventSet& InCustomEventSet) const
 	{
-		return CustomEventName == InAnotherCustomEventInformation.CustomEventName;
+		return CustomEventName == InCustomEventSet.CustomEventName;
 	}
 };
 
-struct FBlueprintMemberInformation
+struct FBlueprintMemberSet
 {
 public:
-	FBlueprintMemberInformation() : Blueprint(nullptr) {}
-	FBlueprintMemberInformation(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionInformation>& InFunctions, const TArray<FCustomEventInformation>& InCustomEvents)
-		: Blueprint(InBlueprint), VariableNames(InVariableNames), Functions(InFunctions), CustomEvents(InCustomEvents){}
+	FBlueprintMemberSet() : Blueprint(nullptr){}
+	FBlueprintMemberSet(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionSet>& InFunctionSets, const TArray<FCustomEventSet>& InCustomEventSets)
+		: Blueprint(InBlueprint), VariableNames(InVariableNames), FunctionSets(InFunctionSets), CustomEventSets(InCustomEventSets){}
 	
 	TWeakObjectPtr<UBlueprint> Blueprint;
 	TArray<FName> VariableNames;
-	TArray<FFunctionInformation> Functions;
-	TArray<FCustomEventInformation> CustomEvents;
+	TArray<FFunctionSet> FunctionSets;
+	TArray<FCustomEventSet> CustomEventSets;
 	FDelegateHandle BlueprintChangedEventHandle;
 
 	bool IsValid() const
@@ -249,11 +249,11 @@ public:
 		return Blueprint.IsValid();
 	}
 
-	bool operator==(const FBlueprintMemberInformation& InAnotherBlueprintMemberInformation) const
+	bool operator==(const FBlueprintMemberSet& InBlueprintMemberSet) const
 	{
-		return Blueprint == InAnotherBlueprintMemberInformation.Blueprint
-			&& VariableNames == InAnotherBlueprintMemberInformation.VariableNames
-			&& Functions == InAnotherBlueprintMemberInformation.Functions
-			&& CustomEvents == InAnotherBlueprintMemberInformation.CustomEvents;
+		return Blueprint == InBlueprintMemberSet.Blueprint
+			&& VariableNames == InBlueprintMemberSet.VariableNames
+			&& FunctionSets == InBlueprintMemberSet.FunctionSets
+			&& CustomEventSets == InBlueprintMemberSet.CustomEventSets;
 	}
 };

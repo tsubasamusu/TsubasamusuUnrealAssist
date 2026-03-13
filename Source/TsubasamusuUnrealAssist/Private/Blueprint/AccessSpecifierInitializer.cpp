@@ -27,30 +27,33 @@ void FAccessSpecifierInitializer::RegisterBlueprint(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint) && !IsRegisteredBlueprint(InBlueprint))
 	{
-		FBlueprintMemberInformation BlueprintMemberInformation = CreateBlueprintMemberInformation(InBlueprint);
-		BlueprintMemberInformation.BlueprintChangedEventHandle = InBlueprint->OnChanged().AddRaw(this, &FAccessSpecifierInitializer::OnBlueprintChanged);
-		BlueprintMemberInformationArray.Add(BlueprintMemberInformation);
+		FBlueprintMemberSet BlueprintMemberSet = CreateBlueprintMemberSet(InBlueprint);
+		BlueprintMemberSet.BlueprintChangedEventHandle = InBlueprint->OnChanged().AddRaw(this, &FAccessSpecifierInitializer::OnBlueprintChanged);
+		BlueprintMemberSets.Add(BlueprintMemberSet);
 	}
 }
 
 void FAccessSpecifierInitializer::UnregisterBlueprint(UBlueprint* InBlueprint)
 {
-	const FBlueprintMemberInformation FoundBlueprintMemberInformation = FindBlueprintMemberInformation(InBlueprint);
-	
-	if (IsValid(InBlueprint) && FoundBlueprintMemberInformation.IsValid())
+	if (IsValid(InBlueprint))
 	{
-		UnregisterBlueprint(FoundBlueprintMemberInformation);
+		const FBlueprintMemberSet FoundBlueprintMemberSet = FindBlueprintMemberSet(InBlueprint);
+	
+		if (FoundBlueprintMemberSet.IsValid())
+		{
+			UnregisterBlueprintMemberSet(FoundBlueprintMemberSet);
+		}
 	}
 }
 
 void FAccessSpecifierInitializer::UnregisterAllBlueprints()
 {
-	for (const FBlueprintMemberInformation& BlueprintMemberInformation : BlueprintMemberInformationArray)
+	for (const FBlueprintMemberSet& BlueprintMemberSet : BlueprintMemberSets)
 	{
-		UnregisterBlueprint(BlueprintMemberInformation);
+		UnregisterBlueprintMemberSet(BlueprintMemberSet);
 	}
 	
-	BlueprintMemberInformationArray.Empty();
+	BlueprintMemberSets.Empty();
 }
 
 void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
@@ -58,13 +61,13 @@ void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 	
 }
 
-FBlueprintMemberInformation FAccessSpecifierInitializer::CreateBlueprintMemberInformation(UBlueprint* InBlueprint)
+FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
 	{
 		TArray<FName> VariableNames;
-		TArray<FFunctionInformation> FunctionInformationArray;
-		TArray<FCustomEventInformation> CustomEventInformationArray;
+		TArray<FFunctionSet> FunctionSets;
+		TArray<FCustomEventSet> CustomEventSets;
 		
 		// Variables
 		{
@@ -82,8 +85,8 @@ FBlueprintMemberInformation FAccessSpecifierInitializer::CreateBlueprintMemberIn
 			
 			for (const TPair<UFunction*, UK2Node_FunctionEntry*>& Function : Functions)
 			{
-				FFunctionInformation FunctionInformation(Function.Key->GetFName(), Function.Key, Function.Value);
-				FunctionInformationArray.Add(FunctionInformation);
+				FFunctionSet FunctionSet(Function.Key->GetFName(), Function.Key, Function.Value);
+				FunctionSets.Add(FunctionSet);
 			}
 		}
 
@@ -93,38 +96,46 @@ FBlueprintMemberInformation FAccessSpecifierInitializer::CreateBlueprintMemberIn
 			
 			for (const TPair<UFunction*, UK2Node_CustomEvent*>& CustomEvent : CustomEvents)
 			{
-				FCustomEventInformation CustomEventInformation(CustomEvent.Key->GetFName(), CustomEvent.Key, CustomEvent.Value);
-				CustomEventInformationArray.Add(CustomEventInformation);
+				FCustomEventSet CustomEventSet(CustomEvent.Key->GetFName(), CustomEvent.Key, CustomEvent.Value);
+				CustomEventSets.Add(CustomEventSet);
 			}
 		}
 
-		return FBlueprintMemberInformation(InBlueprint, VariableNames, FunctionInformationArray, CustomEventInformationArray);
+		return FBlueprintMemberSet(InBlueprint, VariableNames, FunctionSets, CustomEventSets);
 	}
 	
-	return FBlueprintMemberInformation();
+	return FBlueprintMemberSet();
 }
 
-void FAccessSpecifierInitializer::UnregisterBlueprint(const FBlueprintMemberInformation& InBlueprintMemberInformation)
+void FAccessSpecifierInitializer::UnregisterBlueprintMemberSet(const FBlueprintMemberSet& InBlueprintMemberSet)
 {
-	if (InBlueprintMemberInformation.IsValid())
+	if (InBlueprintMemberSet.IsValid())
 	{
-		InBlueprintMemberInformation.Blueprint->OnChanged().Remove(InBlueprintMemberInformation.BlueprintChangedEventHandle);
-		BlueprintMemberInformationArray.Remove(InBlueprintMemberInformation);
+		InBlueprintMemberSet.Blueprint->OnChanged().Remove(InBlueprintMemberSet.BlueprintChangedEventHandle);
+		BlueprintMemberSets.Remove(InBlueprintMemberSet);
 	}
 }
 
 bool FAccessSpecifierInitializer::IsRegisteredBlueprint(UBlueprint* InBlueprint)
 {
-	const FBlueprintMemberInformation FoundBlueprintMemberInformation = FindBlueprintMemberInformation(InBlueprint);
-	return FoundBlueprintMemberInformation.IsValid();
+	const FBlueprintMemberSet FoundBlueprintMemberSet = FindBlueprintMemberSet(InBlueprint);
+	return FoundBlueprintMemberSet.IsValid();
 }
 
-FBlueprintMemberInformation FAccessSpecifierInitializer::FindBlueprintMemberInformation(UBlueprint* InBlueprint)
+FBlueprintMemberSet FAccessSpecifierInitializer::FindBlueprintMemberSet(UBlueprint* InBlueprint)
 {
-	FBlueprintMemberInformation* FoundBlueprintMemberInformation = BlueprintMemberInformationArray.FindByPredicate([InBlueprint](const FBlueprintMemberInformation& InBlueprintMemberInformation)
+	if (IsValid(InBlueprint))
 	{
-		return InBlueprintMemberInformation.Blueprint.IsValid() && InBlueprintMemberInformation.Blueprint.Get() == InBlueprint;
-	});
+		FBlueprintMemberSet* FoundBlueprintMemberSet = BlueprintMemberSets.FindByPredicate([InBlueprint](const FBlueprintMemberSet& InBlueprintMemberSet)
+		{
+			return InBlueprintMemberSet.IsValid() && InBlueprintMemberSet.Blueprint.Get() == InBlueprint;
+		});
+		
+		if (FoundBlueprintMemberSet)
+		{
+			return *FoundBlueprintMemberSet;
+		}
+	}
 	
-	return FoundBlueprintMemberInformation ? *FoundBlueprintMemberInformation : FBlueprintMemberInformation();
+	return FBlueprintMemberSet();
 }

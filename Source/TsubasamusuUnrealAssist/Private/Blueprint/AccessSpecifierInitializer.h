@@ -14,11 +14,11 @@ public:
 
 private:
 	void OnBlueprintChanged(UBlueprint* InBlueprint);
-	static FBlueprintMemberInformation CreateBlueprintMemberInformation(UBlueprint* InBlueprint);
-	void UnregisterBlueprint(const FBlueprintMemberInformation& InBlueprintMemberInformation);
+	static FBlueprintMemberSet CreateBlueprintMemberSet(UBlueprint* InBlueprint);
+	void UnregisterBlueprintMemberSet(const FBlueprintMemberSet& InBlueprintMemberSet);
 	
 	bool IsRegisteredBlueprint(UBlueprint* InBlueprint);
-	FBlueprintMemberInformation FindBlueprintMemberInformation(UBlueprint* InBlueprint);
+	FBlueprintMemberSet FindBlueprintMemberSet(UBlueprint* InBlueprint);
 	
-	TArray<FBlueprintMemberInformation> BlueprintMemberInformationArray;
+	TArray<FBlueprintMemberSet> BlueprintMemberSets;
 };
