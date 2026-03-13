@@ -10,6 +10,27 @@
 
 #define LOCTEXT_NAMESPACE "FBlueprintMemberUtility"
 
+template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
+static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+{
+	static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
+		
+	TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
+	
+	auto FunctionForEachFunctionBaseMembers = [&FunctionBaseMembers](UFunction* InFunction, UEdGraph* /*InGraph*/, UK2Node_EditablePinBase* InEditablePinNode)
+	{
+		EntryNodeType* EntryNode = Cast<EntryNodeType>(InEditablePinNode);
+			
+		if (IsValid(EntryNode))
+		{
+			FunctionBaseMembers.Add(InFunction, EntryNode);
+		}
+	};
+		
+	FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembers, InFunctionToCheckEditablePinNode);
+	return FunctionBaseMembers;
+}
+
 template<typename FunctionToSetEntryNodeAccessSpecifier>
 void SetFunctionBaseMemberAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_EditablePinBase* InEntryNode, UBlueprint* InBlueprint, const FunctionToSetEntryNodeAccessSpecifier& InFunctionToSetEntryNodeAccessSpecifier)
 {
@@ -150,6 +171,68 @@ TArray<FProperty*> FBlueprintMemberUtility::GetVariables(const UBlueprint* InBlu
 	}
 	
 	return Variables;
+}
+
+TMap<UFunction*, UK2Node_FunctionEntry*> FBlueprintMemberUtility::GetFunctions(UBlueprint* InBlueprint)
+{
+	if (IsValid(InBlueprint))
+	{
+		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
+		{
+			return FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
+		};
+		
+		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+		{
+			return IsFunctionEntryNode(InEditablePinNode);
+		};
+	
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
+	}
+	
+	return TMap<UFunction*, UK2Node_FunctionEntry*>();
+}
+
+TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetEvents(UBlueprint* InBlueprint)
+{
+	if (IsValid(InBlueprint))
+	{
+		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
+		{
+			return
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
+#else 
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
+#endif
+		};
+		
+		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
+		{
+			for (const TObjectPtr<UEdGraph> EventGraph : InBlueprintToFindGraph->UbergraphPages)
+			{
+				if (IsValid(EventGraph))
+				{
+					TArray<UK2Node_CustomEvent*> CustomEventNodes;
+					EventGraph->GetNodesOfClass(CustomEventNodes);
+				
+					for (const UK2Node_CustomEvent* CustomEventNode : CustomEventNodes)
+					{
+						if (FunctionToCheckEditablePinNode(InFunctionName, CustomEventNode))
+						{
+							return EventGraph;
+						}
+					}
+				}
+			}
+
+			return nullptr;
+		};
+	
+		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_CustomEvent>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
+	}
+	
+	return TMap<UFunction*, UK2Node_CustomEvent*>();
 }
 
 #undef LOCTEXT_NAMESPACE

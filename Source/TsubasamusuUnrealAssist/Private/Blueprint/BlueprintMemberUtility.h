@@ -25,6 +25,8 @@ public:
 #endif
 	
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_CustomEvent*> GetEvents(UBlueprint* InBlueprint);
 	
 	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
 	static void ForEachFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)

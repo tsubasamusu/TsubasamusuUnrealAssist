@@ -9,10 +9,8 @@
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "Components/TimelineComponent.h"
 #include "Debug/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
-#include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
@@ -30,27 +28,6 @@
 #endif
 
 #define LOCTEXT_NAMESPACE "FAccessSpecifierOptimizer"
-
-template<typename FunctionToFindGraph, typename FunctionToCheckEditablePinNode, typename EntryNodeType>
-static TMap<UFunction*, EntryNodeType*> GetFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
-{
-	static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
-		
-	TMap<UFunction*, EntryNodeType*> FunctionBaseMembers;
-	
-	auto FunctionForEachFunctionBaseMembers = [&FunctionBaseMembers](UFunction* InFunction, UEdGraph* /*InGraph*/, UK2Node_EditablePinBase* InEditablePinNode)
-	{
-		EntryNodeType* EntryNode = Cast<EntryNodeType>(InEditablePinNode);
-			
-		if (IsValid(EntryNode))
-		{
-			FunctionBaseMembers.Add(InFunction, EntryNode);
-		}
-	};
-		
-	FBlueprintMemberUtility::ForEachFunctionBaseMembers(InBlueprint, InFunctionToFindGraph, FunctionForEachFunctionBaseMembers, InFunctionToCheckEditablePinNode);
-	return FunctionBaseMembers;
-}
 
 void FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(UBlueprint* InBlueprint)
 {
@@ -246,7 +223,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 	
 	// Functions
 	{
-		const TMap<UFunction*, UK2Node_FunctionEntry*> Functions = GetFunctions(InBlueprint);
+		const TMap<UFunction*, UK2Node_FunctionEntry*> Functions = FBlueprintMemberUtility::GetFunctions(InBlueprint);
 		
 		for (TPair<UFunction*, UK2Node_FunctionEntry*> Function : Functions)
 		{
@@ -259,7 +236,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	// Events
 	{
-		const TMap<UFunction*, UK2Node_CustomEvent*> Events = GetEvents(InBlueprint);
+		const TMap<UFunction*, UK2Node_CustomEvent*> Events = FBlueprintMemberUtility::GetEvents(InBlueprint);
 		
 		for (TPair<UFunction*, UK2Node_CustomEvent*> Event : Events)
 		{
@@ -272,70 +249,6 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 	
 	return Members;
 }
-
-TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(UBlueprint* InBlueprint)
-{
-	if (IsValid(InBlueprint))
-	{
-		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
-		{
-			return FBlueprintMemberUtility::FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
-		};
-		
-		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
-		{
-			return FBlueprintMemberUtility::IsFunctionEntryNode(InEditablePinNode);
-		};
-	
-		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
-	}
-	
-	return TMap<UFunction*, UK2Node_FunctionEntry*>();
-}
-
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
-{
-	if (IsValid(InBlueprint))
-	{
-		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
-		{
-			return
-#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
-				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
-#else 
-				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
-#endif
-		};
-		
-		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
-		{
-			for (const TObjectPtr<UEdGraph> EventGraph : InBlueprintToFindGraph->UbergraphPages)
-			{
-				if (IsValid(EventGraph))
-				{
-					TArray<UK2Node_CustomEvent*> CustomEventNodes;
-					EventGraph->GetNodesOfClass(CustomEventNodes);
-				
-					for (const UK2Node_CustomEvent* CustomEventNode : CustomEventNodes)
-					{
-						if (FunctionToCheckEditablePinNode(InFunctionName, CustomEventNode))
-						{
-							return EventGraph;
-						}
-					}
-				}
-			}
-
-			return nullptr;
-		};
-	
-		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_CustomEvent>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
-	}
-	
-	return TMap<UFunction*, UK2Node_CustomEvent*>();
-}
-#endif
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {
