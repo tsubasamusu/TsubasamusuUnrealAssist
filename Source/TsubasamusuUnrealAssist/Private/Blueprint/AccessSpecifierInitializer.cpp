@@ -5,6 +5,8 @@
 #include "K2Node_CustomEvent.h"
 #include "K2Node_FunctionEntry.h"
 #include "Blueprint/BlueprintMemberUtility.h"
+#include "Setting/EditorSettingsUtility.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
 template<typename ArrayType>
@@ -58,7 +60,48 @@ void FAccessSpecifierInitializer::UnregisterAllBlueprints()
 
 void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 {
+	const FBlueprintMemberSet PreviousBlueprintMemberSet = FindBlueprintMemberSet(InBlueprint);
+	const FBlueprintMemberSet CurrentBlueprintMemberSet = CreateBlueprintMemberSet(InBlueprint);
 	
+	if (PreviousBlueprintMemberSet != CurrentBlueprintMemberSet)
+	{
+		const int32 Index = BlueprintMemberSets.Find(PreviousBlueprintMemberSet);
+		BlueprintMemberSets[Index] = CurrentBlueprintMemberSet;
+		
+		const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+		
+		if (TsubasamusuUnrealAssistSettings->bOverrideVariableDefaultAccessSpecifier && PreviousBlueprintMemberSet.VariableNames.Num() < CurrentBlueprintMemberSet.VariableNames.Num())
+		{
+			const TArray<FName> AddedVariableNames = FindElementsOnlyInSecondArray(PreviousBlueprintMemberSet.VariableNames, CurrentBlueprintMemberSet.VariableNames);
+			check(AddedVariableNames.Num() == 1);
+		
+			FBlueprintMemberUtility::SetVariableAccessSpecifier(TsubasamusuUnrealAssistSettings->VariableDefaultAccessSpecifier, AddedVariableNames[0], InBlueprint);
+		}
+		else if (TsubasamusuUnrealAssistSettings->bOverrideFunctionDefaultAccessSpecifier && PreviousBlueprintMemberSet.FunctionSets.Num() < CurrentBlueprintMemberSet.FunctionSets.Num())
+		{
+			const TArray<FFunctionSet> AddedFunctionSets = FindElementsOnlyInSecondArray(PreviousBlueprintMemberSet.FunctionSets, CurrentBlueprintMemberSet.FunctionSets);
+			check(AddedFunctionSets.Num() == 1);
+		
+			const FFunctionSet AddedFunctionSet = AddedFunctionSets[0];
+			
+			if (AddedFunctionSet.IsValid())
+			{
+				FBlueprintMemberUtility::SetFunctionAccessSpecifier(TsubasamusuUnrealAssistSettings->FunctionDefaultAccessSpecifier, AddedFunctionSet.Function.Get(), AddedFunctionSet.FunctionEntryNode.Get(), InBlueprint);
+			}
+		}
+		else if (TsubasamusuUnrealAssistSettings->bOverrideEventDefaultAccessSpecifier && PreviousBlueprintMemberSet.CustomEventSets.Num() < CurrentBlueprintMemberSet.CustomEventSets.Num())
+		{
+			const TArray<FCustomEventSet> AddedCustomEventSets = FindElementsOnlyInSecondArray(PreviousBlueprintMemberSet.CustomEventSets, CurrentBlueprintMemberSet.CustomEventSets);
+			check(AddedCustomEventSets.Num() == 1);
+		
+			const FCustomEventSet AddedCustomEventSet = AddedCustomEventSets[0];
+			
+			if (AddedCustomEventSet.IsValid())
+			{
+				FBlueprintMemberUtility::SetCustomEventAccessSpecifier(TsubasamusuUnrealAssistSettings->EventDefaultAccessSpecifier, AddedCustomEventSet.Function.Get(), AddedCustomEventSet.CustomEventEntryNode.Get(), InBlueprint);
+			}
+		}
+	}
 }
 
 FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBlueprint* InBlueprint)
