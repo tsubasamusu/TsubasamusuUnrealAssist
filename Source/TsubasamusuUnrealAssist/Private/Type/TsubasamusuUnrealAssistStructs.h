@@ -6,6 +6,9 @@
 #include "TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistStructs.generated.h"
 
+class UK2Node_CustomEvent;
+class UK2Node_FunctionEntry;
+
 USTRUCT()
 struct FGptMessage
 {
@@ -48,7 +51,7 @@ struct FGptResponse
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE bool IsEmpty() const
+	bool IsEmpty() const
 	{
 		if (choices.Num() == 0)
 		{
@@ -63,7 +66,7 @@ public:
 		return false;
 	}
 
-	FORCEINLINE FString GetGptMessage()const
+	FString GetGptMessage()const
 	{
 		if (IsEmpty())
 		{
@@ -103,7 +106,7 @@ public:
 	UPROPERTY()
 	FGptError error;
 
-	FORCEINLINE bool IsEmpty() const
+	bool IsEmpty() const
 	{
 		return error.message.IsEmpty() && error.type.IsEmpty() && error.code.IsEmpty();
 	}
@@ -194,4 +197,50 @@ public:
 	FName MemberName;
 	ETsubasamusuAccessSpecifier CurrentAccessSpecifier;
 	ETsubasamusuAccessSpecifier OptimalAccessSpecifier;
+};
+
+struct FFunctionInformation
+{
+public:
+	FFunctionInformation(const FName& InFunctionName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_FunctionEntry> InFunctionEntryNode)
+		: FunctionName(InFunctionName), Function(InFunction), FunctionEntryNode(InFunctionEntryNode){}
+	
+	FName FunctionName;
+	TWeakObjectPtr<UFunction> Function;
+	TWeakObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
+};
+
+struct FCustomEventInformation
+{
+public:
+	FCustomEventInformation(const FName& InCustomEventName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_CustomEvent> InCustomEventEntryNode)
+		: CustomEventName(InCustomEventName), Function(InFunction), CustomEventEntryNode(InCustomEventEntryNode){}
+	
+	FName CustomEventName;
+	TWeakObjectPtr<UFunction> Function;
+	TWeakObjectPtr<UK2Node_CustomEvent> CustomEventEntryNode;
+};
+
+struct FBlueprintMemberInformation
+{
+public:
+	FBlueprintMemberInformation() : Blueprint(nullptr) {}
+	FBlueprintMemberInformation(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionInformation>& InFunctions, const TArray<FCustomEventInformation>& InCustomEvents)
+		: Blueprint(InBlueprint), VariableNames(InVariableNames), Functions(InFunctions), CustomEvents(InCustomEvents){}
+	
+	TWeakObjectPtr<UBlueprint> Blueprint;
+	TArray<FName> VariableNames;
+	TArray<FFunctionInformation> Functions;
+	TArray<FCustomEventInformation> CustomEvents;
+	FDelegateHandle BlueprintChangedEventHandle;
+
+	bool IsValid() const
+	{
+		return Blueprint.IsValid();
+	}
+
+	bool operator==(const FBlueprintMemberInformation& InAnotherBlueprintMemberInformation) const
+	{
+		return Blueprint == InAnotherBlueprintMemberInformation.Blueprint;
+	}
 };
