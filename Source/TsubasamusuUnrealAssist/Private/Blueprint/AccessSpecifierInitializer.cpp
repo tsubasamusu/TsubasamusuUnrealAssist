@@ -7,12 +7,28 @@
 #include "Blueprint/BlueprintMemberUtility.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
+template<typename ArrayType>
+static TArray<ArrayType> FindElementsOnlyInSecondArray(const TArray<ArrayType>& FirstArray, const TArray<ArrayType>& SecondArray)
+{
+	TArray<ArrayType> ElementsOnlyInSecondArray;
+
+	for (const ArrayType& SecondArrayElement : SecondArray)
+	{
+		if (!FirstArray.Contains(SecondArrayElement))
+		{
+			ElementsOnlyInSecondArray.Add(SecondArrayElement);
+		}
+	}
+
+	return ElementsOnlyInSecondArray;
+}
+
 void FAccessSpecifierInitializer::RegisterBlueprint(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint) && !IsRegisteredBlueprint(InBlueprint))
 	{
 		FBlueprintMemberInformation BlueprintMemberInformation = CreateBlueprintMemberInformation(InBlueprint);
-		BlueprintMemberInformation.BlueprintChangedEventHandle = InBlueprint->OnChanged().AddStatic(&FAccessSpecifierInitializer::OnBlueprintChanged);
+		BlueprintMemberInformation.BlueprintChangedEventHandle = InBlueprint->OnChanged().AddRaw(this, &FAccessSpecifierInitializer::OnBlueprintChanged);
 		BlueprintMemberInformationArray.Add(BlueprintMemberInformation);
 	}
 }

@@ -13,7 +13,7 @@ public:
 	void UnregisterAllBlueprints();
 
 private:
-	static void OnBlueprintChanged(UBlueprint* InBlueprint);
+	void OnBlueprintChanged(UBlueprint* InBlueprint);
 	static FBlueprintMemberInformation CreateBlueprintMemberInformation(UBlueprint* InBlueprint);
 	void UnregisterBlueprint(const FBlueprintMemberInformation& InBlueprintMemberInformation);
 	
