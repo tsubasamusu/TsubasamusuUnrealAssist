@@ -208,6 +208,11 @@ public:
 	FName FunctionName;
 	TWeakObjectPtr<UFunction> Function;
 	TWeakObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
+
+	bool operator==(const FFunctionInformation& InAnotherFunctionInformation) const
+	{
+		return FunctionName == InAnotherFunctionInformation.FunctionName;
+	}
 };
 
 struct FCustomEventInformation
@@ -219,6 +224,11 @@ public:
 	FName CustomEventName;
 	TWeakObjectPtr<UFunction> Function;
 	TWeakObjectPtr<UK2Node_CustomEvent> CustomEventEntryNode;
+
+	bool operator==(const FCustomEventInformation& InAnotherCustomEventInformation) const
+	{
+		return CustomEventName == InAnotherCustomEventInformation.CustomEventName;
+	}
 };
 
 struct FBlueprintMemberInformation
@@ -241,6 +251,9 @@ public:
 
 	bool operator==(const FBlueprintMemberInformation& InAnotherBlueprintMemberInformation) const
 	{
-		return Blueprint == InAnotherBlueprintMemberInformation.Blueprint;
+		return Blueprint == InAnotherBlueprintMemberInformation.Blueprint
+			&& VariableNames == InAnotherBlueprintMemberInformation.VariableNames
+			&& Functions == InAnotherBlueprintMemberInformation.Functions
+			&& CustomEvents == InAnotherBlueprintMemberInformation.CustomEvents;
 	}
 };
