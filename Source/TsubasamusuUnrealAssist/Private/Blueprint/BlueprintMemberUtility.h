@@ -24,6 +24,8 @@ public:
 	static void SetCustomEventAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_CustomEvent* InCustomEventEntryNode, UBlueprint* InBlueprint);
 #endif
 	
+	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
+	
 	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
 	static void ForEachFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{

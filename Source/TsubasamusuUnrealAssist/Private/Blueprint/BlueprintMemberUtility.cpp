@@ -2,7 +2,7 @@
 
 #include "BlueprintMemberUtility.h"
 #include "K2Node_FunctionEntry.h"
-#include "Type/TsubasamusuUnrealAssistMacros.h"
+#include "Components/TimelineComponent.h"
 
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
@@ -118,5 +118,38 @@ void FBlueprintMemberUtility::SetCustomEventAccessSpecifier(const ETsubasamusuAc
 	SetFunctionBaseMemberAccessSpecifier(InAccessSpecifier, InFunction, InCustomEventEntryNode, InBlueprint, FunctionToSetEntryNodeAccessSpecifier);
 }
 #endif
+
+TArray<FProperty*> FBlueprintMemberUtility::GetVariables(const UBlueprint* InBlueprint)
+{
+	TArray<FProperty*> Variables;
+	
+	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); PropertyFieldIterator; ++PropertyFieldIterator)
+	{
+		FProperty* Property = *PropertyFieldIterator;
+		
+		if (Property)
+		{
+			const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
+			const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
+			const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
+		
+			if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
+			{
+				const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
+				const bool bFoundVariable = VariableIndex != INDEX_NONE;
+
+				const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
+				const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
+	
+				if (bFoundVariable && !bIsTimelineComponent)
+				{
+					Variables.Add(Property);
+				}
+			}
+		}
+	}
+	
+	return Variables;
+}
 
 #undef LOCTEXT_NAMESPACE

@@ -234,7 +234,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 	
 	// Variables
 	{
-		const TArray<FProperty*> Variables = GetVariables(InBlueprint);
+		const TArray<FProperty*> Variables = FBlueprintMemberUtility::GetVariables(InBlueprint);
 		
 		for (FProperty* Variable : Variables)
 		{
@@ -271,39 +271,6 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 #endif
 	
 	return Members;
-}
-
-TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InBlueprint)
-{
-	TArray<FProperty*> Variables;
-	
-	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); PropertyFieldIterator; ++PropertyFieldIterator)
-	{
-		FProperty* Property = *PropertyFieldIterator;
-		
-		if (Property)
-		{
-			const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
-			const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
-			const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
-		
-			if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
-			{
-				const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
-				const bool bFoundVariable = VariableIndex != INDEX_NONE;
-
-				const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
-				const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
-	
-				if (bFoundVariable && !bIsTimelineComponent)
-				{
-					Variables.Add(Property);
-				}
-			}
-		}
-	}
-	
-	return Variables;
 }
 
 TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(UBlueprint* InBlueprint)
