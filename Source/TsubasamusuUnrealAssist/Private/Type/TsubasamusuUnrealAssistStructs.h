@@ -209,6 +209,13 @@ public:
 	TWeakObjectPtr<UFunction> Function;
 	TWeakObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
 
+	bool IsValid() const
+	{
+		return !FunctionName.IsNone()
+			&& Function.IsValid()
+			&& FunctionEntryNode.IsValid();
+	}
+
 	bool operator==(const FFunctionSet& InFunctionSet) const
 	{
 		return FunctionName == InFunctionSet.FunctionName;
@@ -224,6 +231,13 @@ public:
 	FName CustomEventName;
 	TWeakObjectPtr<UFunction> Function;
 	TWeakObjectPtr<UK2Node_CustomEvent> CustomEventEntryNode;
+
+	bool IsValid() const
+	{
+		return !CustomEventName.IsNone()
+			&& Function.IsValid()
+			&& CustomEventEntryNode.IsValid();
+	}
 
 	bool operator==(const FCustomEventSet& InCustomEventSet) const
 	{
