@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class FAccessSpecifierInitializer;
 class FNodePreviewer;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
@@ -29,7 +30,7 @@ private:
 	void UnregisterOnEditorLanguageChangedEvent() const;
 	
 	void RegisterOnAssetEditorOpenedEvent();
-	void UnregisterOnAssetEditorOpenedEvent() const;
+	void UnregisterOnAssetEditorOpenedEvent();
 	
 	void RegisterTicker();
 	void UnregisterTicker() const;
@@ -49,4 +50,5 @@ private:
 	const FName SettingsSectionName = TEXT("Tsubasamusu Unreal Assist");
 	
 	TSharedPtr<FNodePreviewer> NodePreviewer;
+	TSharedPtr<FAccessSpecifierInitializer> AccessSpecifierInitializer;
 };

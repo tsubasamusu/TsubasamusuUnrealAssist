@@ -116,7 +116,7 @@ public:
 		: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
 	//~ Begin FBlueprintMember Interface
-	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
 	//~ End FBlueprintMember Interface
 };
 
@@ -128,7 +128,7 @@ public:
 	: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
 	//~ Begin FBlueprintMember Interface
-	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
 	//~ End FBlueprintMember Interface
 };
 #endif
