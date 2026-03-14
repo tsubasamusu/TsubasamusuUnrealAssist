@@ -4,6 +4,7 @@
 #include "TsubasamusuUnrealAssistModule.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
@@ -33,8 +34,10 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 	bOverrideFunctionDefaultAccessSpecifier = false;
 	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	bOverrideEventDefaultAccessSpecifier = false;
 	EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#endif
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
@@ -71,10 +74,12 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	{
 		FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 	}
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideEventDefaultAccessSpecifier) && !bOverrideEventDefaultAccessSpecifier)
 	{
 		EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 	}
+#endif
 }
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const

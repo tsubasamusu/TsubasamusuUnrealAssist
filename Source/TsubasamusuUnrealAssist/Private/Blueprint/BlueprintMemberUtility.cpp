@@ -193,6 +193,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FBlueprintMemberUtility::GetFunctions(U
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetEvents(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
@@ -234,5 +235,6 @@ TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetEvents(UBluep
 	
 	return TMap<UFunction*, UK2Node_CustomEvent*>();
 }
+#endif
 
 #undef LOCTEXT_NAMESPACE

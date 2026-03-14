@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "TsubasamusuUnrealAssistEnums.h"
+#include "TsubasamusuUnrealAssistMacros.h"
 #include "TsubasamusuUnrealAssistStructs.generated.h"
 
-class UK2Node_CustomEvent;
 class UK2Node_FunctionEntry;
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+class UK2Node_CustomEvent;
+#endif
 
 USTRUCT()
 struct FGptMessage
@@ -222,6 +225,7 @@ public:
 	}
 };
 
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 struct FCustomEventSet
 {
 public:
@@ -244,18 +248,26 @@ public:
 		return CustomEventName == InCustomEventSet.CustomEventName;
 	}
 };
+#endif
 
 struct FBlueprintMemberSet
 {
 public:
 	FBlueprintMemberSet() : Blueprint(nullptr){}
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	FBlueprintMemberSet(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionSet>& InFunctionSets, const TArray<FCustomEventSet>& InCustomEventSets)
 		: Blueprint(InBlueprint), VariableNames(InVariableNames), FunctionSets(InFunctionSets), CustomEventSets(InCustomEventSets){}
+#else
+	FBlueprintMemberSet(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionSet>& InFunctionSets)
+		: Blueprint(InBlueprint), VariableNames(InVariableNames), FunctionSets(InFunctionSets){}
+#endif
 	
 	TWeakObjectPtr<UBlueprint> Blueprint;
 	TArray<FName> VariableNames;
 	TArray<FFunctionSet> FunctionSets;
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	TArray<FCustomEventSet> CustomEventSets;
+#endif
 	FDelegateHandle BlueprintChangedEventHandle;
 
 	bool IsValid() const
@@ -267,7 +279,9 @@ public:
 	{
 		return Blueprint == InBlueprintMemberSet.Blueprint
 			&& VariableNames == InBlueprintMemberSet.VariableNames
-			&& FunctionSets == InBlueprintMemberSet.FunctionSets
-			&& CustomEventSets == InBlueprintMemberSet.CustomEventSets;
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+			&& CustomEventSets == InBlueprintMemberSet.CustomEventSets
+#endif
+			&& FunctionSets == InBlueprintMemberSet.FunctionSets;
 	}
 };

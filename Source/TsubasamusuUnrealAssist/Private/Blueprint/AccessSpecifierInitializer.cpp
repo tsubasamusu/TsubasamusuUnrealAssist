@@ -2,12 +2,15 @@
 
 #include "AccessSpecifierInitializer.h"
 #include "Engine/Blueprint.h"
-#include "K2Node_CustomEvent.h"
 #include "K2Node_FunctionEntry.h"
 #include "Blueprint/BlueprintMemberUtility.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#include "K2Node_CustomEvent.h"
+#endif
 
 template<typename ArrayType>
 static TArray<ArrayType> FindElementsOnlyInSecondArray(const TArray<ArrayType>& FirstArray, const TArray<ArrayType>& SecondArray)
@@ -89,6 +92,7 @@ void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 				FBlueprintMemberUtility::SetFunctionAccessSpecifier(TsubasamusuUnrealAssistSettings->FunctionDefaultAccessSpecifier, AddedFunctionSet.Function.Get(), AddedFunctionSet.FunctionEntryNode.Get(), InBlueprint);
 			}
 		}
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 		else if (TsubasamusuUnrealAssistSettings->bOverrideEventDefaultAccessSpecifier && PreviousBlueprintMemberSet.CustomEventSets.Num() < CurrentBlueprintMemberSet.CustomEventSets.Num())
 		{
 			const TArray<FCustomEventSet> AddedCustomEventSets = FindElementsOnlyInSecondArray(PreviousBlueprintMemberSet.CustomEventSets, CurrentBlueprintMemberSet.CustomEventSets);
@@ -101,6 +105,7 @@ void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 				FBlueprintMemberUtility::SetCustomEventAccessSpecifier(TsubasamusuUnrealAssistSettings->EventDefaultAccessSpecifier, AddedCustomEventSet.Function.Get(), AddedCustomEventSet.CustomEventEntryNode.Get(), InBlueprint);
 			}
 		}
+#endif
 	}
 }
 
@@ -109,10 +114,6 @@ FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBluep
 	if (IsValid(InBlueprint))
 	{
 		TArray<FName> VariableNames;
-		TArray<FFunctionSet> FunctionSets;
-		TArray<FCustomEventSet> CustomEventSets;
-		
-		// Variables
 		{
 			const TArray<FProperty*> Variables = FBlueprintMemberUtility::GetVariables(InBlueprint);
 	
@@ -122,7 +123,7 @@ FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBluep
 			}
 		}
 		
-		// Functions
+		TArray<FFunctionSet> FunctionSets;
 		{
 			TMap<UFunction*, UK2Node_FunctionEntry*> Functions = FBlueprintMemberUtility::GetFunctions(InBlueprint);
 			
@@ -133,7 +134,8 @@ FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBluep
 			}
 		}
 
-		// Custom Events
+#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+		TArray<FCustomEventSet> CustomEventSets;
 		{
 			TMap<UFunction*, UK2Node_CustomEvent*> CustomEvents = FBlueprintMemberUtility::GetEvents(InBlueprint);
 			
@@ -143,8 +145,11 @@ FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBluep
 				CustomEventSets.Add(CustomEventSet);
 			}
 		}
-
+		
 		return FBlueprintMemberSet(InBlueprint, VariableNames, FunctionSets, CustomEventSets);
+#else
+		return FBlueprintMemberSet(InBlueprint, VariableNames, FunctionSets);
+#endif
 	}
 	
 	return FBlueprintMemberSet();
