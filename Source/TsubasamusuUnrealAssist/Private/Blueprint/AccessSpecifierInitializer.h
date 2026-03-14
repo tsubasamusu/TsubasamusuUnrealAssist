@@ -9,7 +9,6 @@ class FAccessSpecifierInitializer final
 {
 public:
 	void RegisterBlueprint(UBlueprint* InBlueprint);
-	void UnregisterBlueprint(UBlueprint* InBlueprint);
 	void UnregisterAllBlueprints();
 
 private:

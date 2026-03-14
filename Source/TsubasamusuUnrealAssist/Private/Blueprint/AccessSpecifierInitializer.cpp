@@ -38,19 +38,6 @@ void FAccessSpecifierInitializer::RegisterBlueprint(UBlueprint* InBlueprint)
 	}
 }
 
-void FAccessSpecifierInitializer::UnregisterBlueprint(UBlueprint* InBlueprint)
-{
-	if (IsValid(InBlueprint))
-	{
-		const FBlueprintMemberSet FoundBlueprintMemberSet = FindBlueprintMemberSet(InBlueprint);
-	
-		if (FoundBlueprintMemberSet.IsValid())
-		{
-			UnregisterBlueprintMemberSet(FoundBlueprintMemberSet);
-		}
-	}
-}
-
 void FAccessSpecifierInitializer::UnregisterAllBlueprints()
 {
 	for (const FBlueprintMemberSet& BlueprintMemberSet : BlueprintMemberSets)
