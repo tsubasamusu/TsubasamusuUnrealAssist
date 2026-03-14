@@ -80,7 +80,7 @@ public:
 	bool bOverrideVariableDefaultAccessSpecifier;
 	
 	/* The default value of variable access specifier. */
-	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None, Protected", EditCondition = "bOverrideVariableDefaultAccessSpecifier"))
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (ValidEnumValues = "Private, Public", EditCondition = "bOverrideVariableDefaultAccessSpecifier"))
 	ETsubasamusuAccessSpecifier VariableDefaultAccessSpecifier;
 	
 	/* Whether to change the default value of function access specifier. */
@@ -88,7 +88,7 @@ public:
 	bool bOverrideFunctionDefaultAccessSpecifier;
 	
 	/* The default value of function access specifier. */
-	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideFunctionDefaultAccessSpecifier"))
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (ValidEnumValues = "Private, Protected, Public", EditCondition = "bOverrideFunctionDefaultAccessSpecifier"))
 	ETsubasamusuAccessSpecifier FunctionDefaultAccessSpecifier;
 	
 private:
@@ -101,7 +101,7 @@ public:
 	bool bOverrideCustomEventDefaultAccessSpecifier;
 	
 	/* The default value of custom event access specifier. */
-	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideCustomEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (ValidEnumValues = "Private, Protected, Public", EditCondition = "bOverrideCustomEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
 	ETsubasamusuAccessSpecifier CustomEventDefaultAccessSpecifier;
 #pragma endregion
 
