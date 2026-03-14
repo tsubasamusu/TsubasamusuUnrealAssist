@@ -357,7 +357,7 @@ void FBlueprintMember_Function::SetAccessSpecifier(const ETsubasamusuAccessSpeci
 }
 
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-void FBlueprintMember_Event::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
+void FBlueprintMember_CustomEvent::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
 	UK2Node_CustomEvent* CustomEventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
 	FBlueprintMemberUtility::SetCustomEventAccessSpecifier(InAccessSpecifier, Function, CustomEventEntryNode, OwnerBlueprint);

@@ -240,7 +240,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		
 		for (const TPair<UFunction*, UK2Node_CustomEvent*>& Event : Events)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Event>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
+			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_CustomEvent>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
 			Member->Initialize();
 			Members->Add(Member);
 		}

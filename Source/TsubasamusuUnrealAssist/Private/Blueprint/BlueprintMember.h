@@ -121,10 +121,10 @@ public:
 };
 
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-class FBlueprintMember_Event final : public FBlueprintMember_FunctionBase
+class FBlueprintMember_CustomEvent final : public FBlueprintMember_FunctionBase
 {
 public:
-	FBlueprintMember_Event(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+	FBlueprintMember_CustomEvent(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
 	: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
 	//~ Begin FBlueprintMember Interface
