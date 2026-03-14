@@ -35,8 +35,11 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bOverrideFunctionDefaultAccessSpecifier = false;
 	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 #if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	bCustomEventAccessSpecifierIsSupported = true;
 	bOverrideEventDefaultAccessSpecifier = false;
 	EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#else
+	bCustomEventAccessSpecifierIsSupported = false;
 #endif
 }
 

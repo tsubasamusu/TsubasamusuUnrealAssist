@@ -43,9 +43,6 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use Editor Language"))
 	bool bUseEditorLanguageForCommentGeneration;
 
-	UPROPERTY(config)
-	FString LanguageCultureNameForCommentGeneration;
-	
 	/* Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to them when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Ignore Nodes Do Not Have Connected Pins"))
 	bool bIgnoreIsolatedNodesWhenGeneratingComments;
@@ -94,12 +91,17 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideFunctionDefaultAccessSpecifier"))
 	ETsubasamusuAccessSpecifier FunctionDefaultAccessSpecifier;
 	
+private:
+	UPROPERTY()
+	bool bCustomEventAccessSpecifierIsSupported;
+	
+public:
 	/* Whether to change the default value of event access specifier. */
-	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer")
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (EditCondition = "bCustomEventAccessSpecifierIsSupported", HideEditConditionToggle))
 	bool bOverrideEventDefaultAccessSpecifier;
 	
 	/* The default value of event access specifier. */
-	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideEventDefaultAccessSpecifier"))
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
 	ETsubasamusuAccessSpecifier EventDefaultAccessSpecifier;
 #pragma endregion
 
@@ -108,5 +110,8 @@ public:
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
 private:
+	UPROPERTY(config)
+	FString LanguageCultureNameForCommentGeneration;
+	
 	static FCultureRef GetEditorLanguageCulture();
 };
