@@ -4,11 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Type/TsubasamusuUnrealAssistEnums.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
+
+class UK2Node_FunctionEntry;
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+class UK2Node_CustomEvent;
+#endif
 
 class FBlueprintMemberUtility final
 {
 public:
 	static UEdGraph* FindFunctionGraph(const FName& InFunctionName, const UBlueprint* InBlueprint);
+	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
+	
+	static void SetVariableAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, const FName& InVariableName, UBlueprint* InBlueprint);
+	static void SetFunctionAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_FunctionEntry* InFunctionEntryNode, UBlueprint* InBlueprint);
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	static void SetCustomEventAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_CustomEvent* InCustomEventEntryNode, UBlueprint* InBlueprint);
+#endif
+	
+	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	static TMap<UFunction*, UK2Node_CustomEvent*> GetCustomEvents(UBlueprint* InBlueprint);
+#endif
 	
 	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
 	static void ForEachFunctionBaseMembers(UBlueprint* InBlueprint, const FunctionToFindGraph& InFunctionToFindGraph, const FunctionToExecute& InFunctionToExecute, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
@@ -35,8 +55,9 @@ public:
 		}
 	}
 	
+private:
 	template<typename FunctionToCheckEditablePinNode>
-	static UK2Node_EditablePinBase* FindEditablePinNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+	static UK2Node_EditablePinBase* FindEditablePinNode(const UEdGraph* InGraph, const FName& InFunctionBaseMemberName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{
 		if (IsValid(InGraph))
 		{
@@ -47,7 +68,7 @@ public:
 			{
 				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
 				{
-					if (IsValid(EditablePinNode) && InFunctionToCheckEditablePinNode(InFunctionOrEventName, EditablePinNode))
+					if (IsValid(EditablePinNode) && InFunctionToCheckEditablePinNode(InFunctionBaseMemberName, EditablePinNode))
 					{
 						return EditablePinNode;
 					}
@@ -57,6 +78,4 @@ public:
 	
 		return nullptr;
 	}
-	
-	static bool IsFunctionEntryNode(const UK2Node_EditablePinBase* InEditablePinNode);
 };

@@ -4,7 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "TsubasamusuUnrealAssistEnums.h"
+#include "TsubasamusuUnrealAssistMacros.h"
 #include "TsubasamusuUnrealAssistStructs.generated.h"
+
+class UK2Node_FunctionEntry;
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+class UK2Node_CustomEvent;
+#endif
 
 USTRUCT()
 struct FGptMessage
@@ -48,7 +54,7 @@ struct FGptResponse
 	GENERATED_BODY()
 
 public:
-	FORCEINLINE bool IsEmpty() const
+	bool IsEmpty() const
 	{
 		if (choices.Num() == 0)
 		{
@@ -63,7 +69,7 @@ public:
 		return false;
 	}
 
-	FORCEINLINE FString GetGptMessage()const
+	FString GetGptMessage()const
 	{
 		if (IsEmpty())
 		{
@@ -103,7 +109,7 @@ public:
 	UPROPERTY()
 	FGptError error;
 
-	FORCEINLINE bool IsEmpty() const
+	bool IsEmpty() const
 	{
 		return error.message.IsEmpty() && error.type.IsEmpty() && error.code.IsEmpty();
 	}
@@ -185,13 +191,102 @@ struct FAccessSpecifierOptimizationRow
 public:
 	explicit FAccessSpecifierOptimizationRow(
 		const FName& InMemberName = NAME_None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InCurrentAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None,
-		const TsubasamusuUnrealAssist::EAccessSpecifier InOptimalAccessSpecifier = TsubasamusuUnrealAssist::EAccessSpecifier::None)
+		const ETsubasamusuAccessSpecifier InCurrentAccessSpecifier = ETsubasamusuAccessSpecifier::None,
+		const ETsubasamusuAccessSpecifier InOptimalAccessSpecifier = ETsubasamusuAccessSpecifier::None)
 		: MemberName(InMemberName),
 		  CurrentAccessSpecifier(InCurrentAccessSpecifier),
 		  OptimalAccessSpecifier(InOptimalAccessSpecifier) {}
 	
 	FName MemberName;
-	TsubasamusuUnrealAssist::EAccessSpecifier CurrentAccessSpecifier;
-	TsubasamusuUnrealAssist::EAccessSpecifier OptimalAccessSpecifier;
+	ETsubasamusuAccessSpecifier CurrentAccessSpecifier;
+	ETsubasamusuAccessSpecifier OptimalAccessSpecifier;
+};
+
+struct FFunctionSet
+{
+public:
+	FFunctionSet(const FName& InFunctionName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_FunctionEntry> InFunctionEntryNode)
+		: FunctionName(InFunctionName), Function(InFunction), FunctionEntryNode(InFunctionEntryNode){}
+	
+	FName FunctionName;
+	TWeakObjectPtr<UFunction> Function;
+	TWeakObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode;
+
+	bool IsValid() const
+	{
+		return !FunctionName.IsNone()
+			&& Function.IsValid()
+			&& FunctionEntryNode.IsValid();
+	}
+
+	bool operator==(const FFunctionSet& InFunctionSet) const
+	{
+		return FunctionName == InFunctionSet.FunctionName;
+	}
+};
+
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+struct FCustomEventSet
+{
+public:
+	FCustomEventSet(const FName& InCustomEventName, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_CustomEvent> InCustomEventEntryNode)
+		: CustomEventName(InCustomEventName), Function(InFunction), CustomEventEntryNode(InCustomEventEntryNode){}
+	
+	FName CustomEventName;
+	TWeakObjectPtr<UFunction> Function;
+	TWeakObjectPtr<UK2Node_CustomEvent> CustomEventEntryNode;
+
+	bool IsValid() const
+	{
+		return !CustomEventName.IsNone()
+			&& Function.IsValid()
+			&& CustomEventEntryNode.IsValid();
+	}
+
+	bool operator==(const FCustomEventSet& InCustomEventSet) const
+	{
+		return CustomEventName == InCustomEventSet.CustomEventName;
+	}
+};
+#endif
+
+struct FBlueprintMemberSet
+{
+public:
+	FBlueprintMemberSet() : Blueprint(nullptr){}
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	FBlueprintMemberSet(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionSet>& InFunctionSets, const TArray<FCustomEventSet>& InCustomEventSets)
+		: Blueprint(InBlueprint), VariableNames(InVariableNames), FunctionSets(InFunctionSets), CustomEventSets(InCustomEventSets){}
+#else
+	FBlueprintMemberSet(const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FName>& InVariableNames, const TArray<FFunctionSet>& InFunctionSets)
+		: Blueprint(InBlueprint), VariableNames(InVariableNames), FunctionSets(InFunctionSets){}
+#endif
+	
+	TWeakObjectPtr<UBlueprint> Blueprint;
+	TArray<FName> VariableNames;
+	TArray<FFunctionSet> FunctionSets;
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	TArray<FCustomEventSet> CustomEventSets;
+#endif
+	FDelegateHandle BlueprintChangedEventHandle;
+
+	bool IsValid() const
+	{
+		return Blueprint.IsValid();
+	}
+
+	bool operator==(const FBlueprintMemberSet& InBlueprintMemberSet) const
+	{
+		return Blueprint == InBlueprintMemberSet.Blueprint
+			&& VariableNames == InBlueprintMemberSet.VariableNames
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+			&& CustomEventSets == InBlueprintMemberSet.CustomEventSets
+#endif
+			&& FunctionSets == InBlueprintMemberSet.FunctionSets;
+	}
+	
+	bool operator!=(const FBlueprintMemberSet& InBlueprintMemberSet) const
+	{
+		return !(*this == InBlueprintMemberSet);
+	}
 };

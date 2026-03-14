@@ -2,20 +2,18 @@
 
 #pragma once
 
-namespace TsubasamusuUnrealAssist
+enum class ETsubasamusuDialogButton : uint8
 {
-	enum class EDialogButton : uint8
-	{
-		OK,
-		Cancel,
-		Close
-	};
-	
-	enum class EAccessSpecifier : uint8
-	{
-		None,
-		Private,
-		Protected,
-		Public
-	};
-}
+	OK,
+	Cancel,
+	Close
+};
+
+UENUM()
+enum class ETsubasamusuAccessSpecifier : uint8
+{
+	None,
+	Private,
+	Protected,
+	Public
+};

@@ -4,16 +4,17 @@
 #include "TsubasamusuUnrealAssistModule.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
 	// General
 	TickInterval = 0.f;
 	
-	// Comment Translation
+	// Comment Translator
 	DeeplApiKey = TEXT("");
 
-	// Comment Generation
+	// Comment Generator
 	OpenAiApiKey = TEXT("");
 	GptModelName = TEXT("gpt-4o-mini");
 	bUseEditorLanguageForCommentGeneration = true;
@@ -23,10 +24,23 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
 	
-	// Node Preview
+	// Node Previewer
 	bEnableNodePreview = false;
 	bAlsoPreviewAdvancedView = false;
 	NodePreviewScale = 1.f;
+	
+	// Access Specifier Initializer
+	bOverrideVariableDefaultAccessSpecifier = false;
+	VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	bOverrideFunctionDefaultAccessSpecifier = false;
+	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	bCustomEventAccessSpecifierIsSupported = true;
+	bOverrideCustomEventDefaultAccessSpecifier = false;
+	CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#else
+	bCustomEventAccessSpecifierIsSupported = false;
+#endif
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
@@ -34,23 +48,17 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
 
 	const FName PropertyName = InPropertyChangedEvent.Property ? InPropertyChangedEvent.Property->GetFName() : NAME_None;
-
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration))
-	{
-		if (bUseEditorLanguageForCommentGeneration)
-		{
-			MakeCommentGenerationLanguageSameAsEditorLanguage();
-		}
-	}
-	
 	FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
+	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
+	{
+		MakeCommentGenerationLanguageSameAsEditorLanguage();
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
 	{
 		TsubasamusuUnrealAssist.ReregisterTicker();
 	}
-	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
 	{
 		if (bEnableNodePreview)
 		{
@@ -61,6 +69,20 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 			TsubasamusuUnrealAssist.StopNodePreview();
 		}
 	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
+	{
+		VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	}
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideFunctionDefaultAccessSpecifier) && !bOverrideFunctionDefaultAccessSpecifier)
+	{
+		FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	}
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideCustomEventDefaultAccessSpecifier) && !bOverrideCustomEventDefaultAccessSpecifier)
+	{
+		CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	}
+#endif
 }
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const

@@ -9,15 +9,13 @@
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "Components/TimelineComponent.h"
 #include "Debug/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
-#include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
 
@@ -186,9 +184,9 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 	const FText ApplyButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_ApplyButton", "Apply Optimal Access Specifiers");
 	const FText CancelButtonText = LOCTEXT("OptimizeAccessSpecifiersDialog_CancelButton", "Cancel");
 
-	const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
+	const ETsubasamusuDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, DialogContent, OkButtonIsEnabled);
 	
-	if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
+	if (PressedButton != ETsubasamusuDialogButton::OK || !Algo::AnyOf(*Members, IsCheckedMember))
 	{
 		return;
 	}
@@ -197,7 +195,7 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 	{
 		if (IsCheckedMember(Member))
 		{
-			const TsubasamusuUnrealAssist::EAccessSpecifier OptimalAccessSpecifier = Member->GetOptimalAccessSpecifier();
+			const ETsubasamusuAccessSpecifier OptimalAccessSpecifier = Member->GetOptimalAccessSpecifier();
 			Member->SetAccessSpecifier(OptimalAccessSpecifier);
 		}
 	}
@@ -213,141 +211,44 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 	
 	// Variables
 	{
-		const TArray<FProperty*> Variables = GetVariables(InBlueprint);
+		const TArray<FProperty*> Variables = FBlueprintMemberUtility::GetVariables(InBlueprint);
 		
 		for (FProperty* Variable : Variables)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Variable>(InBlueprint, ReferencerBlueprints, Variable);
-			Member->Initialize();
-			Members->Add(Member);
+			TSharedPtr<FBlueprintMember> VariableMember = MakeShared<FBlueprintMember_Variable>(InBlueprint, ReferencerBlueprints, Variable);
+			VariableMember->Initialize();
+			Members->Add(VariableMember);
 		}
 	}
 	
 	// Functions
 	{
-		const TMap<UFunction*, UK2Node_FunctionEntry*> Functions = GetFunctions(InBlueprint);
+		const TMap<UFunction*, UK2Node_FunctionEntry*> Functions = FBlueprintMemberUtility::GetFunctions(InBlueprint);
 		
-		for (TPair<UFunction*, UK2Node_FunctionEntry*> Function : Functions)
+		for (const TPair<UFunction*, UK2Node_FunctionEntry*>& Function : Functions)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function.Key, Function.Value);
-			Member->Initialize();
-			Members->Add(Member);
+			TSharedPtr<FBlueprintMember> FunctionMember = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function.Key, Function.Value);
+			FunctionMember->Initialize();
+			Members->Add(FunctionMember);
 		}
 	}
 	
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-	// Events
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	// Custom Events
 	{
-		const TMap<UFunction*, UK2Node_CustomEvent*> Events = GetEvents(InBlueprint);
+		const TMap<UFunction*, UK2Node_CustomEvent*> CustomEvents = FBlueprintMemberUtility::GetCustomEvents(InBlueprint);
 		
-		for (TPair<UFunction*, UK2Node_CustomEvent*> Event : Events)
+		for (const TPair<UFunction*, UK2Node_CustomEvent*>& CustomEvent : CustomEvents)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Event>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
-			Member->Initialize();
-			Members->Add(Member);
+			TSharedPtr<FBlueprintMember> CustomEventMember = MakeShared<FBlueprintMember_CustomEvent>(InBlueprint, ReferencerBlueprints, CustomEvent.Key, CustomEvent.Value);
+			CustomEventMember->Initialize();
+			Members->Add(CustomEventMember);
 		}
 	}
 #endif
 	
 	return Members;
 }
-
-TArray<FProperty*> FAccessSpecifierOptimizer::GetVariables(const UBlueprint* InBlueprint)
-{
-	TArray<FProperty*> Variables;
-	
-	for (TFieldIterator<FProperty> PropertyFieldIterator(InBlueprint->SkeletonGeneratedClass, EFieldIterationFlags::None); PropertyFieldIterator; ++PropertyFieldIterator)
-	{
-		FProperty* Property = *PropertyFieldIterator;
-		
-		if (Property)
-		{
-			const bool bIsDelegateProperty = Property->IsA(FDelegateProperty::StaticClass()) || Property->IsA(FMulticastDelegateProperty::StaticClass());
-			const bool bIsFunctionParameter = Property->HasAnyPropertyFlags(CPF_Parm);
-			const bool bIsBlueprintVisibleProperty = Property->HasAllPropertyFlags(CPF_BlueprintVisible);
-		
-			if (!bIsFunctionParameter && bIsBlueprintVisibleProperty && !bIsDelegateProperty)
-			{
-				const int32 VariableIndex = FBlueprintEditorUtils::FindNewVariableIndex(InBlueprint, Property->GetFName());
-				const bool bFoundVariable = VariableIndex != INDEX_NONE;
-
-				const FObjectPropertyBase* ObjectPropertyBase = CastField<const FObjectPropertyBase>(Property);
-				const bool bIsTimelineComponent = ObjectPropertyBase && ObjectPropertyBase->PropertyClass && ObjectPropertyBase->PropertyClass->IsChildOf(UTimelineComponent::StaticClass());
-	
-				if (bFoundVariable && !bIsTimelineComponent)
-				{
-					Variables.Add(Property);
-				}
-			}
-		}
-	}
-	
-	return Variables;
-}
-
-TMap<UFunction*, UK2Node_FunctionEntry*> FAccessSpecifierOptimizer::GetFunctions(UBlueprint* InBlueprint)
-{
-	if (IsValid(InBlueprint))
-	{
-		auto FunctionToFindGraph = [](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
-		{
-			return FBlueprintMemberUtility::FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
-		};
-		
-		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
-		{
-			return FBlueprintMemberUtility::IsFunctionEntryNode(InEditablePinNode);
-		};
-	
-		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_FunctionEntry>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
-	}
-	
-	return TMap<UFunction*, UK2Node_FunctionEntry*>();
-}
-
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-TMap<UFunction*, UK2Node_CustomEvent*> FAccessSpecifierOptimizer::GetEvents(UBlueprint* InBlueprint)
-{
-	if (IsValid(InBlueprint))
-	{
-		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
-		{
-			return
-#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
-				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
-#else 
-				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
-#endif
-		};
-		
-		auto FunctionToFindGraph = [&FunctionToCheckEditablePinNode](const FName& InFunctionName, UBlueprint* InBlueprintToFindGraph) -> UEdGraph*
-		{
-			for (const TObjectPtr<UEdGraph> EventGraph : InBlueprintToFindGraph->UbergraphPages)
-			{
-				if (IsValid(EventGraph))
-				{
-					TArray<UK2Node_CustomEvent*> CustomEventNodes;
-					EventGraph->GetNodesOfClass(CustomEventNodes);
-				
-					for (const UK2Node_CustomEvent* CustomEventNode : CustomEventNodes)
-					{
-						if (FunctionToCheckEditablePinNode(InFunctionName, CustomEventNode))
-						{
-							return EventGraph;
-						}
-					}
-				}
-			}
-
-			return nullptr;
-		};
-	
-		return GetFunctionBaseMembers<decltype(FunctionToFindGraph), decltype(FunctionToCheckEditablePinNode), UK2Node_CustomEvent>(InBlueprint, FunctionToFindGraph, FunctionToCheckEditablePinNode);
-	}
-	
-	return TMap<UFunction*, UK2Node_CustomEvent*>();
-}
-#endif
 
 TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {

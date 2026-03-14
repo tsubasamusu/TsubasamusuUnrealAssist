@@ -2,6 +2,7 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
+#include "Blueprint/AccessSpecifierInitializer.h"
 #include "Blueprint/AccessSpecifierOptimizer.h"
 #include "Blueprint/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
@@ -111,7 +112,7 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
 	check(IsValid(AssetEditorSubsystem));
 	
-	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([](UObject* InOpenedAsset)
+	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([this](UObject* InOpenedAsset)
 	{
 		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
 		
@@ -122,11 +123,18 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
 			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
 			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
+			
+			if (!AccessSpecifierInitializer.IsValid())
+			{
+				AccessSpecifierInitializer = MakeShared<FAccessSpecifierInitializer>();
+			}
+			
+			AccessSpecifierInitializer->RegisterBlueprint(OpenedBlueprint);
 		}
 	});
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent() const
+void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
 {
 	if (IsValid(GEditor))
 	{
@@ -134,6 +142,12 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent() const
 		check(IsValid(AssetEditorSubsystem));
 		
 		AssetEditorSubsystem->OnAssetEditorOpened().Remove(OnAssetEditorOpenedHandle);
+		
+		if (AccessSpecifierInitializer.IsValid())
+		{
+			AccessSpecifierInitializer->UnregisterAllBlueprints();
+			AccessSpecifierInitializer.Reset();
+		}
 	}
 }
 

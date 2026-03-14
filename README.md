@@ -25,9 +25,10 @@
 ## ブループリントエディタ関連
 ### Comment Generator
 OpenAI のAPIキーを使用してコメントを生成します。
-※APIの使用料については十分注意してください。
 
 <img width="500" src="https://github.com/user-attachments/assets/7fc80cb9-6c61-4002-8aea-bd5e06a00488">
+
+※APIの使用料については十分注意してください。
 
 この機能に関連したエディタ設定の項目は以下の通りです。
 
@@ -48,7 +49,7 @@ OpenAI のAPIキーを使用してコメントを生成します。
 <img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
 
 ### Comment Translator
-コメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューでマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この翻訳機能には DeepL のAPIキーを使用しています。この機能を使用するにはエディタ設定の「Comment Translation > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
+コメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューでマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この翻訳機能には DeepL のAPIキーを使用しています。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
 
 <img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
@@ -426,7 +427,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 この例ではJSONのときの文字数が7,986文字、TOONのときは3,316文字になっています。（Unreal Engine の標準のコピー機能では23,278文字になります。）
 
 ### Node Previewer
-ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Enable Node Preview」にチェックを付ける必要があります。
+ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview」にチェックを付ける必要があります。
 
 <img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
 
@@ -442,9 +443,25 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
 
-※「Access Specifier Optimizer」は UE 5.3 以降のエンジンバージョンでのみ、カスタムイベントに対応しています。
+※カスタムイベントのアクセス修飾子は UE 5.3 以降のエンジンバージョンでのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
 
 ※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
+
+### Access Specifier Initializer
+ブループリントに新しい変数や関数、カスタムイベントを追加した際に、そのメンバのアクセス修飾子を自動的に設定します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になりますが、この機能を有効にすることでメンバの作成時に自動的に Protected や Private などに変更することができます。
+
+この機能に関連したエディタ設定の項目は以下の通りです。
+
+| プロパティ名 | 概要 |
+----|----
+| Override Variable Default Access Specifier | 新規変数のデフォルトアクセス修飾子を上書きするかどうか。 |
+| Variable Default Access Specifier | 新規変数のデフォルトアクセス修飾子。（Private・Public） |
+| Override Function Default Access Specifier | 新規関数のデフォルトアクセス修飾子を上書きするかどうか。 |
+| Function Default Access Specifier | 新規関数のデフォルトアクセス修飾子。（Private・Protected・Public） |
+| Override Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子を上書きするかどうか。 |
+| Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子。（Private・Protected・Public） |
+
+※カスタムイベントのアクセス修飾子は UE 5.3 以降のエンジンバージョンでのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
 
 ### Unused Function Deleter
 このプラグインを有効化してブループリントエディタを開くと、「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。

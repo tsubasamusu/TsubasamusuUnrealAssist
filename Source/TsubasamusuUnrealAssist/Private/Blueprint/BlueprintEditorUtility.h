@@ -64,9 +64,9 @@ public:
 		const FText ApplyButtonText = FText::Format(LOCTEXT("DeleteUnusedItemsDialog_ApplyButton", "Delete Selected {0}"), TitleCaseItemType);
 		const FText CancelButtonText = LOCTEXT("DeleteUnusedItemsDialog_CancelButton", "Cancel");
 		
-		const TsubasamusuUnrealAssist::EDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, TAttribute<bool>::CreateLambda(OneOrMoreItemsAreChecked));
+		const ETsubasamusuDialogButton PressedButton = FEditorMessageUtility::ShowCustomDialog(DialogTitle, DialogMessage, ApplyButtonText, CancelButtonText, CheckBoxList, TAttribute<bool>::CreateLambda(OneOrMoreItemsAreChecked));
 		
-		if (PressedButton != TsubasamusuUnrealAssist::EDialogButton::OK || !OneOrMoreItemsAreChecked())
+		if (PressedButton != ETsubasamusuDialogButton::OK || !OneOrMoreItemsAreChecked())
 		{
 			return;
 		}

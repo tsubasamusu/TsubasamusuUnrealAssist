@@ -34,18 +34,18 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	}
 	else
 	{
-		const TsubasamusuUnrealAssist::EAccessSpecifier AccessSpecifier = InColumnName == CurrentAccessSpecifierColumnId ? RowItem->CurrentAccessSpecifier : RowItem->OptimalAccessSpecifier;
+		const ETsubasamusuAccessSpecifier AccessSpecifier = InColumnName == CurrentAccessSpecifierColumnId ? RowItem->CurrentAccessSpecifier : RowItem->OptimalAccessSpecifier;
 		FText AccessSpecifierText;
 		
 		switch (AccessSpecifier)
 		{
-		case TsubasamusuUnrealAssist::EAccessSpecifier::Private:
+		case ETsubasamusuAccessSpecifier::Private:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Private", "Private");
 			break;
-		case TsubasamusuUnrealAssist::EAccessSpecifier::Protected:
+		case ETsubasamusuAccessSpecifier::Protected:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Protected", "Protected");
 			break;
-		case TsubasamusuUnrealAssist::EAccessSpecifier::Public:
+		case ETsubasamusuAccessSpecifier::Public:
 			AccessSpecifierText = LOCTEXT("AccessSpecifier_Public", "Public");
 			break;
 		default:

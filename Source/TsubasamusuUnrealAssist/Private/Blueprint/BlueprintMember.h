@@ -25,9 +25,9 @@ public:
 	//~ End FGCObject Interface
 	
 	void Initialize();
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const = 0;
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetOptimalAccessSpecifier() const;
-	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) = 0;
+	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const = 0;
+	virtual ETsubasamusuAccessSpecifier GetOptimalAccessSpecifier() const;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) = 0;
 	virtual FName GetMemberName() const = 0;
 	
 	FORCEINLINE TSharedPtr<FAccessSpecifierOptimizationRow> GetAccessSpecifierOptimizationRow() const
@@ -61,9 +61,9 @@ public:
 		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Variable(InVariable){}
 
 	//~ Begin FBlueprintMember Interface
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetOptimalAccessSpecifier() const override;
-	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) override;
+	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const override;
+	virtual ETsubasamusuAccessSpecifier GetOptimalAccessSpecifier() const override;
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
 	virtual FName GetMemberName() const override;
 	//~ End FBlueprintMember Interface
 	
@@ -87,8 +87,7 @@ public:
 	//~ End FGCObject Interface
 	
 	//~ Begin FBlueprintMember Interface
-	virtual TsubasamusuUnrealAssist::EAccessSpecifier GetCurrentAccessSpecifier() const override;
-	virtual void SetAccessSpecifier(const TsubasamusuUnrealAssist::EAccessSpecifier InAccessSpecifier) override;
+	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const override;
 	virtual FName GetMemberName() const override;
 	//~ End FBlueprintMember Interface
 	
@@ -97,8 +96,6 @@ protected:
 	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const override;
 	//~ End FBlueprintMember Interface
 	
-	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) = 0;
-	
 	template<typename EntryNodeType>
 	FORCEINLINE EntryNodeType* GetEntryNodeChecked() const
 	{
@@ -106,8 +103,9 @@ protected:
 		return CastChecked<EntryNodeType>(EntryNode);
 	}
 	
-private:
 	TObjectPtr<UFunction> Function;
+	
+private:
 	TObjectPtr<UK2Node_EditablePinBase> EntryNode;
 };
 
@@ -117,22 +115,20 @@ public:
 	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
 		: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
-protected:
-	//~ Begin FBlueprintMember_FunctionBase Interface
-	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) override;
-	//~ End FBlueprintMember_FunctionBase Interface
+	//~ Begin FBlueprintMember Interface
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
+	//~ End FBlueprintMember Interface
 };
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-class FBlueprintMember_Event final : public FBlueprintMember_FunctionBase
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+class FBlueprintMember_CustomEvent final : public FBlueprintMember_FunctionBase
 {
 public:
-	FBlueprintMember_Event(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+	FBlueprintMember_CustomEvent(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
 	: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
-protected:
-	//~ Begin FBlueprintMember_FunctionBase Interface
-	virtual void SetEntryNodeAccessSpecifier(const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask) override;
-	//~ End FBlueprintMember_FunctionBase Interface
+	//~ Begin FBlueprintMember Interface
+	virtual void SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier) override;
+	//~ End FBlueprintMember Interface
 };
 #endif
