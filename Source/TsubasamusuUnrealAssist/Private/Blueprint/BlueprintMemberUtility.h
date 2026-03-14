@@ -55,8 +55,9 @@ public:
 		}
 	}
 	
+private:
 	template<typename FunctionToCheckEditablePinNode>
-	static UK2Node_EditablePinBase* FindEditablePinNode(const UEdGraph* InGraph, const FName& InFunctionOrEventName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
+	static UK2Node_EditablePinBase* FindEditablePinNode(const UEdGraph* InGraph, const FName& InFunctionBaseMemberName, const FunctionToCheckEditablePinNode& InFunctionToCheckEditablePinNode)
 	{
 		if (IsValid(InGraph))
 		{
@@ -67,7 +68,7 @@ public:
 			{
 				for (UK2Node_EditablePinBase* EditablePinNode : EditablePinNodes)
 				{
-					if (IsValid(EditablePinNode) && InFunctionToCheckEditablePinNode(InFunctionOrEventName, EditablePinNode))
+					if (IsValid(EditablePinNode) && InFunctionToCheckEditablePinNode(InFunctionBaseMemberName, EditablePinNode))
 					{
 						return EditablePinNode;
 					}

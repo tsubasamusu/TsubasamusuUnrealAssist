@@ -182,7 +182,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FBlueprintMemberUtility::GetFunctions(U
 			return FindFunctionGraph(InFunctionName, InBlueprintToFindGraph);
 		};
 		
-		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+		auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionBaseMemberName*/, const UK2Node_EditablePinBase* InEditablePinNode)
 		{
 			return IsFunctionEntryNode(InEditablePinNode);
 		};
@@ -198,13 +198,13 @@ TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetEvents(UBluep
 {
 	if (IsValid(InBlueprint))
 	{
-		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionOrEventName, const UK2Node_EditablePinBase* InEditablePinNode)
+		auto FunctionToCheckEditablePinNode = [](const FName& InFunctionBaseMemberName, const UK2Node_EditablePinBase* InEditablePinNode)
 		{
 			return
 #if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
-				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName;
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionBaseMemberName;
 #else 
-				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionOrEventName.ToString();
+				InEditablePinNode->GetNodeTitle(ENodeTitleType::Type::ListView).ToString() == InFunctionBaseMemberName.ToString();
 #endif
 		};
 		

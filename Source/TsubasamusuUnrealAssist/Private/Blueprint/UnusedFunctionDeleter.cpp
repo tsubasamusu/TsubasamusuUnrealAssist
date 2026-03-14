@@ -47,7 +47,7 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 		}
 	};
 	
-	auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionOrEventName*/, const UK2Node_EditablePinBase* InEditablePinNode)
+	auto FunctionToCheckEditablePinNode = [](const FName& /*InFunctionBaseMemberName*/, const UK2Node_EditablePinBase* InEditablePinNode)
 	{
 		return FBlueprintMemberUtility::IsFunctionEntryNode(InEditablePinNode);
 	};
