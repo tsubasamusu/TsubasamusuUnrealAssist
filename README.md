@@ -443,9 +443,25 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
 
-※「Access Specifier Optimizer」は UE 5.3 以降のエンジンバージョンでのみ、カスタムイベントに対応しています。
+※カスタムイベントのアクセス修飾子は UE 5.3 以降のエンジンバージョンでのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
 
 ※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
+
+### Access Specifier Initializer
+ブループリントに新しい変数や関数、カスタムイベントを追加した際に、そのメンバのアクセス修飾子を自動的に設定します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になりますが、この機能を有効にすることでメンバの作成時に自動的に Protected や Private などに変更することができます。
+
+この機能に関連したエディタ設定の項目は以下の通りです。
+
+| プロパティ名 | 概要 |
+----|----
+| Override Variable Default Access Specifier | 新規変数のデフォルトアクセス修飾子を上書きするかどうか。 |
+| Variable Default Access Specifier | 新規変数のデフォルトアクセス修飾子。（Private・Public） |
+| Override Function Default Access Specifier | 新規関数のデフォルトアクセス修飾子を上書きするかどうか。 |
+| Function Default Access Specifier | 新規関数のデフォルトアクセス修飾子。（Private・Protected・Public） |
+| Override Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子を上書きするかどうか。 |
+| Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子。（Private・Protected・Public） |
+
+※カスタムイベントのアクセス修飾子は UE 5.3 以降のエンジンバージョンでのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
 
 ### Unused Function Deleter
 このプラグインを有効化してブループリントエディタを開くと、「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
