@@ -124,7 +124,7 @@ FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBluep
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 		TArray<FCustomEventSet> CustomEventSets;
 		{
-			TMap<UFunction*, UK2Node_CustomEvent*> CustomEvents = FBlueprintMemberUtility::GetEvents(InBlueprint);
+			TMap<UFunction*, UK2Node_CustomEvent*> CustomEvents = FBlueprintMemberUtility::GetCustomEvents(InBlueprint);
 			
 			for (const TPair<UFunction*, UK2Node_CustomEvent*>& CustomEvent : CustomEvents)
 			{

@@ -236,7 +236,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	// Events
 	{
-		const TMap<UFunction*, UK2Node_CustomEvent*> Events = FBlueprintMemberUtility::GetEvents(InBlueprint);
+		const TMap<UFunction*, UK2Node_CustomEvent*> Events = FBlueprintMemberUtility::GetCustomEvents(InBlueprint);
 		
 		for (const TPair<UFunction*, UK2Node_CustomEvent*>& Event : Events)
 		{

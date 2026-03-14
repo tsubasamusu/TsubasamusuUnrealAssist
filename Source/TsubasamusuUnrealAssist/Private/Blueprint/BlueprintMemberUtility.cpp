@@ -194,7 +194,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FBlueprintMemberUtility::GetFunctions(U
 }
 
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetEvents(UBlueprint* InBlueprint)
+TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetCustomEvents(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))
 	{

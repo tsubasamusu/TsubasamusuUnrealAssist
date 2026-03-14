@@ -27,7 +27,7 @@ public:
 	static TArray<FProperty*> GetVariables(const UBlueprint* InBlueprint);
 	static TMap<UFunction*, UK2Node_FunctionEntry*> GetFunctions(UBlueprint* InBlueprint);
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-	static TMap<UFunction*, UK2Node_CustomEvent*> GetEvents(UBlueprint* InBlueprint);
+	static TMap<UFunction*, UK2Node_CustomEvent*> GetCustomEvents(UBlueprint* InBlueprint);
 #endif
 	
 	template<typename FunctionToFindGraph, typename FunctionToExecute, typename  FunctionToCheckEditablePinNode>
