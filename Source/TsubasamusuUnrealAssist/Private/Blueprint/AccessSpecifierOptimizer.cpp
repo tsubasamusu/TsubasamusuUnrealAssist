@@ -215,9 +215,9 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		
 		for (FProperty* Variable : Variables)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Variable>(InBlueprint, ReferencerBlueprints, Variable);
-			Member->Initialize();
-			Members->Add(Member);
+			TSharedPtr<FBlueprintMember> VariableMember = MakeShared<FBlueprintMember_Variable>(InBlueprint, ReferencerBlueprints, Variable);
+			VariableMember->Initialize();
+			Members->Add(VariableMember);
 		}
 	}
 	
@@ -227,22 +227,22 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		
 		for (const TPair<UFunction*, UK2Node_FunctionEntry*>& Function : Functions)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function.Key, Function.Value);
-			Member->Initialize();
-			Members->Add(Member);
+			TSharedPtr<FBlueprintMember> FunctionMember = MakeShared<FBlueprintMember_Function>(InBlueprint, ReferencerBlueprints, Function.Key, Function.Value);
+			FunctionMember->Initialize();
+			Members->Add(FunctionMember);
 		}
 	}
 	
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-	// Events
+	// Custom Events
 	{
-		const TMap<UFunction*, UK2Node_CustomEvent*> Events = FBlueprintMemberUtility::GetCustomEvents(InBlueprint);
+		const TMap<UFunction*, UK2Node_CustomEvent*> CustomEvents = FBlueprintMemberUtility::GetCustomEvents(InBlueprint);
 		
-		for (const TPair<UFunction*, UK2Node_CustomEvent*>& Event : Events)
+		for (const TPair<UFunction*, UK2Node_CustomEvent*>& CustomEvent : CustomEvents)
 		{
-			TSharedPtr<FBlueprintMember> Member = MakeShared<FBlueprintMember_CustomEvent>(InBlueprint, ReferencerBlueprints, Event.Key, Event.Value);
-			Member->Initialize();
-			Members->Add(Member);
+			TSharedPtr<FBlueprintMember> CustomEventMember = MakeShared<FBlueprintMember_CustomEvent>(InBlueprint, ReferencerBlueprints, CustomEvent.Key, CustomEvent.Value);
+			CustomEventMember->Initialize();
+			Members->Add(CustomEventMember);
 		}
 	}
 #endif
