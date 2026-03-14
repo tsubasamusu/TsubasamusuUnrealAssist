@@ -4,7 +4,7 @@
 #include "K2Node_FunctionEntry.h"
 #include "Components/TimelineComponent.h"
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
 
@@ -127,7 +127,7 @@ void FBlueprintMemberUtility::SetFunctionAccessSpecifier(const ETsubasamusuAcces
 	SetFunctionBaseMemberAccessSpecifier(InAccessSpecifier, InFunction, InFunctionEntryNode, InBlueprint, FunctionToSetEntryNodeAccessSpecifier);
 }
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 void FBlueprintMemberUtility::SetCustomEventAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier, UFunction* InFunction, UK2Node_CustomEvent* InCustomEventEntryNode, UBlueprint* InBlueprint)
 {
 	auto FunctionToSetEntryNodeAccessSpecifier = [InCustomEventEntryNode](const EFunctionFlags InAccessSpecifierFlag, const EFunctionFlags InClearAccessSpecifierMask)
@@ -193,7 +193,7 @@ TMap<UFunction*, UK2Node_FunctionEntry*> FBlueprintMemberUtility::GetFunctions(U
 	return TMap<UFunction*, UK2Node_FunctionEntry*>();
 }
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 TMap<UFunction*, UK2Node_CustomEvent*> FBlueprintMemberUtility::GetEvents(UBlueprint* InBlueprint)
 {
 	if (IsValid(InBlueprint))

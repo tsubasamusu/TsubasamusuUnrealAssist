@@ -8,7 +8,7 @@
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
 
@@ -79,7 +79,7 @@ void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 				FBlueprintMemberUtility::SetFunctionAccessSpecifier(TsubasamusuUnrealAssistSettings->FunctionDefaultAccessSpecifier, AddedFunctionSet.Function.Get(), AddedFunctionSet.FunctionEntryNode.Get(), InBlueprint);
 			}
 		}
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 		else if (TsubasamusuUnrealAssistSettings->bOverrideEventDefaultAccessSpecifier && PreviousBlueprintMemberSet.CustomEventSets.Num() < CurrentBlueprintMemberSet.CustomEventSets.Num())
 		{
 			const TArray<FCustomEventSet> AddedCustomEventSets = FindElementsOnlyInSecondArray(PreviousBlueprintMemberSet.CustomEventSets, CurrentBlueprintMemberSet.CustomEventSets);
@@ -121,7 +121,7 @@ FBlueprintMemberSet FAccessSpecifierInitializer::CreateBlueprintMemberSet(UBluep
 			}
 		}
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 		TArray<FCustomEventSet> CustomEventSets;
 		{
 			TMap<UFunction*, UK2Node_CustomEvent*> CustomEvents = FBlueprintMemberUtility::GetEvents(InBlueprint);

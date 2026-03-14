@@ -12,7 +12,7 @@
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
 
@@ -356,7 +356,7 @@ void FBlueprintMember_Function::SetAccessSpecifier(const ETsubasamusuAccessSpeci
 	FBlueprintMemberUtility::SetFunctionAccessSpecifier(InAccessSpecifier, Function, FunctionEntryNode, OwnerBlueprint);
 }
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 void FBlueprintMember_Event::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
 	UK2Node_CustomEvent* CustomEventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();

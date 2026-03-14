@@ -120,7 +120,7 @@ public:
 	//~ End FBlueprintMember Interface
 };
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 class FBlueprintMember_Event final : public FBlueprintMember_FunctionBase
 {
 public:

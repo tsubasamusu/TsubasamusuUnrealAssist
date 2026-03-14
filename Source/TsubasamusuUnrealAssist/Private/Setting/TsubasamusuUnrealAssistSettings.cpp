@@ -34,7 +34,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 	bOverrideFunctionDefaultAccessSpecifier = false;
 	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	bCustomEventAccessSpecifierIsSupported = true;
 	bOverrideEventDefaultAccessSpecifier = false;
 	EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
@@ -77,7 +77,7 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	{
 		FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
 	}
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideEventDefaultAccessSpecifier) && !bOverrideEventDefaultAccessSpecifier)
 	{
 		EventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;

@@ -15,7 +15,7 @@
 #include "K2Node_FunctionEntry.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 #include "K2Node_CustomEvent.h"
 #endif
 
@@ -233,7 +233,7 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 		}
 	}
 	
-#if EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 	// Events
 	{
 		const TMap<UFunction*, UK2Node_CustomEvent*> Events = FBlueprintMemberUtility::GetEvents(InBlueprint);
