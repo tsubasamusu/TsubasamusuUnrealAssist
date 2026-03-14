@@ -284,4 +284,9 @@ public:
 #endif
 			&& FunctionSets == InBlueprintMemberSet.FunctionSets;
 	}
+	
+	bool operator!=(const FBlueprintMemberSet& InBlueprintMemberSet) const
+	{
+		return !(*this == InBlueprintMemberSet);
+	}
 };
