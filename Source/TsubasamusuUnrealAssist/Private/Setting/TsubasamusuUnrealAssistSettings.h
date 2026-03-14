@@ -96,13 +96,13 @@ private:
 	bool bCustomEventAccessSpecifierIsSupported;
 	
 public:
-	/* Whether to change the default value of event access specifier. */
+	/* Whether to change the default value of custom event access specifier. */
 	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (EditCondition = "bCustomEventAccessSpecifierIsSupported", HideEditConditionToggle))
-	bool bOverrideEventDefaultAccessSpecifier;
+	bool bOverrideCustomEventDefaultAccessSpecifier;
 	
-	/* The default value of event access specifier. */
-	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
-	ETsubasamusuAccessSpecifier EventDefaultAccessSpecifier;
+	/* The default value of custom event access specifier. */
+	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (InvalidEnumValues = "None", EditCondition = "bOverrideCustomEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
+	ETsubasamusuAccessSpecifier CustomEventDefaultAccessSpecifier;
 #pragma endregion
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;

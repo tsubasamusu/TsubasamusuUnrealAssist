@@ -80,7 +80,7 @@ void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 			}
 		}
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-		else if (TsubasamusuUnrealAssistSettings->bOverrideEventDefaultAccessSpecifier && PreviousBlueprintMemberSet.CustomEventSets.Num() < CurrentBlueprintMemberSet.CustomEventSets.Num())
+		else if (TsubasamusuUnrealAssistSettings->bOverrideCustomEventDefaultAccessSpecifier && PreviousBlueprintMemberSet.CustomEventSets.Num() < CurrentBlueprintMemberSet.CustomEventSets.Num())
 		{
 			const TArray<FCustomEventSet> AddedCustomEventSets = FindElementsOnlyInSecondArray(PreviousBlueprintMemberSet.CustomEventSets, CurrentBlueprintMemberSet.CustomEventSets);
 			check(AddedCustomEventSets.Num() == 1);
@@ -89,7 +89,7 @@ void FAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
 			
 			if (AddedCustomEventSet.IsValid())
 			{
-				FBlueprintMemberUtility::SetCustomEventAccessSpecifier(TsubasamusuUnrealAssistSettings->EventDefaultAccessSpecifier, AddedCustomEventSet.Function.Get(), AddedCustomEventSet.CustomEventEntryNode.Get(), InBlueprint);
+				FBlueprintMemberUtility::SetCustomEventAccessSpecifier(TsubasamusuUnrealAssistSettings->CustomEventDefaultAccessSpecifier, AddedCustomEventSet.Function.Get(), AddedCustomEventSet.CustomEventEntryNode.Get(), InBlueprint);
 			}
 		}
 #endif
