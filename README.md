@@ -470,7 +470,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 ※オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
 
-### Unused Local Variables Deleter
+### Unused Local Variable Deleter
 このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると、「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/fa565e80-c798-4900-bcc7-fbb98d4686f0">
