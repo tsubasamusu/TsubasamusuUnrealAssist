@@ -21,8 +21,8 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
-	bUseToonFormatForCommentGeneration = true;
 	CommentGenerationConditions = { TEXT("answer briefly") };
+	bUseToonFormatForCommentGeneration = true;
 	
 	// Node Previewer
 	bEnableNodePreview = false;
@@ -41,6 +41,9 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 #else
 	bCustomEventAccessSpecifierIsSupported = false;
 #endif
+	
+	// LLM
+	LlmFilePath.FilePath = TEXT("");
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)

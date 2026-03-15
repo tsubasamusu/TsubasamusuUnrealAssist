@@ -51,13 +51,13 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Ignore Comment Nodes"))
 	bool bIgnoreCommentNodesWhenGeneratingComments;
 	
-	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use TOON Format"))
-	bool bUseToonFormatForCommentGeneration;
-	
 	/* Conditions that AI must adhere to when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Conditions"))
 	TArray<FString> CommentGenerationConditions;
+	
+	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", AdvancedDisplay, meta = (DisplayName = "Use TOON Format"))
+	bool bUseToonFormatForCommentGeneration;
 #pragma endregion
 
 #pragma region Node Previewer
@@ -103,6 +103,12 @@ public:
 	/* The default value of custom event access specifier. */
 	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (ValidEnumValues = "Private, Protected, Public", EditCondition = "bOverrideCustomEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
 	ETsubasamusuAccessSpecifier CustomEventDefaultAccessSpecifier;
+#pragma endregion
+
+#pragma region LLM
+	/* The file path for the LLM used by features such as Comment Generator and Comment Translator. */
+	UPROPERTY(EditAnywhere, config, Category = "LLM", meta = (DisplayName = "LLM File Path", FilePathFilter = "gguf"))
+	FFilePath LlmFilePath;
 #pragma endregion
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
