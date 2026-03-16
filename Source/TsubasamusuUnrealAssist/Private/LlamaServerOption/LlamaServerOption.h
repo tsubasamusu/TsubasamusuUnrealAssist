@@ -20,3 +20,25 @@ public:
 	
 	virtual bool IsLongParameter() const { return true; };
 };
+
+/* LLM file path to load. */
+UCLASS(DisplayName = "Model")
+class ULlamaServerOption_Model : public ULlamaServerOption
+{
+	GENERATED_BODY()
+	
+private:
+	/* LLM file path to load. */
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "LLM File Path", FilePathFilter = "gguf"))
+	FFilePath LlmFilePath;
+	
+public:
+	//~ Begin ULlamaServerOption Interface
+	virtual FString GetParameter() const override;
+	
+	virtual void SetArgument(const FString& InArgument) override;
+	virtual FString GetArgument() const override;
+	
+	virtual bool IsValidArgument() const override;
+	//~ End ULlamaServerOption Interface
+};
