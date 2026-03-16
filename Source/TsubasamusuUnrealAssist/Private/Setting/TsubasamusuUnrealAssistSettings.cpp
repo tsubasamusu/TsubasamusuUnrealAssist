@@ -58,10 +58,10 @@ void UTsubasamusuUnrealAssistSettings::PostInitProperties()
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
-
-	if (InPropertyChangedEvent.Property)
+	const FName ChangedPropertyName = InPropertyChangedEvent.GetMemberPropertyName();
+	
+	if (!ChangedPropertyName.IsNone())
 	{
-		const FName ChangedPropertyName = InPropertyChangedEvent.Property->GetFName();
 		FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 	
 		if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
