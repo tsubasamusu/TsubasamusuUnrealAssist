@@ -2,6 +2,8 @@
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "TsubasamusuUnrealAssistModule.h"
+#include "Algo/AnyOf.h"
+#include "Debug/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "InstancedObject/LlamaServerOption.h"
@@ -96,6 +98,24 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, LlamaServerOptions))
 		{
 			SaveLlamaServerOptions();
+			
+			if (LlamaServerOptionsContainSameElements())
+			{
+				TUA_LOG(TEXT("Same!!"));
+			}
+			else
+			{
+				TUA_LOG(TEXT("Not Same"));
+			}
+			
+			// for (const ULlamaServerOption* LlamaServerOption : LlamaServerOptions)
+			// {
+			// 	if (IsValid(LlamaServerOption))
+			// 	{
+			// 		const FString Status = LlamaServerOption->IsValidArgument() ? TEXT("valid") : TEXT("invalid");
+			// 		TUA_LOG(TEXT("%s is %s."), *LlamaServerOption->GetParameter(), *Status);
+			// 	}
+			// }
 			//TODO: Llama サーバーを再起動する
 		}
 	}
@@ -118,6 +138,29 @@ void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditor
 {
 	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
 	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
+}
+
+bool UTsubasamusuUnrealAssistSettings::LlamaServerOptionsContainSameElements() const
+{
+	for (const ULlamaServerOption* LlamaServerOption : LlamaServerOptions)
+	{
+		if (IsValid(LlamaServerOption))
+		{
+			auto IsSameOptionClass = [LlamaServerOption](const ULlamaServerOption* InLlamaServerOption)
+			{
+				return IsValid(InLlamaServerOption)
+					&& LlamaServerOption != InLlamaServerOption
+					&& LlamaServerOption->GetClass() == InLlamaServerOption->GetClass();
+			};
+			
+			if (Algo::AnyOf(LlamaServerOptions, IsSameOptionClass))
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }
 
 void UTsubasamusuUnrealAssistSettings::RestoreLlamaServerOptions()

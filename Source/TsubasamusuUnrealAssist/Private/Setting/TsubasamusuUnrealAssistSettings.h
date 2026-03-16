@@ -117,6 +117,8 @@ public:
 	void SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture);
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
+	bool LlamaServerOptionsContainSameElements() const;
+	
 private:
 	UPROPERTY(config)
 	FString LanguageCultureNameForCommentGeneration;
