@@ -6,6 +6,9 @@
 #include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
+struct FConfigLlamaServerOption;
+class ULlamaServerOption;
+
 UCLASS(config = EditorPerProjectUserSettings)
 class UTsubasamusuUnrealAssistSettings final : public UObject
 {
@@ -15,6 +18,7 @@ public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer);
 	
 	//~ Begin UObject Interface
+	virtual void PostInitProperties() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent) override;
 	//~ End UObject Interface
 
@@ -22,6 +26,10 @@ public:
 	/* The tick interval of Tsubasamusu Unreal Assist. If set to 0 seconds, the tick processing will run every frame. */
 	UPROPERTY(EditAnywhere, config, Category = "General", meta = (ClampMin = "0.0", Units = "s"))
 	float TickInterval;
+	
+	/* Command line arguments used when starting Llama server. */
+	UPROPERTY(EditAnywhere, Category = "General", Instanced)
+	TArray<ULlamaServerOption*> LlamaServerOptions;
 #pragma endregion
 
 #pragma region Comment Translator
@@ -105,12 +113,6 @@ public:
 	ETsubasamusuAccessSpecifier CustomEventDefaultAccessSpecifier;
 #pragma endregion
 
-#pragma region LLM
-	/* The file path for the LLM used by features such as Comment Generator and Comment Translator. */
-	UPROPERTY(EditAnywhere, config, Category = "LLM", meta = (DisplayName = "LLM File Path", FilePathFilter = "gguf"))
-	FFilePath LlmFilePath;
-#pragma endregion
-
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
 	void SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture);
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
@@ -118,6 +120,12 @@ public:
 private:
 	UPROPERTY(config)
 	FString LanguageCultureNameForCommentGeneration;
+	
+	UPROPERTY(config)
+	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
+	
+	void RestoreLlamaServerOptions();
+	void SaveLlamaServerOptions();
 	
 	static FCultureRef GetEditorLanguageCulture();
 };

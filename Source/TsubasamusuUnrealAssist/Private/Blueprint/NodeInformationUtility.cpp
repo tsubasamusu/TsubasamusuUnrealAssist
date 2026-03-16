@@ -70,7 +70,7 @@ bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataL
 					continue;
 				}
 
-				FString ConnectedPinIdsAsString = TEXT("");
+				FString ConnectedPinIdsAsString;
 				const TArray<TSharedPtr<FJsonValue>>* ConnectedPinIdsAsJsonValue;
 				
 				if (PinDataAsJsonObject->TryGetArrayField(TEXT("connectedPinIds"), ConnectedPinIdsAsJsonValue))

@@ -4,7 +4,9 @@
 #include "TsubasamusuUnrealAssistModule.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
+#include "LlamaServerOption/LlamaServerOption.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
@@ -12,10 +14,10 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	TickInterval = 0.f;
 	
 	// Comment Translator
-	DeeplApiKey = TEXT("");
+	DeeplApiKey = FString();
 
 	// Comment Generator
-	OpenAiApiKey = TEXT("");
+	OpenAiApiKey = FString();
 	GptModelName = TEXT("gpt-4o-mini");
 	bUseEditorLanguageForCommentGeneration = true;
 	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
@@ -41,51 +43,62 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 #else
 	bCustomEventAccessSpecifierIsSupported = false;
 #endif
-	
-	// LLM
-	LlmFilePath.FilePath = TEXT("");
+}
+
+void UTsubasamusuUnrealAssistSettings::PostInitProperties()
+{
+	Super::PostInitProperties();
+	RestoreLlamaServerOptions();
 }
 
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
 
-	const FName PropertyName = InPropertyChangedEvent.Property ? InPropertyChangedEvent.Property->GetFName() : NAME_None;
-	FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
+	if (InPropertyChangedEvent.Property)
+	{
+		const FName ChangedPropertyName = InPropertyChangedEvent.Property->GetFName();
+		FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
-	{
-		MakeCommentGenerationLanguageSameAsEditorLanguage();
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
-	{
-		TsubasamusuUnrealAssist.ReregisterTicker();
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
-	{
-		if (bEnableNodePreview)
+		if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
 		{
-			TsubasamusuUnrealAssist.StartNodePreview();
+			MakeCommentGenerationLanguageSameAsEditorLanguage();
 		}
-		else
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
 		{
-			TsubasamusuUnrealAssist.StopNodePreview();
+			TsubasamusuUnrealAssist.ReregisterTicker();
 		}
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
-	{
-		VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideFunctionDefaultAccessSpecifier) && !bOverrideFunctionDefaultAccessSpecifier)
-	{
-		FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
+		{
+			if (bEnableNodePreview)
+			{
+				TsubasamusuUnrealAssist.StartNodePreview();
+			}
+			else
+			{
+				TsubasamusuUnrealAssist.StopNodePreview();
+			}
+		}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
+		{
+			VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+		}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideFunctionDefaultAccessSpecifier) && !bOverrideFunctionDefaultAccessSpecifier)
+		{
+			FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+		}
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideCustomEventDefaultAccessSpecifier) && !bOverrideCustomEventDefaultAccessSpecifier)
-	{
-		CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideCustomEventDefaultAccessSpecifier) && !bOverrideCustomEventDefaultAccessSpecifier)
+		{
+			CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+		}
 #endif
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, LlamaServerOptions))
+		{
+			SaveLlamaServerOptions();
+			//TODO: Llama サーバーを再起動する
+		}
+	}
 }
 
 FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const
@@ -105,6 +118,39 @@ void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditor
 {
 	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
 	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
+}
+
+void UTsubasamusuUnrealAssistSettings::RestoreLlamaServerOptions()
+{
+	for (const FConfigLlamaServerOption& ConfigLlamaServerOption : ConfigLlamaServerOptions)
+	{
+		const UClass* LlamaServerOptionClass = ConfigLlamaServerOption.SoftClassPath.TryLoadClass<ULlamaServerOption>();
+		ULlamaServerOption* LlamaServerOption = NewObject<ULlamaServerOption>(GetTransientPackage(), LlamaServerOptionClass);
+    
+		LlamaServerOption->SetArgument(ConfigLlamaServerOption.Argument);
+		LlamaServerOptions.Add(LlamaServerOption);
+	}
+}
+
+void UTsubasamusuUnrealAssistSettings::SaveLlamaServerOptions()
+{
+	ConfigLlamaServerOptions.Empty();
+			
+	for (const ULlamaServerOption* LlamaServerOption : LlamaServerOptions)
+	{
+		if (IsValid(LlamaServerOption))
+		{
+			FConfigLlamaServerOption ConfigLlamaServerOption
+			{
+				.SoftClassPath = FSoftClassPath(LlamaServerOption->GetClass()),
+				.Argument = LlamaServerOption->GetArgument(),
+			};
+					
+			ConfigLlamaServerOptions.Add(ConfigLlamaServerOption);
+		}
+	}
+			
+	SaveConfig();
 }
 
 FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()
