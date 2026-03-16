@@ -14,7 +14,7 @@ public:
 	virtual FString GetParameter() const PURE_VIRTUAL(ULlamaServerOption::GetParameter, return FString(););
 	
 	virtual void SetArgument(const FString& InArgument) PURE_VIRTUAL(ULlamaServerOption::SetArgument, );
-	virtual FString GetArgument() const PURE_VIRTUAL(ULlamaServerOption::GetArgument, return FString(););
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const PURE_VIRTUAL(ULlamaServerOption::GetArgument, return FString(););
 	
 	virtual bool IsValidArgument() const PURE_VIRTUAL(ULlamaServerOption::IsValidArgument, return false;);
 	
@@ -32,7 +32,7 @@ public:
 	virtual FString GetParameter() const override;
 	
 	virtual void SetArgument(const FString& InArgument) override;
-	virtual FString GetArgument() const override;
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const override;
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
@@ -54,7 +54,7 @@ public:
 	virtual FString GetParameter() const override;
 	
 	virtual void SetArgument(const FString& InArgument) override;
-	virtual FString GetArgument() const override;
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const override;
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
@@ -76,7 +76,7 @@ public:
 	virtual FString GetParameter() const override;
 	
 	virtual void SetArgument(const FString& InArgument) override;
-	virtual FString GetArgument() const override;
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const override;
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
@@ -98,7 +98,7 @@ public:
 	virtual FString GetParameter() const override;
 	
 	virtual void SetArgument(const FString& InArgument) override;
-	virtual FString GetArgument() const override;
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const override;
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
@@ -120,7 +120,7 @@ public:
 	virtual FString GetParameter() const override;
 	
 	virtual void SetArgument(const FString& InArgument) override;
-	virtual FString GetArgument() const override;
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const override;
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
@@ -142,7 +142,7 @@ public:
 	virtual FString GetParameter() const override;
 	
 	virtual void SetArgument(const FString& InArgument) override;
-	virtual FString GetArgument() const override;
+	virtual FString GetArgument(const bool bForCommandLineArguments = false) const override;
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
