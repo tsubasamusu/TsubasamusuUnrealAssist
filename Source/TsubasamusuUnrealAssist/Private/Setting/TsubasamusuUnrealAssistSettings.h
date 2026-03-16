@@ -27,7 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "General", meta = (ClampMin = "0.0", Units = "s"))
 	float TickInterval;
 	
-	/* Command line arguments used when starting Llama server. */
+	/* Command line arguments used when starting the Llama server. */
 	UPROPERTY(EditAnywhere, Category = "General", Instanced)
 	TArray<ULlamaServerOption*> LlamaServerOptions;
 #pragma endregion

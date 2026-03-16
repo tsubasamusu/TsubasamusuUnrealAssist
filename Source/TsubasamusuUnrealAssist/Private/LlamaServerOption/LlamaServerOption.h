@@ -27,10 +27,27 @@ class ULlamaServerOption_Model : public ULlamaServerOption
 {
 	GENERATED_BODY()
 	
+public:
+	//~ Begin ULlamaServerOption Interface
+	virtual FString GetParameter() const override;
+	
+	virtual void SetArgument(const FString& InArgument) override;
+	virtual FString GetArgument() const override;
+	
+	virtual bool IsValidArgument() const override;
+	//~ End ULlamaServerOption Interface
+	
 private:
 	/* LLM file path to load. */
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "LLM File Path", FilePathFilter = "gguf"))
 	FFilePath LlmFilePath;
+};
+
+/* The port number for the Llama server. */
+UCLASS(DisplayName = "Port")
+class ULlamaServerOption_Port : public ULlamaServerOption
+{
+	GENERATED_BODY()
 	
 public:
 	//~ Begin ULlamaServerOption Interface
@@ -41,4 +58,9 @@ public:
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
+	
+private:
+	/* The port number for the Llama server. */
+	UPROPERTY(EditAnywhere, meta = (ClampMin = "1024", ClampMax = "65535"))
+	int32 LlamaServerPort = 8080;
 };

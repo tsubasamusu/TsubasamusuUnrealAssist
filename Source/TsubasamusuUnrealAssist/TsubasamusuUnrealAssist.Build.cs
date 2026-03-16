@@ -41,7 +41,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "EditorFramework",
             "BlueprintEditorLibrary",
             "ToolWidgets",
-            "EditorSubsystem"
+            "EditorSubsystem",
+            "Sockets"
 		});
 	}
 }
