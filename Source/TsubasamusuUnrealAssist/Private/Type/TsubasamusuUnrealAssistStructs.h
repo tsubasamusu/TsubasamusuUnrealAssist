@@ -290,3 +290,16 @@ public:
 		return !(*this == InBlueprintMemberSet);
 	}
 };
+
+USTRUCT()
+struct FConfigLlamaServerOption
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY()
+	FSoftClassPath SoftClassPath;
+	
+	UPROPERTY()
+	FString Argument;
+};
