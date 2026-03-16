@@ -1,7 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "LlamaServerOption.h"
-
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 

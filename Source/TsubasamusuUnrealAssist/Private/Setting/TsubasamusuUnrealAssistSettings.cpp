@@ -4,7 +4,7 @@
 #include "TsubasamusuUnrealAssistModule.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
-#include "LlamaServerOption/LlamaServerOption.h"
+#include "InstancedObject/LlamaServerOption.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
