@@ -85,3 +85,23 @@ bool ULlamaServerOption_ContextSize::IsValidArgument() const
 {
 	return ContextSize >= 0;
 }
+
+FString ULlamaServerOption_Threads::GetParameter() const
+{
+	return TEXT("threads");
+}
+
+void ULlamaServerOption_Threads::SetArgument(const FString& InArgument)
+{
+	CpuThreadsNumber = FCString::Atoi(*InArgument);
+}
+
+FString ULlamaServerOption_Threads::GetArgument() const
+{
+	return FString::FromInt(CpuThreadsNumber);
+}
+
+bool ULlamaServerOption_Threads::IsValidArgument() const
+{
+	return true;
+}

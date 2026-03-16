@@ -86,3 +86,25 @@ private:
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "0"))
 	int32 ContextSize = 0;
 };
+
+/* The number of CPU threads to use during generation. */
+UCLASS(DisplayName = "Threads")
+class ULlamaServerOption_Threads : public ULlamaServerOption
+{
+	GENERATED_BODY()
+	
+public:
+	//~ Begin ULlamaServerOption Interface
+	virtual FString GetParameter() const override;
+	
+	virtual void SetArgument(const FString& InArgument) override;
+	virtual FString GetArgument() const override;
+	
+	virtual bool IsValidArgument() const override;
+	//~ End ULlamaServerOption Interface
+	
+private:
+	/* The number of CPU threads to use during generation. */
+	UPROPERTY(EditAnywhere)
+	int32 CpuThreadsNumber = -1;
+};
