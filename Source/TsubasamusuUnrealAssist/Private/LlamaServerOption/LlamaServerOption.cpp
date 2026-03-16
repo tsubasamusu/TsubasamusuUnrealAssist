@@ -105,3 +105,23 @@ bool ULlamaServerOption_Threads::IsValidArgument() const
 {
 	return true;
 }
+
+FString ULlamaServerOption_EnableWebUi::GetParameter() const
+{
+	return bEnableWebUi ? TEXT("webui") : TEXT("no-webui");
+}
+
+void ULlamaServerOption_EnableWebUi::SetArgument(const FString& InArgument)
+{
+	bEnableWebUi = InArgument == TEXT("true");
+}
+
+FString ULlamaServerOption_EnableWebUi::GetArgument() const
+{
+	return bEnableWebUi ? TEXT("true") : TEXT("false");
+}
+
+bool ULlamaServerOption_EnableWebUi::IsValidArgument() const
+{
+	return true;
+}

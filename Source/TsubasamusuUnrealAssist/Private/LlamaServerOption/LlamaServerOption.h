@@ -108,3 +108,25 @@ private:
 	UPROPERTY(EditAnywhere)
 	int32 CpuThreadsNumber = -1;
 };
+
+/* Whether to enable the Web UI. */
+UCLASS(DisplayName = "Enable Web UI")
+class ULlamaServerOption_EnableWebUi : public ULlamaServerOption
+{
+	GENERATED_BODY()
+	
+public:
+	//~ Begin ULlamaServerOption Interface
+	virtual FString GetParameter() const override;
+	
+	virtual void SetArgument(const FString& InArgument) override;
+	virtual FString GetArgument() const override;
+	
+	virtual bool IsValidArgument() const override;
+	//~ End ULlamaServerOption Interface
+	
+private:
+	/* Whether to enable the Web UI. */
+	UPROPERTY(EditAnywhere)
+	bool bEnableWebUi = false;
+};
