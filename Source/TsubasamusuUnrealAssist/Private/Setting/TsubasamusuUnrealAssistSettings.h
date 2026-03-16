@@ -26,10 +26,6 @@ public:
 	/* The tick interval of Tsubasamusu Unreal Assist. If set to 0 seconds, the tick processing will run every frame. */
 	UPROPERTY(EditAnywhere, config, Category = "General", meta = (ClampMin = "0.0", Units = "s"))
 	float TickInterval;
-	
-	/* Command-line arguments used when starting the Llama server. */
-	UPROPERTY(EditAnywhere, Category = "General", Instanced)
-	TArray<ULlamaServerOption*> LlamaServerOptions;
 #pragma endregion
 
 #pragma region Comment Translator
@@ -111,6 +107,16 @@ public:
 	/* The default value of custom event access specifier. */
 	UPROPERTY(EditAnywhere, config, Category = "Access Specifier Initializer", meta = (ValidEnumValues = "Private, Protected, Public", EditCondition = "bOverrideCustomEventDefaultAccessSpecifier && bCustomEventAccessSpecifierIsSupported"))
 	ETsubasamusuAccessSpecifier CustomEventDefaultAccessSpecifier;
+#pragma endregion
+
+#pragma region LLM
+	/* The file path of llama-server.exe. */
+	UPROPERTY(EditAnywhere, config, Category = "LLM", meta = (FilePathFilter = "exe"))
+	FFilePath LLamaServerFilePath;
+	
+	/* Command-line arguments used when starting the Llama server. */
+	UPROPERTY(EditAnywhere, Category = "LLM", Instanced)
+	TArray<ULlamaServerOption*> LlamaServerOptions;
 #pragma endregion
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
