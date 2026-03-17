@@ -116,21 +116,6 @@ bool FCommentGenerator::HasConnectedPins(const UEdGraphNode* InNode)
 	return false;
 }
 
-int32 FCommentGenerator::GetCharNum(const FString& InString, const TCHAR& InChar)
-{
-	int32 CharNum = 0;
-
-	for (const TCHAR Char : InString)
-	{
-		if (Char == InChar)
-		{
-			CharNum++;
-		}
-	}
-
-	return CharNum;
-}
-
 void FCommentGenerator::GenerateComment(const FString& InNodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& InGeneratedCommentFunction)
 {
 	FString GptRequestString;
