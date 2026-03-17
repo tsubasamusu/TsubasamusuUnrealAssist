@@ -32,7 +32,7 @@ void ULlmManager::RestartLlamaServer()
 	StartLlamaServer();
 }
 
-void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction) const
+void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction, const bool bEnableStreaming) const
 {
     const TSharedPtr<FJsonObject> MessageJsonObject = MakeShared<FJsonObject>();
 	
@@ -43,7 +43,7 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
     const TArray<TSharedPtr<FJsonValue>> MessageJsonValues = { MakeShared<FJsonValueObject>(MessageJsonObject) };
     
     RequestJsonObject->SetArrayField(TEXT("messages"), MessageJsonValues);
-    RequestJsonObject->SetBoolField(TEXT("stream"), true);
+    RequestJsonObject->SetBoolField(TEXT("stream"), bEnableStreaming);
     
     FString RequestContent;
     const TSharedRef<TJsonWriter<>> RequestJsonWriter = TJsonStringWriter<>::Create(&RequestContent);
@@ -111,12 +111,42 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
         }
     });
 	
-	HttpRequest->OnProcessRequestComplete().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated](FHttpRequestPtr, FHttpResponsePtr, const bool bInProcessedSuccessfully)
+	HttpRequest->OnProcessRequestComplete().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, bEnableStreaming](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
 	{
-		if (!bInProcessedSuccessfully || !*bAtLeastOneTokenWasGenerated)
+		if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid())
 		{
-			InTokenGeneratedFunction(false, FString());
+			if (bEnableStreaming)
+			{
+				if (!*bAtLeastOneTokenWasGenerated)
+				{
+					InTokenGeneratedFunction(false, FString());
+				}
+				
+				return;
+			}
+			
+			TSharedPtr<FJsonObject> ResponseJsonObject;
+			const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(InHttpResponsePtr->GetContentAsString());
+
+			if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+			{
+				TArray<TSharedPtr<FJsonValue>> ChoiceJsonValues = ResponseJsonObject->GetArrayField(TEXT("choices"));
+				
+				if (!ChoiceJsonValues.IsEmpty())
+				{
+					const TSharedPtr<FJsonObject> MessageJsonObject = ChoiceJsonValues[0]->AsObject()->GetObjectField(TEXT("message"));
+					FString GeneratedToken;
+
+					if (MessageJsonObject->TryGetStringField(TEXT("content"), GeneratedToken))
+					{
+						InTokenGeneratedFunction(true, GeneratedToken);
+						return;
+					}
+				}
+			}
 		}
+		
+		InTokenGeneratedFunction(false, FString());
 	});
     
     HttpRequest->ProcessRequest();

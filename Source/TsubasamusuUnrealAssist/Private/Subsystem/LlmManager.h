@@ -21,7 +21,7 @@ public:
 	//~ End USubsystem Interface
 	
 	void RestartLlamaServer();
-	void GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction) const;
+	void GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction, const bool bEnableStreaming = true) const;
 	
 	FORCEINLINE FLlmSettings GetLastAppliedLlmSettings() const
 	{
