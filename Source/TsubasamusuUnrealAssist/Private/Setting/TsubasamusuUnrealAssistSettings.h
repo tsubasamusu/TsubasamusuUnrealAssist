@@ -6,6 +6,7 @@
 #include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
+struct FLlmSettings;
 struct FConfigLlamaServerOption;
 class ULlamaServerOption;
 
@@ -124,6 +125,7 @@ public:
 	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
 	bool LlamaServerOptionsContainSameElements() const;
+	FLlmSettings GetCurrentLlmSettings() const;
 	
 private:
 	UPROPERTY(config)

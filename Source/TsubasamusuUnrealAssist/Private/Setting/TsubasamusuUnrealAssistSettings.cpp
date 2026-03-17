@@ -101,9 +101,6 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		{
 			SaveLlamaServerOptions();
 		}
-		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, LLamaServerFilePath))
-		{
-		}
 	}
 }
 
@@ -147,6 +144,15 @@ bool UTsubasamusuUnrealAssistSettings::LlamaServerOptionsContainSameElements() c
 	}
 	
 	return false;
+}
+
+FLlmSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlmSettings() const
+{
+	return FLlmSettings
+	{
+		.LLamaServerFilePath = LLamaServerFilePath,
+		.ConfigLlamaServerOptions = ConfigLlamaServerOptions
+	};
 }
 
 void UTsubasamusuUnrealAssistSettings::RestoreLlamaServerOptions()
