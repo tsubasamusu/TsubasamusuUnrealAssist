@@ -95,7 +95,6 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
 {
     const FName CategoryName = TEXT("LLM");
     const FText RowFilterText = LOCTEXT("RestartLlamaServerRowFilter", "Restart Llama Server");
-    const FText MessageText = LOCTEXT("RestartLlamaServerMessage", "You must restart Llama server for your changes to take effect.");
     
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
 
@@ -108,7 +107,7 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
         [
             SNew(SWarningOrErrorBox)
             .MessageStyle_Static(&GetRestartLlamaServerMessageStyle)
-            .Message(MessageText)
+            .Message_Static(&GetRestartLlamaServerMessageText)
             [
                 SNew(SButton)
                 .Text_Static(&GetRestartLlamaServerButtonText)
@@ -152,6 +151,29 @@ FText FTsubasamusuSettingsCustomization::GetRestartLlamaServerButtonText()
     
     const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
     return LlamaServerStatus == ELlamaServerStatus::SuccessfullyStarted ? RestartText : StartText;
+}
+
+FText FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageText()
+{
+    FText MessageText;
+    const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
+    
+    switch (LlamaServerStatus)
+    {
+    case ELlamaServerStatus::NotStartedYet:
+        MessageText = LOCTEXT("StartLlamaServerMessage", "Llama server has not yet started. You must start the server to use AI-related features.");
+        break;
+    case ELlamaServerStatus::SuccessfullyStarted:
+        MessageText = LOCTEXT("RestartLlamaServerMessage", "Llama server settings have been updated. Please restart the server to apply these changes.");
+        break;
+    case ELlamaServerStatus::FailedToStart:
+        MessageText = LOCTEXT("FailedToStartLlamaServerMessage", "Llama server failed to start. The server is currently not running. Please check your settings and try starting the server again. For more details, see Output Log.");
+        break;
+    default:
+        checkNoEntry();
+    }
+    
+    return MessageText;
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)
