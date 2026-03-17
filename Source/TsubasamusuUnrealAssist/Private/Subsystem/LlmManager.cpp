@@ -57,57 +57,63 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
 	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
     HttpRequest->SetContentAsString(RequestContent);
     
-    HttpRequest->OnRequestProgress64().BindLambda([InTokenGeneratedFunction](FHttpRequestPtr InHttpRequestPtr, uint64 /*InBytesSent*/, uint64 /*InBytesReceived*/)
+	const TSharedPtr<bool> bAtLeastOneTokenWasGenerated = MakeShared<bool>(false);
+	const TSharedPtr<int32> ReadContentLength = MakeShared<int32>(0);
+	
+    HttpRequest->OnRequestProgress64().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, ReadContentLength](FHttpRequestPtr InHttpRequestPtr, uint64, uint64)
     {
-    	bool bAtLeastOneTokenWasGenerated = false;
         const FHttpResponsePtr HttpResponsePtr = InHttpRequestPtr->GetResponse();
     	
         if (HttpResponsePtr.IsValid())
         {
-            const FString ResponseContent = HttpResponsePtr->GetContentAsString();
+        	const FString FullResponseContent = HttpResponsePtr->GetContentAsString();
             
-            TArray<FString> ResponseLines;
-            ResponseContent.ParseIntoArrayLines(ResponseLines);
+        	// Remove content that has already been read.
+			const FString NewContent = FullResponseContent.RightChop(*ReadContentLength);
+			*ReadContentLength = FullResponseContent.Len();
+
+			if (!NewContent.IsEmpty())
+			{
+				TArray<FString> ResponseLines;
+				NewContent.ParseIntoArrayLines(ResponseLines);
     
-            for (const FString& ResponseLine : ResponseLines)
-            {
-                if (ResponseLine.StartsWith(TEXT("data: ")) && !ResponseLine.Contains(TEXT("[DONE]")))
-                {
-                	// remove "data: "
-                    FString JsonResponseLine = ResponseLine.RightChop(6);
-                    
-                    TSharedPtr<FJsonObject> ResponseJsonObject;
-                    TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(JsonResponseLine);
+				for (const FString& ResponseLine : ResponseLines)
+				{
+					const FString DataString = TEXT("data: ");
+					
+					if (ResponseLine.StartsWith(DataString) && !ResponseLine.Contains(TEXT("[DONE]")))
+					{
+						// remove "data: "
+						FString JsonResponseLine = ResponseLine.RightChop(DataString.Len());
                 	
-                    if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
-                    {
-                        TArray<TSharedPtr<FJsonValue>> ChoiceJsonValues = ResponseJsonObject->GetArrayField(TEXT("choices"));
+						TSharedPtr<FJsonObject> ResponseJsonObject;
+						TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(JsonResponseLine);
+                	
+						if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+						{
+							TArray<TSharedPtr<FJsonValue>> ChoiceJsonValues = ResponseJsonObject->GetArrayField(TEXT("choices"));
                     	
-                        if (!ChoiceJsonValues.IsEmpty())
-                        {
-                            const TSharedPtr<FJsonObject> DeltaJsonObject = ChoiceJsonValues[0]->AsObject()->GetObjectField(TEXT("delta"));
-                            FString GeneratedToken;
+							if (!ChoiceJsonValues.IsEmpty())
+							{
+								const TSharedPtr<FJsonObject> DeltaJsonObject = ChoiceJsonValues[0]->AsObject()->GetObjectField(TEXT("delta"));
+								FString GeneratedToken;
                         	
-                            if (DeltaJsonObject->TryGetStringField(TEXT("content"), GeneratedToken))
-                            {
-                                InTokenGeneratedFunction(true, GeneratedToken);
-                            	bAtLeastOneTokenWasGenerated = true;
-                            }
-                        }
-                    }
-                }
-            }
+								if (DeltaJsonObject->TryGetStringField(TEXT("content"), GeneratedToken))
+								{
+									InTokenGeneratedFunction(true, GeneratedToken);
+									*bAtLeastOneTokenWasGenerated = true;
+								}
+							}
+						}
+					}
+				}
+			}
         }
-    
-    	if (!bAtLeastOneTokenWasGenerated)
-    	{
-    		InTokenGeneratedFunction(false, FString());
-    	}
     });
 	
-	HttpRequest->OnProcessRequestComplete().BindLambda([InTokenGeneratedFunction](FHttpRequestPtr, FHttpResponsePtr, const bool bInProcessedSuccessfully)
+	HttpRequest->OnProcessRequestComplete().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated](FHttpRequestPtr, FHttpResponsePtr, const bool bInProcessedSuccessfully)
 	{
-		if (!bInProcessedSuccessfully)
+		if (!bInProcessedSuccessfully || !*bAtLeastOneTokenWasGenerated)
 		{
 			InTokenGeneratedFunction(false, FString());
 		}
