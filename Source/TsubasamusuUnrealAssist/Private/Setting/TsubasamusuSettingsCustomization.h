@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "IDetailCustomization.h"
+#include "SWarningOrErrorBox.h"
 
 class IDetailLayoutBuilder;
 
@@ -18,6 +19,7 @@ private:
 	static void AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	
 	static EVisibility GetRestartLlamaServerMessageVisibility();
+	static EMessageStyle GetRestartLlamaServerMessageStyle();
 	
     //TODO: Delete these functions calling
 	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);

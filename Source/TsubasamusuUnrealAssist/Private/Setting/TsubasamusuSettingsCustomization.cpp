@@ -107,7 +107,7 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
         .Padding(0.f, 5.f)
         [
             SNew(SWarningOrErrorBox)
-            .MessageStyle(EMessageStyle::Warning)
+            .MessageStyle_Static(&GetRestartLlamaServerMessageStyle)
             .Message(MessageText)
             [
                 SNew(SButton)
@@ -131,6 +131,18 @@ EVisibility FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageVisib
     const bool bLlamaServerIsAlreadyRunning = LlmManager->GetLlamaServerStatus() == ELlamaServerStatus::SuccessfullyStarted;
     
     return bAppliedCurrentLlmSettings && bLlamaServerIsAlreadyRunning ? EVisibility::Collapsed : EVisibility::Visible;
+}
+
+EMessageStyle FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageStyle()
+{
+    const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
+    
+    if (LlamaServerStatus == ELlamaServerStatus::FailedToStart)
+    {
+        return EMessageStyle::Error;
+    }
+    
+    return EMessageStyle::Warning;
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)
