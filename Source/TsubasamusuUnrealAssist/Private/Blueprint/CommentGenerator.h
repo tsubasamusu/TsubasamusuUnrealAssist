@@ -12,7 +12,7 @@ public:
 	static void AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 
 private:
-	static void UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
+	static void GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
 	
 	static TArray<UEdGraphNode*> GetActiveNodes(const TArray<UEdGraphNode*>& InNodes);
 	static bool HasConnectedPins(const UEdGraphNode* InNode);

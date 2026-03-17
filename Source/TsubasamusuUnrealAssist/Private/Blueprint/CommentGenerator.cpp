@@ -2,18 +2,13 @@
 
 #include "Blueprint/CommentGenerator.h"
 #include "EdGraphNode_Comment.h"
-#include "HttpModule.h"
-#include "JsonObjectConverter.h"
 #include "Algo/AnyOf.h"
 #include "Blueprint/NodeInformationUtility.h"
 #include "Debug/TsubasamusuLogUtility.h"
-#include "Interfaces/IHttpRequest.h"
-#include "Interfaces/IHttpResponse.h"
 #include "Internationalization/Culture.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
-#include "Type/TsubasamusuUnrealAssistStructs.h"
-#include "Type/TsubasamusuUnrealAssistMacros.h"
+#include "Subsystem/LlmManager.h"
 
 #define LOCTEXT_NAMESPACE "FCommentGenerator"
 
@@ -26,46 +21,48 @@ void FCommentGenerator::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, co
     {
     	if (InCommentNode.IsValid())
     	{
-    		UpdateCommentByGpt(InCommentNode);
+    		GenerateComment(InCommentNode);
     	}
     })));
 }
 
-void FCommentGenerator::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	if (!InCommentNode.IsValid())
+	if (InCommentNode.IsValid())
 	{
-		return;
-	}
-	
-	FString NodeDataListString;
+		FString NodeDataListString;
 
-	if (!TryGetNodeDataListStringUnderComment(NodeDataListString, InCommentNode))
-	{
-		const FString ErrorMessage = TEXT("Failed to get a node data list as JSON string.");
-		
-		TUA_ERROR(TEXT("%s"), *ErrorMessage);
-		InCommentNode->OnUpdateCommentText(ErrorMessage);
-		
-		return;
-	}
-
-	InCommentNode->OnUpdateCommentText(TEXT("Start generating comment..."));
-
-	GenerateComment(NodeDataListString, [InCommentNode](const bool bInSucceeded, const FString& InMessage)
-	{
-		if (!InCommentNode.IsValid())
+		if (!TryGetNodeDataListStringUnderComment(NodeDataListString, InCommentNode))
 		{
+			const FString ErrorMessage = TEXT("Failed to get node data list.");
+		
+			TUA_ERROR(TEXT("%s"), *ErrorMessage);
+			InCommentNode->OnUpdateCommentText(ErrorMessage);
+		
 			return;
 		}
-		
-		InCommentNode->OnUpdateCommentText(InMessage);
 
-		if (!bInSucceeded)
+		InCommentNode->OnUpdateCommentText(TEXT("Generating comment..."));
+		
+		const FString Prompt = GetDesiredPrompt(NodeDataListString);
+		TSharedPtr<FString> GeneratedComment = MakeShared<FString>();
+		
+		ULlmManager::GetChecked()->GenerateToken(Prompt, [InCommentNode, GeneratedComment](const bool bInSucceeded, const FString& InGeneratedToken)
 		{
-			TUA_ERROR(TEXT("%s"), *InMessage);
-		}
-	});
+			if (InCommentNode.IsValid())
+			{
+				const FString ErrorMessage = TEXT("Failed to generate comment. For more details, see Output Log.");
+				FString DesiredComment = bInSucceeded ? (*GeneratedComment + InGeneratedToken) : ErrorMessage;
+				
+				InCommentNode->OnUpdateCommentText(*DesiredComment);
+				
+				if (bInSucceeded)
+				{
+					*GeneratedComment = DesiredComment;
+				}
+			}
+		});
+	}
 }
 
 TArray<UEdGraphNode*> FCommentGenerator::GetActiveNodes(const TArray<UEdGraphNode*>& InNodes)
