@@ -125,8 +125,12 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
 EVisibility FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageVisibility()
 {
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-    const bool bAppliedCurrentLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings() == ULlmManager::GetChecked()->GetLastAppliedLlmSettings();
-    return bAppliedCurrentLlmSettings ? EVisibility::Collapsed : EVisibility::Visible;
+    const ULlmManager* LlmManager = ULlmManager::GetChecked();
+    
+    const bool bAppliedCurrentLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings() == LlmManager->GetLastAppliedLlmSettings();
+    const bool bLlamaServerIsAlreadyRunning = LlmManager->GetLlamaServerStatus() == ELlamaServerStatus::SuccessfullyStarted;
+    
+    return bAppliedCurrentLlmSettings && bLlamaServerIsAlreadyRunning ? EVisibility::Collapsed : EVisibility::Visible;
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)
