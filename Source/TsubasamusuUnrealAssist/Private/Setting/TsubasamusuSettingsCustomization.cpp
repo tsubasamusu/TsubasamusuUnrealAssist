@@ -27,7 +27,7 @@ TSharedRef<IDetailCustomization> FTsubasamusuSettingsCustomization::Create()
 void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& InDetailLayoutBuilder)
 {
     AddButtonToApplyRecommendedEditorSettings(InDetailLayoutBuilder);
-    AddRestartLlamaServerButton(InDetailLayoutBuilder);
+    AddRestartLlamaServerMessage(InDetailLayoutBuilder);
     
     //TODO: Delete these functions calling
 	ChangePropertyDisplayAsPassword(InDetailLayoutBuilder, TEXT("Comment Generator"), TEXT("OpenAiApiKey"));
@@ -91,7 +91,7 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
     ];
 }
 
-void FTsubasamusuSettingsCustomization::AddRestartLlamaServerButton(IDetailLayoutBuilder& InDetailLayoutBuilder)
+void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder)
 {
     const FName CategoryName = TEXT("LLM");
     const FText ButtonText = LOCTEXT("RestartLlamaServerButtonLabel", "Restart Llama Server");
@@ -100,15 +100,10 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerButton(IDetailLayou
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
 
     DetailCategoryBuilder.AddCustomRow(ButtonText)
+    .Visibility(TAttribute<EVisibility>::CreateStatic(&GetRestartLlamaServerMessageVisibility))
     .WholeRowWidget
     [
         SNew(SBox)
-        .Visibility_Lambda([]()
-        {
-            const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-            const ULlmManager* LlmManager = ULlmManager::GetChecked();
-            return TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings() == LlmManager->GetLastAppliedLlmSettings() ? EVisibility::Collapsed : EVisibility::Visible;
-        })
         .Padding(0.f, 5.f)
         [
             SNew(SWarningOrErrorBox)
@@ -125,6 +120,13 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerButton(IDetailLayou
             ]
         ]
     ];
+}
+
+EVisibility FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageVisibility()
+{
+    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+    const bool bAppliedCurrentLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings() == ULlmManager::GetChecked()->GetLastAppliedLlmSettings();
+    return bAppliedCurrentLlmSettings ? EVisibility::Collapsed : EVisibility::Visible;
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)

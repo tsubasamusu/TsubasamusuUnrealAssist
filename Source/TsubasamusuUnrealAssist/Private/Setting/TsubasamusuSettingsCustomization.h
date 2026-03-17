@@ -15,7 +15,9 @@ public:
 
 private:
 	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);
-	static void AddRestartLlamaServerButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	static void AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	
+	static EVisibility GetRestartLlamaServerMessageVisibility();
 	
     //TODO: Delete these functions calling
 	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
