@@ -248,24 +248,20 @@ FString FCommentGenerator::GetDesiredPrompt(const FString& InNodeDataListString)
 
 TArray<UEdGraphNode*> FCommentGenerator::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	//TODO: Update nodes within the comment node. Indirectly call HandleSelection(true, true) via SGraphNodeComment::OnMouseButtonUp()?
-
 	TArray<UEdGraphNode*> NodesUnderComment;
 
-	if (!InCommentNode.IsValid())
+	if (InCommentNode.IsValid())
 	{
-		return NodesUnderComment;
-	}
+		TArray<UObject*> NodeObjectsUnderComment = InCommentNode->GetNodesUnderComment();
 
-	TArray<UObject*> NodeObjectsUnderComment = InCommentNode->GetNodesUnderComment();
-
-	for (UObject* NodeObjectUnderComment : NodeObjectsUnderComment)
-	{
-		UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment);
-		
-		if (IsValid(Node))
+		for (UObject* NodeObjectUnderComment : NodeObjectsUnderComment)
 		{
-			NodesUnderComment.Add(Node);
+			UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment);
+		
+			if (IsValid(Node))
+			{
+				NodesUnderComment.Add(Node);
+			}
 		}
 	}
 
