@@ -17,3 +17,10 @@ enum class ETsubasamusuAccessSpecifier : uint8
 	Protected,
 	Public
 };
+
+enum class ELlamaServerStatus : uint8
+{
+	NotStartedYet,
+	SuccessfullyStarted,
+	FailedToStart
+};
