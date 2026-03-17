@@ -23,7 +23,12 @@ public:
 	FORCEINLINE FLlmSettings GetLastAppliedLlmSettings() const
 	{
 		return LastAppliedLlmSettings;
-	};
+	}
+	
+	FORCEINLINE ELlamaServerStatus GetLlamaServerStatus() const
+	{
+		return LlamaServerStatus;
+	}
 	
 private:
 	void StartLlamaServer();
@@ -31,4 +36,5 @@ private:
 	
 	FProcHandle LlamaServerProcessHandle;
 	FLlmSettings LastAppliedLlmSettings;
+	ELlamaServerStatus LlamaServerStatus;
 };

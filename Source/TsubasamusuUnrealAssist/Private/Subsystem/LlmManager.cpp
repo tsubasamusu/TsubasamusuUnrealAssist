@@ -8,6 +8,7 @@
 
 void ULlmManager::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
 {
+	LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
 	StartLlamaServer();
 }
 
@@ -24,9 +25,21 @@ void ULlmManager::RestartLlamaServer()
 
 void ULlmManager::StartLlamaServer()
 {
+	FString ErrorMessage;
+	
+	ON_SCOPE_EXIT
+	{
+		if (!ErrorMessage.IsEmpty())
+		{
+			TUA_ERROR(TEXT("%s"), *ErrorMessage);
+		}
+		
+		LlamaServerStatus = ErrorMessage.IsEmpty() ? ELlamaServerStatus::SuccessfullyStarted : ELlamaServerStatus::FailedToStart;
+	};
+	
 	if (FPlatformProcess::IsProcRunning(LlamaServerProcessHandle))
 	{
-		TUA_ERROR(TEXT("LLama server is already running. Please stop the server and try again."));
+		ErrorMessage = TEXT("LLama server is already running. Please stop the server and try again.");
 		return;
 	}
 	
@@ -37,13 +50,13 @@ void ULlmManager::StartLlamaServer()
 	{
 		if (!FPaths::FileExists(TsubasamusuUnrealAssistSettings->LLamaServerFilePath.FilePath))
 		{
-			TUA_ERROR(TEXT("LLama server file not found. The file path is \"%s.\""), *LLamaServerFilePath);
+			ErrorMessage = FString::Printf(TEXT("LLama server file not found. The file path is \"%s.\""), *LLamaServerFilePath);
 			return;
 		}
 	
 		if (TsubasamusuUnrealAssistSettings->LlamaServerOptionsContainSameElements())
 		{
-			TUA_ERROR(TEXT("There are duplicate elements in the command-line arguments used when starting the Llama server."))
+			ErrorMessage = TEXT("There are duplicate elements in the command-line arguments used when starting the Llama server.");
 			return;
 		}
 	
@@ -55,7 +68,7 @@ void ULlmManager::StartLlamaServer()
 			{
 				if (!LlamaServerOption->IsValidArgument())
 				{
-					TUA_ERROR(TEXT("The argument \"%s\" for \"%s\" parameter is invalid."), *LlamaServerOption->GetArgument(), *LlamaServerOption->GetParameter());
+					ErrorMessage = FString::Printf(TEXT("The argument \"%s\" for \"%s\" parameter is invalid."), *LlamaServerOption->GetArgument(), *LlamaServerOption->GetParameter());
 					return;
 				}
 		
@@ -77,5 +90,7 @@ void ULlmManager::StopLlamaServer()
 		FPlatformProcess::TerminateProc(LlamaServerProcessHandle);
 		FPlatformProcess::CloseProc(LlamaServerProcessHandle);
 		LlamaServerProcessHandle.Reset();
+		
+		LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
 	}
 }
