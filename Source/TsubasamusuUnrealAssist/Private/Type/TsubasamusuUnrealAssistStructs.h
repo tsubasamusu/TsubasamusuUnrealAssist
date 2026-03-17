@@ -309,3 +309,16 @@ public:
 			&& Argument == InConfigLlamaServerOption.Argument;
 	}
 };
+
+struct FLlmSettings
+{
+public:
+	FFilePath LLamaServerFilePath;
+	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
+	
+	bool operator==(const FLlmSettings& InLlmSettings) const
+	{
+		return InLlmSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions
+			&& LLamaServerFilePath.FilePath == InLlmSettings.LLamaServerFilePath.FilePath;
+	}
+};
