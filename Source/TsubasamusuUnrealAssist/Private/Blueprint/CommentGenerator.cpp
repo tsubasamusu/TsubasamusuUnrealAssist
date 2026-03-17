@@ -4,6 +4,7 @@
 #include "EdGraphNode_Comment.h"
 #include "HttpModule.h"
 #include "JsonObjectConverter.h"
+#include "Algo/AnyOf.h"
 #include "Blueprint/NodeInformationUtility.h"
 #include "Debug/TsubasamusuLogUtility.h"
 #include "Interfaces/IHttpRequest.h"
@@ -69,36 +70,24 @@ void FCommentGenerator::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Com
 
 TArray<UEdGraphNode*> FCommentGenerator::GetActiveNodes(const TArray<UEdGraphNode*>& InNodes)
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	TArray<UEdGraphNode*> ActiveNodes;
+	const UTsubasamusuUnrealAssistSettings* Settings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 
-	for (UEdGraphNode* Node : InNodes)
+	auto IsActiveNode = [Settings](const UEdGraphNode* InNode)
 	{
-		if (HasConnectedPins(Node))
+		if (HasConnectedPins(InNode))
 		{
-			ActiveNodes.Add(Node);
-
-			continue;
+			return true;
 		}
 
-		if (FNodeInformationUtility::IsCommentNode(Node))
+		if (FNodeInformationUtility::IsCommentNode(InNode))
 		{
-			if (!TsubasamusuUnrealAssistSettings->bIgnoreCommentNodesWhenGeneratingComments)
-			{
-				ActiveNodes.Add(Node);
-			}
-
-			continue;
+			return !Settings->bIgnoreCommentNodesWhenGeneratingComments;
 		}
 
-		if (!TsubasamusuUnrealAssistSettings->bIgnoreIsolatedNodesWhenGeneratingComments)
-		{
-			ActiveNodes.Add(Node);
-		}
-	}
-
-	return ActiveNodes;
+		return !Settings->bIgnoreIsolatedNodesWhenGeneratingComments;
+	};
+	
+	return InNodes.FilterByPredicate(IsActiveNode);
 }
 
 bool FCommentGenerator::HasConnectedPins(const UEdGraphNode* InNode)
