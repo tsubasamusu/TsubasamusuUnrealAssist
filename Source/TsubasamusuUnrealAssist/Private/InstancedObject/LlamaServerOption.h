@@ -59,11 +59,13 @@ public:
 	
 	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
+
+	static constexpr int32 DefaultLlamaServerPort = 8080;
 	
 private:
 	/* The port number for the Llama server. */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = "1024", ClampMax = "65535"))
-	int32 LlamaServerPort = 8080;
+	int32 LlamaServerPort = DefaultLlamaServerPort;
 };
 
 /* The size of the prompt context. If set to 0, the context size is loaded from the model. */

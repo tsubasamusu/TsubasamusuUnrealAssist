@@ -101,3 +101,16 @@ void ULlmManager::StopLlamaServer()
 		LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
 	}
 }
+
+FString ULlmManager::GetLlamaServerPort() const
+{
+	auto IsPortOption = [](const FConfigLlamaServerOption& InConfigLlamaServerOption)
+	{
+		return InConfigLlamaServerOption.SoftClassPath == FSoftClassPath(ULlamaServerOption_Port::StaticClass());
+	};
+	
+	const FConfigLlamaServerOption* PortOptionPtr = LastAppliedLlmSettings.ConfigLlamaServerOptions.FindByPredicate(IsPortOption);
+	const FString DefaultPort = FString::FromInt(ULlamaServerOption_Port::DefaultLlamaServerPort);
+	
+	return PortOptionPtr ? PortOptionPtr->Argument : DefaultPort;
+}

@@ -34,6 +34,8 @@ private:
 	void StartLlamaServer();
 	void StopLlamaServer();
 	
+	FString GetLlamaServerPort() const;
+	
 	FProcHandle LlamaServerProcessHandle;
 	FLlmSettings LastAppliedLlmSettings;
 	ELlamaServerStatus LlamaServerStatus;
