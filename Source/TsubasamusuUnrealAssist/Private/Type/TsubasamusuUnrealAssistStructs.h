@@ -316,6 +316,11 @@ public:
 	FFilePath LLamaServerFilePath;
 	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
 	
+	void Reset()
+	{
+		*this = FLlmSettings();
+	}
+	
 	bool operator==(const FLlmSettings& InLlmSettings) const
 	{
 		return InLlmSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions

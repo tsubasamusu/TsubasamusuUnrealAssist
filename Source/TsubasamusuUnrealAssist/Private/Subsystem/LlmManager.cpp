@@ -32,6 +32,7 @@ void ULlmManager::StartLlamaServer()
 		if (!ErrorMessage.IsEmpty())
 		{
 			TUA_ERROR(TEXT("%s"), *ErrorMessage);
+			LastAppliedLlmSettings.Reset();
 		}
 		
 		LlamaServerStatus = ErrorMessage.IsEmpty() ? ELlamaServerStatus::SuccessfullyStarted : ELlamaServerStatus::FailedToStart;
