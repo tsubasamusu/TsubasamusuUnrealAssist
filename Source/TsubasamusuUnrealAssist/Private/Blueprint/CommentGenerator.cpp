@@ -274,27 +274,25 @@ TArray<UEdGraphNode*> FCommentGenerator::GetNodesUnderComment(const TWeakObjectP
 
 bool FCommentGenerator::TryGetNodeDataListStringUnderComment(FString& OutNodeDataListString, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	if (!InCommentNode.IsValid())
+	if (InCommentNode.IsValid())
 	{
-		return false;
-	}
-	
-	const TArray<UEdGraphNode*> NodesUnderComment = GetNodesUnderComment(InCommentNode);
-	const TArray<UEdGraphNode*> ActiveNodesUnderComment = GetActiveNodes(NodesUnderComment);
+		const TArray<UEdGraphNode*> NodesUnderComment = GetNodesUnderComment(InCommentNode);
+		const TArray<UEdGraphNode*> ActiveNodesUnderComment = GetActiveNodes(NodesUnderComment);
 
-	if (ActiveNodesUnderComment.Num() == 0)
-	{
-		return false;
+		if (!ActiveNodesUnderComment.IsEmpty())
+		{
+			const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+			if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
+			{
+				return FNodeInformationUtility::TryGetNodeDataListToonString(OutNodeDataListString, ActiveNodesUnderComment);
+			}
+	
+			return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
+		}
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
-	{
-		return FNodeInformationUtility::TryGetNodeDataListToonString(OutNodeDataListString, ActiveNodesUnderComment);
-	}
-	
-	return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE
