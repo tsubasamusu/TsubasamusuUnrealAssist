@@ -7,6 +7,8 @@
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "LlmManager.generated.h"
 
+using FOnTokenGenerated = TFunction<void(const bool /*bInSucceeded*/, const FString& /*InGeneratedToken*/)>;
+
 UCLASS()
 class ULlmManager final : public UEditorSubsystem, public TEditorSubsystemBase<ULlmManager>
 {
@@ -19,6 +21,7 @@ public:
 	//~ End USubsystem Interface
 	
 	void RestartLlamaServer();
+	void GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction) const;
 	
 	FORCEINLINE FLlmSettings GetLastAppliedLlmSettings() const
 	{

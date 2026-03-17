@@ -1,8 +1,11 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "LlmManager.h"
+#include "HttpModule.h"
 #include "Debug/TsubasamusuLogUtility.h"
 #include "InstancedObject/LlamaServerOption.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
@@ -27,6 +30,90 @@ void ULlmManager::RestartLlamaServer()
 {
 	StopLlamaServer();
 	StartLlamaServer();
+}
+
+void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction) const
+{
+    const TSharedPtr<FJsonObject> MessageJsonObject = MakeShared<FJsonObject>();
+	
+    MessageJsonObject->SetStringField(TEXT("role"), TEXT("user"));
+    MessageJsonObject->SetStringField(TEXT("content"), InPrompt);
+	
+	const TSharedPtr<FJsonObject> RequestJsonObject = MakeShared<FJsonObject>();
+    const TArray<TSharedPtr<FJsonValue>> MessageJsonValues = { MakeShared<FJsonValueObject>(MessageJsonObject) };
+    
+    RequestJsonObject->SetArrayField(TEXT("messages"), MessageJsonValues);
+    RequestJsonObject->SetBoolField(TEXT("stream"), true);
+    
+    FString RequestContent;
+    const TSharedRef<TJsonWriter<>> RequestJsonWriter = TJsonStringWriter<>::Create(&RequestContent);
+    FJsonSerializer::Serialize(RequestJsonObject.ToSharedRef(), RequestJsonWriter);
+	
+	const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+	const FString Url = FString::Printf(TEXT("http://localhost:%s/v1/chat/completions"), *GetLlamaServerPort());
+	
+	HttpRequest->SetURL(Url);
+	HttpRequest->SetVerb(TEXT("POST"));
+	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+    HttpRequest->SetContentAsString(RequestContent);
+    
+    HttpRequest->OnRequestProgress64().BindLambda([InTokenGeneratedFunction](FHttpRequestPtr InHttpRequestPtr, uint64 /*InBytesSent*/, uint64 /*InBytesReceived*/)
+    {
+    	bool bAtLeastOneTokenWasGenerated = false;
+        const FHttpResponsePtr HttpResponsePtr = InHttpRequestPtr->GetResponse();
+    	
+        if (HttpResponsePtr.IsValid())
+        {
+            const FString ResponseContent = HttpResponsePtr->GetContentAsString();
+            
+            TArray<FString> ResponseLines;
+            ResponseContent.ParseIntoArrayLines(ResponseLines);
+    
+            for (const FString& ResponseLine : ResponseLines)
+            {
+                if (ResponseLine.StartsWith(TEXT("data: ")) && !ResponseLine.Contains(TEXT("[DONE]")))
+                {
+                	// remove "data: "
+                    FString JsonResponseLine = ResponseLine.RightChop(6);
+                    
+                    TSharedPtr<FJsonObject> ResponseJsonObject;
+                    TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(JsonResponseLine);
+                	
+                    if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+                    {
+                        TArray<TSharedPtr<FJsonValue>> ChoiceJsonValues = ResponseJsonObject->GetArrayField(TEXT("choices"));
+                    	
+                        if (!ChoiceJsonValues.IsEmpty())
+                        {
+                            const TSharedPtr<FJsonObject> DeltaJsonObject = ChoiceJsonValues[0]->AsObject()->GetObjectField(TEXT("delta"));
+                            FString GeneratedToken;
+                        	
+                            if (DeltaJsonObject->TryGetStringField(TEXT("content"), GeneratedToken))
+                            {
+                                InTokenGeneratedFunction(true, GeneratedToken);
+                            	bAtLeastOneTokenWasGenerated = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+    	if (!bAtLeastOneTokenWasGenerated)
+    	{
+    		InTokenGeneratedFunction(false, FString());
+    	}
+    });
+	
+	HttpRequest->OnProcessRequestComplete().BindLambda([InTokenGeneratedFunction](FHttpRequestPtr, FHttpResponsePtr, const bool bInProcessedSuccessfully)
+	{
+		if (!bInProcessedSuccessfully)
+		{
+			InTokenGeneratedFunction(false, FString());
+		}
+	});
+    
+    HttpRequest->ProcessRequest();
 }
 
 void ULlmManager::StartLlamaServer()
