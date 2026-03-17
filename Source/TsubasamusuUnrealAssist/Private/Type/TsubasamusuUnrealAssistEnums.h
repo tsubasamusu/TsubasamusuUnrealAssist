@@ -24,3 +24,11 @@ enum class ELlamaServerStatus : uint8
 	SuccessfullyStarted,
 	FailedToStart
 };
+
+UENUM()
+enum class EGpuLayers
+{
+	Auto,
+	All,
+	ExactNumber
+};
