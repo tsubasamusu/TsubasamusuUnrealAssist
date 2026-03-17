@@ -103,17 +103,12 @@ TArray<UEdGraphNode*> FCommentGenerator::GetActiveNodes(const TArray<UEdGraphNod
 
 bool FCommentGenerator::HasConnectedPins(const UEdGraphNode* InNode)
 {
-	TArray<UEdGraphPin*> Pins = InNode->GetAllPins();
-	
-	for (const UEdGraphPin* Pin : Pins)
+	auto IsConnectedPin = [](const UEdGraphPin* InPin)
 	{
-		if (Pin->HasAnyConnections())
-		{
-			return true;
-		}
-	}
-
-	return false;
+		return InPin && InPin->HasAnyConnections();
+	};
+	
+	return Algo::AnyOf(InNode->GetAllPins(), IsConnectedPin);
 }
 
 void FCommentGenerator::GenerateComment(const FString& InNodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& InGeneratedCommentFunction)
