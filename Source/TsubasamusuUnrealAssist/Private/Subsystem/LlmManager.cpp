@@ -46,18 +46,18 @@ void ULlmManager::StartLlamaServer()
 	
 	if (FPlatformProcess::IsProcRunning(LlamaServerProcessHandle))
 	{
-		ErrorMessage = TEXT("LLama server is already running. Please stop the server and try again.");
+		ErrorMessage = TEXT("Llama server is already running. Please stop the server and try again.");
 		return;
 	}
 	
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	const FString LLamaServerFilePath = TsubasamusuUnrealAssistSettings->LLamaServerFilePath.FilePath;
+	const FString LlamaServerFilePath = TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath;
 	
-	if (!LLamaServerFilePath.IsEmpty())
+	if (!LlamaServerFilePath.IsEmpty())
 	{
-		if (!FPaths::FileExists(TsubasamusuUnrealAssistSettings->LLamaServerFilePath.FilePath))
+		if (!FPaths::FileExists(TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath))
 		{
-			ErrorMessage = FString::Printf(TEXT("LLama server file not found. The file path is \"%s.\""), *LLamaServerFilePath);
+			ErrorMessage = FString::Printf(TEXT("Llama server file not found. The file path is \"%s.\""), *LlamaServerFilePath);
 			return;
 		}
 	
@@ -85,7 +85,7 @@ void ULlmManager::StartLlamaServer()
 			}
 		}
 	
-		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LLamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
+		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
 		LastAppliedLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings();
 	}
 }

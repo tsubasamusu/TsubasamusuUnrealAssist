@@ -313,7 +313,7 @@ public:
 struct FLlmSettings
 {
 public:
-	FFilePath LLamaServerFilePath;
+	FFilePath LlamaServerFilePath;
 	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
 	
 	void Reset()
@@ -324,6 +324,6 @@ public:
 	bool operator==(const FLlmSettings& InLlmSettings) const
 	{
 		return InLlmSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions
-			&& LLamaServerFilePath.FilePath == InLlmSettings.LLamaServerFilePath.FilePath;
+			&& LlamaServerFilePath.FilePath == InLlmSettings.LlamaServerFilePath.FilePath;
 	}
 };

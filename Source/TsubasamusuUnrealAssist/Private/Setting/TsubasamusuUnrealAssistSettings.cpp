@@ -46,8 +46,8 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 #endif
 	
 	// LLM
-	LLamaServerFilePath = FFilePath();
 	bStartLlamaServerOnEditorStartup = true;
+	LlamaServerFilePath = FFilePath();
 }
 
 void UTsubasamusuUnrealAssistSettings::PostInitProperties()
@@ -151,7 +151,7 @@ FLlmSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlmSettings() const
 {
 	return FLlmSettings
 	{
-		.LLamaServerFilePath = LLamaServerFilePath,
+		.LlamaServerFilePath = LlamaServerFilePath,
 		.ConfigLlamaServerOptions = ConfigLlamaServerOptions
 	};
 }

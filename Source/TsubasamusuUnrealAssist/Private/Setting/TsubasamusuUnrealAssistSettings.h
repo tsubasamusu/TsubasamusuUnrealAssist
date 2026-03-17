@@ -117,7 +117,7 @@ public:
 	
 	/* The file path of llama-server.exe. */
 	UPROPERTY(EditAnywhere, config, Category = "LLM", meta = (FilePathFilter = "exe"))
-	FFilePath LLamaServerFilePath;
+	FFilePath LlamaServerFilePath;
 	
 	/* Command-line arguments used when starting the Llama server. */
 	UPROPERTY(EditAnywhere, Category = "LLM", Instanced)
