@@ -20,6 +20,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	// Comment Generator
 	OpenAiApiKey = FString();
 	GptModelName = TEXT("gpt-4o-mini");
+	bEnableStreamingCommentGeneration = true;
 	bUseEditorLanguageForCommentGeneration = true;
 	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;

@@ -44,6 +44,10 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "GPT Model Name"))
 	FString GptModelName;
 
+	/* Whether to use streaming generation when generating comments. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Enable Streaming Generation"))
+	bool bEnableStreamingCommentGeneration;
+
 	/* Whether to match the language of generated comments to the editor language. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use Editor Language"))
 	bool bUseEditorLanguageForCommentGeneration;

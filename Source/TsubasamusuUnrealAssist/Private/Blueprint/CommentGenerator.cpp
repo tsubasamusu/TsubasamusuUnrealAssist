@@ -42,10 +42,12 @@ void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Commen
 			return;
 		}
 
-		InCommentNode->OnUpdateCommentText(TEXT("Generating comment..."));
+		InCommentNode->OnUpdateCommentText(TEXT("Generating..."));
 		
 		const FString Prompt = GetDesiredPrompt(NodeDataListString);
 		TSharedPtr<FString> GeneratedComment = MakeShared<FString>();
+		
+		const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 		
 		ULlmManager::GetChecked()->GenerateToken(Prompt, [InCommentNode, GeneratedComment](const bool bInSucceeded, const FString& InGeneratedToken)
 		{
@@ -61,7 +63,7 @@ void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Commen
 					*GeneratedComment = DesiredComment;
 				}
 			}
-		});
+		}, TsubasamusuUnrealAssistSettings->bEnableStreamingCommentGeneration);
 	}
 }
 
