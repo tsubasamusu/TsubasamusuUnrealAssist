@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EditorSubsystemBase.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "LlmManager.generated.h"
 
 UCLASS()
@@ -19,9 +20,15 @@ public:
 	
 	void RestartLlamaServer();
 	
+	FORCEINLINE FLlmSettings GetLastAppliedLlmSettings() const
+	{
+		return LastAppliedLlmSettings;
+	};
+	
 private:
 	void StartLlamaServer();
 	void StopLlamaServer();
 	
 	FProcHandle LlamaServerProcessHandle;
+	FLlmSettings LastAppliedLlmSettings;
 };

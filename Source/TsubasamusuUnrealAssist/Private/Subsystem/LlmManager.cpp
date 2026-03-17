@@ -8,7 +8,7 @@
 
 void ULlmManager::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
 {
-	RestartLlamaServer();
+	StartLlamaServer();
 }
 
 void ULlmManager::Deinitialize()
@@ -66,6 +66,7 @@ void ULlmManager::StartLlamaServer()
 		}
 	
 		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LLamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
+		LastAppliedLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings();
 	}
 }
 
