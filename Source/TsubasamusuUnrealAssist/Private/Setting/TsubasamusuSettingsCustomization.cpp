@@ -12,8 +12,10 @@
 #include "Widgets/Images/SImage.h"
 #include "IDocumentation.h"
 #include "RecommendedEditorSettingsApplier.h"
+#include "SWarningOrErrorBox.h"
 #include "TsubasamusuUnrealAssistSettings.h"
 #include "Debug/EditorMessageUtility.h"
+#include "Subsystem/LlmManager.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuSettingsCustomization"
 
@@ -24,12 +26,105 @@ TSharedRef<IDetailCustomization> FTsubasamusuSettingsCustomization::Create()
 
 void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& InDetailLayoutBuilder)
 {
+    AddButtonToApplyRecommendedEditorSettings(InDetailLayoutBuilder);
+    AddRestartLlamaServerButton(InDetailLayoutBuilder);
+    
+    //TODO: Delete these functions calling
 	ChangePropertyDisplayAsPassword(InDetailLayoutBuilder, TEXT("Comment Generator"), TEXT("OpenAiApiKey"));
     ChangePropertyDisplayAsPassword(InDetailLayoutBuilder, TEXT("Comment Translator"), TEXT("DeeplApiKey"));
-    
 	AddCommentGenerationLanguageProperty(InDetailLayoutBuilder);
     AddGptModelsDocumentButton(InDetailLayoutBuilder);
-    AddButtonToApplyRecommendedEditorSettings(InDetailLayoutBuilder);
+}
+
+void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder)
+{
+    const FName CategoryName = TEXT("General");
+    const FText PropertyText = LOCTEXT("ApplyRecommendedEditorSettingsButtonProperty", "Apply Recommended Editor Settings");
+    const FText ButtonText = LOCTEXT("ApplyRecommendedEditorSettingsButtonLabel", "Apply");
+    const FText ToolTipText = LOCTEXT("ApplyRecommendedEditorSettingsButtonToolTip",
+        "Apply the editor settings recommended by this plugin’s developer. Specifically, as follows:\n\n"
+        "- Disable auto save.\n"
+        "- Do not restore the tabs of assets that were open previously when the editor is restarted.\n"
+        "- Set the location where asset editors open to “Main Window.”\n"
+        "- Make comment bubble visible when zooming out in the Event Graph.\n"
+        "- Set the default color of comment nodes to black.\n"
+        "- Set the editor language to English.\n"
+        "- Also use English for node names, pin names, and property names.\n"
+        "- Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)\n"
+        "- Make Cast nodes appear as Pure by default, with no execution pins.\n"
+        "- Display the Output Log in color.\n"
+        "- Make the toolbar icons display more compactly.\n"  
+        "- When starting PIE, automatically focus the viewport even if it hasn’t been clicked."
+    );
+    
+    IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
+    
+    DetailCategoryBuilder.AddCustomRow(PropertyText)
+    .NameContent()
+    [
+        SNew(STextBlock)
+        .Text(PropertyText)
+        .Font(InDetailLayoutBuilder.GetDetailFont())
+        .ToolTipText(ToolTipText)
+    ]
+    .ValueContent()
+    [
+        SNew(SVerticalBox)
+        + SVerticalBox::Slot()
+        [
+            SNew(SButton)
+            .Text(ButtonText)
+            .HAlign(HAlign_Center)
+            .ToolTipText(ToolTipText)
+            .OnClicked_Lambda([]()
+            {
+                const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
+                
+                if (FEditorMessageUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
+                {
+                    FRecommendedEditorSettingsApplier::ApplyRecommendedEditorSettings();
+                }
+                
+                return FReply::Handled();
+            })
+        ]
+    ];
+}
+
+void FTsubasamusuSettingsCustomization::AddRestartLlamaServerButton(IDetailLayoutBuilder& InDetailLayoutBuilder)
+{
+    const FName CategoryName = TEXT("LLM");
+    const FText ButtonText = LOCTEXT("RestartLlamaServerButtonLabel", "Restart Llama Server");
+    const FText MessageText = LOCTEXT("RestartLlamaServerMessage", "You must restart Llama server for your changes to take effect.");
+    
+    IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
+
+    DetailCategoryBuilder.AddCustomRow(ButtonText)
+    .WholeRowWidget
+    [
+        SNew(SBox)
+        .Visibility_Lambda([]()
+        {
+            const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+            const ULlmManager* LlmManager = ULlmManager::GetChecked();
+            return TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings() == LlmManager->GetLastAppliedLlmSettings() ? EVisibility::Collapsed : EVisibility::Visible;
+        })
+        .Padding(0.f, 5.f)
+        [
+            SNew(SWarningOrErrorBox)
+            .MessageStyle(EMessageStyle::Warning)
+            .Message(MessageText)
+            [
+                SNew(SButton)
+                .Text(ButtonText)
+                .OnClicked_Lambda([]()
+                {
+                    ULlmManager::GetChecked()->RestartLlamaServer();
+                    return FReply::Handled();
+                })
+            ]
+        ]
+    ];
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)
@@ -216,65 +311,6 @@ void FTsubasamusuSettingsCustomization::AddGptModelsDocumentButton(IDetailLayout
             ]
         ];
     }
-}
-
-void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder)
-{
-    const FName CategoryName = TEXT("General");
-    const FText PropertyText = LOCTEXT("ApplyRecommendedEditorSettingsButtonProperty", "Apply Recommended Editor Settings");
-    const FText ButtonText = LOCTEXT("ApplyRecommendedEditorSettingsButtonLabel", "Apply");
-    const FText ToolTipText = LOCTEXT("ApplyRecommendedEditorSettingsButtonToolTip",
-        "Apply the editor settings recommended by this plugin’s developer. Specifically, as follows:\n\n"
-        "- Disable auto save.\n"
-        "- Do not restore the tabs of assets that were open previously when the editor is restarted.\n"
-        "- Set the location where asset editors open to “Main Window.”\n"
-        "- Make comment bubble visible when zooming out in the Event Graph.\n"
-        "- Set the default color of comment nodes to black.\n"
-        "- Set the editor language to English.\n"
-        "- Also use English for node names, pin names, and property names.\n"
-        "- Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)\n"
-        "- Make Cast nodes appear as Pure by default, with no execution pins.\n"
-        "- Display the Output Log in color.\n"
-        "- Make the toolbar icons display more compactly.\n"  
-        "- When starting PIE, automatically focus the viewport even if it hasn’t been clicked."
-    );
-    
-    IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
-    
-#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
-    check(!DetailCategoryBuilder.IsEmpty());
-#endif
-    
-    DetailCategoryBuilder.AddCustomRow(PropertyText)
-    .NameContent()
-    [
-        SNew(STextBlock)
-        .Text(PropertyText)
-        .Font(InDetailLayoutBuilder.GetDetailFont())
-        .ToolTipText(ToolTipText)
-    ]
-    .ValueContent()
-    [
-        SNew(SVerticalBox)
-        + SVerticalBox::Slot()
-        [
-            SNew(SButton)
-            .Text(ButtonText)
-            .HAlign(HAlign_Center)
-            .ToolTipText(ToolTipText)
-            .OnClicked_Lambda([]()
-            {
-                const FText WarningMessage = LOCTEXT("ApplyRecommendedEditorSettingsWarningMessage", "Are you sure you want to change editor settings?");
-                
-                if (FEditorMessageUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
-                {
-                    FRecommendedEditorSettingsApplier::ApplyRecommendedEditorSettings();
-                }
-                
-                return FReply::Handled();
-            })
-        ]
-    ];
 }
 
 #undef LOCTEXT_NAMESPACE

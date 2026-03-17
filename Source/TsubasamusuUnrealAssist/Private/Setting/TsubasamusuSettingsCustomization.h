@@ -14,8 +14,11 @@ public:
 	virtual void CustomizeDetails(IDetailLayoutBuilder& InDetailLayoutBuilder) override;
 
 private:
+	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	static void AddRestartLlamaServerButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	
+    //TODO: Delete these functions calling
 	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
 	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
-	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);
 };
