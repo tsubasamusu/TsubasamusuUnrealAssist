@@ -20,6 +20,7 @@ private:
 	
 	static EVisibility GetRestartLlamaServerMessageVisibility();
 	static EMessageStyle GetRestartLlamaServerMessageStyle();
+	static FText GetRestartLlamaServerButtonText();
 	
     //TODO: Delete these functions calling
 	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);

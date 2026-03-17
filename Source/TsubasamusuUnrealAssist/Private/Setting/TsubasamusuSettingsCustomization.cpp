@@ -94,12 +94,12 @@ void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSetting
 void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder)
 {
     const FName CategoryName = TEXT("LLM");
-    const FText ButtonText = LOCTEXT("RestartLlamaServerButtonLabel", "Restart Llama Server");
+    const FText RowFilterText = LOCTEXT("RestartLlamaServerRowFilter", "Restart Llama Server");
     const FText MessageText = LOCTEXT("RestartLlamaServerMessage", "You must restart Llama server for your changes to take effect.");
     
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
 
-    DetailCategoryBuilder.AddCustomRow(ButtonText)
+    DetailCategoryBuilder.AddCustomRow(RowFilterText)
     .Visibility(TAttribute<EVisibility>::CreateStatic(&GetRestartLlamaServerMessageVisibility))
     .WholeRowWidget
     [
@@ -111,7 +111,7 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
             .Message(MessageText)
             [
                 SNew(SButton)
-                .Text(ButtonText)
+                .Text_Static(&GetRestartLlamaServerButtonText)
                 .OnClicked_Lambda([]()
                 {
                     ULlmManager::GetChecked()->RestartLlamaServer();
@@ -143,6 +143,15 @@ EMessageStyle FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageSty
     }
     
     return EMessageStyle::Warning;
+}
+
+FText FTsubasamusuSettingsCustomization::GetRestartLlamaServerButtonText()
+{
+    const FText StartText = LOCTEXT("StartLlamaServerButtonLabel", "Start Llama Server");
+    const FText RestartText = LOCTEXT("RestartLlamaServerButtonLabel", "Restart Llama Server");
+    
+    const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
+    return LlamaServerStatus == ELlamaServerStatus::SuccessfullyStarted ? RestartText : StartText;
 }
 
 void FTsubasamusuSettingsCustomization::ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName)
