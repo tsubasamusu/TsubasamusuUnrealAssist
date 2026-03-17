@@ -302,4 +302,10 @@ public:
 	
 	UPROPERTY()
 	FString Argument;
+	
+	bool operator==(const FConfigLlamaServerOption& InConfigLlamaServerOption) const
+	{
+		return SoftClassPath == InConfigLlamaServerOption.SoftClassPath
+			&& Argument == InConfigLlamaServerOption.Argument;
+	}
 };
