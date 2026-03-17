@@ -111,6 +111,10 @@ public:
 #pragma endregion
 
 #pragma region LLM
+	/* Whether to start Llama server when the editor launches. */
+	UPROPERTY(EditAnywhere, config, Category = "LLM")
+	bool bStartLlamaServerOnEditorStartup;
+	
 	/* The file path of llama-server.exe. */
 	UPROPERTY(EditAnywhere, config, Category = "LLM", meta = (FilePathFilter = "exe"))
 	FFilePath LLamaServerFilePath;

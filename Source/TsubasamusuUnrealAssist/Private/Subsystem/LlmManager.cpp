@@ -9,7 +9,13 @@
 void ULlmManager::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
 {
 	LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
-	StartLlamaServer();
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+	if (TsubasamusuUnrealAssistSettings->bStartLlamaServerOnEditorStartup)
+	{
+		StartLlamaServer();
+	}
 }
 
 void ULlmManager::Deinitialize()
