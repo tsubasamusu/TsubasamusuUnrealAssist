@@ -24,7 +24,7 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
 	bUseToonFormatForCommentGeneration = true;
-	CommentGenerationConditions = { TEXT("answer briefly") };
+	CommentGenerationConditions = { TEXT("Length: Keep it brief but descriptive (one sentence or a short phrase).") };
 	
 	// Node Previewer
 	bEnableNodePreview = false;

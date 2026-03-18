@@ -135,17 +135,24 @@ bool FCommentGenerator::HasConnectedPins(const UEdGraphNode* InNode)
 FString FCommentGenerator::GetDesiredPrompt(const FString& InNodeDataListString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	FString Prompt = TEXT("You are developing a game using the Unreal Engine and are going to write a comment in a comment node for a blueprint process represented by the following string in JSON format. Answer the appropriate comment to be written in the comment node according to the following conditions.");
+    
+	FString Prompt = TEXT("Role: Professional Unreal Engine Developer\n");
+	Prompt += TEXT("Task: Generate a concise summary comment for a Blueprint logic snippet.\n\n");
 
-	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetEnglishName();
+	Prompt += TEXT("Constraints:\n");
+    
+	const FString CommentLanguage = TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetEnglishName();
+	Prompt += FString::Printf(TEXT("- Language: Answer ONLY in %s.\n"), *CommentLanguage);
+    
+	Prompt += TEXT("- Format: Output ONLY the comment string itself. Do not include quotes, preamble, or any explanation.\n");
 
-	for (FString CommentGenerationCondition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
+	for (const FString& Condition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
 	{
-		Prompt += TEXT("\n- ") + CommentGenerationCondition;
+		Prompt += FString::Printf(TEXT("- %s\n"), *Condition);
 	}
 
-	Prompt += TEXT("\n\n") + InNodeDataListString;
+	Prompt += TEXT("\n### Blueprint Node Data:\n");
+	Prompt += InNodeDataListString;
 
 	return Prompt;
 }
