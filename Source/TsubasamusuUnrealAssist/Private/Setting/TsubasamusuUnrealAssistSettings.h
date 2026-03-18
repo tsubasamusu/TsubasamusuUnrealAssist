@@ -36,14 +36,6 @@ public:
 #pragma endregion
 
 #pragma region Comment Generator
-	/* The OpenAI API key used to generate comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "OpenAI API Key"))
-	FString OpenAiApiKey;
-	
-	/* The name of the GPT model used to generate comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "GPT Model Name"))
-	FString GptModelName;
-
 	/* Whether to use streaming generation when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Enable Streaming Generation"))
 	bool bEnableStreamingCommentGeneration;
@@ -60,13 +52,13 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Ignore Comment Nodes"))
 	bool bIgnoreCommentNodesWhenGeneratingComments;
 	
+	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use TOON Format"))
+	bool bUseToonFormatForCommentGeneration;
+	
 	/* Conditions that AI must adhere to when generating comments. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Conditions"))
 	TArray<FString> CommentGenerationConditions;
-	
-	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", AdvancedDisplay, meta = (DisplayName = "Use TOON Format"))
-	bool bUseToonFormatForCommentGeneration;
 #pragma endregion
 
 #pragma region Node Previewer

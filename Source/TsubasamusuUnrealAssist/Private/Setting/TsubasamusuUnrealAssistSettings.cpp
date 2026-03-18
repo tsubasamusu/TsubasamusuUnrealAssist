@@ -18,15 +18,13 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 	DeeplApiKey = FString();
 
 	// Comment Generator
-	OpenAiApiKey = FString();
-	GptModelName = TEXT("gpt-4o-mini");
 	bEnableStreamingCommentGeneration = true;
 	bUseEditorLanguageForCommentGeneration = true;
 	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
-	CommentGenerationConditions = { TEXT("answer briefly") };
 	bUseToonFormatForCommentGeneration = true;
+	CommentGenerationConditions = { TEXT("answer briefly") };
 	
 	// Node Previewer
 	bEnableNodePreview = false;
