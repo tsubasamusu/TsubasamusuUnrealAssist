@@ -6,8 +6,6 @@
 #include "IDetailCustomization.h"
 #include "SWarningOrErrorBox.h"
 
-class IDetailLayoutBuilder;
-
 class FTsubasamusuSettingsCustomization final : public IDetailCustomization
 {
 public:
@@ -17,14 +15,12 @@ public:
 private:
 	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	
 	static EVisibility GetRestartLlamaServerMessageVisibility();
 	static EMessageStyle GetRestartLlamaServerMessageStyle();
 	static FText GetRestartLlamaServerButtonText();
 	static FText GetRestartLlamaServerMessageText();
 	
-    //TODO: Delete these functions calling
 	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
-	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
-	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
 };
