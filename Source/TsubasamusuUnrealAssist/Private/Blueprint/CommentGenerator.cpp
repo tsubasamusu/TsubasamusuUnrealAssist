@@ -42,17 +42,47 @@ void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Commen
 			return;
 		}
 
-		InCommentNode->OnUpdateCommentText(TEXT("Generating..."));
+		constexpr float AnimationDeltaSeconds = 0.2f;
+		constexpr int32 MaxDotsNumber = 3;
+		const TSharedPtr<int32> ElapsedFramesCount = MakeShared<int32>(0);
 		
-		const FString Prompt = GetDesiredPrompt(NodeDataListString);
-		TSharedPtr<FString> GeneratedComment = MakeShared<FString>();
-		
-		const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-		
-		ULlmManager::GetChecked()->GenerateToken(Prompt, [InCommentNode, GeneratedComment](const bool bInSucceeded, const FString& InGeneratedToken)
+		auto HandleGenerationAnimation = [InCommentNode, ElapsedFramesCount, MaxDotsNumber](float)
 		{
 			if (InCommentNode.IsValid())
 			{
+				FString DotsString = TEXT("");
+			
+				for (int32 i = 0; i < (*ElapsedFramesCount % (MaxDotsNumber + 1)); ++i)
+				{
+					DotsString += TEXT(".");
+				}
+			
+				const FString NewComment = FString::Printf(TEXT("Generating%s"), *DotsString);
+				InCommentNode->OnUpdateCommentText(NewComment);
+        
+				(*ElapsedFramesCount)++;
+				return true;
+			}
+			
+			return false;
+		};
+		
+		const TSharedRef<FTSTicker::FDelegateHandle> TickerHandle = MakeShared<FTSTicker::FDelegateHandle>();
+		*TickerHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda(HandleGenerationAnimation), AnimationDeltaSeconds);
+
+		const FString Prompt = GetDesiredPrompt(NodeDataListString);
+		TSharedPtr<FString> GeneratedComment = MakeShared<FString>();
+		
+		auto TokenGeneratedFunction = [InCommentNode, GeneratedComment, TickerHandle](const bool bInSucceeded, const FString& InGeneratedToken)
+		{
+			if (InCommentNode.IsValid())
+			{
+				if (TickerHandle->IsValid())
+				{
+					FTSTicker::GetCoreTicker().RemoveTicker(*TickerHandle);
+					TickerHandle->Reset();
+				}
+				
 				const FString ErrorMessage = TEXT("Failed to generate comment. For more details, see Output Log.");
 				FString DesiredComment = bInSucceeded ? (*GeneratedComment + InGeneratedToken) : ErrorMessage;
 				
@@ -63,7 +93,10 @@ void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Commen
 					*GeneratedComment = DesiredComment;
 				}
 			}
-		}, TsubasamusuUnrealAssistSettings->bEnableStreamingCommentGeneration);
+		};
+		
+		const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+		ULlmManager::GetChecked()->GenerateToken(Prompt, TokenGeneratedFunction, TsubasamusuUnrealAssistSettings->bEnableStreamingCommentGeneration);
 	}
 }
 
