@@ -132,25 +132,6 @@ void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comm
     }
 }
 
-FString FCommentTranslator::GetDeeplJsonRequest(const FString& InSourceText, const FString& InTargetLanguage)
-{
-    const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
-    const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(InSourceText) };
-
-    FString FixedLanguage = InTargetLanguage;
-    FixLanguage(FixedLanguage);
-    
-    JsonObject->SetArrayField(TEXT("text"), SourceTexts);
-    JsonObject->SetStringField(TEXT("target_lang"), FixedLanguage);
-
-    FString DeeplJsonRequest;
-    
-    const TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&DeeplJsonRequest);
-    FJsonSerializer::Serialize(JsonObject.ToSharedRef(), JsonWriter);
-    
-    return DeeplJsonRequest;
-}
-
 void FCommentTranslator::FixLanguage(FString& OutLanguage)
 {
     if (OutLanguage == TEXT("es-419"))
