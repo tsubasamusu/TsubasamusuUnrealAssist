@@ -64,8 +64,14 @@ TSharedRef<FExtender> FSelectedNodeMenuExtender::ExtendSelectedNodeMenu(TSharedR
 			
 			Extender->AddMenuExtension(TEXT("GraphNodeComment"), EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateLambda([WeakCommentNode](FMenuBuilder& InMenuBuilder)
 			{
-				FCommentTranslator::AddCommentTranslationMenu(InMenuBuilder, WeakCommentNode);
 				FCommentGenerator::AddCommentGenerationMenu(InMenuBuilder, WeakCommentNode);
+				if (WeakCommentNode.IsValid())
+				{
+					if (!WeakCommentNode->NodeComment.IsEmpty())
+					{
+						FCommentTranslator::AddCommentTranslationMenu(InMenuBuilder, WeakCommentNode);
+					}
+				}
 			}));
 		}
 	}
