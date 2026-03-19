@@ -34,39 +34,48 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 		return;
 	}
 	
-	ExtendSelectedNodeMenuDelegate = FExtendSelectedNodeMenuDelegate::CreateLambda([this](const TSharedRef<FUICommandList>, const UEdGraph* InGraph, const UEdGraphNode*, const UEdGraphPin*, bool)
-	{
-		TSharedRef<FExtender> Extender = MakeShared<FExtender>();
-		const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedNodes = FNodeUtility::GetSelectedWeakNodes(InGraph);
-		
-		for (const FSelectedNodeMenuContext& SelectedNodeMenuContext : SelectedNodeMenuContexts)
-		{
-			if (!SelectedNodes.IsEmpty() && SelectedNodeMenuContext.ShouldAddMenu(SelectedNodes))
-			{
-				const TWeakObjectPtr<UEdGraph> WeakGraph = const_cast<UEdGraph*>(InGraph);
-				
-				const FMenuExtensionDelegate AddMainMenuDelegate = FMenuExtensionDelegate::CreateLambda([SelectedNodes, WeakGraph, SelectedNodeMenuContext](FMenuBuilder& InMainMenuBuilder)
-				{
-					if (WeakGraph.IsValid())
+    ExtendSelectedNodeMenuDelegate = FExtendSelectedNodeMenuDelegate::CreateLambda([this](const TSharedRef<FUICommandList>, const UEdGraph* InGraph, const UEdGraphNode*, const UEdGraphPin*, bool)
+    {
+        TSharedRef<FExtender> Extender = MakeShared<FExtender>();
+        const TWeakObjectPtr<UEdGraph> WeakGraph = const_cast<UEdGraph*>(InGraph);
+
+        const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedNodes = FNodeUtility::GetSelectedWeakNodes(InGraph);
+        TArray<FSelectedNodeMenuContext> ValidSelectedNodeMenuContexts;
+    	
+        for (const FSelectedNodeMenuContext& SelectedNodeMenuContext : SelectedNodeMenuContexts)
+        {
+            if (!SelectedNodes.IsEmpty() && SelectedNodeMenuContext.ShouldAddMenu(SelectedNodes))
+            {
+                ValidSelectedNodeMenuContexts.Add(SelectedNodeMenuContext);
+            }
+        }
+
+        if (!ValidSelectedNodeMenuContexts.IsEmpty())
+        {
+            const FMenuExtensionDelegate AddMainMenuDelegate = FMenuExtensionDelegate::CreateLambda([SelectedNodes, WeakGraph, ValidSelectedNodeMenuContexts](FMenuBuilder& InMainMenuBuilder)
+            {
+	            if (WeakGraph.IsValid())
+	            {
+		            const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssist");
+					const FText HeadingText = LOCTEXT("TsubasamusuUnrealAssistHeading", "Tsubasamusu Unreal Assist");
+
+					InMainMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
+
+					for (const FSelectedNodeMenuContext& MainMenuContext : ValidSelectedNodeMenuContexts)
 					{
-						const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssist");
-						const TAttribute<FText> HeadingText = LOCTEXT("TsubasamusuUnrealAssistHeading", "Tsubasamusu Unreal Assist");
-					
-						InMainMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
-					
-						if (SelectedNodeMenuContext.SubMenuContexts.IsEmpty())
+						if (MainMenuContext.SubMenuContexts.IsEmpty())
 						{
-							const FUIAction MainMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, SelectedNodeMenuContext]()
+							const FUIAction MainMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, MainMenuContext]()
 							{
-								SelectedNodeMenuContext.OnClicked(SelectedNodes, WeakGraph);
+								MainMenuContext.OnClicked(SelectedNodes, WeakGraph);
 							});
 							
-							InMainMenuBuilder.AddMenuEntry(SelectedNodeMenuContext.LabelText, SelectedNodeMenuContext.ToolTipText, SelectedNodeMenuContext.MenuIcon, MainMenuAction);
+							InMainMenuBuilder.AddMenuEntry(MainMenuContext.LabelText, MainMenuContext.ToolTipText, MainMenuContext.MenuIcon, MainMenuAction);
 						}
 						else
 						{
-							const TArray<FSelectedNodeSubMenuContext> SubMenuContexts = SelectedNodeMenuContext.SubMenuContexts;
-						
+							const TArray<FSelectedNodeSubMenuContext> SubMenuContexts = MainMenuContext.SubMenuContexts;
+							
 							const FNewMenuDelegate AddSubMenuDelegate = FNewMenuDelegate::CreateLambda([SelectedNodes, WeakGraph, SubMenuContexts](FMenuBuilder& InSubMenuBuilder)
 							{
 								for (const FSelectedNodeSubMenuContext& SubMenuContext : SubMenuContexts)
@@ -75,27 +84,27 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 									{
 										SubMenuContext.OnClicked(SelectedNodes, WeakGraph, SubMenuContext.LabelText);
 									});
-						
+									
 									InSubMenuBuilder.AddMenuEntry(SubMenuContext.LabelText, SubMenuContext.ToolTipText, FSlateIcon(), SubMenuAction);
 								}
 							});
-						
-							InMainMenuBuilder.AddSubMenu(SelectedNodeMenuContext.LabelText, SelectedNodeMenuContext.ToolTipText, AddSubMenuDelegate, FUIAction(), NAME_None, EUserInterfaceActionType::None, false, SelectedNodeMenuContext.MenuIcon);
+							
+							InMainMenuBuilder.AddSubMenu(MainMenuContext.LabelText, MainMenuContext.ToolTipText, AddSubMenuDelegate, FUIAction(), NAME_None, EUserInterfaceActionType::None, false, MainMenuContext.MenuIcon);
 						}
-					
-						InMainMenuBuilder.EndSection();
 					}
-				});
-				
-				const FName AboveSectionName = TEXT("EdGraphSchemaNodeActions");
-				Extender->AddMenuExtension(AboveSectionName, EExtensionHook::After, nullptr, AddMainMenuDelegate);
-			}
-		}
-		
-		return Extender;
-	});
-	
-	ExtendSelectedNodeMenuDelegates.Add(ExtendSelectedNodeMenuDelegate);
+
+					InMainMenuBuilder.EndSection();
+	            }
+            });
+        	
+            const FName AboveSectionName = TEXT("EdGraphSchemaNodeActions");
+            Extender->AddMenuExtension(AboveSectionName, EExtensionHook::After, nullptr, AddMainMenuDelegate);
+        }
+
+        return Extender;
+    });
+    
+    ExtendSelectedNodeMenuDelegates.Add(ExtendSelectedNodeMenuDelegate);
 }
 
 void USelectedNodeMenuExtender::UnregisterSelectedNodeMenu() const
