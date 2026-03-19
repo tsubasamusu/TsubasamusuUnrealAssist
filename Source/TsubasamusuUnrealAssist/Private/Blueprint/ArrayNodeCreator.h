@@ -5,14 +5,15 @@
 #include "CoreMinimal.h"
 
 class UK2Node_MakeArray;
+struct FSelectedNodeMenuContext;
 
 class FArrayNodeCreator final
 {
 public:
-	static void AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> InArrayNodePinType);
+	static FSelectedNodeMenuContext CreateSelectedNodeMenuContext();
 	
 private:
-	static UK2Node_MakeArray* CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& InArrayNodePinType);
+	static UK2Node_MakeArray* CreateArrayNode(const TArray<TWeakObjectPtr<UEdGraphNode>>& InNodes, const TWeakObjectPtr<UEdGraph> InGraph, const FEdGraphPinType& InArrayNodePinType);
 
 	static TArray<UEdGraphPin*> GetInputPins(const UEdGraphNode* InNode);
 	

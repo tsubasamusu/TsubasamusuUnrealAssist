@@ -1,101 +1,132 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Blueprint/ArrayNodeCreator.h"
-#include "Blueprint/NodeUtility.h"
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "FArrayNodeCreator"
 
-void FArrayNodeCreator::AddCreateArrayNodeMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder, const TSharedPtr<const FEdGraphPinType> InArrayNodePinType)
+FSelectedNodeMenuContext FArrayNodeCreator::CreateSelectedNodeMenuContext()
 {
-	const FText LabelText = LOCTEXT("CreateArrayNodeLabel", "Make Array");
-	const FText ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected.");
-
-	const FSlateIcon MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
-
-	InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, MenuIcon, FUIAction(FExecuteAction::CreateLambda([InGraph, InArrayNodePinType]()
+	const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
 	{
-		if (InGraph.IsValid())
+		const auto IsValidNode = [](const TWeakObjectPtr<UEdGraphNode>& InNode)
 		{
-			const TArray<UEdGraphNode*> SelectedNodes = FNodeUtility::GetSelectedNodes(InGraph.Get());
+			return InNode.IsValid();	
+		};
 		
-			CreateArrayNode(InGraph, SelectedNodes, *InArrayNodePinType);
+		const TArray<TWeakObjectPtr<UEdGraphNode>> ValidSelectedNodes = InSelectedNodes.FilterByPredicate(IsValidNode);
+		FEdGraphPinType SelectedNodesOutputPinsSameType;
+		
+		if (ValidSelectedNodes.Num() >= 2 && TryGetNodesOutputPinsSameType(ValidSelectedNodes, SelectedNodesOutputPinsSameType))
+		{
+			return !IsExecutionPinType(SelectedNodesOutputPinsSameType);
 		}
-	})));
+		
+		return false;
+	};
+	
+	const FOnSelectedNodeMenuClicked OnClicked = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph> InGraph)
+	{
+		FEdGraphPinType SelectedNodesOutputPinsSameType;
+		
+		if (TryGetNodesOutputPinsSameType(InSelectedNodes, SelectedNodesOutputPinsSameType))
+		{
+			CreateArrayNode(InSelectedNodes, InGraph, SelectedNodesOutputPinsSameType);
+		}
+	};
+	
+	return FSelectedNodeMenuContext
+	{
+		.ShouldAddMenu = ShouldAddMenu,
+		.OnClicked = OnClicked,
+		.LabelText = LOCTEXT("CreateArrayNodeLabel", "Make Array"),
+		.ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected."),
+		.MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x")
+	};
 }
 
-UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TWeakObjectPtr<UEdGraph> InGraph, const TArray<UEdGraphNode*>& InNodes, const FEdGraphPinType& InArrayNodePinType)
+UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TArray<TWeakObjectPtr<UEdGraphNode>>& InNodes, const TWeakObjectPtr<UEdGraph> InGraph, const FEdGraphPinType& InArrayNodePinType)
 {
-	if (!InGraph.IsValid())
+	UK2Node_MakeArray* ArrayNode = nullptr;
+	
+	if (!InNodes.IsEmpty() && InGraph.IsValid())
 	{
-		return nullptr;
-	}
+		UEdGraph* Graph = InGraph.Get();
+		UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(Graph);
 	
-	FScopedTransaction Transaction(LOCTEXT("CreateArrayNodeTransaction", "Create Array Node"));
-
-	UEdGraph* Graph = InGraph.Get();
-	
-	Graph->Modify();
-
-	UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForGraph(Graph);
-	
-	if (IsValid(Blueprint))
-	{
-		Blueprint->Modify();
-	}
-	
-	TArray<UEdGraphPin*> NodesOutputPins = FNodeUtility::GetNodesOutputPins(InNodes, InArrayNodePinType);
-	FNodeUtility::SortPinsByPositionY(NodesOutputPins);
-	
-	FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*Graph);
-	
-	UK2Node_MakeArray* CreatedArrayNode = ArrayNodeCreator.CreateNode();
-	
-	if (!IsValid(CreatedArrayNode))
-	{
-		return nullptr;
-	}
-	
-	CreatedArrayNode->AllocateDefaultPins();
-
-	const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InNodes);
-	CreatedArrayNode->NodePosX = DesiredArrayNodePosition.X;
-	CreatedArrayNode->NodePosY = DesiredArrayNodePosition.Y;
-
-	for (int32 i = 0; i < NodesOutputPins.Num() - 1; i++)
-	{
-		CreatedArrayNode->AddInputPin();
-	}
-
-	ArrayNodeCreator.Finalize();
-	
-	const TArray<UEdGraphPin*> CreatedArrayNodeInputPins = FNodeUtility::GetNodeInputPins(CreatedArrayNode);
-
-	for (UEdGraphPin* NodesOutputPin : NodesOutputPins)
-	{
-		if (!NodesOutputPin)
+		if (IsValid(Blueprint))
 		{
-			continue;
-		}
-
-		for (UEdGraphPin* CreatedArrayNodeInputPin : CreatedArrayNodeInputPins)
-		{
-			if (!CreatedArrayNodeInputPin || CreatedArrayNodeInputPin->HasAnyConnections())
+			TArray<UEdGraphPin*> OutputPins = GatherOutputPins(InNodes, InArrayNodePinType);
+			SortPinsByPositionY(OutputPins);
+			
+			FGraphNodeCreator<UK2Node_MakeArray> ArrayNodeCreator(*Graph);
+			ArrayNode = ArrayNodeCreator.CreateNode();
+			
+			if (IsValid(ArrayNode))
 			{
-				continue;
-			}
-
-			if (Graph->GetSchema()->TryCreateConnection(CreatedArrayNodeInputPin, NodesOutputPin))
-			{
-				break;
+				FScopedTransaction Transaction(LOCTEXT("CreateArrayNodeTransaction", "Create Array Node"));
+		
+				Graph->Modify();
+				Blueprint->Modify();
+	
+				ArrayNode->AllocateDefaultPins();
+			
+				const FIntPoint DesiredArrayNodePosition = GetDesiredArrayNodePosition(InNodes);
+				ArrayNode->NodePosX = DesiredArrayNodePosition.X;
+				ArrayNode->NodePosY = DesiredArrayNodePosition.Y;
+				
+				for (int32 i = 0; i < OutputPins.Num() - 1; i++)
+				{
+					ArrayNode->AddInputPin();
+				}
+				
+				ArrayNodeCreator.Finalize();
+				
+				const TArray<UEdGraphPin*> ArrayNodeInputPins = GetInputPins(ArrayNode);
+				
+				for (UEdGraphPin* OutputPin : OutputPins)
+				{
+					if (OutputPin)
+					{
+						for (UEdGraphPin* ArrayNodeInputPin : ArrayNodeInputPins)
+						{
+							if (ArrayNodeInputPin && !ArrayNodeInputPin->HasAnyConnections())
+							{
+								if (Graph->GetSchema()->TryCreateConnection(ArrayNodeInputPin, OutputPin))
+								{
+									break;
+								}
+							}
+						}
+					}
+				}
+			
+				FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
 			}
 		}
 	}
 	
-	FBlueprintEditorUtils::MarkBlueprintAsStructurallyModified(Blueprint);
+	return ArrayNode;
+}
 
-	return CreatedArrayNode;
+TArray<UEdGraphPin*> FArrayNodeCreator::GetInputPins(const UEdGraphNode* InNode)
+{
+	TArray<UEdGraphPin*> InputPins;
+
+	if (IsValid(InNode))
+	{
+		for (UEdGraphPin* Pin : InNode->GetAllPins())
+		{
+			if (Pin->Direction == EGPD_Input)
+			{
+				InputPins.Add(Pin);
+			}
+		}
+	}
+
+	return InputPins;
 }
 
 TArray<UEdGraphPin*> FArrayNodeCreator::GetOutputPins(const TWeakObjectPtr<UEdGraphNode> InNode)
