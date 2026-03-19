@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 
 class UEdGraphNode_Comment;
+struct FSelectedNodeMenuContext;
 
 class FCommentGenerator final
 {
 public:
-	static void AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);
+	static FSelectedNodeMenuContext CreateSelectedNodeMenuContext();
 
 private:
 	static void GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode);

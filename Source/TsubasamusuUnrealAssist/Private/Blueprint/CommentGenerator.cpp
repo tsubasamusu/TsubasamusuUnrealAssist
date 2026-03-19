@@ -13,18 +13,40 @@
 
 #define LOCTEXT_NAMESPACE "FCommentGenerator"
 
-void FCommentGenerator::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+FSelectedNodeMenuContext FCommentGenerator::CreateSelectedNodeMenuContext()
 {
-    const TAttribute<FText> LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment");
-    const TAttribute<FText> ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.");
-
-    InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode]()
-    {
-    	if (InCommentNode.IsValid())
-    	{
-    		GenerateComment(InCommentNode);
-    	}
-    })));
+	const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
+	{
+		if (InSelectedNodes.Num() == 1)
+		{
+			const TWeakObjectPtr<UEdGraphNode> SelectedNode = InSelectedNodes[0];
+			
+			if (SelectedNode.IsValid())
+			{
+				const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(SelectedNode.Get());
+				return IsValid(CommentNode) && !CommentNode->GetNodesUnderComment().IsEmpty();
+			}
+		}
+		
+		return false;
+	};
+	
+	const FOnSelectedNodeMenuClicked OnClicked = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>)
+	{
+		if (InSelectedNodes.Num() == 1)
+		{
+			const TWeakObjectPtr<UEdGraphNode_Comment> CommentNode = Cast<UEdGraphNode_Comment>(InSelectedNodes[0]);
+			GenerateComment(CommentNode);
+		}
+	};
+	
+	return FSelectedNodeMenuContext
+	{
+		.ShouldAddMenu = ShouldAddMenu,
+		.OnClicked = OnClicked,
+		.LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment"),
+		.ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.")
+	};
 }
 
 void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
