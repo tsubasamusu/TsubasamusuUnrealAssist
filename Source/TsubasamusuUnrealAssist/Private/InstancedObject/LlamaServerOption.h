@@ -17,8 +17,7 @@ public:
 	virtual void SetArgument(const FString& InArgument) PURE_VIRTUAL(ULlamaServerOption::SetArgument, );
 	virtual FString GetArgument(const bool bForConfig = false) const PURE_VIRTUAL(ULlamaServerOption::GetArgument, return FString(););
 	
-	virtual bool IsValidArgument() const PURE_VIRTUAL(ULlamaServerOption::IsValidArgument, return false;);
-	
+	virtual bool IsValidArgument() const { return true; }
 	virtual bool IsLongParameter() const { return true; }
 };
 
@@ -102,8 +101,6 @@ public:
 	
 	virtual void SetArgument(const FString& InArgument) override;
 	virtual FString GetArgument(const bool bForConfig = false) const override;
-	
-	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
 	
 private:
@@ -124,8 +121,6 @@ public:
 	
 	virtual void SetArgument(const FString& InArgument) override;
 	virtual FString GetArgument(const bool bForConfig = false) const override;
-	
-	virtual bool IsValidArgument() const override;
 	//~ End ULlamaServerOption Interface
 	
 private:

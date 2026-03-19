@@ -100,11 +100,6 @@ FString ULlamaServerOption_Threads::GetArgument(const bool bForConfig) const
 	return FString::FromInt(CpuThreadsNumber);
 }
 
-bool ULlamaServerOption_Threads::IsValidArgument() const
-{
-	return true;
-}
-
 FString ULlamaServerOption_EnableWebUi::GetParameter() const
 {
 	return bEnableWebUi ? TEXT("webui") : TEXT("no-webui");
@@ -123,11 +118,6 @@ FString ULlamaServerOption_EnableWebUi::GetArgument(const bool bForConfig) const
 	}
 	
 	return FString();
-}
-
-bool ULlamaServerOption_EnableWebUi::IsValidArgument() const
-{
-	return true;
 }
 
 FString ULlamaServerOption_Temperature::GetParameter() const
