@@ -30,7 +30,6 @@ void FCommentTranslator::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, 
     };
     
     InMenuBuilder.AddSubMenu(LabelText, ToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None);
-
     InMenuBuilder.EndSection();
 }
 
@@ -40,28 +39,24 @@ void FCommentTranslator::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const 
 
     for (const FString& EditorLanguage : EditorLanguages)
     {
-        if (EditorLanguage.IsEmpty() || EditorLanguage == TEXT("es-419"))
+        if (!EditorLanguage.IsEmpty() && EditorLanguage != TEXT("es-419"))
         {
-            continue;
+            FCulturePtr Culture = FInternationalization::Get().GetCulture(EditorLanguage);
+        
+            if (Culture.IsValid())
+            {
+                const FString CultureString = Culture->GetEnglishName();
+                const FText CultureText = FText::FromString(CultureString);
+                
+                const TAttribute<FText> ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), CultureText);
+                const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
+        
+                InMenuBuilder.AddMenuEntry(CultureText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()
+                {
+                    TranslateComment(InCommentNode, TranslationTargetLanguage);
+                })));
+            }
         }
-        
-        FInternationalization& Internationalization = FInternationalization::Get();
-        FCulturePtr Culture = Internationalization.GetCulture(EditorLanguage);
-        
-        if (!Culture.IsValid())
-        {
-            continue;
-        }
-
-        const TAttribute<FText> LabelText = FText::FromString(Culture->GetEnglishName());
-        const TAttribute<FText> ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), FText::FromString(Culture->GetEnglishName()));
-        
-        const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
-        
-        InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()
-        {
-            TranslateComment(InCommentNode, TranslationTargetLanguage);
-        })));
     }
 }
 
