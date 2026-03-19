@@ -4,7 +4,6 @@
 #include "ISettingsModule.h"
 #include "Blueprint/AccessSpecifierInitializer.h"
 #include "Blueprint/AccessSpecifierOptimizer.h"
-#include "Blueprint/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
@@ -60,7 +59,6 @@ void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
 {
 	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
 	{
-		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
 		RegisterOnEditorLanguageChangedEvent();
 		RegisterOnAssetEditorOpenedEvent();
 	});
