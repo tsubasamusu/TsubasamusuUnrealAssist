@@ -5,7 +5,7 @@
 #include "Algo/AnyOf.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
-#include "InstancedObject/LlamaServerOption.h"
+#include "LlamaServerOption/LlamaServerOption.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 

@@ -3,7 +3,7 @@
 #include "LlmManager.h"
 #include "HttpModule.h"
 #include "Debug/TsubasamusuLogUtility.h"
-#include "InstancedObject/LlamaServerOption.h"
+#include "LlamaServerOption/LlamaServerOption.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Setting/EditorSettingsUtility.h"
