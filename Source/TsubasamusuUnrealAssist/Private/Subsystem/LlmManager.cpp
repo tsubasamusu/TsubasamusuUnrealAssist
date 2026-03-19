@@ -91,17 +91,22 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
                 	
 						if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
 						{
-							TArray<TSharedPtr<FJsonValue>> ChoiceJsonValues = ResponseJsonObject->GetArrayField(TEXT("choices"));
+							const TArray<TSharedPtr<FJsonValue>>* ChoiceJsonValues;
                     	
-							if (!ChoiceJsonValues.IsEmpty())
+							if (ResponseJsonObject->TryGetArrayField(TEXT("choices"), ChoiceJsonValues) && ChoiceJsonValues && !ChoiceJsonValues->IsEmpty())
 							{
-								const TSharedPtr<FJsonObject> DeltaJsonObject = ChoiceJsonValues[0]->AsObject()->GetObjectField(TEXT("delta"));
-								FString GeneratedToken;
-                        	
-								if (DeltaJsonObject->TryGetStringField(TEXT("content"), GeneratedToken))
+								const TSharedPtr<FJsonObject> ChoiceJsonObject = (*ChoiceJsonValues)[0]->AsObject();
+								const TSharedPtr<FJsonObject>* DeltaJsonObject;
+								
+								if (ChoiceJsonObject->TryGetObjectField(TEXT("delta"), DeltaJsonObject) && DeltaJsonObject)
 								{
-									InTokenGeneratedFunction(true, GeneratedToken);
-									*bAtLeastOneTokenWasGenerated = true;
+									FString GeneratedToken;
+                        	
+									if ((*DeltaJsonObject)->TryGetStringField(TEXT("content"), GeneratedToken))
+									{
+										InTokenGeneratedFunction(true, GeneratedToken);
+										*bAtLeastOneTokenWasGenerated = true;
+									}
 								}
 							}
 						}
@@ -125,22 +130,28 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
 				return;
 			}
 			
+			const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
 			TSharedPtr<FJsonObject> ResponseJsonObject;
-			const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(InHttpResponsePtr->GetContentAsString());
+			const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
 
 			if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
 			{
-				TArray<TSharedPtr<FJsonValue>> ChoiceJsonValues = ResponseJsonObject->GetArrayField(TEXT("choices"));
+				const TArray<TSharedPtr<FJsonValue>>* ChoiceJsonValues;
 				
-				if (!ChoiceJsonValues.IsEmpty())
+				if (ResponseJsonObject->TryGetArrayField(TEXT("choices"), ChoiceJsonValues) && ChoiceJsonValues && !ChoiceJsonValues->IsEmpty())
 				{
-					const TSharedPtr<FJsonObject> MessageJsonObject = ChoiceJsonValues[0]->AsObject()->GetObjectField(TEXT("message"));
-					FString GeneratedToken;
-
-					if (MessageJsonObject->TryGetStringField(TEXT("content"), GeneratedToken))
+					const TSharedPtr<FJsonObject> ChoiceJsonObject = (*ChoiceJsonValues)[0]->AsObject();
+					const TSharedPtr<FJsonObject>* MessageJsonObject ;
+					
+					if (ChoiceJsonObject->TryGetObjectField(TEXT("message"), MessageJsonObject) && MessageJsonObject)
 					{
-						InTokenGeneratedFunction(true, GeneratedToken);
-						return;
+						FString GeneratedToken;
+
+						if ((*MessageJsonObject)->TryGetStringField(TEXT("content"), GeneratedToken))
+						{
+							InTokenGeneratedFunction(true, GeneratedToken);
+							return;
+						}
 					}
 				}
 			}
