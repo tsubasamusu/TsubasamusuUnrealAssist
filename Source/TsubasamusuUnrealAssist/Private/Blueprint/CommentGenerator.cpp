@@ -2,6 +2,7 @@
 
 #include "Blueprint/CommentGenerator.h"
 #include "EdGraphNode_Comment.h"
+#include "TsubasamusuStringUtility.h"
 #include "Algo/AnyOf.h"
 #include "Blueprint/NodeInformationUtility.h"
 #include "Debug/TsubasamusuLogUtility.h"
@@ -41,34 +42,16 @@ void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Commen
 		
 			return;
 		}
-
-		constexpr float AnimationDeltaSeconds = 0.2f;
-		constexpr int32 MaxDotsNumber = 3;
-		const TSharedPtr<int32> ElapsedFramesCount = MakeShared<int32>(0);
 		
-		auto HandleGenerationAnimation = [InCommentNode, ElapsedFramesCount, MaxDotsNumber](float)
+		auto AnimationTextChangedFunction = [InCommentNode](const FString& InAnimationText)
 		{
 			if (InCommentNode.IsValid())
 			{
-				FString DotsString = TEXT("");
-			
-				for (int32 i = 0; i < (*ElapsedFramesCount % (MaxDotsNumber + 1)); ++i)
-				{
-					DotsString += TEXT(".");
-				}
-			
-				const FString NewComment = FString::Printf(TEXT("Generating%s"), *DotsString);
-				InCommentNode->OnUpdateCommentText(NewComment);
-        
-				(*ElapsedFramesCount)++;
-				return true;
+				InCommentNode->OnUpdateCommentText(InAnimationText);
 			}
-			
-			return false;
 		};
 		
-		const TSharedRef<FTSTicker::FDelegateHandle> TickerHandle = MakeShared<FTSTicker::FDelegateHandle>();
-		*TickerHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda(HandleGenerationAnimation), AnimationDeltaSeconds);
+		const TSharedRef<FTSTicker::FDelegateHandle> TickerHandle = FTsubasamusuStringUtility::PlayTextAnimation(TEXT("Generating"), AnimationTextChangedFunction);
 
 		const FString Prompt = GetDesiredPrompt(NodeDataListString);
 		TSharedPtr<FString> GeneratedComment = MakeShared<FString>();
