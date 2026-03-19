@@ -177,6 +177,6 @@ private:
 	EGpuLayers GpuLayers = EGpuLayers::Auto;
 	
 	/* The number of layers to store in VRAM. */
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "GPU Layers Number", ClampMin = "0", EditCondition = "GpuLayers == EGpuLayers::ExactNumber"))
-	int32 GpuLayersNumber = 0;
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "GPU Layers Number", ClampMin = "0", EditCondition = "GpuLayers == EGpuLayers::ExactNumber", EditConditionHides))
+	int32 GpuLayersNumber = -2;
 };
