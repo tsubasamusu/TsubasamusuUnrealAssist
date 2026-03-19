@@ -2,7 +2,6 @@
 
 #include "Blueprint/CommentTranslator.h"
 #include "EdGraphNode_Comment.h"
-#include "Debug/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
@@ -77,92 +76,59 @@ TArray<FString> FCommentTranslator::GetEditorLanguages()
 
 void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> InTranslationTargetLanguage)
 {
-    if (!InCommentNode.IsValid() || !InTranslationTargetLanguage.IsValid())
+    if (InCommentNode.IsValid() && InTranslationTargetLanguage.IsValid())
     {
-        return;
-    }
+        const TSharedPtr<FJsonObject> RequestJsonObject = MakeShared<FJsonObject>();
+        const TArray<TSharedPtr<FJsonValue>> SourceTextJsonValues = { MakeShared<FJsonValueString>(InCommentNode->NodeComment) };
 
-    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-    const FString ApiKey = TsubasamusuUnrealAssistSettings->DeeplApiKey;
+        FString TranslationTargetLanguage = *InTranslationTargetLanguage;
+        FixLanguage(TranslationTargetLanguage);
     
-    const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *InTranslationTargetLanguage);
+        RequestJsonObject->SetArrayField(TEXT("text"), SourceTextJsonValues);
+        RequestJsonObject->SetStringField(TEXT("target_lang"), TranslationTargetLanguage);
+
+        FString RequestContent;
+        const TSharedRef<TJsonWriter<>> RequestJsonWriter = TJsonWriterFactory<>::Create(&RequestContent);
+        FJsonSerializer::Serialize(RequestJsonObject.ToSharedRef(), RequestJsonWriter);
     
-    const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+        const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
     
-    HttpRequest->SetURL(TEXT("https://api-free.deepl.com/v2/translate"));
-    HttpRequest->SetVerb(TEXT("POST"));
-    HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    HttpRequest->SetHeader(TEXT("Authorization"), TEXT("DeepL-Auth-Key ") + ApiKey);
-    HttpRequest->SetContentAsString(DeeplJsonRequest);
+        const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+        const FString Authorization = FString::Printf(TEXT("DeepL-Auth-Key %s"), *TsubasamusuUnrealAssistSettings->DeeplApiKey);
+    
+        HttpRequest->SetURL(TEXT("https://api-free.deepl.com/v2/translate"));
+        HttpRequest->SetVerb(TEXT("POST"));
+        HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+        HttpRequest->SetHeader(TEXT("Authorization"), Authorization);
+        HttpRequest->SetContentAsString(RequestContent);
 
-    HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr InHttpResponse, const bool bInSucceeded)
-    {
-        if (!bInSucceeded)
+        HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
         {
-            TUA_ERROR(TEXT("Failed to send a HTTP request."));
-
-            return;
-        }
-
-        if (!InHttpResponse.IsValid())
-        {
-            TUA_ERROR(TEXT("Failed to get a HTTP response."));
-
-            return;
-        }
-        
-        const FString JsonResponse = InHttpResponse->GetContentAsString();
-        
-        TSharedPtr<FJsonObject> JsonObject;
-        const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonResponse);
-        
-        if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
-        {
-            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s.\""), *JsonResponse);
-
-            return;
-        }
-        
-        const TArray<TSharedPtr<FJsonValue>>* Translations;
-        
-        if (!JsonObject->TryGetArrayField(TEXT("translations"), Translations) || Translations->Num() == 0)
-        {
-            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s.\""), *JsonResponse);
-
-            return;
-        }
-        
-        const TSharedPtr<FJsonObject> TranslationJsonObject = (*Translations)[0]->AsObject();
-        
-        FString TranslatedText;
-        
-        if (!TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText))
-        {
-            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s.\""), *JsonResponse);
-
-            return;
-        }
-        
-        if (InCommentNode.IsValid())
-        {
-            const FScopedTransaction Transaction(LOCTEXT("CommentTranslationTransaction", "Translate Comment"));
-
-            InCommentNode->Modify();
-            InCommentNode->NodeComment = TranslatedText;
-            InCommentNode->ReconstructNode();
-
-            UEdGraph* Graph = InCommentNode->GetGraph();
-            
-            if (IsValid(Graph))
+            if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid() && InCommentNode.IsValid())
             {
-                Graph->NotifyGraphChanged();
+                const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
+                TSharedPtr<FJsonObject> ResponseJsonObject;
+                const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
+        
+                if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+                {
+                    const TArray<TSharedPtr<FJsonValue>>* TranslationJsonValues;
+        
+                    if (ResponseJsonObject->TryGetArrayField(TEXT("translations"), TranslationJsonValues) && TranslationJsonValues && !TranslationJsonValues->IsEmpty())
+                    {
+                        const TSharedPtr<FJsonObject> TranslationJsonObject = (*TranslationJsonValues)[0]->AsObject();
+                        FString TranslatedText;
+        
+                        if (TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText) && !TranslatedText.IsEmpty())
+                        {
+                            InCommentNode->OnUpdateCommentText(*TranslatedText);
+                        }
+                    }
+                }
             }
-        }
-    });
+        });
     
-    if (!HttpRequest->ProcessRequest())
-    {
-        TUA_ERROR(TEXT("Failed to process a HTTP request."));
+        HttpRequest->ProcessRequest();
     }
 }
 
