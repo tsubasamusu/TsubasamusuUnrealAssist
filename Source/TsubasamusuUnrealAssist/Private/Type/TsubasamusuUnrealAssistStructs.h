@@ -12,6 +12,10 @@ class UK2Node_FunctionEntry;
 class UK2Node_CustomEvent;
 #endif
 
+using FShouldAddMenu = TFunction<bool(const TArray<TWeakObjectPtr<UEdGraphNode>>& /*InSelectedNodes*/)>;
+using FOnSelectedNodeMenuClicked = TFunction<void(const TArray<TWeakObjectPtr<UEdGraphNode>>& /*InSelectedNodes*/, const TWeakObjectPtr<UEdGraph> /*InGraph*/)>;
+using FOnSelectedNodeSubMenuClicked = TFunction<void(const TArray<TWeakObjectPtr<UEdGraphNode>>& /*InSelectedNodes*/, const TWeakObjectPtr<UEdGraph> /*InGraph*/, const FText& /*InSubMenuLabelText*/)>;
+
 USTRUCT()
 struct FGptMessage
 {
@@ -326,4 +330,26 @@ public:
 		return InLlamaServerSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions
 			&& LlamaServerFilePath.FilePath == InLlamaServerSettings.LlamaServerFilePath.FilePath;
 	}
+};
+
+struct FSelectedNodeSubMenuContext
+{
+public:
+	FOnSelectedNodeSubMenuClicked OnClicked;
+	
+	FText LabelText;
+	FText ToolTipText;
+};
+
+struct FSelectedNodeMenuContext
+{
+public:
+	FShouldAddMenu ShouldAddMenu;
+	FOnSelectedNodeMenuClicked OnClicked;
+	
+	FText LabelText;
+	FText ToolTipText;
+	
+	FSlateIcon MenuIcon;
+	TArray<FSelectedNodeSubMenuContext> SubMenuContexts;
 };
