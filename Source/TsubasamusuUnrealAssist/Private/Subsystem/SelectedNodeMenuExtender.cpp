@@ -39,7 +39,7 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
         TSharedRef<FExtender> Extender = MakeShared<FExtender>();
         const TWeakObjectPtr<UEdGraph> WeakGraph = const_cast<UEdGraph*>(InGraph);
 
-        const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedNodes = FNodeUtility::GetSelectedWeakNodes(InGraph);
+        const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedNodes = GetSelectedNodes(InGraph);
         TArray<FSelectedNodeMenuContext> ValidSelectedNodeMenuContexts;
     	
         for (const FSelectedNodeMenuContext& SelectedNodeMenuContext : SelectedNodeMenuContexts)
@@ -121,6 +121,36 @@ void USelectedNodeMenuExtender::UnregisterSelectedNodeMenu() const
 bool USelectedNodeMenuExtender::IsMyDelegate(const FExtendSelectedNodeMenuDelegate& InExtendSelectedNodeMenuDelegate) const
 {
 	return InExtendSelectedNodeMenuDelegate.GetHandle() == ExtendSelectedNodeMenuDelegate.GetHandle();
+}
+
+TArray<TWeakObjectPtr<UEdGraphNode>> USelectedNodeMenuExtender::GetSelectedNodes(const UEdGraph* InGraph)
+{
+	TArray<TWeakObjectPtr<UEdGraphNode>> SelectedNodes;
+
+	if (IsValid(InGraph))
+	{
+		const TSharedPtr<SGraphEditor> GraphEditor = SGraphEditor::FindGraphEditorForGraph(InGraph);
+
+		if (GraphEditor.IsValid())
+		{
+			const FGraphPanelSelectionSet& SelectedNodeObjects = GraphEditor->GetSelectedNodes();
+
+			for (UObject* SelectedNodeObject : SelectedNodeObjects)
+			{
+				if (IsValid(SelectedNodeObject))
+				{
+					TWeakObjectPtr<UEdGraphNode> SelectedNode = Cast<UEdGraphNode>(SelectedNodeObject);
+		
+					if (SelectedNode.IsValid())
+					{
+						SelectedNodes.Add(SelectedNode);
+					}
+				}
+			}
+		}
+	}
+	
+	return SelectedNodes;
 }
 
 #undef LOCTEXT_NAMESPACE

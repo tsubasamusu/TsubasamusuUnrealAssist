@@ -27,6 +27,7 @@ private:
 	void UnregisterSelectedNodeMenu() const;
 	
 	bool IsMyDelegate(const FExtendSelectedNodeMenuDelegate& InExtendSelectedNodeMenuDelegate) const;
+	static TArray<TWeakObjectPtr<UEdGraphNode>> GetSelectedNodes(const UEdGraph* InGraph);
 	
 	FExtendSelectedNodeMenuDelegate ExtendSelectedNodeMenuDelegate;
 	TArray<FSelectedNodeMenuContext> SelectedNodeMenuContexts;
