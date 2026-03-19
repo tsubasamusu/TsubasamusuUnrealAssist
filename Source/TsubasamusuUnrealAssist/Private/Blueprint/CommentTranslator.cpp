@@ -62,14 +62,11 @@ void FCommentTranslator::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const 
 
 TArray<FString> FCommentTranslator::GetEditorLanguages()
 {
-    const FTextLocalizationManager& TextLocalizationManager = FTextLocalizationManager::Get();
-    const TArray<FString> LocalizedCultureNames = TextLocalizationManager.GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
-
-    FInternationalization& Internationalization = FInternationalization::Get();
-    TArray<FCultureRef> AvailableCultures = Internationalization.GetAvailableCultures(LocalizedCultureNames, false);
-
     TArray<FString> EditorLanguages;
     
+    const TArray<FString> LocalizedCultureNames = FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
+    TArray<FCultureRef> AvailableCultures = FInternationalization::Get().GetAvailableCultures(LocalizedCultureNames, false);
+
     for (const FCultureRef& AvailableCulture : AvailableCultures)
     {
         EditorLanguages.Add(AvailableCulture->GetName());
