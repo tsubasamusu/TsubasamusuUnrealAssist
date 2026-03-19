@@ -6,6 +6,7 @@
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
 #include "HttpModule.h"
+#include "TsubasamusuStringUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
@@ -78,8 +79,9 @@ void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comm
 {
     if (InCommentNode.IsValid() && InTranslationTargetLanguage.IsValid())
     {
+        const TSharedPtr<FString> SourceComment = MakeShared<FString>(InCommentNode->NodeComment);
         const TSharedPtr<FJsonObject> RequestJsonObject = MakeShared<FJsonObject>();
-        const TArray<TSharedPtr<FJsonValue>> SourceTextJsonValues = { MakeShared<FJsonValueString>(InCommentNode->NodeComment) };
+        const TArray<TSharedPtr<FJsonValue>> SourceTextJsonValues = { MakeShared<FJsonValueString>(*SourceComment) };
 
         FString TranslationTargetLanguage = *InTranslationTargetLanguage;
         FixLanguage(TranslationTargetLanguage);
@@ -101,30 +103,52 @@ void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comm
         HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
         HttpRequest->SetHeader(TEXT("Authorization"), Authorization);
         HttpRequest->SetContentAsString(RequestContent);
-
-        HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
+        
+        auto AnimationTextChangedFunction = [InCommentNode](const FString& InAnimationText)
         {
-            if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid() && InCommentNode.IsValid())
+            if (InCommentNode.IsValid())
             {
-                const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
-                TSharedPtr<FJsonObject> ResponseJsonObject;
-                const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
-        
-                if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+                InCommentNode->OnUpdateCommentText(InAnimationText);
+            }
+        };
+		
+        const TSharedRef<FTSTicker::FDelegateHandle> TickerHandle = FTsubasamusuStringUtility::PlayTextAnimation(TEXT("Translating"), AnimationTextChangedFunction);
+
+        HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode, TickerHandle, SourceComment](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
+        {
+            if (TickerHandle->IsValid())
+            {
+                FTSTicker::GetCoreTicker().RemoveTicker(*TickerHandle);
+                TickerHandle->Reset();
+            }
+            
+            if(InCommentNode.IsValid())
+            {
+                if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid())
                 {
-                    const TArray<TSharedPtr<FJsonValue>>* TranslationJsonValues;
+                    const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
+                    TSharedPtr<FJsonObject> ResponseJsonObject;
+                    const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
         
-                    if (ResponseJsonObject->TryGetArrayField(TEXT("translations"), TranslationJsonValues) && TranslationJsonValues && !TranslationJsonValues->IsEmpty())
+                    if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
                     {
-                        const TSharedPtr<FJsonObject> TranslationJsonObject = (*TranslationJsonValues)[0]->AsObject();
-                        FString TranslatedText;
+                        const TArray<TSharedPtr<FJsonValue>>* TranslationJsonValues;
         
-                        if (TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText) && !TranslatedText.IsEmpty())
+                        if (ResponseJsonObject->TryGetArrayField(TEXT("translations"), TranslationJsonValues) && TranslationJsonValues && !TranslationJsonValues->IsEmpty())
                         {
-                            InCommentNode->OnUpdateCommentText(*TranslatedText);
+                            const TSharedPtr<FJsonObject> TranslationJsonObject = (*TranslationJsonValues)[0]->AsObject();
+                            FString TranslatedText;
+        
+                            if (TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText) && !TranslatedText.IsEmpty())
+                            {
+                                InCommentNode->OnUpdateCommentText(*TranslatedText);
+                                return;
+                            }
                         }
                     }
                 }
+                
+                InCommentNode->OnUpdateCommentText(*SourceComment);
             }
         });
     
