@@ -172,7 +172,7 @@ void ULlmManager::StartLlamaServer()
 		if (!ErrorMessage.IsEmpty())
 		{
 			TUA_ERROR(TEXT("%s"), *ErrorMessage);
-			LastAppliedLlmSettings.Reset();
+			LastAppliedLlamaServerSettings.Reset();
 		}
 		
 		LlamaServerStatus = ErrorMessage.IsEmpty() ? ELlamaServerStatus::SuccessfullyStarted : ELlamaServerStatus::FailedToStart;
@@ -220,7 +220,7 @@ void ULlmManager::StartLlamaServer()
 		}
 	
 		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
-		LastAppliedLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings();
+		LastAppliedLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings();
 	}
 }
 
@@ -243,7 +243,7 @@ FString ULlmManager::GetLlamaServerPort() const
 		return InConfigLlamaServerOption.SoftClassPath == FSoftClassPath(ULlamaServerOption_Port::StaticClass());
 	};
 	
-	const FConfigLlamaServerOption* PortOptionPtr = LastAppliedLlmSettings.ConfigLlamaServerOptions.FindByPredicate(IsPortOption);
+	const FConfigLlamaServerOption* PortOptionPtr = LastAppliedLlamaServerSettings.ConfigLlamaServerOptions.FindByPredicate(IsPortOption);
 	const FString DefaultPort = FString::FromInt(ULlamaServerOption_Port::DefaultLlamaServerPort);
 	
 	return PortOptionPtr ? PortOptionPtr->Argument : DefaultPort;

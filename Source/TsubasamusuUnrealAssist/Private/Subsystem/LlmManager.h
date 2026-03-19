@@ -23,9 +23,9 @@ public:
 	void RestartLlamaServer();
 	void GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction, const bool bEnableStreaming = true) const;
 	
-	FORCEINLINE FLlmSettings GetLastAppliedLlmSettings() const
+	FORCEINLINE FLlamaServerSettings GetLastAppliedLlamaServerSettings() const
 	{
-		return LastAppliedLlmSettings;
+		return LastAppliedLlamaServerSettings;
 	}
 	
 	FORCEINLINE ELlamaServerStatus GetLlamaServerStatus() const
@@ -40,6 +40,6 @@ private:
 	FString GetLlamaServerPort() const;
 	
 	FProcHandle LlamaServerProcessHandle;
-	FLlmSettings LastAppliedLlmSettings;
+	FLlamaServerSettings LastAppliedLlamaServerSettings;
 	ELlamaServerStatus LlamaServerStatus;
 };

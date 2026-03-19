@@ -146,9 +146,9 @@ bool UTsubasamusuUnrealAssistSettings::LlamaServerOptionsContainSameElements() c
 	return false;
 }
 
-FLlmSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlmSettings() const
+FLlamaServerSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlamaServerSettings() const
 {
-	return FLlmSettings
+	return FLlamaServerSettings
 	{
 		.LlamaServerFilePath = LlamaServerFilePath,
 		.ConfigLlamaServerOptions = ConfigLlamaServerOptions

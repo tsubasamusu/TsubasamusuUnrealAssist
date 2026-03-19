@@ -168,10 +168,10 @@ EVisibility FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageVisib
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
     const ULlmManager* LlmManager = ULlmManager::GetChecked();
     
-    const bool bAppliedCurrentLlmSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlmSettings() == LlmManager->GetLastAppliedLlmSettings();
+    const bool bAppliedCurrentLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings() == LlmManager->GetLastAppliedLlamaServerSettings();
     const bool bLlamaServerIsAlreadyRunning = LlmManager->GetLlamaServerStatus() == ELlamaServerStatus::SuccessfullyStarted;
     
-    return bAppliedCurrentLlmSettings && bLlamaServerIsAlreadyRunning ? EVisibility::Collapsed : EVisibility::Visible;
+    return bAppliedCurrentLlamaServerSettings && bLlamaServerIsAlreadyRunning ? EVisibility::Collapsed : EVisibility::Visible;
 }
 
 EMessageStyle FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageStyle()

@@ -310,7 +310,7 @@ public:
 	}
 };
 
-struct FLlmSettings
+struct FLlamaServerSettings
 {
 public:
 	FFilePath LlamaServerFilePath;
@@ -318,12 +318,12 @@ public:
 	
 	void Reset()
 	{
-		*this = FLlmSettings();
+		*this = FLlamaServerSettings();
 	}
 	
-	bool operator==(const FLlmSettings& InLlmSettings) const
+	bool operator==(const FLlamaServerSettings& InLlamaServerSettings) const
 	{
-		return InLlmSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions
-			&& LlamaServerFilePath.FilePath == InLlmSettings.LlamaServerFilePath.FilePath;
+		return InLlamaServerSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions
+			&& LlamaServerFilePath.FilePath == InLlamaServerSettings.LlamaServerFilePath.FilePath;
 	}
 };
