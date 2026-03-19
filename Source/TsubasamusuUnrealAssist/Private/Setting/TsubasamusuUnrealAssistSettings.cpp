@@ -178,7 +178,7 @@ void UTsubasamusuUnrealAssistSettings::SaveLlamaServerOptions()
 			FConfigLlamaServerOption ConfigLlamaServerOption
 			{
 				.SoftClassPath = FSoftClassPath(LlamaServerOption->GetClass()),
-				.Argument = LlamaServerOption->GetArgument(),
+				.Argument = LlamaServerOption->GetArgument(true),
 			};
 					
 			ConfigLlamaServerOptions.Add(ConfigLlamaServerOption);

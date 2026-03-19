@@ -214,7 +214,7 @@ void ULlmManager::StartLlamaServer()
 				}
 		
 				const FString ParameterSymbol = LlamaServerOption->IsLongParameter() ? TEXT("--") : TEXT("-");
-				const FString Argument = LlamaServerOption->GetArgument(true).IsEmpty() ? FString() : FString::Printf(TEXT(" %s"), *LlamaServerOption->GetArgument(true));
+				const FString Argument = LlamaServerOption->GetArgument().IsEmpty() ? FString() : FString::Printf(TEXT(" %s"), *LlamaServerOption->GetArgument());
 				Arguments += FString::Printf(TEXT(" %s%s%s"), *ParameterSymbol, *LlamaServerOption->GetParameter(), *Argument);
 			}
 		}

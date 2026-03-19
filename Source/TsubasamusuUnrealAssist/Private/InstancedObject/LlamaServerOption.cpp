@@ -14,7 +14,7 @@ void ULlamaServerOption_Model::SetArgument(const FString& InArgument)
 	LlmFilePath.FilePath = InArgument;
 }
 
-FString ULlamaServerOption_Model::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_Model::GetArgument(const bool bForConfig) const
 {
 	return LlmFilePath.FilePath;
 }
@@ -34,7 +34,7 @@ void ULlamaServerOption_Port::SetArgument(const FString& InArgument)
 	LlamaServerPort = FCString::Atoi(*InArgument);
 }
 
-FString ULlamaServerOption_Port::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_Port::GetArgument(const bool bForConfig) const
 {
 	return FString::FromInt(LlamaServerPort);
 }
@@ -75,7 +75,7 @@ void ULlamaServerOption_ContextSize::SetArgument(const FString& InArgument)
 	ContextSize = FCString::Atoi(*InArgument);
 }
 
-FString ULlamaServerOption_ContextSize::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_ContextSize::GetArgument(const bool bForConfig) const
 {
 	return FString::FromInt(ContextSize);
 }
@@ -95,7 +95,7 @@ void ULlamaServerOption_Threads::SetArgument(const FString& InArgument)
 	CpuThreadsNumber = FCString::Atoi(*InArgument);
 }
 
-FString ULlamaServerOption_Threads::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_Threads::GetArgument(const bool bForConfig) const
 {
 	return FString::FromInt(CpuThreadsNumber);
 }
@@ -115,14 +115,14 @@ void ULlamaServerOption_EnableWebUi::SetArgument(const FString& InArgument)
 	bEnableWebUi = InArgument == TEXT("true");
 }
 
-FString ULlamaServerOption_EnableWebUi::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_EnableWebUi::GetArgument(const bool bForConfig) const
 {
-	if (bForCommandLineArguments)
+	if (bForConfig)
 	{
-		return FString();
+		return bEnableWebUi ? TEXT("true") : TEXT("false");
 	}
 	
-	return bEnableWebUi ? TEXT("true") : TEXT("false");
+	return FString();
 }
 
 bool ULlamaServerOption_EnableWebUi::IsValidArgument() const
@@ -140,7 +140,7 @@ void ULlamaServerOption_Temperature::SetArgument(const FString& InArgument)
 	Temperature = FCString::Atof(*InArgument);
 }
 
-FString ULlamaServerOption_Temperature::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_Temperature::GetArgument(const bool bForConfig) const
 {
 	return FString::SanitizeFloat(Temperature);
 }
@@ -197,14 +197,14 @@ void ULlamaServerOption_GpuLayers::SetArgument(const FString& InArgument)
 	}
 }
 
-FString ULlamaServerOption_GpuLayers::GetArgument(const bool bForCommandLineArguments) const
+FString ULlamaServerOption_GpuLayers::GetArgument(const bool bForConfig) const
 {
 	switch (GpuLayers)
 	{
 	case EGpuLayers::Auto:
-		return bForCommandLineArguments ? TEXT("auto") : FString::FromInt(-2);
+		return bForConfig ? FString::FromInt(-2) : TEXT("auto");
 	case EGpuLayers::All:
-		return bForCommandLineArguments ? TEXT("all") : FString::FromInt(-1);
+		return bForConfig ? FString::FromInt(-1) : TEXT("all");
 	case EGpuLayers::ExactNumber:
 		return FString::FromInt(GpuLayersNumber);
 	default:
