@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 
+struct FSelectedNodeMenuContext;
+
 class FNodeInformationCopier final
 {
 public:
-	static void AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder);
-	
-private:
-	static void AddCopyNodeInformationSubMenus(FMenuBuilder& InMenuBuilder, const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes);
+	static FSelectedNodeMenuContext CreateSelectedNodeMenuContext();
 };
