@@ -44,7 +44,8 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
     	
         for (const FSelectedNodeMenuContext& SelectedNodeMenuContext : SelectedNodeMenuContexts)
         {
-            if (!SelectedNodes.IsEmpty() && SelectedNodeMenuContext.ShouldAddMenu(SelectedNodes))
+            if (!SelectedNodes.IsEmpty()
+            	&& (!SelectedNodeMenuContext.ShouldAddMenu.IsSet() || (SelectedNodeMenuContext.ShouldAddMenu.IsSet() && SelectedNodeMenuContext.ShouldAddMenu(SelectedNodes))))
             {
                 ValidSelectedNodeMenuContexts.Add(SelectedNodeMenuContext);
             }
@@ -63,13 +64,16 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 
 					for (const FSelectedNodeMenuContext& MainMenuContext : ValidSelectedNodeMenuContexts)
 					{
-						if (MainMenuContext.SubMenuContexts.IsEmpty())
+						const FUIAction MainMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, MainMenuContext]()
 						{
-							const FUIAction MainMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, MainMenuContext]()
+							if (MainMenuContext.OnClicked.IsSet())
 							{
 								MainMenuContext.OnClicked(SelectedNodes, WeakGraph);
-							});
-							
+							}
+						});
+						
+						if (MainMenuContext.SubMenuContexts.IsEmpty())
+						{
 							InMainMenuBuilder.AddMenuEntry(MainMenuContext.LabelText, MainMenuContext.ToolTipText, MainMenuContext.MenuIcon, MainMenuAction);
 						}
 						else
@@ -82,14 +86,17 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 								{
 									const FUIAction SubMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, SubMenuContext]()
 									{
-										SubMenuContext.OnClicked(SelectedNodes, WeakGraph, SubMenuContext.LabelText);
+										if (SubMenuContext.OnClicked.IsSet())
+										{
+											SubMenuContext.OnClicked(SelectedNodes, WeakGraph, SubMenuContext.LabelText);
+										}
 									});
 									
 									InSubMenuBuilder.AddMenuEntry(SubMenuContext.LabelText, SubMenuContext.ToolTipText, FSlateIcon(), SubMenuAction);
 								}
 							});
 							
-							InMainMenuBuilder.AddSubMenu(MainMenuContext.LabelText, MainMenuContext.ToolTipText, AddSubMenuDelegate, FUIAction(), NAME_None, EUserInterfaceActionType::None, false, MainMenuContext.MenuIcon);
+							InMainMenuBuilder.AddSubMenu(MainMenuContext.LabelText, MainMenuContext.ToolTipText, AddSubMenuDelegate, MainMenuAction, NAME_None, EUserInterfaceActionType::None, false, MainMenuContext.MenuIcon);
 						}
 					}
 
