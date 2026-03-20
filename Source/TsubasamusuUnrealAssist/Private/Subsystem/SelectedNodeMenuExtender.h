@@ -17,10 +17,9 @@ class USelectedNodeMenuExtender final : public UEditorSubsystem, public TEditorS
 	
 public:
 	//~ Begin USubsystem Interface
+	virtual void Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase) override;
 	virtual void Deinitialize() override;
 	//~ End USubsystem Interface
-	
-	void AddSelectedNodeMenu(const FSelectedNodeMenuContext& InSelectedNodeMenuContext);
 	
 private:
 	void RegisterSelectedNodeMenu();

@@ -1,21 +1,30 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "SelectedNodeMenuExtender.h"
-#include "Blueprint/NodeUtility.h"
+#include "Blueprint/ArrayNodeCreator.h"
+#include "Blueprint/CommentGenerator.h"
+#include "Blueprint/CommentTranslator.h"
+#include "Blueprint/NodeInformationCopier.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "SelectedNodeMenuExtender"
 
+void USelectedNodeMenuExtender::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
+{
+	SelectedNodeMenuContexts =
+	{
+		FCommentGenerator::CreateSelectedNodeMenuContext(),
+		FCommentTranslator::CreateSelectedNodeMenuContext(),
+		FArrayNodeCreator::CreateSelectedNodeMenuContext(),
+		FNodeInformationCopier::CreateSelectedNodeMenuContext(),
+	};
+	
+	RegisterSelectedNodeMenu();
+}
+
 void USelectedNodeMenuExtender::Deinitialize()
 {
 	UnregisterSelectedNodeMenu();
-}
-
-void USelectedNodeMenuExtender::AddSelectedNodeMenu(const FSelectedNodeMenuContext& InSelectedNodeMenuContext)
-{
-	UnregisterSelectedNodeMenu();
-	SelectedNodeMenuContexts.Add(InSelectedNodeMenuContext);
-	RegisterSelectedNodeMenu();
 }
 
 void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
