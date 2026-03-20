@@ -11,7 +11,7 @@ FSelectedNodeMenuContext FNodeInformationCopier::CreateSelectedNodeMenuContext()
 {
 	const FText JsonMenuLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabel", "JSON");
 	
-	const FOnSelectedNodeSubMenuClicked OnClickedSubMenu = [JsonMenuLabelText](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>, const FText& InSubMenuLabelText)
+	const FOnSelectedNodeSubMenuClicked OnSubMenuClicked = [JsonMenuLabelText](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>, const FText& InSubMenuLabelText)
 	{
 		FString NodeDataListString;
 		
@@ -27,14 +27,14 @@ FSelectedNodeMenuContext FNodeInformationCopier::CreateSelectedNodeMenuContext()
 	
 	FSelectedNodeSubMenuContext JsonSubMenuContext
 	{
-		.OnClicked = OnClickedSubMenu,
+		.OnClicked = OnSubMenuClicked,
 		.LabelText = JsonMenuLabelText,
 		.ToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTip", "Copy selected nodes in JSON Format.")
 	};
 	
 	FSelectedNodeSubMenuContext ToonSubMenuContext
 	{
-		.OnClicked = OnClickedSubMenu,
+		.OnClicked = OnSubMenuClicked,
 		.LabelText = LOCTEXT("CopyNodeInformationInToonFormatLabel", "TOON"),
 		.ToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTip", "Copy selected nodes in TOON Format.")
 	};

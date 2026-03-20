@@ -6,84 +6,120 @@
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
 #include "HttpModule.h"
+#include "NodeInformationUtility.h"
 #include "TsubasamusuStringUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Setting/EditorSettingsUtility.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "FCommentTranslator"
 
-void FCommentTranslator::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+FSelectedNodeMenuContext FCommentTranslator::CreateSelectedNodeMenuContext()
 {
-    const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-    const TAttribute<FText> HeadingText = LOCTEXT("CommentTranslationHeading", "Tsubasamusu Unreal Assist");
-    
-	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
-
-    const TAttribute<FText> LabelText = LOCTEXT("CommentTranslationLabel", "Translate to...");
-    const TAttribute<FText> ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node.");
-
-    const auto MenuAction = [InCommentNode](FMenuBuilder& InSubMenuBuilder)
+    const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
     {
-        AddLanguageSubMenus(InSubMenuBuilder, InCommentNode);
-    };
-    
-    InMenuBuilder.AddSubMenu(LabelText, ToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None);
-    InMenuBuilder.EndSection();
-}
-
-void FCommentTranslator::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
-{
-    const TArray<FString> EditorLanguages = GetEditorLanguages();
-
-    for (const FString& EditorLanguage : EditorLanguages)
-    {
-        if (!EditorLanguage.IsEmpty() && EditorLanguage != TEXT("es-419"))
+        if (InSelectedNodes.Num() == 1)
         {
-            FCulturePtr Culture = FInternationalization::Get().GetCulture(EditorLanguage);
-        
-            if (Culture.IsValid())
+            const TWeakObjectPtr<UEdGraphNode> SelectedNode = InSelectedNodes[0];
+			
+            if (SelectedNode.IsValid())
             {
-                const FString CultureString = Culture->GetEnglishName();
-                const FText CultureText = FText::FromString(CultureString);
-                
-                const TAttribute<FText> ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), CultureText);
-                const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
-        
-                InMenuBuilder.AddMenuEntry(CultureText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()
-                {
-                    TranslateComment(InCommentNode, TranslationTargetLanguage);
-                })));
+                return FNodeInformationUtility::IsCommentNode(SelectedNode.Get()) && !SelectedNode->NodeComment.IsEmpty();
             }
         }
-    }
+		
+        return false;
+    };
+	
+    return FSelectedNodeMenuContext
+    {
+        .ShouldAddMenu = ShouldAddMenu,
+        .LabelText = LOCTEXT("CommentTranslationLabel", "Translate to..."),
+        .ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node."),
+        .SubMenuContexts = CreateSelectedNodeSubMenuContext()
+    };
 }
 
-TArray<FString> FCommentTranslator::GetEditorLanguages()
+TArray<FSelectedNodeSubMenuContext> FCommentTranslator::CreateSelectedNodeSubMenuContext()
 {
-    TArray<FString> EditorLanguages;
+    TArray<FSelectedNodeSubMenuContext> SubMenuContexts;
+    const TMap<FString, FText> EditorLanguages = GetEditorLanguages();
     
+    const FOnSelectedNodeSubMenuClicked OnSubMenuClicked = [EditorLanguages](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>, const FText& InSubMenuLabelText)
+    {
+        if (InSelectedNodes.Num() == 1)
+        {
+            const TWeakObjectPtr<UEdGraphNode> SelectedNode = InSelectedNodes[0];
+            
+            if (SelectedNode.IsValid())
+            {
+                const TWeakObjectPtr<UEdGraphNode_Comment> CommentNode = Cast<UEdGraphNode_Comment>(SelectedNode);
+                
+                for (const TPair<FString, FText>& EditorLanguage : EditorLanguages)
+                {
+                    if (!EditorLanguage.Value.IsEmpty() && EditorLanguage.Value.EqualTo(InSubMenuLabelText))
+                    {
+                        TranslateComment(CommentNode, *EditorLanguage.Key);
+                    }
+                }
+            }
+        }
+    };
+    
+    for (const TPair<FString, FText>& EditorLanguage : EditorLanguages)
+    {
+        if (!EditorLanguage.Key.IsEmpty() && EditorLanguage.Key != TEXT("es-419"))
+        {
+            const FText ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), EditorLanguage.Value);
+            
+            FSelectedNodeSubMenuContext SubMenuContext
+            {
+                .OnClicked = OnSubMenuClicked,
+                .LabelText = EditorLanguage.Value,
+                .ToolTipText = ToolTipText,
+            };
+            
+            SubMenuContexts.Add(SubMenuContext);
+        }
+    }
+    
+    return SubMenuContexts;
+}
+
+TMap<FString, FText> FCommentTranslator::GetEditorLanguages()
+{
+    TMap<FString, FText> EditorLanguages;
+    
+    FInternationalization& Internationalization = FInternationalization::Get();
     const TArray<FString> LocalizedCultureNames = FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
-    TArray<FCultureRef> AvailableCultures = FInternationalization::Get().GetAvailableCultures(LocalizedCultureNames, false);
+    TArray<FCultureRef> AvailableCultures = Internationalization.GetAvailableCultures(LocalizedCultureNames, false);
 
     for (const FCultureRef& AvailableCulture : AvailableCultures)
     {
-        EditorLanguages.Add(AvailableCulture->GetName());
+        const FString LanguageString = AvailableCulture->GetName();
+        const FCulturePtr Culture = Internationalization.GetCulture(LanguageString);
+        
+        if (Culture.IsValid())
+        {
+            const FText LanguageText = FText::FromString(Culture->GetEnglishName());
+            EditorLanguages.Add(LanguageString, LanguageText);
+        }
     }
     
     return EditorLanguages;
 }
 
-void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> InTranslationTargetLanguage)
+void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const FString& InTranslationTargetLanguage)
 {
-    if (InCommentNode.IsValid() && InTranslationTargetLanguage.IsValid())
+    if (InCommentNode.IsValid() && !InTranslationTargetLanguage.IsEmpty())
     {
         const TSharedPtr<FString> SourceComment = MakeShared<FString>(InCommentNode->NodeComment);
         const TSharedPtr<FJsonObject> RequestJsonObject = MakeShared<FJsonObject>();
         const TArray<TSharedPtr<FJsonValue>> SourceTextJsonValues = { MakeShared<FJsonValueString>(*SourceComment) };
 
-        FString TranslationTargetLanguage = *InTranslationTargetLanguage;
+        FString TranslationTargetLanguage = InTranslationTargetLanguage;
         FixLanguage(TranslationTargetLanguage);
     
         RequestJsonObject->SetArrayField(TEXT("text"), SourceTextJsonValues);
