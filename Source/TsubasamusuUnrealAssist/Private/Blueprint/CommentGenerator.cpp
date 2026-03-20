@@ -5,7 +5,7 @@
 #include "TsubasamusuStringUtility.h"
 #include "Algo/AnyOf.h"
 #include "Blueprint/NodeInformationUtility.h"
-#include "Debug/TsubasamusuLogUtility.h"
+#include "Message/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"

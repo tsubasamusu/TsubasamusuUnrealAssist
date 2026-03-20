@@ -13,7 +13,7 @@
 #include "RecommendedEditorSettingsApplier.h"
 #include "SWarningOrErrorBox.h"
 #include "TsubasamusuUnrealAssistSettings.h"
-#include "Debug/EditorMessageUtility.h"
+#include "Message/EditorMessageUtility.h"
 #include "Subsystem/LlmManager.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuSettingsCustomization"

@@ -9,7 +9,7 @@
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "Debug/EditorMessageUtility.h"
+#include "Message/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"

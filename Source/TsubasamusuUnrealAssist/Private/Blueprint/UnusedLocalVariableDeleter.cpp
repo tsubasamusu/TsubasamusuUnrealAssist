@@ -7,7 +7,7 @@
 #include "K2Node_FunctionEntry.h"
 #include "K2Node_Variable.h"
 #include "Algo/AnyOf.h"
-#include "Debug/EditorMessageUtility.h"
+#include "Message/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 
 #define LOCTEXT_NAMESPACE "FUnusedLocalVariableDeleter"
