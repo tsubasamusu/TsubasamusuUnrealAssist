@@ -14,5 +14,5 @@ public:
 private:
 	static void OnOptimizeAccessSpecifiersClicked(UBlueprint* InBlueprint);
 	static TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> GetMembers(UBlueprint* InBlueprint);
-	static TArray<TObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
+	static TArray<TWeakObjectPtr<const UBlueprint>> GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint);
 };

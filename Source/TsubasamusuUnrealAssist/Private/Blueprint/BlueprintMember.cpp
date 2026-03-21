@@ -16,19 +16,12 @@
 #include "K2Node_CustomEvent.h"
 #endif
 
-void FBlueprintMember::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
-{
-	InReferenceCollector.AddReferencedObject(OwnerBlueprint);
-	InReferenceCollector.AddReferencedObjects(MemberReferencerBlueprints);
-	InReferenceCollector.AddReferencedObjects(ReferencerBlueprints);
-}
-
 void FBlueprintMember::Initialize()
 {
 	// Check Member Referencer Blueprints
 	{
 		MemberReferencerBlueprints = ReferencerBlueprints;
-		MemberReferencerBlueprints.RemoveAll([this](const TObjectPtr<const UBlueprint> InMemberReferencerBlueprint)
+		MemberReferencerBlueprints.RemoveAll([this](const TWeakObjectPtr<const UBlueprint> InMemberReferencerBlueprint)
 		{
 			return !IsMemberReferencerBlueprint(InMemberReferencerBlueprint);
 		});
@@ -51,14 +44,17 @@ ETsubasamusuAccessSpecifier FBlueprintMember::GetOptimalAccessSpecifier() const
 		return ETsubasamusuAccessSpecifier::Private;
 	}
 	
-	for (const TObjectPtr<const UBlueprint> MemberReferencerBlueprint : MemberReferencerBlueprints)
+	for (const TWeakObjectPtr<const UBlueprint>& MemberReferencerBlueprint : MemberReferencerBlueprints)
 	{
-		const UClass* MemberReferencerClass = MemberReferencerBlueprint->SkeletonGeneratedClass;
-		const UClass* OwnerClass = OwnerBlueprint->SkeletonGeneratedClass;
-	
-		if (!MemberReferencerClass->IsChildOf(OwnerClass))
+		if (MemberReferencerBlueprint.IsValid())
 		{
-			return ETsubasamusuAccessSpecifier::Public;
+			const UClass* MemberReferencerClass = MemberReferencerBlueprint->SkeletonGeneratedClass;
+			const UClass* OwnerClass = OwnerBlueprint->SkeletonGeneratedClass;
+	
+			if (!MemberReferencerClass->IsChildOf(OwnerClass))
+			{
+				return ETsubasamusuAccessSpecifier::Public;
+			}
 		}
 	}
 	
@@ -97,22 +93,20 @@ ETsubasamusuAccessSpecifier FBlueprintMember_Variable::GetOptimalAccessSpecifier
 
 void FBlueprintMember_Variable::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
-	FBlueprintMemberUtility::SetVariableAccessSpecifier(InAccessSpecifier, GetMemberName(), OwnerBlueprint);
+	if (OwnerBlueprint.IsValid())
+	{
+		FBlueprintMemberUtility::SetVariableAccessSpecifier(InAccessSpecifier, GetMemberName(), OwnerBlueprint.Get());
+	}
 }
 
 FName FBlueprintMember_Variable::GetMemberName() const
 {
-	if (Variable)
-	{
-		return Variable->GetFName();
-	}
-	
-	return NAME_None;
+	return Variable ? Variable->GetFName() : NAME_None;
 }
 
-bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const
+bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const TWeakObjectPtr<const UBlueprint> InBlueprint) const
 {
-	if (!Variable || !IsValid(OwnerBlueprint) || !IsValid(InBlueprint))
+	if (!Variable || !OwnerBlueprint.IsValid() || !InBlueprint.IsValid())
 	{
 		return false;
 	}
@@ -217,16 +211,9 @@ bool FBlueprintMember_Variable::IsMemberReferencerBlueprint(const UBlueprint* In
 	return false;
 }
 
-void FBlueprintMember_FunctionBase::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
-{
-	FBlueprintMember::AddReferencedObjects(InReferenceCollector);
-	InReferenceCollector.AddReferencedObject(EntryNode);
-	InReferenceCollector.AddReferencedObject(Function);
-}
-
 ETsubasamusuAccessSpecifier FBlueprintMember_FunctionBase::GetCurrentAccessSpecifier() const
 {
-	if (!IsValid(Function))
+	if (!Function.IsValid())
 	{
 		return ETsubasamusuAccessSpecifier::None;
 	}
@@ -246,17 +233,12 @@ ETsubasamusuAccessSpecifier FBlueprintMember_FunctionBase::GetCurrentAccessSpeci
 
 FName FBlueprintMember_FunctionBase::GetMemberName() const
 {
-	if (IsValid(Function))
-	{
-		return Function->GetFName();
-	}
-	
-	return NAME_None;
+	return Function.IsValid() ? Function->GetFName() : NAME_None;
 }
 
-bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const
+bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const TWeakObjectPtr<const UBlueprint> InBlueprint) const
 {
-	if (!IsValid(Function) || !IsValid(OwnerBlueprint) || !IsValid(InBlueprint))
+	if (!Function.IsValid() || !OwnerBlueprint.IsValid() || !InBlueprint.IsValid())
 	{
 		return false;
 	}
@@ -352,14 +334,28 @@ bool FBlueprintMember_FunctionBase::IsMemberReferencerBlueprint(const UBlueprint
 
 void FBlueprintMember_Function::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
-	UK2Node_FunctionEntry* FunctionEntryNode = GetEntryNodeChecked<UK2Node_FunctionEntry>();
-	FBlueprintMemberUtility::SetFunctionAccessSpecifier(InAccessSpecifier, Function, FunctionEntryNode, OwnerBlueprint);
+	if (Function.IsValid() && OwnerBlueprint.IsValid())
+	{
+		TWeakObjectPtr<UK2Node_FunctionEntry> FunctionEntryNode = GetEntryNodeChecked<UK2Node_FunctionEntry>();
+		
+		if (FunctionEntryNode.IsValid())
+		{
+			FBlueprintMemberUtility::SetFunctionAccessSpecifier(InAccessSpecifier, Function.Get(), FunctionEntryNode.Get(), OwnerBlueprint.Get());
+		}
+	}
 }
 
 #if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
 void FBlueprintMember_CustomEvent::SetAccessSpecifier(const ETsubasamusuAccessSpecifier InAccessSpecifier)
 {
-	UK2Node_CustomEvent* CustomEventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
-	FBlueprintMemberUtility::SetCustomEventAccessSpecifier(InAccessSpecifier, Function, CustomEventEntryNode, OwnerBlueprint);
+	if (Function.IsValid() && OwnerBlueprint.IsValid())
+	{
+		TWeakObjectPtr<UK2Node_CustomEvent> CustomEventEntryNode = GetEntryNodeChecked<UK2Node_CustomEvent>();
+		
+		if (CustomEventEntryNode.IsValid())
+		{
+			FBlueprintMemberUtility::SetCustomEventAccessSpecifier(InAccessSpecifier, Function.Get(), CustomEventEntryNode.Get(), OwnerBlueprint.Get());
+		}
+	}
 }
 #endif
