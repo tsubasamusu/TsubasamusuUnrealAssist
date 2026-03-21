@@ -58,7 +58,12 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 	
 	auto FunctionToDeleteUnusedItem = [&UnusedFunctions, InBlueprint, BlueprintEditor](const int32 ItemIndex)
 	{
-		DeleteFunction(UnusedFunctions[ItemIndex]->FunctionGraph, InBlueprint, BlueprintEditor);
+		const TSharedPtr<FUnusedItem_Function> UnusedFunction = UnusedFunctions[ItemIndex];
+		
+		if (UnusedFunction.IsValid() && UnusedFunction->FunctionGraph.IsValid())
+		{
+			DeleteFunction(UnusedFunction->FunctionGraph.Get(), InBlueprint, BlueprintEditor);
+		}
 	};
 	
 	TArray<TSharedPtr<FUnusedItem>> UnusedItems;
