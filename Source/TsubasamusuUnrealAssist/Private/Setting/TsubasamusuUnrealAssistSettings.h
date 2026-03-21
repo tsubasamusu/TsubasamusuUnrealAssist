@@ -54,7 +54,7 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Ignore Comment Nodes"))
 	bool bIgnoreCommentNodesWhenGeneratingComments;
 	
-	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
+	/* Whether the string format used to pass nodes information to LLM for comment generation should be TOON. If false, JSON is used instead. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use TOON Format"))
 	bool bUseToonFormatForCommentGeneration;
 	
