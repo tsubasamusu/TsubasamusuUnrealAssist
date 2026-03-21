@@ -9,7 +9,6 @@
 #include "Blueprint/UnusedFunctionDeleter.h"
 #include "Blueprint/UnusedLocalVariableDeleter.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
-#include "Setting/EditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 
@@ -23,7 +22,6 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
 	UnregisterOnPostEngineInitEvent();
-	UnregisterOnEditorLanguageChangedEvent();
 	UnregisterOnAssetEditorOpenedEvent();
 	UnregisterSettingsCustomization();
 	UnregisterSettings();
@@ -33,7 +31,6 @@ void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
 {
 	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
 	{
-		RegisterOnEditorLanguageChangedEvent();
 		RegisterOnAssetEditorOpenedEvent();
 	});
 }
@@ -59,24 +56,6 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 {
 	ISettingsModule& SettingsModule = FModuleManager::LoadModuleChecked<ISettingsModule>(TEXT("Settings"));
 	SettingsModule.UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
-{
-	OnEditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([]()
-	{
-		UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-		
-		if (TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration)
-		{
-			TsubasamusuUnrealAssistSettings->MakeCommentGenerationLanguageSameAsEditorLanguage();
-		}
-	});
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent() const
-{
-	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
 }
 
 void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()

@@ -1,7 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
-#include "TsubasamusuUnrealAssistModule.h"
 #include "Algo/AnyOf.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
@@ -11,42 +10,18 @@
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
-	// General
-	TickInterval = 0.f;
-	
-	// Comment Translator
-	DeeplApiKey = FString();
+	InitializeProperties();
+	PostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddUObject(this, &UTsubasamusuUnrealAssistSettings::RegisterEditorLanguageChangedEvent);
+}
 
-	// Comment Generator
-	bEnableStreamingCommentGeneration = true;
-	bUseEditorLanguageForCommentGeneration = true;
-	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
-	bIgnoreIsolatedNodesWhenGeneratingComments = true;
-	bIgnoreCommentNodesWhenGeneratingComments = false;
-	bUseToonFormatForCommentGeneration = true;
-	CommentGenerationConditions = { TEXT("Length: Keep it brief but descriptive (one sentence or a short phrase).") };
+UTsubasamusuUnrealAssistSettings::~UTsubasamusuUnrealAssistSettings()
+{
+	UnregisterEditorLanguageChangedEvent();
 	
-	// Node Previewer
-	bEnableNodePreview = false;
-	bAlsoPreviewAdvancedView = false;
-	NodePreviewScale = 1.f;
-	
-	// Access Specifier Initializer
-	bOverrideVariableDefaultAccessSpecifier = false;
-	VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	bOverrideFunctionDefaultAccessSpecifier = false;
-	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-	bCustomEventAccessSpecifierIsSupported = true;
-	bOverrideCustomEventDefaultAccessSpecifier = false;
-	CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-#else
-	bCustomEventAccessSpecifierIsSupported = false;
-#endif
-	
-	// LLM
-	bStartLlamaServerOnEditorStartup = true;
-	LlamaServerFilePath = FFilePath();
+	if (PostEngineInitHandle.IsValid())
+	{
+		FCoreDelegates::OnPostEngineInit.Remove(PostEngineInitHandle);
+	}
 }
 
 void UTsubasamusuUnrealAssistSettings::PostInitProperties()
@@ -58,6 +33,7 @@ void UTsubasamusuUnrealAssistSettings::PostInitProperties()
 void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
+	
 	const FName ChangedPropertyName = InPropertyChangedEvent.GetMemberPropertyName();
 	
 	if (!ChangedPropertyName.IsNone())
@@ -105,12 +81,6 @@ void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const
 	SaveConfig();
 }
 
-void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditorLanguage()
-{
-	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
-	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
-}
-
 bool UTsubasamusuUnrealAssistSettings::LlamaServerOptionsContainSameElements() const
 {
 	for (const ULlamaServerOption* LlamaServerOption : LlamaServerOptions)
@@ -141,6 +111,46 @@ FLlamaServerSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlamaServerSett
 		.LlamaServerFilePath = LlamaServerFilePath,
 		.ConfigLlamaServerOptions = ConfigLlamaServerOptions
 	};
+}
+
+void UTsubasamusuUnrealAssistSettings::InitializeProperties()
+{
+	// General
+	TickInterval = 0.f;
+	
+	// Comment Translator
+	DeeplApiKey = FString();
+
+	// Comment Generator
+	bEnableStreamingCommentGeneration = true;
+	bUseEditorLanguageForCommentGeneration = true;
+	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
+	bIgnoreIsolatedNodesWhenGeneratingComments = true;
+	bIgnoreCommentNodesWhenGeneratingComments = false;
+	bUseToonFormatForCommentGeneration = true;
+	CommentGenerationConditions = { TEXT("Length: Keep it brief but descriptive (one sentence or a short phrase).") };
+	
+	// Node Previewer
+	bEnableNodePreview = false;
+	bAlsoPreviewAdvancedView = false;
+	NodePreviewScale = 1.f;
+	
+	// Access Specifier Initializer
+	bOverrideVariableDefaultAccessSpecifier = false;
+	VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+	bOverrideFunctionDefaultAccessSpecifier = false;
+	FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+	bCustomEventAccessSpecifierIsSupported = true;
+	bOverrideCustomEventDefaultAccessSpecifier = false;
+	CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+#else
+	bCustomEventAccessSpecifierIsSupported = false;
+#endif
+	
+	// LLM
+	bStartLlamaServerOnEditorStartup = true;
+	LlamaServerFilePath = FFilePath();
 }
 
 void UTsubasamusuUnrealAssistSettings::RestoreLlamaServerOptions()
@@ -174,6 +184,31 @@ void UTsubasamusuUnrealAssistSettings::SaveLlamaServerOptions()
 	}
 			
 	SaveConfig();
+}
+
+void UTsubasamusuUnrealAssistSettings::RegisterEditorLanguageChangedEvent()
+{
+	EditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([this]()
+	{
+		if (bUseEditorLanguageForCommentGeneration)
+		{
+			MakeCommentGenerationLanguageSameAsEditorLanguage();
+		}
+	});
+}
+
+void UTsubasamusuUnrealAssistSettings::UnregisterEditorLanguageChangedEvent() const
+{
+	if (EditorLanguageChangedHandle.IsValid())
+	{
+		FInternationalization::Get().OnCultureChanged().Remove(EditorLanguageChangedHandle);
+	}
+}
+
+void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditorLanguage()
+{
+	const FCultureRef EditorLanguageCulture = GetEditorLanguageCulture();
+	SetCommentGenerationLanguageCulture(EditorLanguageCulture);
 }
 
 FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()

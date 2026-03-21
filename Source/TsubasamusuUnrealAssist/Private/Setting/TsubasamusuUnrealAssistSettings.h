@@ -19,6 +19,7 @@ class UTsubasamusuUnrealAssistSettings final : public UObject
 
 public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer);
+	virtual ~UTsubasamusuUnrealAssistSettings() override;
 	
 	//~ Begin UObject Interface
 	virtual void PostInitProperties() override;
@@ -124,7 +125,6 @@ public:
 
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
 	void SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture);
-	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	
 	bool LlamaServerOptionsContainSameElements() const;
 	FLlamaServerSettings GetCurrentLlamaServerSettings() const;
@@ -138,8 +138,17 @@ private:
 	UPROPERTY(config)
 	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
 	
+	void InitializeProperties();
+	
 	void RestoreLlamaServerOptions();
 	void SaveLlamaServerOptions();
 	
+	void RegisterEditorLanguageChangedEvent();
+	void UnregisterEditorLanguageChangedEvent() const;
+	
+	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	static FCultureRef GetEditorLanguageCulture();
+	
+	FDelegateHandle PostEngineInitHandle;
+	FDelegateHandle EditorLanguageChangedHandle;
 };

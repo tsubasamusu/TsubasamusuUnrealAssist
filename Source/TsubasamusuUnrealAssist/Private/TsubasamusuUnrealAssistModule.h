@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
@@ -20,9 +19,6 @@ private:
 	void RegisterSettings() const;
 	void UnregisterSettings() const;
 
-	void RegisterOnEditorLanguageChangedEvent();
-	void UnregisterOnEditorLanguageChangedEvent() const;
-	
 	void RegisterOnAssetEditorOpenedEvent();
 	void UnregisterOnAssetEditorOpenedEvent() const;
 	
@@ -30,7 +26,6 @@ private:
 	static void UnregisterSettingsCustomization();
 	
 	FDelegateHandle OnPostEngineInitHandle;
-	FDelegateHandle OnEditorLanguageChangedHandle;
 	FDelegateHandle OnAssetEditorOpenedHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");
