@@ -10,6 +10,8 @@ struct FLlamaServerSettings;
 struct FConfigLlamaServerOption;
 class ULlamaServerOption;
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSettingsPropertyChanged, const FName& /*InChangedPropertyName*/);
+
 UCLASS(config = EditorPerProjectUserSettings)
 class UTsubasamusuUnrealAssistSettings final : public UObject
 {
@@ -126,6 +128,8 @@ public:
 	
 	bool LlamaServerOptionsContainSameElements() const;
 	FLlamaServerSettings GetCurrentLlamaServerSettings() const;
+	
+	FOnSettingsPropertyChanged OnSettingsPropertyChanged;
 	
 private:
 	UPROPERTY(config)

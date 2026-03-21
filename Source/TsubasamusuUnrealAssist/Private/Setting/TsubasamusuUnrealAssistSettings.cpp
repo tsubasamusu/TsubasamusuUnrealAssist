@@ -62,6 +62,11 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 	
 	if (!ChangedPropertyName.IsNone())
 	{
+		if (OnSettingsPropertyChanged.IsBound())
+		{
+			OnSettingsPropertyChanged.Broadcast(ChangedPropertyName);
+		}
+		
 		FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 	
 		if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
