@@ -34,7 +34,7 @@ void FTsubasamusuSettingsCustomization::CustomizeDetails(IDetailLayoutBuilder& I
 
 void FTsubasamusuSettingsCustomization::AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder)
 {
-    const FName CategoryName = TEXT("General");
+    const FName CategoryName = TEXT("Recommended Editor Settings Applier");
     const FText PropertyText = LOCTEXT("ApplyRecommendedEditorSettingsButtonProperty", "Apply Recommended Editor Settings");
     const FText ButtonText = LOCTEXT("ApplyRecommendedEditorSettingsButtonLabel", "Apply");
     const FText ToolTipText = LOCTEXT("ApplyRecommendedEditorSettingsButtonToolTip",

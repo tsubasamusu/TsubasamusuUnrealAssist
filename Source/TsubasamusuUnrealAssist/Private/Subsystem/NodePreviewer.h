@@ -18,6 +18,7 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase) override;
 	//~ End USubsystem Interface
 	
+protected:
 	//~ Begin UTickableEditorSubsystem Interface
 	virtual void Tick(const float InDeltaTime) override;
 	//~ End UTickableEditorSubsystem Interface
