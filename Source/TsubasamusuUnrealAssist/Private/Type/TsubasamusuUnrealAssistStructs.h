@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlueprintEditorModes.h"
 #include "TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistMacros.h"
 #include "TsubasamusuUnrealAssistStructs.generated.h"
@@ -249,4 +250,25 @@ public:
 	
 	FSlateIcon MenuIcon;
 	TArray<FSelectedNodeSubMenuContext> SubMenuContexts;
+};
+
+struct FBlueprintCommandContext
+{
+public:
+	FBlueprintCommandContext(const TSharedPtr<const FUICommandInfo>& InUICommandInfo, const FExecuteAction& InExecuteAction, const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FCanExecuteAction>& InAdditionalConditionsToExecuteAction = TArray<FCanExecuteAction>(), const TArray<FName>& InTargetModes = { FBlueprintEditorApplicationModes::StandardBlueprintEditorMode })
+		: UICommandInfo(InUICommandInfo), ExecuteAction(InExecuteAction), Blueprint(InBlueprint), AdditionalConditionsToExecuteAction(InAdditionalConditionsToExecuteAction), TargetModes(InTargetModes){}
+	
+	bool IsValid() const
+	{
+		return UICommandInfo.IsValid()
+			&& ExecuteAction.IsBound()
+			&& Blueprint.IsValid()
+			&& !TargetModes.IsEmpty();
+	}
+	
+	TSharedPtr<const FUICommandInfo> UICommandInfo;
+	FExecuteAction ExecuteAction;
+	TWeakObjectPtr<UBlueprint> Blueprint;
+	TArray<FCanExecuteAction> AdditionalConditionsToExecuteAction;
+	TArray<FName> TargetModes;
 };

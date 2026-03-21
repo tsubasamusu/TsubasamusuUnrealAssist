@@ -1,7 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "UnusedLocalVariableDeleter.h"
-#include "BlueprintCommandContext.h"
 #include "BlueprintEditorUtility.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "K2Node_FunctionEntry.h"
@@ -9,6 +8,7 @@
 #include "Algo/AnyOf.h"
 #include "Message/EditorMessageUtility.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "FUnusedLocalVariableDeleter"
 

@@ -8,7 +8,7 @@
 #include "Message/EditorMessageUtility.h"
 
 class FBlueprintEditor;
-class FBlueprintCommandContext;
+struct FBlueprintCommandContext;
 
 #define LOCTEXT_NAMESPACE "FBlueprintEditorUtility"
 

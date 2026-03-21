@@ -1,11 +1,11 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "BlueprintEditorUtility.h"
-#include "BlueprintCommandContext.h"
 #include "BlueprintEditor.h"
 #include "Algo/AnyOf.h"
 #include "Toolkits/ToolkitManager.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #if UE_VERSION_OLDER_THAN(5, 1, 0)
 #include "ToolMenus.h"
@@ -17,7 +17,7 @@ void FBlueprintEditorUtility::RegisterCommandInBlueprintEditMenu(const FBlueprin
 {
 	if (InBlueprintCommandContext.IsValid())
 	{
-		const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = GetBlueprintEditor(InBlueprintCommandContext.Blueprint);
+		const TWeakPtr<FBlueprintEditor> WeakBlueprintEditor = GetBlueprintEditor(InBlueprintCommandContext.Blueprint.Get());
 		const TArray<FCanExecuteAction> AdditionalConditionsToExecuteAction = InBlueprintCommandContext.AdditionalConditionsToExecuteAction;
 		const TArray<FName> TargetModes = InBlueprintCommandContext.TargetModes;
 

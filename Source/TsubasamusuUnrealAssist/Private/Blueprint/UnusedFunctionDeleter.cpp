@@ -1,12 +1,12 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "UnusedFunctionDeleter.h"
-#include "BlueprintCommandContext.h"
 #include "BlueprintMemberUtility.h"
 #include "BlueprintEditorUtility.h"
 #include "K2Node_CreateDelegate.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 #define LOCTEXT_NAMESPACE "FUnusedFunctionsDeleter"
 
