@@ -2,7 +2,6 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
-#include "Blueprint/AccessSpecifierInitializer.h"
 #include "Blueprint/AccessSpecifierOptimizer.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
@@ -96,18 +95,11 @@ void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
 			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
 			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
 			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
-			
-			if (!AccessSpecifierInitializer.IsValid())
-			{
-				AccessSpecifierInitializer = MakeShared<FAccessSpecifierInitializer>();
-			}
-			
-			AccessSpecifierInitializer->RegisterBlueprint(OpenedBlueprint);
 		}
 	});
 }
 
-void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
+void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent() const
 {
 	if (IsValid(GEditor))
 	{
@@ -115,12 +107,6 @@ void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
 		check(IsValid(AssetEditorSubsystem));
 		
 		AssetEditorSubsystem->OnAssetEditorOpened().Remove(OnAssetEditorOpenedHandle);
-		
-		if (AccessSpecifierInitializer.IsValid())
-		{
-			AccessSpecifierInitializer->UnregisterAllBlueprints();
-			AccessSpecifierInitializer.Reset();
-		}
 	}
 }
 

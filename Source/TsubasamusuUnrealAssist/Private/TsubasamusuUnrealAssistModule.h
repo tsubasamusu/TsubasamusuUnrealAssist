@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
-class FAccessSpecifierInitializer;
-
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
 public:
@@ -26,7 +24,7 @@ private:
 	void UnregisterOnEditorLanguageChangedEvent() const;
 	
 	void RegisterOnAssetEditorOpenedEvent();
-	void UnregisterOnAssetEditorOpenedEvent();
+	void UnregisterOnAssetEditorOpenedEvent() const;
 	
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
@@ -38,6 +36,4 @@ private:
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");
 	const FName SettingsSectionName = TEXT("Tsubasamusu Unreal Assist");
-	
-	TSharedPtr<FAccessSpecifierInitializer> AccessSpecifierInitializer;
 };
