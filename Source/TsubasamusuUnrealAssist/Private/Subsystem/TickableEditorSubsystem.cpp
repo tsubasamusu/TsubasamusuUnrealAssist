@@ -4,8 +4,16 @@
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
-void UTickableEditorSubsystem::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
+void UTickableEditorSubsystem::Deinitialize()
 {
+	Super::Deinitialize();
+	UnregisterTicker();
+}
+
+void UTickableEditorSubsystem::OnPostEngineInit()
+{
+	Super::OnPostEngineInit();
+	
 	CachedTsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
 	CachedTsubasamusuUnrealAssistSettings->OnSettingsPropertyChanged.AddLambda([this](const FName& InChangedPropertyName)
@@ -18,11 +26,6 @@ void UTickableEditorSubsystem::Initialize(FSubsystemCollectionBase& InSubsystemC
 	});
 	
 	RegisterTicker();
-}
-
-void UTickableEditorSubsystem::Deinitialize()
-{
-	UnregisterTicker();
 }
 
 void UTickableEditorSubsystem::RegisterTicker()
