@@ -9,8 +9,16 @@
 
 #define LOCTEXT_NAMESPACE "SelectedNodeMenuExtender"
 
-void USelectedNodeMenuExtender::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
+void USelectedNodeMenuExtender::Deinitialize()
 {
+	Super::Deinitialize();
+	UnregisterSelectedNodeMenu();
+}
+
+void USelectedNodeMenuExtender::OnPostEngineInit()
+{
+	Super::OnPostEngineInit();
+	
 	SelectedNodeMenuContexts =
 	{
 		FCommentGenerator::CreateSelectedNodeMenuContext(),
@@ -20,11 +28,6 @@ void USelectedNodeMenuExtender::Initialize(FSubsystemCollectionBase& InSubsystem
 	};
 	
 	RegisterSelectedNodeMenu();
-}
-
-void USelectedNodeMenuExtender::Deinitialize()
-{
-	UnregisterSelectedNodeMenu();
 }
 
 void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
