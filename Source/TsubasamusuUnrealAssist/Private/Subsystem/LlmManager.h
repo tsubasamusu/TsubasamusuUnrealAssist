@@ -10,7 +10,7 @@
 using FOnTokenGenerated = TFunction<void(const bool /*bInSucceeded*/, const FString& /*InGeneratedToken*/)>;
 
 UCLASS()
-class ULlmManager final : public UEditorSubsystem, public TEditorSubsystemBase<ULlmManager>
+class ULlmManager final : public UEditorSubsystemBase, public TEditorSubsystemBase<ULlmManager>
 {
 	GENERATED_BODY()
 	
