@@ -200,12 +200,6 @@ TSharedPtr<FGraphActionNode> UNodePreviewer::GetGraphActionNode(const TSharedPtr
 	return nullptr;
 }
 
-bool UNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
-{
-	const TSharedPtr<SWidget> BlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
-	return BlueprintPaletteItem.IsValid();
-}
-
 TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 {
 	if (IsValid(InNode))
@@ -243,6 +237,12 @@ UEdGraphNode* UNodePreviewer::CreateNode(const TSharedPtr<FGraphActionNode> InGr
 	}
 	
 	return nullptr;
+}
+
+bool UNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+{
+	const TSharedPtr<SWidget> BlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
+	return BlueprintPaletteItem.IsValid();
 }
 
 TSharedPtr<SWidget> UNodePreviewer::FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget)
