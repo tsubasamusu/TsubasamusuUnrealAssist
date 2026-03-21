@@ -28,27 +28,20 @@ static TArray<ArrayType> FindElementsOnlyInSecondArray(const TArray<ArrayType>& 
 	return ElementsOnlyInSecondArray;
 }
 
-void UAccessSpecifierInitializer::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
-{
-	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
-	
-	AssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([this](UObject* InOpenedAsset)
-	{
-		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
-		
-		if (IsValid(OpenedBlueprint))
-		{
-			RegisterBlueprint(OpenedBlueprint);
-		}
-	});
-}
-
 void UAccessSpecifierInitializer::Deinitialize()
 {
+	Super::Deinitialize();
 	UnregisterAllBlueprints();
-	
-	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
-	AssetEditorSubsystem->OnAssetEditorOpened().Remove(AssetEditorOpenedHandle);
+}
+
+void UAccessSpecifierInitializer::OnAssetEditorOpened(UObject* InOpenedAsset)
+{
+	UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
+		
+	if (IsValid(OpenedBlueprint))
+	{
+		RegisterBlueprint(OpenedBlueprint);
+	}
 }
 
 void UAccessSpecifierInitializer::OnBlueprintChanged(UBlueprint* InBlueprint)
