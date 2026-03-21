@@ -67,26 +67,9 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 			OnSettingsPropertyChanged.Broadcast(ChangedPropertyName);
 		}
 		
-		FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
-	
 		if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
 		{
 			MakeCommentGenerationLanguageSameAsEditorLanguage();
-		}
-		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
-		{
-			TsubasamusuUnrealAssist.ReregisterTicker();
-		}
-		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
-		{
-			if (bEnableNodePreview)
-			{
-				TsubasamusuUnrealAssist.StartNodePreview();
-			}
-			else
-			{
-				TsubasamusuUnrealAssist.StopNodePreview();
-			}
 		}
 		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
 		{

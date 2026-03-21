@@ -6,7 +6,6 @@
 #include "Modules/ModuleManager.h"
 
 class FAccessSpecifierInitializer;
-class FNodePreviewer;
 
 class FTsubasamusuUnrealAssistModule final : public IModuleInterface
 {
@@ -15,11 +14,6 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 	//~ End IModuleInterface Interface
-	
-	void ReregisterTicker();
-	
-	void StartNodePreview();
-	void StopNodePreview();
 	
 private:
 	void RegisterOnPostEngineInitEvent();
@@ -34,23 +28,16 @@ private:
 	void RegisterOnAssetEditorOpenedEvent();
 	void UnregisterOnAssetEditorOpenedEvent();
 	
-	void RegisterTicker();
-	void UnregisterTicker() const;
-	
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
-	
-	bool Tick(const float /* InDeltaTime */);
 	
 	FDelegateHandle OnPostEngineInitHandle;
 	FDelegateHandle OnEditorLanguageChangedHandle;
 	FDelegateHandle OnAssetEditorOpenedHandle;
-	FTSTicker::FDelegateHandle TickHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");
 	const FName SettingsSectionName = TEXT("Tsubasamusu Unreal Assist");
 	
-	TSharedPtr<FNodePreviewer> NodePreviewer;
 	TSharedPtr<FAccessSpecifierInitializer> AccessSpecifierInitializer;
 };
