@@ -16,30 +16,19 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 	RegisterSettings();
 	RegisterSettingsCustomization();
-	RegisterOnPostEngineInitEvent();
+	
+	PostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterAssetEditorOpenedEvent);
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
-	UnregisterOnPostEngineInitEvent();
-	UnregisterOnAssetEditorOpenedEvent();
-	UnregisterSettingsCustomization();
 	UnregisterSettings();
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
-{
-	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
+	UnregisterSettingsCustomization();
+	UnregisterAssetEditorOpenedEvent();
+	
+	if (PostEngineInitHandle.IsValid())
 	{
-		RegisterOnAssetEditorOpenedEvent();
-	});
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
-{
-	if (OnPostEngineInitHandle.IsValid())
-	{
-		FCoreDelegates::OnPostEngineInit.Remove(OnPostEngineInitHandle);
+		FCoreDelegates::OnPostEngineInit.Remove(PostEngineInitHandle);
 	}
 }
 
@@ -58,37 +47,6 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 	SettingsModule.UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
 }
 
-void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
-{
-	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
-	check(IsValid(AssetEditorSubsystem));
-	
-	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([this](UObject* InOpenedAsset)
-	{
-		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
-		
-		if (IsValid(OpenedBlueprint))
-		{
-			FTsubasamusuBlueprintEditorCommands::Register();
-	
-			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
-			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
-			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
-		}
-	});
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent() const
-{
-	if (IsValid(GEditor))
-	{
-		UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
-		check(IsValid(AssetEditorSubsystem));
-		
-		AssetEditorSubsystem->OnAssetEditorOpened().Remove(OnAssetEditorOpenedHandle);
-	}
-}
-
 void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
@@ -103,6 +61,34 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	const FName SettingsClassName = UTsubasamusuUnrealAssistSettings::StaticClass()->GetFName();
 	
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
+}
+
+void FTsubasamusuUnrealAssistModule::RegisterAssetEditorOpenedEvent()
+{
+	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+	
+	AssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([this](UObject* InOpenedAsset)
+	{
+		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
+	
+		if (IsValid(OpenedBlueprint))
+		{
+			FTsubasamusuBlueprintEditorCommands::Register();
+
+			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
+			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
+			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
+		}
+	});
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterAssetEditorOpenedEvent() const
+{
+	if (AssetEditorOpenedHandle.IsValid() && IsValid(GEditor))
+	{
+		UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+		AssetEditorSubsystem->OnAssetEditorOpened().Remove(AssetEditorOpenedHandle);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE

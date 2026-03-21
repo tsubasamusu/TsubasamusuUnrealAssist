@@ -13,20 +13,17 @@ public:
 	//~ End IModuleInterface Interface
 	
 private:
-	void RegisterOnPostEngineInitEvent();
-	void UnregisterOnPostEngineInitEvent() const;
-	
 	void RegisterSettings() const;
 	void UnregisterSettings() const;
 
-	void RegisterOnAssetEditorOpenedEvent();
-	void UnregisterOnAssetEditorOpenedEvent() const;
-	
 	static void RegisterSettingsCustomization();
 	static void UnregisterSettingsCustomization();
 	
-	FDelegateHandle OnPostEngineInitHandle;
-	FDelegateHandle OnAssetEditorOpenedHandle;
+	void RegisterAssetEditorOpenedEvent();
+	void UnregisterAssetEditorOpenedEvent() const;
+	
+	FDelegateHandle PostEngineInitHandle;
+	FDelegateHandle AssetEditorOpenedHandle;
 	
 	const FName SettingsContainerName = TEXT("Editor");
 	const FName SettingsCategoryName = TEXT("Plugins");
