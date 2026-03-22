@@ -21,7 +21,10 @@ enum class ETsubasamusuAccessSpecifier : uint8
 enum class ELlamaServerStatus : uint8
 {
 	NotStartedYet,
-	SuccessfullyStarted,
+	WhileTryingToStart,
+	LoadingModel,
+	Available,
+	UnknownInstanceIsRunning,
 	FailedToStart
 };
 
