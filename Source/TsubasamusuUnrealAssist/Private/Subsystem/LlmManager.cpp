@@ -177,7 +177,7 @@ void ULlmManager::OnPostEngineInit()
 	
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 	
-	if (TsubasamusuUnrealAssistSettings->bStartLlamaServerOnEditorStartup)
+	if (TsubasamusuUnrealAssistSettings->bStartLlamaServerOnEditorStartup && !TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath.IsEmpty())
 	{
 		StartLlamaServer();
 	}
@@ -185,6 +185,18 @@ void ULlmManager::OnPostEngineInit()
 
 void ULlmManager::StartLlamaServer()
 {
+	if (LlamaServerIsRunning())
+	{
+		TUA_ERROR(TEXT("Llama server is already running. Please stop the server and try again."));
+		return;
+	}
+	
+	LastAppliedLlamaServerSettings.Reset();
+	LlamaServerStatus = ELlamaServerStatus::WhileTryingToStart;
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const FString LlamaServerFilePath = TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath;
+	
 	FString ErrorMessage;
 	
 	ON_SCOPE_EXIT
@@ -192,61 +204,85 @@ void ULlmManager::StartLlamaServer()
 		if (!ErrorMessage.IsEmpty())
 		{
 			TUA_ERROR(TEXT("%s"), *ErrorMessage);
-			LastAppliedLlamaServerSettings.Reset();
+			LlamaServerStatus = ELlamaServerStatus::FailedToStart;
 		}
-		
-		LlamaServerStatus = ErrorMessage.IsEmpty() ? ELlamaServerStatus::SuccessfullyStarted : ELlamaServerStatus::FailedToStart;
 	};
 	
-	if (FPlatformProcess::IsProcRunning(LlamaServerProcessHandle))
+	if (!FPaths::FileExists(LlamaServerFilePath))
 	{
-		ErrorMessage = TEXT("Llama server is already running. Please stop the server and try again.");
+		ErrorMessage = FString::Printf(TEXT("Llama server file not found. The file path is \"%s.\""), *LlamaServerFilePath);
 		return;
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	const FString LlamaServerFilePath = TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath;
-	
-	if (!LlamaServerFilePath.IsEmpty())
+	if (TsubasamusuUnrealAssistSettings->LlamaServerOptionsContainSameElements())
 	{
-		if (!FPaths::FileExists(TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath))
-		{
-			ErrorMessage = FString::Printf(TEXT("Llama server file not found. The file path is \"%s.\""), *LlamaServerFilePath);
-			return;
-		}
-	
-		if (TsubasamusuUnrealAssistSettings->LlamaServerOptionsContainSameElements())
-		{
-			ErrorMessage = TEXT("There are duplicate elements in the command-line arguments used when starting the Llama server.");
-			return;
-		}
-	
-		FString Arguments;
-		
-		for (const ULlamaServerOption* LlamaServerOption : TsubasamusuUnrealAssistSettings->LlamaServerOptions)
-		{
-			if (IsValid(LlamaServerOption))
-			{
-				if (!LlamaServerOption->IsValidArgument())
-				{
-					ErrorMessage = FString::Printf(TEXT("The argument \"%s\" for \"%s\" parameter is invalid."), *LlamaServerOption->GetArgument(), *LlamaServerOption->GetParameter());
-					return;
-				}
-		
-				const FString ParameterSymbol = LlamaServerOption->IsLongParameter() ? TEXT("--") : TEXT("-");
-				const FString Argument = LlamaServerOption->GetArgument().IsEmpty() ? FString() : FString::Printf(TEXT(" %s"), *LlamaServerOption->GetArgument());
-				Arguments += FString::Printf(TEXT(" %s%s%s"), *ParameterSymbol, *LlamaServerOption->GetParameter(), *Argument);
-			}
-		}
-	
-		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
-		LastAppliedLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings();
+		ErrorMessage = TEXT("There are duplicate elements in the command-line arguments used when starting the Llama server.");
+		return;
 	}
+	
+	FString Arguments;
+	
+	for (const ULlamaServerOption* LlamaServerOption : TsubasamusuUnrealAssistSettings->LlamaServerOptions)
+	{
+		if (IsValid(LlamaServerOption))
+		{
+			if (!LlamaServerOption->IsValidArgument())
+			{
+				ErrorMessage = FString::Printf(TEXT("The argument \"%s\" for \"%s\" parameter is invalid."), *LlamaServerOption->GetArgument(), *LlamaServerOption->GetParameter());
+				return;
+			}
+		
+			const FString ParameterSymbol = LlamaServerOption->IsLongParameter() ? TEXT("--") : TEXT("-");
+			const FString Argument = LlamaServerOption->GetArgument().IsEmpty() ? FString() : FString::Printf(TEXT(" %s"), *LlamaServerOption->GetArgument());
+			Arguments += FString::Printf(TEXT(" %s%s%s"), *ParameterSymbol, *LlamaServerOption->GetParameter(), *Argument);
+		}
+	}
+	
+	CheckLlamaServerStatus([this, TsubasamusuUnrealAssistSettings, Arguments](const ELlamaServerStatus InBeforeLlamaServerStatus)
+	{
+		if (InBeforeLlamaServerStatus == ELlamaServerStatus::UnknownInstanceIsRunning)
+		{
+			TUA_ERROR(TEXT("An unknown Llama server instance is running. Please stop the instance and try again."));
+			LlamaServerStatus = InBeforeLlamaServerStatus;
+			return;
+		}
+		
+		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
+		
+		const FLlamaServerSettings CachedLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings();
+		const TSharedPtr<FTimerHandle> TimerHandle = MakeShared<FTimerHandle>();
+		constexpr float CheckSpan = 1.f;
+		
+		GEditor->GetTimerManager()->SetTimer(*TimerHandle, FTimerDelegate::CreateLambda([this, CachedLlamaServerSettings, TimerHandle]()
+		{
+			CheckLlamaServerStatus([this, CachedLlamaServerSettings, TimerHandle](const ELlamaServerStatus InAfterLlamaServerStatus)
+			{
+				// Succeeded or Failed
+				if (InAfterLlamaServerStatus != ELlamaServerStatus::LoadingModel)
+				{
+					if (IsValid(GEditor) && TimerHandle.IsValid())
+					{
+						// Stop Checking
+						GEditor->GetTimerManager()->ClearTimer(*TimerHandle);
+					}
+				}
+				
+				const bool bFailedToStart = InAfterLlamaServerStatus != ELlamaServerStatus::LoadingModel && InAfterLlamaServerStatus != ELlamaServerStatus::Available;
+				LlamaServerStatus = bFailedToStart ? ELlamaServerStatus::FailedToStart : InAfterLlamaServerStatus;
+				
+				if (InAfterLlamaServerStatus == ELlamaServerStatus::Available)
+				{
+					LastAppliedLlamaServerSettings = CachedLlamaServerSettings;
+				}
+			});
+		}),
+		CheckSpan, true);
+	});
 }
 
 void ULlmManager::StopLlamaServer()
 {
-	if (FPlatformProcess::IsProcRunning(LlamaServerProcessHandle))
+	if (LlamaServerProcessHandle.IsValid() && FPlatformProcess::IsProcRunning(LlamaServerProcessHandle))
 	{
 		FPlatformProcess::TerminateProc(LlamaServerProcessHandle);
 		FPlatformProcess::CloseProc(LlamaServerProcessHandle);
@@ -321,4 +357,3 @@ void ULlmManager::CheckLlamaServerStatus(const FOnLlamaServerStatusChecked& InLl
 
     HttpRequest->ProcessRequest();
 }
-
