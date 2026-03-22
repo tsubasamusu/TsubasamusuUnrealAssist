@@ -163,7 +163,7 @@ void UTsubasamusuUnrealAssistSettings::InitializeProperties()
 #endif
 	
 	// LLM
-	bStartLlamaServerOnEditorStartup = true;
+	bStartLlamaServerOnEditorStartup = false;
 	LlamaServerFilePath = FFilePath();
 }
 
