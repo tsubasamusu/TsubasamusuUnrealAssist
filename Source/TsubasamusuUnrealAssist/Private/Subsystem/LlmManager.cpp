@@ -151,6 +151,24 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
     HttpRequest->ProcessRequest();
 }
 
+bool ULlmManager::LlamaServerIsRunning() const
+{
+	return GetLlamaServerStatus() == ELlamaServerStatus::LoadingModel
+		|| GetLlamaServerStatus() == ELlamaServerStatus::Available;
+}
+
+bool ULlmManager::LlamaServerIsBadStatus() const
+{
+	return GetLlamaServerStatus() == ELlamaServerStatus::UnknownInstanceIsRunning
+		|| GetLlamaServerStatus() == ELlamaServerStatus::FailedToStart;
+}
+
+bool ULlmManager::LlamaServerCanRestart() const
+{
+	return GetLlamaServerStatus() != ELlamaServerStatus::WhileTryingToStart
+		&& GetLlamaServerStatus() != ELlamaServerStatus::LoadingModel;
+}
+
 void ULlmManager::OnPostEngineInit()
 {
 	Super::OnPostEngineInit();

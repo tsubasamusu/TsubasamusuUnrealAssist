@@ -23,6 +23,10 @@ public:
 	void RestartLlamaServer();
 	void GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction, const bool bEnableStreaming = true) const;
 	
+	bool LlamaServerIsRunning() const;
+	bool LlamaServerIsBadStatus() const;
+	bool LlamaServerCanRestart() const;
+	
 	FORCEINLINE FLlamaServerSettings GetLastAppliedLlamaServerSettings() const
 	{
 		return LastAppliedLlamaServerSettings;
