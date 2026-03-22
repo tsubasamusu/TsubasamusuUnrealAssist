@@ -8,6 +8,7 @@
 #include "LlamaServerOption/LlamaServerOption_Port.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 void ULlmManager::Deinitialize()
 {
@@ -48,7 +49,11 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
 	const TSharedPtr<bool> bAtLeastOneTokenWasGenerated = MakeShared<bool>(false);
 	const TSharedPtr<int32> ReadContentLength = MakeShared<int32>(0);
 	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
     HttpRequest->OnRequestProgress64().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, ReadContentLength](FHttpRequestPtr InHttpRequestPtr, uint64, uint64)
+#else
+    HttpRequest->OnRequestProgress().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, ReadContentLength](FHttpRequestPtr InHttpRequestPtr, int32, int32)
+#endif
     {
         const FHttpResponsePtr HttpResponsePtr = InHttpRequestPtr->GetResponse();
     	
