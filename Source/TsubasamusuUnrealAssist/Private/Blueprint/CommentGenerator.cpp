@@ -10,6 +10,7 @@
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Subsystem/LlmManager.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "FCommentGenerator"
 
@@ -39,7 +40,8 @@ FSelectedNodeMenuContext FCommentGenerator::CreateSelectedNodeMenuContext()
 			GenerateComment(CommentNode);
 		}
 	};
-	
+
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 	return FSelectedNodeMenuContext
 	{
 		.ShouldAddMenu = ShouldAddMenu,
@@ -47,6 +49,16 @@ FSelectedNodeMenuContext FCommentGenerator::CreateSelectedNodeMenuContext()
 		.LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment"),
 		.ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.")
 	};
+#else
+	FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+	SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+	SelectedNodeMenuContext.OnClicked = OnClicked;
+	SelectedNodeMenuContext.LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment");
+	SelectedNodeMenuContext.ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.");
+	
+	return SelectedNodeMenuContext;
+#endif
 }
 
 void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)

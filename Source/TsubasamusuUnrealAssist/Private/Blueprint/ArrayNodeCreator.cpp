@@ -4,6 +4,7 @@
 #include "K2Node_MakeArray.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "FArrayNodeCreator"
 
@@ -37,6 +38,7 @@ FSelectedNodeMenuContext FArrayNodeCreator::CreateSelectedNodeMenuContext()
 		}
 	};
 	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 	return FSelectedNodeMenuContext
 	{
 		.ShouldAddMenu = ShouldAddMenu,
@@ -45,6 +47,17 @@ FSelectedNodeMenuContext FArrayNodeCreator::CreateSelectedNodeMenuContext()
 		.ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected."),
 		.MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x")
 	};
+#else
+	FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+	SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+	SelectedNodeMenuContext.OnClicked = OnClicked;
+	SelectedNodeMenuContext.LabelText = LOCTEXT("CreateArrayNodeLabel", "Make Array");
+	SelectedNodeMenuContext.ToolTipText = LOCTEXT("CreateArrayNodeToolTip", "Make an array with all selected nodes connected.");
+	SelectedNodeMenuContext.MenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GraphEditor.MakeArray_16x");
+	
+	return SelectedNodeMenuContext;
+#endif
 }
 
 UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TArray<TWeakObjectPtr<UEdGraphNode>>& InNodes, const TWeakObjectPtr<UEdGraph> InGraph, const FEdGraphPinType& InArrayNodePinType)

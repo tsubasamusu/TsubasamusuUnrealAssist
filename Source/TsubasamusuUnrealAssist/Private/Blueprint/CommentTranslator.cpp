@@ -13,6 +13,12 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
+
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
+#include "Serialization/JsonWriter.h"
+#include "Serialization/JsonSerializer.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "FCommentTranslator"
 
@@ -33,6 +39,7 @@ FSelectedNodeMenuContext FCommentTranslator::CreateSelectedNodeMenuContext()
         return false;
     };
 	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
     return FSelectedNodeMenuContext
     {
         .ShouldAddMenu = ShouldAddMenu,
@@ -40,6 +47,16 @@ FSelectedNodeMenuContext FCommentTranslator::CreateSelectedNodeMenuContext()
         .ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node."),
         .SubMenuContexts = CreateSelectedNodeSubMenuContext()
     };
+#else
+    FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+    SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+    SelectedNodeMenuContext.LabelText = LOCTEXT("CommentTranslationLabel", "Translate to...");
+    SelectedNodeMenuContext.ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node.");
+    SelectedNodeMenuContext.SubMenuContexts = CreateSelectedNodeSubMenuContext();
+	
+    return SelectedNodeMenuContext;
+#endif
 }
 
 TArray<FSelectedNodeSubMenuContext> FCommentTranslator::CreateSelectedNodeSubMenuContext()
@@ -74,12 +91,20 @@ TArray<FSelectedNodeSubMenuContext> FCommentTranslator::CreateSelectedNodeSubMen
         {
             const FText ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), EditorLanguage.Value);
             
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
             FSelectedNodeSubMenuContext SubMenuContext
             {
                 .OnClicked = OnSubMenuClicked,
                 .LabelText = EditorLanguage.Value,
                 .ToolTipText = ToolTipText,
             };
+#else
+            FSelectedNodeSubMenuContext SubMenuContext;
+            
+            SubMenuContext.OnClicked = OnSubMenuClicked;
+            SubMenuContext.LabelText = EditorLanguage.Value;
+            SubMenuContext.ToolTipText = ToolTipText;
+#endif
             
             SubMenuContexts.Add(SubMenuContext);
         }

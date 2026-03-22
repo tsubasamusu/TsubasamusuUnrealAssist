@@ -3,6 +3,7 @@
 #include "Blueprint/NodeInformationCopier.h"
 #include "Blueprint/NodeInformationUtility.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "FNodeInformationCopier"
@@ -25,6 +26,12 @@ FSelectedNodeMenuContext FNodeInformationCopier::CreateSelectedNodeMenuContext()
 		}
 	};
 	
+	const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
+	{
+		return !InSelectedNodes.IsEmpty();
+	};
+	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 	FSelectedNodeSubMenuContext JsonSubMenuContext
 	{
 		.OnClicked = OnSubMenuClicked,
@@ -39,11 +46,6 @@ FSelectedNodeMenuContext FNodeInformationCopier::CreateSelectedNodeMenuContext()
 		.ToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTip", "Copy selected nodes in TOON Format.")
 	};
 	
-	const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
-	{
-		return !InSelectedNodes.IsEmpty();
-	};
-	
 	return FSelectedNodeMenuContext
 	{
 		.ShouldAddMenu = ShouldAddMenu,
@@ -51,6 +53,28 @@ FSelectedNodeMenuContext FNodeInformationCopier::CreateSelectedNodeMenuContext()
 		.ToolTipText = LOCTEXT("CopyNodeInformationToolTip", "Copy selected nodes as string."),
 		.SubMenuContexts = { JsonSubMenuContext, ToonSubMenuContext }
 	};
+#else
+	FSelectedNodeSubMenuContext JsonSubMenuContext;
+	
+	JsonSubMenuContext.OnClicked = OnSubMenuClicked;
+	JsonSubMenuContext.LabelText = JsonMenuLabelText;
+	JsonSubMenuContext.ToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTip", "Copy selected nodes in JSON Format.");
+	
+	FSelectedNodeSubMenuContext ToonSubMenuContext;
+	
+	ToonSubMenuContext.OnClicked = OnSubMenuClicked;
+	ToonSubMenuContext.LabelText = LOCTEXT("CopyNodeInformationInToonFormatLabel", "TOON");
+	ToonSubMenuContext.ToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTip", "Copy selected nodes in TOON Format.");
+	
+	FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+	SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+	SelectedNodeMenuContext.LabelText = LOCTEXT("CopyNodeInformationLabel", "Copy as...");
+	SelectedNodeMenuContext.ToolTipText = LOCTEXT("CopyNodeInformationToolTip", "Copy selected nodes as string.");
+	SelectedNodeMenuContext.SubMenuContexts = { JsonSubMenuContext, ToonSubMenuContext };
+	
+	return SelectedNodeMenuContext;
+#endif
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -106,11 +106,20 @@ bool UTsubasamusuUnrealAssistSettings::LlamaServerOptionsContainSameElements() c
 
 FLlamaServerSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlamaServerSettings() const
 {
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 	return FLlamaServerSettings
 	{
 		.LlamaServerFilePath = LlamaServerFilePath,
 		.ConfigLlamaServerOptions = ConfigLlamaServerOptions
 	};
+#else
+	FLlamaServerSettings LlamaServerSettings;
+	
+	LlamaServerSettings.LlamaServerFilePath = LlamaServerFilePath;
+	LlamaServerSettings.ConfigLlamaServerOptions = ConfigLlamaServerOptions;
+	
+	return LlamaServerSettings;
+#endif
 }
 
 void UTsubasamusuUnrealAssistSettings::InitializeProperties()
@@ -173,12 +182,19 @@ void UTsubasamusuUnrealAssistSettings::SaveLlamaServerOptions()
 	{
 		if (IsValid(LlamaServerOption))
 		{
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
 			FConfigLlamaServerOption ConfigLlamaServerOption
 			{
 				.SoftClassPath = FSoftClassPath(LlamaServerOption->GetClass()),
 				.Argument = LlamaServerOption->GetArgument(true),
 			};
-					
+#else
+			FConfigLlamaServerOption ConfigLlamaServerOption;
+			
+			ConfigLlamaServerOption.SoftClassPath = FSoftClassPath(LlamaServerOption->GetClass());
+			ConfigLlamaServerOption.Argument = LlamaServerOption->GetArgument(true);
+#endif
+			
 			ConfigLlamaServerOptions.Add(ConfigLlamaServerOption);
 		}
 	}
