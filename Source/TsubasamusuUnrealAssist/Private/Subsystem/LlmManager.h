@@ -8,6 +8,7 @@
 #include "LlmManager.generated.h"
 
 using FOnTokenGenerated = TFunction<void(const bool /*bInSucceeded*/, const FString& /*InGeneratedToken*/)>;
+using FOnLlamaServerStatusChecked = TFunction<void(const ELlamaServerStatus /*InLlamaServerStatus*/)>;
 
 UCLASS()
 class ULlmManager final : public UEditorSubsystemBase, public TEditorSubsystemBase<ULlmManager>
@@ -42,6 +43,7 @@ private:
 	void StopLlamaServer();
 	
 	FString GetLlamaServerPort() const;
+	void CheckLlamaServerStatus(const FOnLlamaServerStatusChecked& InLlamaServerStatusCheckedFunction) const;
 	
 	FProcHandle LlamaServerProcessHandle;
 	FLlamaServerSettings LastAppliedLlamaServerSettings;

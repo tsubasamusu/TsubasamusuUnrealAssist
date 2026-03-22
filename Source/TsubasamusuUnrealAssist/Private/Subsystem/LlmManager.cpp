@@ -250,3 +250,57 @@ FString ULlmManager::GetLlamaServerPort() const
 	
 	return PortOptionPtr ? PortOptionPtr->Argument : DefaultPort;
 }
+
+void ULlmManager::CheckLlamaServerStatus(const FOnLlamaServerStatusChecked& InLlamaServerStatusCheckedFunction) const
+{
+    const FString Url = FString::Printf(TEXT("http://localhost:%s/health"), *GetLlamaServerPort());
+    const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+    
+    HttpRequest->SetURL(Url);
+    HttpRequest->SetVerb(TEXT("GET"));
+
+    HttpRequest->OnProcessRequestComplete().BindLambda([this, InLlamaServerStatusCheckedFunction](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
+    {
+        if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid())
+        {
+        	if (!LlamaServerProcessHandle.IsValid())
+        	{
+        		InLlamaServerStatusCheckedFunction(ELlamaServerStatus::UnknownInstanceIsRunning);
+        		return;
+        	}
+        	
+            const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
+            TSharedPtr<FJsonObject> ResponseJsonObject;
+            const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
+
+            if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+            {
+                FString Status;
+            	
+                if (ResponseJsonObject->TryGetStringField(TEXT("status"), Status) && Status == TEXT("ok"))
+                {
+                    InLlamaServerStatusCheckedFunction(ELlamaServerStatus::Available);
+                    return;
+                }
+
+                const TSharedPtr<FJsonObject>* ErrorJsonObjects;
+            	
+                if (ResponseJsonObject->TryGetObjectField(TEXT("error"), ErrorJsonObjects) && ErrorJsonObjects)
+                {
+                    FString Message;
+                	
+                    if ((*ErrorJsonObjects)->TryGetStringField(TEXT("message"), Message) && Message == TEXT("Loading model"))
+                    {
+                        InLlamaServerStatusCheckedFunction(ELlamaServerStatus::LoadingModel);
+                        return;
+                    }
+                }
+            }
+        }
+        
+    	InLlamaServerStatusCheckedFunction(ELlamaServerStatus::NotStartedYet);
+    });
+
+    HttpRequest->ProcessRequest();
+}
+
