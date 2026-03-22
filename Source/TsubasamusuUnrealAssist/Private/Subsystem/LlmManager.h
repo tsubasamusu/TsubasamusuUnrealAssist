@@ -16,7 +16,6 @@ class ULlmManager final : public UEditorSubsystemBase, public TEditorSubsystemBa
 	
 public:
 	//~ Begin USubsystem Interface
-	virtual void Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase) override;
 	virtual void Deinitialize() override;
 	//~ End USubsystem Interface
 	
@@ -32,6 +31,11 @@ public:
 	{
 		return LlamaServerStatus;
 	}
+	
+protected:
+	//~ Begin UEditorSubsystemBase Interface
+	virtual void OnPostEngineInit() override;
+	//~ End UEditorSubsystemBase Interface
 	
 private:
 	void StartLlamaServer();

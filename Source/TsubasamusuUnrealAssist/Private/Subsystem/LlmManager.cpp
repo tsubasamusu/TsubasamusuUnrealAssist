@@ -9,18 +9,6 @@
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 
-void ULlmManager::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
-{
-	LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
-	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	if (TsubasamusuUnrealAssistSettings->bStartLlamaServerOnEditorStartup)
-	{
-		StartLlamaServer();
-	}
-}
-
 void ULlmManager::Deinitialize()
 {
 	StopLlamaServer();
@@ -161,6 +149,20 @@ void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated
 	});
     
     HttpRequest->ProcessRequest();
+}
+
+void ULlmManager::OnPostEngineInit()
+{
+	Super::OnPostEngineInit();
+	
+	LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+	if (TsubasamusuUnrealAssistSettings->bStartLlamaServerOnEditorStartup)
+	{
+		StartLlamaServer();
+	}
 }
 
 void ULlmManager::StartLlamaServer()
