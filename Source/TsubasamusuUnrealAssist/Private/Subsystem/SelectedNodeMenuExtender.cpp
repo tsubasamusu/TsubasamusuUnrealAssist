@@ -57,7 +57,7 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
         for (const FSelectedNodeMenuContext& SelectedNodeMenuContext : SelectedNodeMenuContexts)
         {
             if (!SelectedNodes.IsEmpty()
-            	&& (!SelectedNodeMenuContext.ShouldAddMenu.IsSet() || (SelectedNodeMenuContext.ShouldAddMenu.IsSet() && SelectedNodeMenuContext.ShouldAddMenu(SelectedNodes))))
+            	&& (!SelectedNodeMenuContext.ShouldAddMenu || (SelectedNodeMenuContext.ShouldAddMenu && SelectedNodeMenuContext.ShouldAddMenu(SelectedNodes))))
             {
                 ValidSelectedNodeMenuContexts.Add(SelectedNodeMenuContext);
             }
@@ -78,7 +78,7 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 					{
 						const FUIAction MainMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, MainMenuContext]()
 						{
-							if (MainMenuContext.OnClicked.IsSet())
+							if (MainMenuContext.OnClicked)
 							{
 								MainMenuContext.OnClicked(SelectedNodes, WeakGraph);
 							}
@@ -98,7 +98,7 @@ void USelectedNodeMenuExtender::RegisterSelectedNodeMenu()
 								{
 									const FUIAction SubMenuAction = FExecuteAction::CreateLambda([SelectedNodes, WeakGraph, SubMenuContext]()
 									{
-										if (SubMenuContext.OnClicked.IsSet())
+										if (SubMenuContext.OnClicked)
 										{
 											SubMenuContext.OnClicked(SelectedNodes, WeakGraph, SubMenuContext.LabelText);
 										}
