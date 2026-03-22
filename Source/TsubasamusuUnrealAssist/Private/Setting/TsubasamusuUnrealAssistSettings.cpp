@@ -34,7 +34,12 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 {
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
 	
-	const FName ChangedPropertyName = InPropertyChangedEvent.GetMemberPropertyName();
+	const FName ChangedPropertyName =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
+		InPropertyChangedEvent.GetMemberPropertyName();
+#else
+		InPropertyChangedEvent.MemberProperty ? InPropertyChangedEvent.MemberProperty->GetFName() : NAME_None;
+#endif
 	
 	if (!ChangedPropertyName.IsNone())
 	{

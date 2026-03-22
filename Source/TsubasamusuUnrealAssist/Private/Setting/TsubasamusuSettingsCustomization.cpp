@@ -15,6 +15,7 @@
 #include "TsubasamusuUnrealAssistSettings.h"
 #include "Message/EditorMessageUtility.h"
 #include "Subsystem/LlmManager.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuSettingsCustomization"
 
@@ -103,7 +104,11 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
     .WholeRowWidget
     [
         SNew(SBox)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
         .Padding(0.f, 5.f)
+#else
+        .Padding(FMargin(0.f, 5.f))
+#endif
         [
             SNew(SWarningOrErrorBox)
             .MessageStyle_Lambda([LlmManager]()

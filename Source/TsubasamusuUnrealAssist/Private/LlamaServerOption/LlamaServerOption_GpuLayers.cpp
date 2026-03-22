@@ -1,12 +1,18 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "LlamaServerOption_GpuLayers.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 void ULlamaServerOption_GpuLayers::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
 {
 	Super::PostEditChangeProperty(InPropertyChangedEvent);
 	
-	const FName ChangedPropertyName = InPropertyChangedEvent.GetMemberPropertyName();
+	const FName ChangedPropertyName = 
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
+		InPropertyChangedEvent.GetMemberPropertyName();
+#else
+		InPropertyChangedEvent.MemberProperty ? InPropertyChangedEvent.MemberProperty->GetFName() : NAME_None;
+#endif
 	
 	if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(ULlamaServerOption_GpuLayers, GpuLayers))
 	{

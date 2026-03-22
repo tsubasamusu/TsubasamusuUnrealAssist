@@ -59,10 +59,10 @@ TSharedRef<SWidget> SAccessSpecifierOptimizationRow::GenerateWidgetForColumn(con
 	
 	return SNew(SBox)
 		.HAlign(HAlign_Center)
-#if (UE_VERSION_OLDER_THAN(5, 1, 0))
-		.Padding(FMargin(5.f, 0.f))
-#else
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
 		.Padding(5.f, 0.f)
+#else
+		.Padding(FMargin(5.f, 0.f))
 #endif
 		[
 			ColumnContent.ToSharedRef()

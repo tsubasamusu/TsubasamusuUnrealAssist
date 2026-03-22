@@ -132,7 +132,7 @@ void UNodePreviewer::TryPreviewNode()
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0.f, 5.f, 0.f, 0.f))
+		.Padding(0.f, 5.f, 0.f, 0.f)
 		[
 			CurrentToolTipWidget.ToSharedRef()
 		]
