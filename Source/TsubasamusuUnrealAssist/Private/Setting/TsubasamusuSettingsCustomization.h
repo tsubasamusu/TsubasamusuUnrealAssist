@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "IDetailCustomization.h"
-#include "SWarningOrErrorBox.h"
+
+class ULlmManager;
 
 class FTsubasamusuSettingsCustomization final : public IDetailCustomization
 {
@@ -17,10 +18,8 @@ private:
 	static void AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	
-	static EVisibility GetRestartLlamaServerMessageVisibility();
-	static EMessageStyle GetRestartLlamaServerMessageStyle();
-	static FText GetRestartLlamaServerButtonText();
-	static FText GetRestartLlamaServerMessageText();
+	static EVisibility GetRestartLlamaServerMessageVisibility(const ULlmManager* InLlmManager);
+	static FText GetRestartLlamaServerMessageText(const ULlmManager* InLlmManager);
 	
 	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
 };

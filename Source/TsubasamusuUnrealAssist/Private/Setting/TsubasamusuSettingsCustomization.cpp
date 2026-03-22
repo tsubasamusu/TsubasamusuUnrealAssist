@@ -92,24 +92,44 @@ void FTsubasamusuSettingsCustomization::AddRestartLlamaServerMessage(IDetailLayo
     const FName CategoryName = TEXT("LLM");
     const FText RowFilterText = LOCTEXT("RestartLlamaServerRowFilter", "Restart Llama Server");
     
+    ULlmManager* LlmManager = ULlmManager::GetChecked();
     IDetailCategoryBuilder& DetailCategoryBuilder = InDetailLayoutBuilder.EditCategory(CategoryName);
 
     DetailCategoryBuilder.AddCustomRow(RowFilterText)
-    .Visibility(TAttribute<EVisibility>::CreateStatic(&GetRestartLlamaServerMessageVisibility))
+    .Visibility(TAttribute<EVisibility>::CreateLambda([LlmManager]()
+    {
+        return GetRestartLlamaServerMessageVisibility(LlmManager);
+    }))
     .WholeRowWidget
     [
         SNew(SBox)
         .Padding(0.f, 5.f)
         [
             SNew(SWarningOrErrorBox)
-            .MessageStyle_Static(&GetRestartLlamaServerMessageStyle)
-            .Message_Static(&GetRestartLlamaServerMessageText)
+            .MessageStyle_Lambda([LlmManager]()
+            {
+                return LlmManager->LlamaServerIsBadStatus() ? EMessageStyle::Error : EMessageStyle::Warning;
+            })
+            .Message_Lambda([LlmManager]()
+            {
+                return GetRestartLlamaServerMessageText(LlmManager);
+            })
             [
                 SNew(SButton)
-                .Text_Static(&GetRestartLlamaServerButtonText)
-                .OnClicked_Lambda([]()
+                .IsEnabled_Lambda([LlmManager]()
                 {
-                    ULlmManager::GetChecked()->RestartLlamaServer();
+                    return LlmManager->LlamaServerCanRestart();
+                })
+                .Text_Lambda([LlmManager]()
+                {
+                    const FText StartText = LOCTEXT("StartLlamaServerButtonLabel", "Start Llama Server");
+                    const FText RestartText = LOCTEXT("RestartLlamaServerButtonLabel", "Restart Llama Server");
+    
+                    return LlmManager->LlamaServerIsRunning() ? RestartText : StartText;
+                })
+                .OnClicked_Lambda([LlmManager]()
+                {
+                    LlmManager->RestartLlamaServer();
                     return FReply::Handled();
                 })
             ]
@@ -130,7 +150,7 @@ void FTsubasamusuSettingsCustomization::AddCommentGenerationLanguageProperty(IDe
     check(!DetailCategoryBuilder.IsEmpty());
 #endif
     
-    TSharedPtr<IPropertyHandle> UseEditorLanguagePropertyHandle = InDetailLayoutBuilder.GetProperty(GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration));
+    const TSharedPtr<IPropertyHandle> UseEditorLanguagePropertyHandle = InDetailLayoutBuilder.GetProperty(GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration));
     
     if (UseEditorLanguagePropertyHandle.IsValid())
     {
@@ -163,53 +183,40 @@ void FTsubasamusuSettingsCustomization::AddCommentGenerationLanguageProperty(IDe
     ];
 }
 
-EVisibility FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageVisibility()
+EVisibility FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageVisibility(const ULlmManager* InLlmManager)
 {
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-    const ULlmManager* LlmManager = ULlmManager::GetChecked();
     
-    const bool bAppliedCurrentLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings() == LlmManager->GetLastAppliedLlamaServerSettings();
-    const bool bLlamaServerIsAlreadyRunning = LlmManager->GetLlamaServerStatus() == ELlamaServerStatus::SuccessfullyStarted;
+    const bool bAppliedCurrentLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings() == InLlmManager->GetLastAppliedLlamaServerSettings();
+    const bool bLlamaServerIsAvailable = InLlmManager->GetLlamaServerStatus() == ELlamaServerStatus::Available;
     
-    return bAppliedCurrentLlamaServerSettings && bLlamaServerIsAlreadyRunning ? EVisibility::Collapsed : EVisibility::Visible;
+    return bAppliedCurrentLlamaServerSettings && bLlamaServerIsAvailable ? EVisibility::Collapsed : EVisibility::Visible;
 }
 
-EMessageStyle FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageStyle()
-{
-    const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
-    
-    if (LlamaServerStatus == ELlamaServerStatus::FailedToStart)
-    {
-        return EMessageStyle::Error;
-    }
-    
-    return EMessageStyle::Warning;
-}
-
-FText FTsubasamusuSettingsCustomization::GetRestartLlamaServerButtonText()
-{
-    const FText StartText = LOCTEXT("StartLlamaServerButtonLabel", "Start Llama Server");
-    const FText RestartText = LOCTEXT("RestartLlamaServerButtonLabel", "Restart Llama Server");
-    
-    const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
-    return LlamaServerStatus == ELlamaServerStatus::SuccessfullyStarted ? RestartText : StartText;
-}
-
-FText FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageText()
+FText FTsubasamusuSettingsCustomization::GetRestartLlamaServerMessageText(const ULlmManager* InLlmManager)
 {
     FText MessageText;
-    const ELlamaServerStatus LlamaServerStatus = ULlmManager::GetChecked()->GetLlamaServerStatus();
+    const ELlamaServerStatus LlamaServerStatus = InLlmManager->GetLlamaServerStatus();
     
     switch (LlamaServerStatus)
     {
     case ELlamaServerStatus::NotStartedYet:
-        MessageText = LOCTEXT("StartLlamaServerMessage", "Llama server has not yet started. You must start the server to use AI-related features.");
+        MessageText = LOCTEXT("RestartLlamaServerMessage_Start", "Llama server has not yet started. You must start the server to use AI-related features.");
         break;
-    case ELlamaServerStatus::SuccessfullyStarted:
-        MessageText = LOCTEXT("RestartLlamaServerMessage", "Llama server settings have been updated. Please restart the server to apply these changes.");
+    case ELlamaServerStatus::WhileTryingToStart:
+        MessageText = LOCTEXT("RestartLlamaServerMessage_Starting", "Starting server...");
+        break;
+    case ELlamaServerStatus::LoadingModel:
+        MessageText = LOCTEXT("RestartLlamaServerMessage_Loading", "Loading model...");
+        break;
+    case ELlamaServerStatus::Available:
+        MessageText = LOCTEXT("RestartLlamaServerMessage_Restart", "Llama server settings have been updated. Please restart the server to apply these changes.");
+        break;
+    case ELlamaServerStatus::UnknownInstanceIsRunning:
+        MessageText = LOCTEXT("RestartLlamaServerMessage_UnknownInstance", "Unknown Llama server instance is running. Please stop the instance and try starting the server again.");
         break;
     case ELlamaServerStatus::FailedToStart:
-        MessageText = LOCTEXT("FailedToStartLlamaServerMessage", "Llama server failed to start. The server is currently not running. Please check your settings and try starting the server again. For more details, see Output Log.");
+        MessageText = LOCTEXT("RestartLlamaServerMessage_FailedToStart", "Llama server failed to start. The server is currently not running. Please check your settings and try starting the server again. For more details, see Output Log.");
         break;
     default:
         checkNoEntry();
