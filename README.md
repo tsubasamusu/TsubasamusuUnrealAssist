@@ -21,6 +21,13 @@
 - 5.6
 - 5.7
 
+## 導入手順
+### プラグインのインストール
+1. [最新版のリリース](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/releases/latest)の「Source code (zip)」をダウンロードします。
+2. ダウンロードしたZIPファイルをエンジンまたはUEプロジェクトの Plugins フォルダに展開します。
+3. UEプロジェクトを開いて「Edit ＞ Plugins」の「Editor」カテゴリにある「Tsubasamusu Unreal Assist」にチェックを付けてエディタを再起動します。
+4. 必要に応じてIDEからビルドします。
+5. 「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加されていればOKです。
 
 # 機能一覧
 ## Comment Generator
