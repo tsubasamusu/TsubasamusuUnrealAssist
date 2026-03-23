@@ -43,8 +43,8 @@
 
 <img width="700" src="https://github.com/user-attachments/assets/8d1940d9-c609-4ebb-bbe3-4949ee3d4010">
 
-# 機能一覧
-## Comment Generator
+## 機能一覧
+### Comment Generator
 その中に他のノードを1つ以上含んでいるコメントノードを右クリックすると「Generate Comment」というメニューが表示されます。このメニューをクリックするとローカルLLMを使用してコメントを生成することができます。
 
 <img width="700" src="https://github.com/user-attachments/assets/fd577e3e-6ea9-4047-811e-67e29e412071">
@@ -61,17 +61,17 @@
 | Use TOON Format | コメントノードの中にあるノードの情報をLLMに渡す際、それを[TOON](https://toonformat.dev)形式の文字列として渡すかどうか。このプロパティのチェックを外すとTOONではなく、JSONが使用されます。TOONの方がJSONよりもトークン数を抑えることができます。 |
 | Conditions | LLMがコメントを生成するときに従う条件。例えば「そのブループリントで行っていることを簡潔にまとめること」や「だ・である口調で生成すること」などです。 |
 
-## Comment Translator
+### Comment Translator
 コメントが設定されているコメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューをマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
 
 <img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
-## Array Node Creator
+### Array Node Creator
 同じ型のアウトプットピンを持つ複数のノードを選択している状態で右クリックすると「Make Array」というメニューが表示されます。このメニューを選択すると、それらのアウトプットピンが接続された Make Array ノードを一瞬で作成し、グラフに追加することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
 
-## Node Information Copier
+### Node Information Copier
 ノードを1つ以上選択している状態で右クリックすると「Copy as...」というメニューが表示されます。さらにそのメニューをマウスホバーすると「JSON」と「TOON」という2つの項目が表示されます。どちらかを選択すると、それらのノードの情報をJSONまたは[TOON](https://toonformat.dev)形式の文字列としてクリップボードにコピーすることができます。この文字列にはノード名やピン名、ノードコメント、ピンの方向（インプットかアウトプット）、ピンの型名、ピンのGUID、そのピンに接続されているピンのGUIDなどが含まれます。「JSON」を選択すると、Unreal Engine の標準のコピー機能でクリップボードにコピーされる文字数のおよそ3分の1ほどの文字数でコピーすることができます。さらに「TOON」を選択すると、JSONのときの半分ほどの文字数でコピーすることができます。
 
 <img width="700" src="https://github.com/user-attachments/assets/7a4b25c9-46c1-4b39-a6b6-09251ca1801b">
@@ -444,7 +444,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 この例ではJSONのときの文字数が7,986文字、TOONのときは3,316文字になっています。（Unreal Engine の標準のコピー機能では23,278文字になります。）
 
-## Node Previewer
+### Node Previewer
 ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview」にチェックを付ける必要があります。
 
 <img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
@@ -456,7 +456,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 | Also Preview Advanced View  | デフォルトで折り畳まれているピンをプレビューに表示するかどうか。例えば PrintString ノードの TextColor や Duration、Key などがそれにあたります。 |
 | Preview Scale  | ノードプレビューのスケール。初期値は1.0です。 |
 
-## Access Specifier Optimizer
+### Access Specifier Optimizer
 このプラグインを有効化してブループリントエディタを開くと、「Optimize Access Specifiers」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されているメンバの中でアクセス修飾子を変更した方がいいものが一覧で表示されます。例えば、そのクラス内でしか参照されていないにも関わらず、アクセス修飾子が Private になっていないものや、他のクラスから参照されていてもそれらのクラスが基のクラスの派生クラスしかないにも関わらず、アクセス修飾子が Public になっているものなどです。アクセス修飾子を変更したいメンバにチェックを付けて「Apply Optimal Access Specifiers」というボタンを押すと、それらのメンバに最適なアクセス修飾子を一括で適用することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
@@ -465,7 +465,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 ※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
 
-## Access Specifier Initializer
+### Access Specifier Initializer
 ブループリントに新しい変数や関数、カスタムイベントを追加した際にそのメンバのアクセス修飾子を自動的に変更します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になっていますが、この機能を有効化することでメンバの追加時に自動的に Protected や Private などに変更することができます。
 
 この機能に関連したエディタ設定の項目は以下の通りです。
@@ -481,19 +481,19 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 ※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
 
-## Unused Function Deleter
+### Unused Function Deleter
 このプラグインを有効化してブループリントエディタを開くと「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/2c0f2ce5-8998-483f-b74d-1be53de84aca">
 
 ※オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
 
-## Unused Local Variable Deleter
+### Unused Local Variable Deleter
 このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/fa565e80-c798-4900-bcc7-fbb98d4686f0">
 
-## Recommended Editor Settings Applier
+### Recommended Editor Settings Applier
 このプラグインを有効化すると「Apply Recommended Editor Settings」という名前のプロパティと、「Apply」と書かれたボタンが「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ Recommended Editor Settings Applier」に表示されます。このボタンをクリックすると、[このプラグインの開発者](https://x.com/tsubasamusu)が個人的に推奨しているエディタ設定を一括で適用することができます。具体的な設定内容は以下の通りです。
 
 - 自動保存を無効化します。
