@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "IDetailCustomization.h"
 
-class IDetailLayoutBuilder;
+class ULlmManager;
 
 class FTsubasamusuSettingsCustomization final : public IDetailCustomization
 {
@@ -14,8 +14,12 @@ public:
 	virtual void CustomizeDetails(IDetailLayoutBuilder& InDetailLayoutBuilder) override;
 
 private:
-	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
-	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
-	static void AddGptModelsDocumentButton(IDetailLayoutBuilder& InDetailLayoutBuilder);
 	static void AddButtonToApplyRecommendedEditorSettings(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	static void AddRestartLlamaServerMessage(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	static void AddCommentGenerationLanguageProperty(IDetailLayoutBuilder& InDetailLayoutBuilder);
+	
+	static EVisibility GetRestartLlamaServerMessageVisibility(const ULlmManager* InLlmManager);
+	static FText GetRestartLlamaServerMessageText(const ULlmManager* InLlmManager);
+	
+	static void ChangePropertyDisplayAsPassword(IDetailLayoutBuilder& InDetailLayoutBuilder, const FName& InCategoryName, const FName& InPropertyName);
 };

@@ -6,6 +6,12 @@
 #include "Type/TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
+struct FLlamaServerSettings;
+struct FConfigLlamaServerOption;
+class ULlamaServerOption;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSettingsPropertyChanged, const FName& /*InChangedPropertyName*/);
+
 UCLASS(config = EditorPerProjectUserSettings)
 class UTsubasamusuUnrealAssistSettings final : public UObject
 {
@@ -13,8 +19,10 @@ class UTsubasamusuUnrealAssistSettings final : public UObject
 
 public:
 	explicit UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer);
+	virtual ~UTsubasamusuUnrealAssistSettings() override;
 	
 	//~ Begin UObject Interface
+	virtual void PostInitProperties() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent) override;
 	//~ End UObject Interface
 
@@ -31,13 +39,9 @@ public:
 #pragma endregion
 
 #pragma region Comment Generator
-	/* The OpenAI API key used to generate comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "OpenAI API Key"))
-	FString OpenAiApiKey;
-	
-	/* The name of the GPT model used to generate comments. */
-	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "GPT Model Name"))
-	FString GptModelName;
+	/* Whether to use streaming generation when generating comments. */
+	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Enable Streaming Generation"))
+	bool bEnableStreamingCommentGeneration;
 
 	/* Whether to match the language of generated comments to the editor language. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use Editor Language"))
@@ -51,7 +55,7 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Ignore Comment Nodes"))
 	bool bIgnoreCommentNodesWhenGeneratingComments;
 	
-	/* Whether the string format used to pass nodes information to GPT for comment generation should be TOON. If false, JSON is used instead. */
+	/* Whether the string format used to pass nodes information to LLM for comment generation should be TOON. If false, JSON is used instead. */
 	UPROPERTY(EditAnywhere, config, Category = "Comment Generator", meta = (DisplayName = "Use TOON Format"))
 	bool bUseToonFormatForCommentGeneration;
 	
@@ -105,13 +109,46 @@ public:
 	ETsubasamusuAccessSpecifier CustomEventDefaultAccessSpecifier;
 #pragma endregion
 
+#pragma region LLM
+	/* Whether to start Llama server when the editor launches. */
+	UPROPERTY(EditAnywhere, config, Category = "LLM")
+	bool bStartLlamaServerOnEditorStartup;
+	
+	/* The file path of llama-server.exe. */
+	UPROPERTY(EditAnywhere, config, Category = "LLM", meta = (FilePathFilter = "exe"))
+	FFilePath LlamaServerFilePath;
+	
+	/* Command-line arguments used when starting the Llama server. */
+	UPROPERTY(EditAnywhere, Category = "LLM", Instanced)
+	TArray<ULlamaServerOption*> LlamaServerOptions;
+#pragma endregion
+
 	FCulturePtr GetCommentGenerationLanguageCulture() const;
 	void SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture);
-	void MakeCommentGenerationLanguageSameAsEditorLanguage();
+	
+	bool LlamaServerOptionsContainSameElements() const;
+	FLlamaServerSettings GetCurrentLlamaServerSettings() const;
+	
+	FOnSettingsPropertyChanged OnSettingsPropertyChanged;
 	
 private:
 	UPROPERTY(config)
 	FString LanguageCultureNameForCommentGeneration;
 	
+	UPROPERTY(config)
+	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
+	
+	void InitializeProperties();
+	
+	void RestoreLlamaServerOptions();
+	void SaveLlamaServerOptions();
+	
+	void RegisterEditorLanguageChangedEvent();
+	void UnregisterEditorLanguageChangedEvent() const;
+	
+	void MakeCommentGenerationLanguageSameAsEditorLanguage();
 	static FCultureRef GetEditorLanguageCulture();
+	
+	FDelegateHandle PostEngineInitHandle;
+	FDelegateHandle EditorLanguageChangedHandle;
 };

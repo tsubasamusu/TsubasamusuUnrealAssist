@@ -1,7 +1,6 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "AccessSpecifierOptimizer.h"
-#include "BlueprintCommandContext.h"
 #include "BlueprintMember.h"
 #include "BlueprintMemberUtility.h"
 #include "BlueprintEditorUtility.h"
@@ -9,7 +8,7 @@
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
 #include "Algo/AnyOf.h"
 #include "AssetRegistry/AssetRegistryModule.h"
-#include "Debug/EditorMessageUtility.h"
+#include "Message/EditorMessageUtility.h"
 #include "Engine/LevelScriptBlueprint.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "K2Node_FunctionEntry.h"
@@ -207,7 +206,7 @@ void FAccessSpecifierOptimizer::OnOptimizeAccessSpecifiersClicked(UBlueprint* In
 TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetMembers(UBlueprint* InBlueprint)
 {
 	TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> Members = MakeShared<TArray<TSharedPtr<FBlueprintMember>>>();
-	const TArray<TObjectPtr<const UBlueprint>> ReferencerBlueprints = GetReferencerBlueprints(InBlueprint);
+	const TArray<TWeakObjectPtr<const UBlueprint>> ReferencerBlueprints = GetReferencerBlueprints(InBlueprint);
 	
 	// Variables
 	{
@@ -250,9 +249,9 @@ TSharedPtr<TArray<TSharedPtr<FBlueprintMember>>> FAccessSpecifierOptimizer::GetM
 	return Members;
 }
 
-TArray<TObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
+TArray<TWeakObjectPtr<const UBlueprint>> FAccessSpecifierOptimizer::GetReferencerBlueprints(const UBlueprint* InReferencedBlueprint)
 {
-	TArray<TObjectPtr<const UBlueprint>> ReferencerBlueprints;
+	TArray<TWeakObjectPtr<const UBlueprint>> ReferencerBlueprints;
 	
 	const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 	

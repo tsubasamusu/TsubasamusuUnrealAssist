@@ -5,10 +5,10 @@
 #include "CoreMinimal.h"
 #include "SCheckBoxList.h"
 #include "UnusedItem.h"
-#include "Debug/EditorMessageUtility.h"
+#include "Message/EditorMessageUtility.h"
 
 class FBlueprintEditor;
-class FBlueprintCommandContext;
+struct FBlueprintCommandContext;
 
 #define LOCTEXT_NAMESPACE "FBlueprintEditorUtility"
 

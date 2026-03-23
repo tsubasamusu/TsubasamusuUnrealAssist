@@ -1,0 +1,364 @@
+// Copyright (c) 2026, tsubasamusu All rights reserved.
+
+#include "LlmManager.h"
+#include "HttpModule.h"
+#include "Message/TsubasamusuLogUtility.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
+#include "LlamaServerOption/LlamaServerOption_Port.h"
+#include "Setting/EditorSettingsUtility.h"
+#include "Setting/TsubasamusuUnrealAssistSettings.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
+
+void ULlmManager::Deinitialize()
+{
+	StopLlamaServer();
+}
+
+void ULlmManager::RestartLlamaServer()
+{
+	StopLlamaServer();
+	StartLlamaServer();
+}
+
+void ULlmManager::GenerateToken(const FString& InPrompt, const FOnTokenGenerated& InTokenGeneratedFunction, const bool bEnableStreaming) const
+{
+    const TSharedPtr<FJsonObject> MessageJsonObject = MakeShared<FJsonObject>();
+	
+    MessageJsonObject->SetStringField(TEXT("role"), TEXT("user"));
+    MessageJsonObject->SetStringField(TEXT("content"), InPrompt);
+	
+	const TSharedPtr<FJsonObject> RequestJsonObject = MakeShared<FJsonObject>();
+    const TArray<TSharedPtr<FJsonValue>> MessageJsonValues = { MakeShared<FJsonValueObject>(MessageJsonObject) };
+    
+    RequestJsonObject->SetArrayField(TEXT("messages"), MessageJsonValues);
+    RequestJsonObject->SetBoolField(TEXT("stream"), bEnableStreaming);
+    
+    FString RequestContent;
+    const TSharedRef<TJsonWriter<>> RequestJsonWriter = TJsonStringWriter<>::Create(&RequestContent);
+    FJsonSerializer::Serialize(RequestJsonObject.ToSharedRef(), RequestJsonWriter);
+	
+	const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+	const FString Url = FString::Printf(TEXT("http://localhost:%s/v1/chat/completions"), *GetLlamaServerPort());
+	
+	HttpRequest->SetURL(Url);
+	HttpRequest->SetVerb(TEXT("POST"));
+	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+    HttpRequest->SetContentAsString(RequestContent);
+    
+	const TSharedPtr<bool> bAtLeastOneTokenWasGenerated = MakeShared<bool>(false);
+	const TSharedPtr<int32> ReadContentLength = MakeShared<int32>(0);
+	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
+    HttpRequest->OnRequestProgress64().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, ReadContentLength](FHttpRequestPtr InHttpRequestPtr, uint64, uint64)
+#else
+    HttpRequest->OnRequestProgress().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, ReadContentLength](FHttpRequestPtr InHttpRequestPtr, int32, int32)
+#endif
+    {
+        const FHttpResponsePtr HttpResponsePtr = InHttpRequestPtr->GetResponse();
+    	
+        if (HttpResponsePtr.IsValid())
+        {
+        	const FString FullResponseContent = HttpResponsePtr->GetContentAsString();
+            
+        	// Remove content that has already been read.
+			const FString NewContent = FullResponseContent.RightChop(*ReadContentLength);
+			*ReadContentLength = FullResponseContent.Len();
+
+			if (!NewContent.IsEmpty())
+			{
+				TArray<FString> ResponseLines;
+				NewContent.ParseIntoArrayLines(ResponseLines);
+    
+				for (const FString& ResponseLine : ResponseLines)
+				{
+					const FString DataString = TEXT("data: ");
+					
+					if (ResponseLine.StartsWith(DataString) && !ResponseLine.Contains(TEXT("[DONE]")))
+					{
+						// remove "data: "
+						FString JsonResponseLine = ResponseLine.RightChop(DataString.Len());
+                	
+						TSharedPtr<FJsonObject> ResponseJsonObject;
+						TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(JsonResponseLine);
+                	
+						if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+						{
+							const TArray<TSharedPtr<FJsonValue>>* ChoiceJsonValues;
+                    	
+							if (ResponseJsonObject->TryGetArrayField(TEXT("choices"), ChoiceJsonValues) && ChoiceJsonValues && !ChoiceJsonValues->IsEmpty())
+							{
+								const TSharedPtr<FJsonObject> ChoiceJsonObject = (*ChoiceJsonValues)[0]->AsObject();
+								const TSharedPtr<FJsonObject>* DeltaJsonObject;
+								
+								if (ChoiceJsonObject->TryGetObjectField(TEXT("delta"), DeltaJsonObject) && DeltaJsonObject)
+								{
+									FString GeneratedToken;
+                        	
+									if ((*DeltaJsonObject)->TryGetStringField(TEXT("content"), GeneratedToken))
+									{
+										InTokenGeneratedFunction(true, GeneratedToken);
+										*bAtLeastOneTokenWasGenerated = true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+        }
+    });
+	
+	HttpRequest->OnProcessRequestComplete().BindLambda([InTokenGeneratedFunction, bAtLeastOneTokenWasGenerated, bEnableStreaming](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
+	{
+		if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid())
+		{
+			if (bEnableStreaming)
+			{
+				if (!*bAtLeastOneTokenWasGenerated)
+				{
+					InTokenGeneratedFunction(false, FString());
+				}
+				
+				return;
+			}
+			
+			const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
+			TSharedPtr<FJsonObject> ResponseJsonObject;
+			const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
+
+			if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+			{
+				const TArray<TSharedPtr<FJsonValue>>* ChoiceJsonValues;
+				
+				if (ResponseJsonObject->TryGetArrayField(TEXT("choices"), ChoiceJsonValues) && ChoiceJsonValues && !ChoiceJsonValues->IsEmpty())
+				{
+					const TSharedPtr<FJsonObject> ChoiceJsonObject = (*ChoiceJsonValues)[0]->AsObject();
+					const TSharedPtr<FJsonObject>* MessageJsonObject ;
+					
+					if (ChoiceJsonObject->TryGetObjectField(TEXT("message"), MessageJsonObject) && MessageJsonObject)
+					{
+						FString GeneratedToken;
+
+						if ((*MessageJsonObject)->TryGetStringField(TEXT("content"), GeneratedToken))
+						{
+							InTokenGeneratedFunction(true, GeneratedToken);
+							return;
+						}
+					}
+				}
+			}
+		}
+		
+		InTokenGeneratedFunction(false, FString());
+	});
+    
+    HttpRequest->ProcessRequest();
+}
+
+bool ULlmManager::LlamaServerIsRunning() const
+{
+	return GetLlamaServerStatus() == ELlamaServerStatus::LoadingModel
+		|| GetLlamaServerStatus() == ELlamaServerStatus::Available;
+}
+
+bool ULlmManager::LlamaServerIsBadStatus() const
+{
+	return GetLlamaServerStatus() == ELlamaServerStatus::UnknownInstanceIsRunning
+		|| GetLlamaServerStatus() == ELlamaServerStatus::FailedToStart;
+}
+
+bool ULlmManager::LlamaServerCanRestart() const
+{
+	return GetLlamaServerStatus() != ELlamaServerStatus::WhileTryingToStart
+		&& GetLlamaServerStatus() != ELlamaServerStatus::LoadingModel;
+}
+
+void ULlmManager::OnPostEngineInit()
+{
+	Super::OnPostEngineInit();
+	
+	LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+	if (TsubasamusuUnrealAssistSettings->bStartLlamaServerOnEditorStartup && !TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath.IsEmpty())
+	{
+		StartLlamaServer();
+	}
+}
+
+void ULlmManager::StartLlamaServer()
+{
+	if (LlamaServerIsRunning())
+	{
+		TUA_ERROR(TEXT("Llama server is already running. Please stop the server and try again."));
+		return;
+	}
+	
+	LastAppliedLlamaServerSettings.Reset();
+	LlamaServerStatus = ELlamaServerStatus::WhileTryingToStart;
+	
+	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	const FString LlamaServerFilePath = TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath;
+	
+	FString ErrorMessage;
+	
+	ON_SCOPE_EXIT
+	{
+		if (!ErrorMessage.IsEmpty())
+		{
+			TUA_ERROR(TEXT("%s"), *ErrorMessage);
+			LlamaServerStatus = ELlamaServerStatus::FailedToStart;
+		}
+	};
+	
+	if (!FPaths::FileExists(LlamaServerFilePath))
+	{
+		ErrorMessage = FString::Printf(TEXT("Llama server file not found. The file path is \"%s.\""), *LlamaServerFilePath);
+		return;
+	}
+	
+	if (TsubasamusuUnrealAssistSettings->LlamaServerOptionsContainSameElements())
+	{
+		ErrorMessage = TEXT("There are duplicate elements in the command-line arguments used when starting the Llama server.");
+		return;
+	}
+	
+	FString Arguments;
+	
+	for (const ULlamaServerOption* LlamaServerOption : TsubasamusuUnrealAssistSettings->LlamaServerOptions)
+	{
+		if (IsValid(LlamaServerOption))
+		{
+			if (!LlamaServerOption->IsValidArgument())
+			{
+				ErrorMessage = FString::Printf(TEXT("The argument \"%s\" for \"%s\" parameter is invalid."), *LlamaServerOption->GetArgument(), *LlamaServerOption->GetParameter());
+				return;
+			}
+		
+			const FString ParameterSymbol = LlamaServerOption->IsLongParameter() ? TEXT("--") : TEXT("-");
+			const FString Argument = LlamaServerOption->GetArgument().IsEmpty() ? FString() : FString::Printf(TEXT(" %s"), *LlamaServerOption->GetArgument());
+			Arguments += FString::Printf(TEXT(" %s%s%s"), *ParameterSymbol, *LlamaServerOption->GetParameter(), *Argument);
+		}
+	}
+	
+	CheckLlamaServerStatus([this, TsubasamusuUnrealAssistSettings, Arguments](const ELlamaServerStatus InBeforeLlamaServerStatus)
+	{
+		if (InBeforeLlamaServerStatus == ELlamaServerStatus::UnknownInstanceIsRunning)
+		{
+			TUA_ERROR(TEXT("An unknown Llama server instance is running. Please stop the instance and try again."));
+			LlamaServerStatus = InBeforeLlamaServerStatus;
+			return;
+		}
+		
+		LlamaServerProcessHandle = FPlatformProcess::CreateProc(*TsubasamusuUnrealAssistSettings->LlamaServerFilePath.FilePath, *Arguments, true, false, false, nullptr, 0, nullptr, nullptr);
+		
+		const FLlamaServerSettings CachedLlamaServerSettings = TsubasamusuUnrealAssistSettings->GetCurrentLlamaServerSettings();
+		const TSharedPtr<FTimerHandle> TimerHandle = MakeShared<FTimerHandle>();
+		constexpr float CheckSpan = 1.f;
+		
+		GEditor->GetTimerManager()->SetTimer(*TimerHandle, FTimerDelegate::CreateLambda([this, CachedLlamaServerSettings, TimerHandle]()
+		{
+			CheckLlamaServerStatus([this, CachedLlamaServerSettings, TimerHandle](const ELlamaServerStatus InAfterLlamaServerStatus)
+			{
+				// Succeeded or Failed
+				if (InAfterLlamaServerStatus != ELlamaServerStatus::LoadingModel)
+				{
+					if (IsValid(GEditor) && TimerHandle.IsValid())
+					{
+						// Stop Checking
+						GEditor->GetTimerManager()->ClearTimer(*TimerHandle);
+					}
+				}
+				
+				const bool bFailedToStart = InAfterLlamaServerStatus != ELlamaServerStatus::LoadingModel && InAfterLlamaServerStatus != ELlamaServerStatus::Available;
+				LlamaServerStatus = bFailedToStart ? ELlamaServerStatus::FailedToStart : InAfterLlamaServerStatus;
+				
+				if (InAfterLlamaServerStatus == ELlamaServerStatus::Available)
+				{
+					LastAppliedLlamaServerSettings = CachedLlamaServerSettings;
+				}
+			});
+		}),
+		CheckSpan, true);
+	});
+}
+
+void ULlmManager::StopLlamaServer()
+{
+	if (LlamaServerProcessHandle.IsValid() && FPlatformProcess::IsProcRunning(LlamaServerProcessHandle))
+	{
+		FPlatformProcess::TerminateProc(LlamaServerProcessHandle);
+		FPlatformProcess::CloseProc(LlamaServerProcessHandle);
+		LlamaServerProcessHandle.Reset();
+		
+		LlamaServerStatus = ELlamaServerStatus::NotStartedYet;
+	}
+}
+
+FString ULlmManager::GetLlamaServerPort() const
+{
+	auto IsPortOption = [](const FConfigLlamaServerOption& InConfigLlamaServerOption)
+	{
+		return InConfigLlamaServerOption.SoftClassPath == FSoftClassPath(ULlamaServerOption_Port::StaticClass());
+	};
+	
+	const FConfigLlamaServerOption* PortOptionPtr = LastAppliedLlamaServerSettings.ConfigLlamaServerOptions.FindByPredicate(IsPortOption);
+	const FString DefaultPort = FString::FromInt(ULlamaServerOption_Port::DefaultLlamaServerPort);
+	
+	return PortOptionPtr ? PortOptionPtr->Argument : DefaultPort;
+}
+
+void ULlmManager::CheckLlamaServerStatus(const FOnLlamaServerStatusChecked& InLlamaServerStatusCheckedFunction) const
+{
+    const FString Url = FString::Printf(TEXT("http://localhost:%s/health"), *GetLlamaServerPort());
+    const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+    
+    HttpRequest->SetURL(Url);
+    HttpRequest->SetVerb(TEXT("GET"));
+
+    HttpRequest->OnProcessRequestComplete().BindLambda([this, InLlamaServerStatusCheckedFunction](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
+    {
+        if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid())
+        {
+        	if (!LlamaServerProcessHandle.IsValid())
+        	{
+        		InLlamaServerStatusCheckedFunction(ELlamaServerStatus::UnknownInstanceIsRunning);
+        		return;
+        	}
+        	
+            const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
+            TSharedPtr<FJsonObject> ResponseJsonObject;
+            const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
+
+            if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+            {
+                FString Status;
+            	
+                if (ResponseJsonObject->TryGetStringField(TEXT("status"), Status) && Status == TEXT("ok"))
+                {
+                    InLlamaServerStatusCheckedFunction(ELlamaServerStatus::Available);
+                    return;
+                }
+
+                const TSharedPtr<FJsonObject>* ErrorJsonObjects;
+            	
+                if (ResponseJsonObject->TryGetObjectField(TEXT("error"), ErrorJsonObjects) && ErrorJsonObjects)
+                {
+                    FString Message;
+                	
+                    if ((*ErrorJsonObjects)->TryGetStringField(TEXT("message"), Message) && Message == TEXT("Loading model"))
+                    {
+                        InLlamaServerStatusCheckedFunction(ELlamaServerStatus::LoadingModel);
+                        return;
+                    }
+                }
+            }
+        }
+        
+    	InLlamaServerStatusCheckedFunction(ELlamaServerStatus::NotStartedYet);
+    });
+
+    HttpRequest->ProcessRequest();
+}

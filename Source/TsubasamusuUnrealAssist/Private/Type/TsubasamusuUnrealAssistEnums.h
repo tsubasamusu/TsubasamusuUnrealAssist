@@ -17,3 +17,21 @@ enum class ETsubasamusuAccessSpecifier : uint8
 	Protected,
 	Public
 };
+
+enum class ELlamaServerStatus : uint8
+{
+	NotStartedYet,
+	WhileTryingToStart,
+	LoadingModel,
+	Available,
+	UnknownInstanceIsRunning,
+	FailedToStart
+};
+
+UENUM()
+enum class EGpuLayers
+{
+	Auto,
+	All,
+	ExactNumber
+};

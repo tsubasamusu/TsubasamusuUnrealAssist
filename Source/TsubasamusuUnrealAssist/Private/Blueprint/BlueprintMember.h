@@ -10,20 +10,14 @@ struct FAccessSpecifierOptimizationRow;
 class UK2Node_FunctionEntry;
 class SAccessSpecifierOptimizationRow;
 
-class FBlueprintMember : public FGCObject
+class FBlueprintMember
 {
 public:
-	FBlueprintMember(const TObjectPtr<UBlueprint> InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints)
+	FBlueprintMember(const TWeakObjectPtr<UBlueprint> InOwnerBlueprint, const TArray<TWeakObjectPtr<const UBlueprint>>& InReferencerBlueprints)
 		: OwnerBlueprint(InOwnerBlueprint), ReferencerBlueprints(InReferencerBlueprints){}
 	
-	//~ Begin FGCObject Interface
-	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
-	virtual FString GetReferencerName() const override
-	{
-		return TEXT("FBlueprintMember");
-	}
-	//~ End FGCObject Interface
-	
+	virtual ~FBlueprintMember() = default;
+
 	void Initialize();
 	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const = 0;
 	virtual ETsubasamusuAccessSpecifier GetOptimalAccessSpecifier() const;
@@ -38,18 +32,18 @@ public:
 	TSharedPtr<SAccessSpecifierOptimizationRow> AccessSpecifierOptimizationRowWidget;
 	
 protected:
-	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const = 0;
+	virtual bool IsMemberReferencerBlueprint(const TWeakObjectPtr<const UBlueprint> InBlueprint) const = 0;
 	
 	FORCEINLINE bool CheckedMemberReferencerBlueprints() const
 	{
 		return bCheckedMemberReferencerBlueprints;
 	}
 	
-	TObjectPtr<UBlueprint> OwnerBlueprint;
-	TArray<TObjectPtr<const UBlueprint>> MemberReferencerBlueprints;
+	TWeakObjectPtr<UBlueprint> OwnerBlueprint;
+	TArray<TWeakObjectPtr<const UBlueprint>> MemberReferencerBlueprints;
 	
 private:
-	TArray<TObjectPtr<const UBlueprint>> ReferencerBlueprints;
+	TArray<TWeakObjectPtr<const UBlueprint>> ReferencerBlueprints;
 	TSharedPtr<FAccessSpecifierOptimizationRow> AccessSpecifierOptimizationRow;
 	bool bCheckedMemberReferencerBlueprints = false;
 };
@@ -57,7 +51,7 @@ private:
 class FBlueprintMember_Variable final : public FBlueprintMember
 {
 public:
-	FBlueprintMember_Variable(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, FProperty* InVariable)
+	FBlueprintMember_Variable(const TWeakObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TWeakObjectPtr<const UBlueprint>>& InReferencerBlueprints, FProperty* InVariable)
 		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Variable(InVariable){}
 
 	//~ Begin FBlueprintMember Interface
@@ -69,7 +63,7 @@ public:
 	
 protected:
 	//~ Begin FBlueprintMember Interface
-	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const override;
+	virtual bool IsMemberReferencerBlueprint(const TWeakObjectPtr<const UBlueprint> InBlueprint) const override;
 	//~ End FBlueprintMember Interface
 	
 private:
@@ -79,13 +73,9 @@ private:
 class FBlueprintMember_FunctionBase : public FBlueprintMember
 {
 public:
-	FBlueprintMember_FunctionBase(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+	FBlueprintMember_FunctionBase(const TWeakObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TWeakObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_EditablePinBase> InEntryNode)
 		: FBlueprintMember(InOwnerBlueprint, InReferencerBlueprints), Function(InFunction), EntryNode(InEntryNode){}
 
-	//~ Begin FGCObject Interface
-	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
-	//~ End FGCObject Interface
-	
 	//~ Begin FBlueprintMember Interface
 	virtual ETsubasamusuAccessSpecifier GetCurrentAccessSpecifier() const override;
 	virtual FName GetMemberName() const override;
@@ -93,26 +83,26 @@ public:
 	
 protected:
 	//~ Begin FBlueprintMember Interface
-	virtual bool IsMemberReferencerBlueprint(const UBlueprint* InBlueprint) const override;
+	virtual bool IsMemberReferencerBlueprint(const TWeakObjectPtr<const UBlueprint> InBlueprint) const override;
 	//~ End FBlueprintMember Interface
 	
 	template<typename EntryNodeType>
-	FORCEINLINE EntryNodeType* GetEntryNodeChecked() const
+	FORCEINLINE TWeakObjectPtr<EntryNodeType> GetEntryNodeChecked() const
 	{
 		static_assert(TIsDerivedFrom<EntryNodeType, UK2Node_EditablePinBase>::Value, "EntryNodeType must be derived from UK2Node_EditablePinBase.");
 		return CastChecked<EntryNodeType>(EntryNode);
 	}
 	
-	TObjectPtr<UFunction> Function;
+	TWeakObjectPtr<UFunction> Function;
 	
 private:
-	TObjectPtr<UK2Node_EditablePinBase> EntryNode;
+	TWeakObjectPtr<UK2Node_EditablePinBase> EntryNode;
 };
 
 class FBlueprintMember_Function final : public FBlueprintMember_FunctionBase
 {
 public:
-	FBlueprintMember_Function(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+	FBlueprintMember_Function(const TWeakObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TWeakObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_EditablePinBase> InEntryNode)
 		: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
 	//~ Begin FBlueprintMember Interface
@@ -124,7 +114,7 @@ public:
 class FBlueprintMember_CustomEvent final : public FBlueprintMember_FunctionBase
 {
 public:
-	FBlueprintMember_CustomEvent(const TObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TObjectPtr<UFunction> InFunction, const TObjectPtr<UK2Node_EditablePinBase> InEntryNode)
+	FBlueprintMember_CustomEvent(const TWeakObjectPtr<UBlueprint>& InOwnerBlueprint, const TArray<TWeakObjectPtr<const UBlueprint>>& InReferencerBlueprints, const TWeakObjectPtr<UFunction> InFunction, const TWeakObjectPtr<UK2Node_EditablePinBase> InEntryNode)
 	: FBlueprintMember_FunctionBase(InOwnerBlueprint, InReferencerBlueprints, InFunction, InEntryNode){}
 
 	//~ Begin FBlueprintMember Interface

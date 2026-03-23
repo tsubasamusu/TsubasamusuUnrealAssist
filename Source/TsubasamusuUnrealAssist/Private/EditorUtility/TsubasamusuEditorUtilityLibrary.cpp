@@ -3,7 +3,7 @@
 #include "EditorUtility/TsubasamusuEditorUtilityLibrary.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
-#include "Debug/TsubasamusuLogUtility.h"
+#include "Message/TsubasamusuLogUtility.h"
 #include "UObject/SavePackage.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 

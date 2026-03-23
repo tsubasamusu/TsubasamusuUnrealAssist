@@ -1,13 +1,12 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
-#include "Blueprint/NodePreviewer.h"
+#include "NodePreviewer.h"
 #include "BlueprintActionMenuItem.h"
 #include "BlueprintNodeSpawner.h"
 #include "NodeFactory.h"
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
-#include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
@@ -35,7 +34,25 @@ static TSharedPtr<WidgetClass> FindParentWidget(const TSharedPtr<SWidget> InWidg
 	return nullptr;
 }
 
-void FNodePreviewer::TryPreviewNode()
+void UNodePreviewer::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
+{
+	Super::Initialize(InSubsystemCollectionBase);
+	
+	GhostBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
+	GhostGraph = FBlueprintEditorUtils::CreateNewGraph(GhostBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+}
+
+void UNodePreviewer::Tick(const float InDeltaTime)
+{
+	const TWeakObjectPtr<UTsubasamusuUnrealAssistSettings> TsubasamusuUnrealAssistSettings = GetCachedTsubasamusuUnrealAssistSettings();
+	
+	if (TsubasamusuUnrealAssistSettings.IsValid() && TsubasamusuUnrealAssistSettings->bEnableNodePreview)
+	{
+		TryPreviewNode();
+	}
+}
+
+void UNodePreviewer::TryPreviewNode()
 {
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
 	
@@ -44,57 +61,58 @@ void FNodePreviewer::TryPreviewNode()
 		return;
 	}
 	
-	const TSharedPtr<SWidget> WidgetDisplayingToolTip = FindWidgetDisplayingToolTipFromNodeSelectionWidget(HoveredWidget);
-	
-	if (!WidgetDisplayingToolTip.IsValid())
+	const TSharedPtr<SWidget> ToolTipDisplayer = FindToolTipDisplayer(HoveredWidget);
+
+	if (!ToolTipDisplayer.IsValid())
 	{
 		return;
 	}
 	
-	const TSharedPtr<SToolTip> CurrentToolTipWidget = StaticCastSharedPtr<SToolTip>(WidgetDisplayingToolTip->GetToolTip());
-	
-	if (WidgetWhoseToolTipWasPreviouslyEdited.IsValid() && WidgetDisplayingToolTip == WidgetWhoseToolTipWasPreviouslyEdited.Pin())
+	const TSharedPtr<SToolTip> CurrentToolTipWidget = StaticCastSharedPtr<SToolTip>(ToolTipDisplayer->GetToolTip());
+
+	// If the widget displaying tool tip is the same as the previous one, do nothing.
+	if (ToolTipEditedWidget.IsValid() && ToolTipDisplayer == ToolTipEditedWidget.Pin())
 	{
 		return;
 	}
 	
-	// To preview a different node than the last one, restore the tooltip from the previous edit.
-	if (LastBeforeEditingToolTipWidget.IsValid())
+	// To preview a different node than the last one, restore the tool tip from the previous edit.
+	if (ToolTipEditedWidget.IsValid() && EditedToolTipWidget.IsValid())
 	{
-		WidgetWhoseToolTipWasPreviouslyEdited.Pin()->SetToolTip(LastBeforeEditingToolTipWidget.Pin());
-		
-		WidgetWhoseToolTipWasPreviouslyEdited.Reset();
-		LastBeforeEditingToolTipWidget.Reset();
+		ToolTipEditedWidget.Pin()->SetToolTip(EditedToolTipWidget.Pin());
+
+		ToolTipEditedWidget.Reset();
+		EditedToolTipWidget.Reset();
 	}
-	
-	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNodeFromWidget(HoveredWidget);
-	
+
+	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNode(HoveredWidget);
+
 	if (!GraphActionNode.IsValid())
 	{
 		return;
 	}
-	
-	UEdGraphNode* Node = CreateNodeFromGraphActionNode(GraphActionNode);
-	
+
+	UEdGraphNode* Node = CreateNode(GraphActionNode);
+
 	if (!IsValid(Node))
 	{
 		return;
 	}
+
+	const TWeakObjectPtr<UTsubasamusuUnrealAssistSettings> TsubasamusuUnrealAssistSettings = GetCachedTsubasamusuUnrealAssistSettings();
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	if (TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && Node->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
+	if (TsubasamusuUnrealAssistSettings.IsValid() && TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && Node->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
 	{
 		Node->AdvancedPinDisplay = ENodeAdvancedPins::Shown;
 	}
-	
+
 	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
-	
+
 	if (!NodeWidget.IsValid())
 	{
 		return;
 	}
-	
+
 	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
 	[
 		SNew(SVerticalBox)
@@ -114,25 +132,19 @@ void FNodePreviewer::TryPreviewNode()
 		]
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0.f, 5.f, 0.f, 0.f))
+		.Padding(0.f, 5.f, 0.f, 0.f)
 		[
 			CurrentToolTipWidget.ToSharedRef()
 		]
 	];
-	
-	WidgetDisplayingToolTip->SetToolTip(NewToolTip);
-	
-	WidgetWhoseToolTipWasPreviouslyEdited = WidgetDisplayingToolTip;
-	LastBeforeEditingToolTipWidget = CurrentToolTipWidget;
+
+	ToolTipDisplayer->SetToolTip(NewToolTip);
+
+	ToolTipEditedWidget = ToolTipDisplayer;
+	EditedToolTipWidget = CurrentToolTipWidget;
 }
 
-void FNodePreviewer::AddReferencedObjects(FReferenceCollector& InReferenceCollector)
-{
-	InReferenceCollector.AddReferencedObject(CachedTemporaryBlueprint);
-	InReferenceCollector.AddReferencedObject(CachedTemporaryGraph);
-}
-
-TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
+TSharedPtr<SWidget> UNodePreviewer::GetHoveredWidget()
 {
 	FSlateApplication& SlateApplication = FSlateApplication::Get();
 	
@@ -157,7 +169,7 @@ TSharedPtr<SWidget> FNodePreviewer::GetHoveredWidget()
 	return nullptr;
 }
 
-TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<FGraphActionNode> UNodePreviewer::GetGraphActionNode(const TSharedPtr<SWidget> InWidget)
 {
 	const TSharedPtr<STableRow<TSharedPtr<FGraphActionNode>>> TableRow = FindParentWidget<STableRow<TSharedPtr<FGraphActionNode>>>(InWidget, TEXT("STableRow< TSharedPtr<FGraphActionNode> >"));
 	
@@ -188,66 +200,52 @@ TSharedPtr<FGraphActionNode> FNodePreviewer::GetGraphActionNodeFromWidget(const 
 	return nullptr;
 }
 
-bool FNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 {
-	const TSharedPtr<SWidget> SBlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
-	return SBlueprintPaletteItem.IsValid();
+	if (IsValid(InNode))
+	{
+		InNode->AllocateDefaultPins();
+		InNode->ReconstructNode();
+	
+		TSharedPtr<SGraphNode> NodeWidget = FNodeFactory::CreateNodeWidget(InNode);
+	
+		NodeWidget->UpdateGraphNode();
+		NodeWidget->SlatePrepass();
+	
+		return NodeWidget;
+	}
+	
+	return nullptr;
 }
 
-TSharedPtr<SGraphNode> FNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
+UEdGraphNode* UNodePreviewer::CreateNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const
 {
-	if (!IsValid(InNode))
+	if (InGraphActionNode.IsValid() && IsValid(GhostBlueprint) && IsValid(GhostGraph))
 	{
-		return nullptr;
+		const TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
+	
+		if (PrimaryAction.IsValid() && PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
+		{
+			const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
+			const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
+			
+			if (IsValid(BlueprintNodeSpawner))
+			{
+				return BlueprintNodeSpawner->Invoke(GhostGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+			}
+		}
 	}
 	
-	InNode->AllocateDefaultPins();
-	InNode->ReconstructNode();
-	
-	TSharedPtr<SGraphNode> NodeWidget = FNodeFactory::CreateNodeWidget(InNode);
-	
-	NodeWidget->UpdateGraphNode();
-	NodeWidget->SlatePrepass();
-	
-	return NodeWidget;
+	return nullptr;
 }
 
-UEdGraphNode* FNodePreviewer::CreateNodeFromGraphActionNode(const TSharedPtr<FGraphActionNode> InGraphActionNode)
+bool UNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
 {
-	if (!InGraphActionNode.IsValid())
-	{
-		return nullptr;
-	}
-	
-	TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
-	
-	if (!PrimaryAction.IsValid() || !PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
-	{
-		return nullptr;
-	}
-
-	const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
-	const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
-					
-	if (!IsValid(BlueprintNodeSpawner))
-	{
-		return nullptr;
-	}
-	
-	if (!IsValid(CachedTemporaryBlueprint))
-	{
-		CachedTemporaryBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
-	}
-	
-	if (!IsValid(CachedTemporaryGraph))
-	{
-		CachedTemporaryGraph = FBlueprintEditorUtils::CreateNewGraph(CachedTemporaryBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
-	}
-	
-	return BlueprintNodeSpawner->Invoke(CachedTemporaryGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+	const TSharedPtr<SWidget> BlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
+	return BlueprintPaletteItem.IsValid();
 }
 
-TSharedPtr<SWidget> FNodePreviewer::FindWidgetDisplayingToolTipFromNodeSelectionWidget(const TSharedPtr<SWidget> InNodeSelectionWidget)
+TSharedPtr<SWidget> UNodePreviewer::FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget)
 {
 	if (InNodeSelectionWidget.IsValid())
 	{

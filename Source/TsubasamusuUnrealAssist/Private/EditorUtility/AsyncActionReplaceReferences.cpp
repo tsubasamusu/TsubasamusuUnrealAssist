@@ -2,7 +2,7 @@
 
 #include "EditorUtility/AsyncActionReplaceReferences.h"
 #include "AssetDeleteModel.h"
-#include "Debug/TsubasamusuLogUtility.h"
+#include "Message/TsubasamusuLogUtility.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 
 UAsyncActionReplaceReferences* UAsyncActionReplaceReferences::AsyncReplaceReferences(const UObject* WorldContextObject, TSoftObjectPtr<UObject> InSourceAsset, TSoftObjectPtr<UObject> InDestinationAsset)

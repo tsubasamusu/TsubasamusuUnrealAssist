@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BlueprintEditorModes.h"
 #include "TsubasamusuUnrealAssistEnums.h"
 #include "TsubasamusuUnrealAssistMacros.h"
 #include "TsubasamusuUnrealAssistStructs.generated.h"
@@ -12,108 +13,9 @@ class UK2Node_FunctionEntry;
 class UK2Node_CustomEvent;
 #endif
 
-USTRUCT()
-struct FGptMessage
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FString role;
-
-	UPROPERTY()
-	FString content;
-};
-
-USTRUCT()
-struct FGptRequest
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FString model;
-
-	UPROPERTY()
-	TArray<FGptMessage> messages;
-};
-
-USTRUCT()
-struct FGptResponseChoice
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FGptMessage message;
-};
-
-USTRUCT()
-struct FGptResponse
-{
-	GENERATED_BODY()
-
-public:
-	bool IsEmpty() const
-	{
-		if (choices.Num() == 0)
-		{
-			return true;
-		}
-
-		if (choices[0].message.content.IsEmpty())
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	FString GetGptMessage()const
-	{
-		if (IsEmpty())
-		{
-			return FString();
-		}
-
-		return choices[0].message.content;
-	}
-
-private:
-	UPROPERTY()
-	TArray<FGptResponseChoice> choices;
-};
-
-USTRUCT()
-struct FGptError
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FString message;
-
-	UPROPERTY()
-	FString type;
-
-	UPROPERTY()
-	FString code;
-};
-
-USTRUCT()
-struct FGptErrorResponse
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY()
-	FGptError error;
-
-	bool IsEmpty() const
-	{
-		return error.message.IsEmpty() && error.type.IsEmpty() && error.code.IsEmpty();
-	}
-};
+using FShouldAddMenu = TFunction<bool(const TArray<TWeakObjectPtr<UEdGraphNode>>& /*InSelectedNodes*/)>;
+using FOnSelectedNodeMenuClicked = TFunction<void(const TArray<TWeakObjectPtr<UEdGraphNode>>& /*InSelectedNodes*/, const TWeakObjectPtr<UEdGraph> /*InGraph*/)>;
+using FOnSelectedNodeSubMenuClicked = TFunction<void(const TArray<TWeakObjectPtr<UEdGraphNode>>& /*InSelectedNodes*/, const TWeakObjectPtr<UEdGraph> /*InGraph*/, const FText& /*InSubMenuLabelText*/)>;
 
 USTRUCT()
 struct FPinData
@@ -289,4 +191,84 @@ public:
 	{
 		return !(*this == InBlueprintMemberSet);
 	}
+};
+
+USTRUCT()
+struct FConfigLlamaServerOption
+{
+	GENERATED_BODY()
+	
+public:
+	UPROPERTY()
+	FSoftClassPath SoftClassPath;
+	
+	UPROPERTY()
+	FString Argument;
+	
+	bool operator==(const FConfigLlamaServerOption& InConfigLlamaServerOption) const
+	{
+		return SoftClassPath == InConfigLlamaServerOption.SoftClassPath
+			&& Argument == InConfigLlamaServerOption.Argument;
+	}
+};
+
+struct FLlamaServerSettings
+{
+public:
+	FFilePath LlamaServerFilePath;
+	TArray<FConfigLlamaServerOption> ConfigLlamaServerOptions;
+	
+	void Reset()
+	{
+		*this = FLlamaServerSettings();
+	}
+	
+	bool operator==(const FLlamaServerSettings& InLlamaServerSettings) const
+	{
+		return InLlamaServerSettings.ConfigLlamaServerOptions == ConfigLlamaServerOptions
+			&& LlamaServerFilePath.FilePath == InLlamaServerSettings.LlamaServerFilePath.FilePath;
+	}
+};
+
+struct FSelectedNodeSubMenuContext
+{
+public:
+	FOnSelectedNodeSubMenuClicked OnClicked;
+	
+	FText LabelText;
+	FText ToolTipText;
+};
+
+struct FSelectedNodeMenuContext
+{
+public:
+	FShouldAddMenu ShouldAddMenu;
+	FOnSelectedNodeMenuClicked OnClicked;
+	
+	FText LabelText;
+	FText ToolTipText;
+	
+	FSlateIcon MenuIcon;
+	TArray<FSelectedNodeSubMenuContext> SubMenuContexts;
+};
+
+struct FBlueprintCommandContext
+{
+public:
+	FBlueprintCommandContext(const TSharedPtr<const FUICommandInfo>& InUICommandInfo, const FExecuteAction& InExecuteAction, const TWeakObjectPtr<UBlueprint> InBlueprint, const TArray<FCanExecuteAction>& InAdditionalConditionsToExecuteAction = TArray<FCanExecuteAction>(), const TArray<FName>& InTargetModes = { FBlueprintEditorApplicationModes::StandardBlueprintEditorMode })
+		: UICommandInfo(InUICommandInfo), ExecuteAction(InExecuteAction), Blueprint(InBlueprint), AdditionalConditionsToExecuteAction(InAdditionalConditionsToExecuteAction), TargetModes(InTargetModes){}
+	
+	bool IsValid() const
+	{
+		return UICommandInfo.IsValid()
+			&& ExecuteAction.IsBound()
+			&& Blueprint.IsValid()
+			&& !TargetModes.IsEmpty();
+	}
+	
+	TSharedPtr<const FUICommandInfo> UICommandInfo;
+	FExecuteAction ExecuteAction;
+	TWeakObjectPtr<UBlueprint> Blueprint;
+	TArray<FCanExecuteAction> AdditionalConditionsToExecuteAction;
+	TArray<FName> TargetModes;
 };

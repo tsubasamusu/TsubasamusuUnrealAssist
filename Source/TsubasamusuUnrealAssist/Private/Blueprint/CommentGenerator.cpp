@@ -2,270 +2,194 @@
 
 #include "Blueprint/CommentGenerator.h"
 #include "EdGraphNode_Comment.h"
-#include "HttpModule.h"
-#include "JsonObjectConverter.h"
+#include "TsubasamusuStringUtility.h"
+#include "Algo/AnyOf.h"
 #include "Blueprint/NodeInformationUtility.h"
-#include "Debug/TsubasamusuLogUtility.h"
-#include "Interfaces/IHttpRequest.h"
-#include "Interfaces/IHttpResponse.h"
+#include "Message/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
-#include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Subsystem/LlmManager.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "FCommentGenerator"
 
-void FCommentGenerator::AddCommentGenerationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+FSelectedNodeMenuContext FCommentGenerator::CreateSelectedNodeMenuContext()
 {
-    const TAttribute<FText> LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment");
-    const TAttribute<FText> ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.");
+	const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
+	{
+		if (InSelectedNodes.Num() == 1)
+		{
+			const TWeakObjectPtr<UEdGraphNode> SelectedNode = InSelectedNodes[0];
+			
+			if (SelectedNode.IsValid())
+			{
+				const UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(SelectedNode.Get());
+				return IsValid(CommentNode) && !CommentNode->GetNodesUnderComment().IsEmpty();
+			}
+		}
+		
+		return false;
+	};
+	
+	const FOnSelectedNodeMenuClicked OnClicked = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>)
+	{
+		if (InSelectedNodes.Num() == 1)
+		{
+			const TWeakObjectPtr<UEdGraphNode_Comment> CommentNode = Cast<UEdGraphNode_Comment>(InSelectedNodes[0]);
+			GenerateComment(CommentNode);
+		}
+	};
 
-    InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode]()
-    {
-    	if (InCommentNode.IsValid())
-    	{
-    		UpdateCommentByGpt(InCommentNode);
-    	}
-    })));
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+	return FSelectedNodeMenuContext
+	{
+		.ShouldAddMenu = ShouldAddMenu,
+		.OnClicked = OnClicked,
+		.LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment"),
+		.ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.")
+	};
+#else
+	FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+	SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+	SelectedNodeMenuContext.OnClicked = OnClicked;
+	SelectedNodeMenuContext.LabelText = LOCTEXT("CommentGenerationLabel", "Generate Comment");
+	SelectedNodeMenuContext.ToolTipText = LOCTEXT("CommentGenerationToolTip", "Generate a comment based on the nodes contained in the comment node.");
+	
+	return SelectedNodeMenuContext;
+#endif
 }
 
-void FCommentGenerator::UpdateCommentByGpt(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+void FCommentGenerator::GenerateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	if (!InCommentNode.IsValid())
+	if (InCommentNode.IsValid())
 	{
-		return;
-	}
-	
-	FString NodeDataListString;
+		FString NodeDataListString;
 
-	if (!TryGetNodeDataListStringUnderComment(NodeDataListString, InCommentNode))
-	{
-		const FString ErrorMessage = TEXT("Failed to get a node data list as JSON string.");
-		
-		TUA_ERROR(TEXT("%s"), *ErrorMessage);
-		InCommentNode->OnUpdateCommentText(ErrorMessage);
-		
-		return;
-	}
-
-	InCommentNode->OnUpdateCommentText(TEXT("Start generating comment..."));
-
-	GenerateComment(NodeDataListString, [InCommentNode](const bool bInSucceeded, const FString& InMessage)
-	{
-		if (!InCommentNode.IsValid())
+		if (!TryGetNodeDataListStringUnderComment(NodeDataListString, InCommentNode))
 		{
+			const FString ErrorMessage = TEXT("Failed to get node data list.");
+		
+			TUA_ERROR(TEXT("%s"), *ErrorMessage);
+			InCommentNode->OnUpdateCommentText(ErrorMessage);
+		
 			return;
 		}
 		
-		InCommentNode->OnUpdateCommentText(InMessage);
-
-		if (!bInSucceeded)
+		auto AnimationTextChangedFunction = [InCommentNode](const FString& InAnimationText)
 		{
-			TUA_ERROR(TEXT("%s"), *InMessage);
-		}
-	});
+			if (InCommentNode.IsValid())
+			{
+				InCommentNode->OnUpdateCommentText(InAnimationText);
+			}
+		};
+		
+		const TSharedRef<FTSTicker::FDelegateHandle> TickerHandle = FTsubasamusuStringUtility::PlayTextAnimation(TEXT("Generating"), AnimationTextChangedFunction);
+
+		const FString Prompt = GetDesiredPrompt(NodeDataListString);
+		TSharedPtr<FString> GeneratedComment = MakeShared<FString>();
+		
+		auto TokenGeneratedFunction = [InCommentNode, GeneratedComment, TickerHandle](const bool bInSucceeded, const FString& InGeneratedToken)
+		{
+			if (InCommentNode.IsValid())
+			{
+				if (TickerHandle->IsValid())
+				{
+					FTSTicker::GetCoreTicker().RemoveTicker(*TickerHandle);
+					TickerHandle->Reset();
+				}
+				
+				const FString ErrorMessage = TEXT("Failed to generate comment. For more details, see Output Log.");
+				FString DesiredComment = bInSucceeded ? (*GeneratedComment + InGeneratedToken) : ErrorMessage;
+				
+				InCommentNode->OnUpdateCommentText(*DesiredComment);
+				
+				if (bInSucceeded)
+				{
+					*GeneratedComment = DesiredComment;
+				}
+			}
+		};
+		
+		const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+		ULlmManager::GetChecked()->GenerateToken(Prompt, TokenGeneratedFunction, TsubasamusuUnrealAssistSettings->bEnableStreamingCommentGeneration);
+	}
 }
 
 TArray<UEdGraphNode*> FCommentGenerator::GetActiveNodes(const TArray<UEdGraphNode*>& InNodes)
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	TArray<UEdGraphNode*> ActiveNodes;
+	const UTsubasamusuUnrealAssistSettings* Settings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
 
-	for (UEdGraphNode* Node : InNodes)
+	auto IsActiveNode = [Settings](const UEdGraphNode* InNode)
 	{
-		if (HasConnectedPins(Node))
+		if (HasConnectedPins(InNode))
 		{
-			ActiveNodes.Add(Node);
-
-			continue;
+			return true;
 		}
 
-		if (FNodeInformationUtility::IsCommentNode(Node))
+		if (FNodeInformationUtility::IsCommentNode(InNode))
 		{
-			if (!TsubasamusuUnrealAssistSettings->bIgnoreCommentNodesWhenGeneratingComments)
-			{
-				ActiveNodes.Add(Node);
-			}
-
-			continue;
+			return !Settings->bIgnoreCommentNodesWhenGeneratingComments;
 		}
 
-		if (!TsubasamusuUnrealAssistSettings->bIgnoreIsolatedNodesWhenGeneratingComments)
-		{
-			ActiveNodes.Add(Node);
-		}
-	}
-
-	return ActiveNodes;
+		return !Settings->bIgnoreIsolatedNodesWhenGeneratingComments;
+	};
+	
+	return InNodes.FilterByPredicate(IsActiveNode);
 }
 
 bool FCommentGenerator::HasConnectedPins(const UEdGraphNode* InNode)
 {
-	TArray<UEdGraphPin*> Pins = InNode->GetAllPins();
-	
-	for (const UEdGraphPin* Pin : Pins)
+	auto IsConnectedPin = [](const UEdGraphPin* InPin)
 	{
-		if (Pin->HasAnyConnections())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-int32 FCommentGenerator::GetCharNum(const FString& InString, const TCHAR& InChar)
-{
-	int32 CharNum = 0;
-
-	for (const TCHAR Char : InString)
-	{
-		if (Char == InChar)
-		{
-			CharNum++;
-		}
-	}
-
-	return CharNum;
-}
-
-void FCommentGenerator::GenerateComment(const FString& InNodeDataListString, const TFunction<void(const bool bSucceeded, const FString& Message)>& InGeneratedCommentFunction)
-{
-	FString GptRequestString;
-
-	if (!TryGetGptRequestString(InNodeDataListString, GptRequestString))
-	{
-		InGeneratedCommentFunction(false, TEXT("Failed to create a GPT request."));
-		return;
-	}
-
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	const FString OpenAiApiKey = TsubasamusuUnrealAssistSettings->OpenAiApiKey;
-
-	const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
-
-	HttpRequest->SetURL(TEXT("https://api.openai.com/v1/chat/completions"));
-	HttpRequest->SetVerb(TEXT("POST"));
-	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-	HttpRequest->SetHeader(TEXT("Authorization"), TEXT("Bearer ") + OpenAiApiKey);
-	HttpRequest->SetContentAsString(GptRequestString);
-
-	HttpRequest->OnProcessRequestComplete().BindLambda([InGeneratedCommentFunction](FHttpRequestPtr, const FHttpResponsePtr& InHttpResponse, const bool bInSucceeded)
-	{
-		if (!bInSucceeded)
-		{
-			InGeneratedCommentFunction(false, TEXT("Failed to send a HTTP request."));
-			return;
-		}
-
-		if (!InHttpResponse.IsValid())
-		{
-			InGeneratedCommentFunction(false, TEXT("Failed to get a HTTP response."));
-			return;
-		}
-
-		const FString JsonResponse = InHttpResponse->GetContentAsString();
-
-		FGptErrorResponse GptErrorResponse;
-
-		if (FJsonObjectConverter::JsonObjectStringToUStruct(JsonResponse, &GptErrorResponse, 0, 0) && !GptErrorResponse.IsEmpty())
-		{
-			InGeneratedCommentFunction(false, GptErrorResponse.error.message);
-			return;
-		}
-
-		FGptResponse GptResponse;
-
-		if (!FJsonObjectConverter::JsonObjectStringToUStruct(JsonResponse, &GptResponse, 0, 0))
-		{
-			InGeneratedCommentFunction(false, TEXT("Failed to get a GPT response."));
-			return;
-		}
-
-		if (GptResponse.IsEmpty())
-		{
-			InGeneratedCommentFunction(false, TEXT("Failed to get a GPT response."));
-			return;
-		}
-
-		InGeneratedCommentFunction(true, GptResponse.GetGptMessage());
-	});
-
-	if (!HttpRequest->ProcessRequest())
-	{
-		InGeneratedCommentFunction(false, TEXT("Failed to process a HTTP request."));
-	}
-}
-
-bool FCommentGenerator::TryGetGptRequestString(const FString& InNodeDataListString, FString& OutGptRequestString)
-{
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-
-#if UE_VERSION_OLDER_THAN(5, 3, 0)
-	FGptMessage GptMessage;
-	GptMessage.role = TEXT("user");
-	GptMessage.content = GetDesiredPrompt(InNodeDataListString);
-	
-	FGptRequest GptRequest;
-	GptRequest.model = TsubasamusuUnrealAssistSettings->GptModelName;
-	GptRequest.messages.Add(GptMessage);
-#else
-	const FGptRequest GptRequest =
-	{
-		.model = TsubasamusuUnrealAssistSettings->GptModelName,
-		.messages =
-		{
-			{
-				.role = TEXT("user"),
-				.content = GetDesiredPrompt(InNodeDataListString)
-			}
-		}
+		return InPin && InPin->HasAnyConnections();
 	};
-#endif
-
-	return FJsonObjectConverter::UStructToJsonObjectString(GptRequest, OutGptRequestString, 0, 0);
+	
+	return Algo::AnyOf(InNode->GetAllPins(), IsConnectedPin);
 }
 
 FString FCommentGenerator::GetDesiredPrompt(const FString& InNodeDataListString)
 {
 	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	FString Prompt = TEXT("You are developing a game using the Unreal Engine and are going to write a comment in a comment node for a blueprint process represented by the following string in JSON format. Answer the appropriate comment to be written in the comment node according to the following conditions.");
+    
+	FString Prompt = TEXT("Role: Professional Unreal Engine Developer\n");
+	Prompt += TEXT("Task: Generate a concise summary comment for a Blueprint logic snippet.\n\n");
 
-	Prompt += TEXT("\n\n- answer in ") + TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetEnglishName();
+	Prompt += TEXT("Constraints:\n");
+    
+	const FString CommentLanguage = TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetEnglishName();
+	Prompt += FString::Printf(TEXT("- Language: Answer ONLY in %s.\n"), *CommentLanguage);
+    
+	Prompt += TEXT("- Format: Output ONLY the comment string itself. Do not include quotes, preamble, or any explanation.\n");
 
-	for (FString CommentGenerationCondition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
+	for (const FString& Condition : TsubasamusuUnrealAssistSettings->CommentGenerationConditions)
 	{
-		Prompt += TEXT("\n- ") + CommentGenerationCondition;
+		Prompt += FString::Printf(TEXT("- %s\n"), *Condition);
 	}
 
-	Prompt += TEXT("\n\n") + InNodeDataListString;
+	Prompt += TEXT("\n### Blueprint Node Data:\n");
+	Prompt += InNodeDataListString;
 
 	return Prompt;
 }
 
 TArray<UEdGraphNode*> FCommentGenerator::GetNodesUnderComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	//TODO: Update nodes within the comment node. Indirectly call HandleSelection(true, true) via SGraphNodeComment::OnMouseButtonUp()?
-
 	TArray<UEdGraphNode*> NodesUnderComment;
 
-	if (!InCommentNode.IsValid())
+	if (InCommentNode.IsValid())
 	{
-		return NodesUnderComment;
-	}
+		TArray<UObject*> NodeObjectsUnderComment = InCommentNode->GetNodesUnderComment();
 
-	TArray<UObject*> NodeObjectsUnderComment = InCommentNode->GetNodesUnderComment();
-
-	for (UObject* NodeObjectUnderComment : NodeObjectsUnderComment)
-	{
-		UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment);
-		
-		if (IsValid(Node))
+		for (UObject* NodeObjectUnderComment : NodeObjectsUnderComment)
 		{
-			NodesUnderComment.Add(Node);
+			UEdGraphNode* Node = Cast<UEdGraphNode>(NodeObjectUnderComment);
+		
+			if (IsValid(Node))
+			{
+				NodesUnderComment.Add(Node);
+			}
 		}
 	}
 
@@ -274,27 +198,25 @@ TArray<UEdGraphNode*> FCommentGenerator::GetNodesUnderComment(const TWeakObjectP
 
 bool FCommentGenerator::TryGetNodeDataListStringUnderComment(FString& OutNodeDataListString, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
 {
-	if (!InCommentNode.IsValid())
+	if (InCommentNode.IsValid())
 	{
-		return false;
-	}
-	
-	const TArray<UEdGraphNode*> NodesUnderComment = GetNodesUnderComment(InCommentNode);
-	const TArray<UEdGraphNode*> ActiveNodesUnderComment = GetActiveNodes(NodesUnderComment);
+		const TArray<UEdGraphNode*> NodesUnderComment = GetNodesUnderComment(InCommentNode);
+		const TArray<UEdGraphNode*> ActiveNodesUnderComment = GetActiveNodes(NodesUnderComment);
 
-	if (ActiveNodesUnderComment.Num() == 0)
-	{
-		return false;
+		if (!ActiveNodesUnderComment.IsEmpty())
+		{
+			const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	
+			if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
+			{
+				return FNodeInformationUtility::TryGetNodeDataListToonString(OutNodeDataListString, ActiveNodesUnderComment);
+			}
+	
+			return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
+		}
 	}
 	
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	
-	if (TsubasamusuUnrealAssistSettings->bUseToonFormatForCommentGeneration)
-	{
-		return FNodeInformationUtility::TryGetNodeDataListToonString(OutNodeDataListString, ActiveNodesUnderComment);
-	}
-	
-	return FNodeInformationUtility::TryGetNodeDataListString(OutNodeDataListString, ActiveNodesUnderComment);
+	return false;
 }
 
 #undef LOCTEXT_NAMESPACE

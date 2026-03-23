@@ -25,4 +25,6 @@ public:
 
 	static bool IsPinUsesDefaultValue(const UEdGraphPin* InPin);
 	static bool IsCommentNode(const UEdGraphNode* InNode);
+	
+	static TArray<UEdGraphNode*> ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes);
 };

@@ -2,17 +2,13 @@
 
 #include "TsubasamusuUnrealAssistModule.h"
 #include "ISettingsModule.h"
-#include "Blueprint/AccessSpecifierInitializer.h"
 #include "Blueprint/AccessSpecifierOptimizer.h"
-#include "Blueprint/SelectedNodeMenuExtender.h"
 #include "Setting/TsubasamusuSettingsCustomization.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Internationalization/Internationalization.h"
-#include "Blueprint/NodePreviewer.h"
 #include "Blueprint/UnusedFunctionDeleter.h"
 #include "Blueprint/UnusedLocalVariableDeleter.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
-#include "Setting/EditorSettingsUtility.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 
@@ -20,57 +16,19 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 {
 	RegisterSettings();
 	RegisterSettingsCustomization();
-	RegisterOnPostEngineInitEvent();
-	RegisterTicker();
+	
+	PostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterAssetEditorOpenedEvent);
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
 {
-	UnregisterOnPostEngineInitEvent();
-	UnregisterOnEditorLanguageChangedEvent();
-	UnregisterOnAssetEditorOpenedEvent();
-	UnregisterSettingsCustomization();
 	UnregisterSettings();
-	UnregisterTicker();
-}
-
-void FTsubasamusuUnrealAssistModule::ReregisterTicker()
-{
-	UnregisterTicker();
-	RegisterTicker();
-}
-
-void FTsubasamusuUnrealAssistModule::StartNodePreview()
-{
-	if (!NodePreviewer.IsValid())
+	UnregisterSettingsCustomization();
+	UnregisterAssetEditorOpenedEvent();
+	
+	if (PostEngineInitHandle.IsValid())
 	{
-		NodePreviewer = MakeShared<FNodePreviewer>();
-	}
-}
-
-void FTsubasamusuUnrealAssistModule::StopNodePreview()
-{
-	if (NodePreviewer.IsValid())
-	{
-		NodePreviewer.Reset();
-	}
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterOnPostEngineInitEvent()
-{
-	OnPostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddLambda([this]()
-	{
-		FSelectedNodeMenuExtender::RegisterSelectedNodeMenu();
-		RegisterOnEditorLanguageChangedEvent();
-		RegisterOnAssetEditorOpenedEvent();
-	});
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterOnPostEngineInitEvent() const
-{
-	if (OnPostEngineInitHandle.IsValid())
-	{
-		FCoreDelegates::OnPostEngineInit.Remove(OnPostEngineInitHandle);
+		FCoreDelegates::OnPostEngineInit.Remove(PostEngineInitHandle);
 	}
 }
 
@@ -89,82 +47,6 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettings() const
 	SettingsModule.UnregisterSettings(SettingsContainerName, SettingsCategoryName, SettingsSectionName);
 }
 
-void FTsubasamusuUnrealAssistModule::RegisterOnEditorLanguageChangedEvent()
-{
-	OnEditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([]()
-	{
-		UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-		
-		if (TsubasamusuUnrealAssistSettings->bUseEditorLanguageForCommentGeneration)
-		{
-			TsubasamusuUnrealAssistSettings->MakeCommentGenerationLanguageSameAsEditorLanguage();
-		}
-	});
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterOnEditorLanguageChangedEvent() const
-{
-	FInternationalization::Get().OnCultureChanged().Remove(OnEditorLanguageChangedHandle);
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterOnAssetEditorOpenedEvent()
-{
-	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
-	check(IsValid(AssetEditorSubsystem));
-	
-	OnAssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([this](UObject* InOpenedAsset)
-	{
-		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
-		
-		if (IsValid(OpenedBlueprint))
-		{
-			FTsubasamusuBlueprintEditorCommands::Register();
-	
-			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
-			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
-			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
-			
-			if (!AccessSpecifierInitializer.IsValid())
-			{
-				AccessSpecifierInitializer = MakeShared<FAccessSpecifierInitializer>();
-			}
-			
-			AccessSpecifierInitializer->RegisterBlueprint(OpenedBlueprint);
-		}
-	});
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterOnAssetEditorOpenedEvent()
-{
-	if (IsValid(GEditor))
-	{
-		UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
-		check(IsValid(AssetEditorSubsystem));
-		
-		AssetEditorSubsystem->OnAssetEditorOpened().Remove(OnAssetEditorOpenedHandle);
-		
-		if (AccessSpecifierInitializer.IsValid())
-		{
-			AccessSpecifierInitializer->UnregisterAllBlueprints();
-			AccessSpecifierInitializer.Reset();
-		}
-	}
-}
-
-void FTsubasamusuUnrealAssistModule::RegisterTicker()
-{
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-	TickHandle = FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateRaw(this, &FTsubasamusuUnrealAssistModule::Tick), TsubasamusuUnrealAssistSettings->TickInterval);
-}
-
-void FTsubasamusuUnrealAssistModule::UnregisterTicker() const
-{
-	if (TickHandle.IsValid())
-	{
-		FTSTicker::GetCoreTicker().RemoveTicker(TickHandle);
-	}
-}
-
 void FTsubasamusuUnrealAssistModule::RegisterSettingsCustomization()
 {
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>(TEXT("PropertyEditor"));
@@ -181,21 +63,32 @@ void FTsubasamusuUnrealAssistModule::UnregisterSettingsCustomization()
 	PropertyModule.UnregisterCustomClassLayout(SettingsClassName);
 }
 
-bool FTsubasamusuUnrealAssistModule::Tick(const float /* InDeltaTime */)
+void FTsubasamusuUnrealAssistModule::RegisterAssetEditorOpenedEvent()
 {
-	const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+	UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
 	
-	if (TsubasamusuUnrealAssistSettings->bEnableNodePreview && !NodePreviewer.IsValid())
+	AssetEditorOpenedHandle = AssetEditorSubsystem->OnAssetEditorOpened().AddLambda([this](UObject* InOpenedAsset)
 	{
-		StartNodePreview();
-	}
+		UBlueprint* OpenedBlueprint = Cast<UBlueprint>(InOpenedAsset);
 	
-	if (NodePreviewer.IsValid())
+		if (IsValid(OpenedBlueprint))
+		{
+			FTsubasamusuBlueprintEditorCommands::Register();
+
+			FAccessSpecifierOptimizer::RegisterOptimizeAccessSpecifiersMenu(OpenedBlueprint);
+			FUnusedFunctionDeleter::RegisterDeleteUnusedFunctionsMenu(OpenedBlueprint);
+			FUnusedLocalVariableDeleter::RegisterDeleteUnusedLocalVariablesMenu(OpenedBlueprint);
+		}
+	});
+}
+
+void FTsubasamusuUnrealAssistModule::UnregisterAssetEditorOpenedEvent() const
+{
+	if (AssetEditorOpenedHandle.IsValid() && IsValid(GEditor))
 	{
-		NodePreviewer->TryPreviewNode();
+		UAssetEditorSubsystem* AssetEditorSubsystem = GEditor->GetEditorSubsystem<UAssetEditorSubsystem>();
+		AssetEditorSubsystem->OnAssetEditorOpened().Remove(AssetEditorOpenedHandle);
 	}
-	
-	return true;
 }
 
 #undef LOCTEXT_NAMESPACE

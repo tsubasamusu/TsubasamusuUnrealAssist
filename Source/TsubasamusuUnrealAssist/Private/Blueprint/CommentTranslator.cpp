@@ -2,195 +2,219 @@
 
 #include "Blueprint/CommentTranslator.h"
 #include "EdGraphNode_Comment.h"
-#include "Debug/TsubasamusuLogUtility.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "Internationalization/TextLocalizationManager.h"
 #include "HttpModule.h"
+#include "NodeInformationUtility.h"
+#include "TsubasamusuStringUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "Setting/EditorSettingsUtility.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
+
+#if UE_VERSION_OLDER_THAN(5, 3, 0)
+#include "Serialization/JsonWriter.h"
+#include "Serialization/JsonSerializer.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "FCommentTranslator"
 
-void FCommentTranslator::AddCommentTranslationMenu(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
+FSelectedNodeMenuContext FCommentTranslator::CreateSelectedNodeMenuContext()
 {
-    const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-    const TAttribute<FText> HeadingText = LOCTEXT("CommentTranslationHeading", "Tsubasamusu Unreal Assist");
-    
-	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
-
-    const TAttribute<FText> LabelText = LOCTEXT("CommentTranslationLabel", "Translate to...");
-    const TAttribute<FText> ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node.");
-
-    const auto MenuAction = [InCommentNode](FMenuBuilder& InSubMenuBuilder)
+    const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
     {
-        AddLanguageSubMenus(InSubMenuBuilder, InCommentNode);
+        if (InSelectedNodes.Num() == 1)
+        {
+            const TWeakObjectPtr<UEdGraphNode> SelectedNode = InSelectedNodes[0];
+			
+            if (SelectedNode.IsValid())
+            {
+                return FNodeInformationUtility::IsCommentNode(SelectedNode.Get()) && !SelectedNode->NodeComment.IsEmpty();
+            }
+        }
+		
+        return false;
+    };
+	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+    return FSelectedNodeMenuContext
+    {
+        .ShouldAddMenu = ShouldAddMenu,
+        .LabelText = LOCTEXT("CommentTranslationLabel", "Translate to..."),
+        .ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node."),
+        .SubMenuContexts = CreateSelectedNodeSubMenuContext()
+    };
+#else
+    FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+    SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+    SelectedNodeMenuContext.LabelText = LOCTEXT("CommentTranslationLabel", "Translate to...");
+    SelectedNodeMenuContext.ToolTipText = LOCTEXT("CommentTranslationToolTip", "Translate comment of selected comment node.");
+    SelectedNodeMenuContext.SubMenuContexts = CreateSelectedNodeSubMenuContext();
+	
+    return SelectedNodeMenuContext;
+#endif
+}
+
+TArray<FSelectedNodeSubMenuContext> FCommentTranslator::CreateSelectedNodeSubMenuContext()
+{
+    TArray<FSelectedNodeSubMenuContext> SubMenuContexts;
+    const TMap<FString, FText> EditorLanguages = GetEditorLanguages();
+    
+    const FOnSelectedNodeSubMenuClicked OnSubMenuClicked = [EditorLanguages](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>, const FText& InSubMenuLabelText)
+    {
+        if (InSelectedNodes.Num() == 1)
+        {
+            const TWeakObjectPtr<UEdGraphNode> SelectedNode = InSelectedNodes[0];
+            
+            if (SelectedNode.IsValid())
+            {
+                const TWeakObjectPtr<UEdGraphNode_Comment> CommentNode = Cast<UEdGraphNode_Comment>(SelectedNode);
+                
+                for (const TPair<FString, FText>& EditorLanguage : EditorLanguages)
+                {
+                    if (!EditorLanguage.Value.IsEmpty() && EditorLanguage.Value.EqualTo(InSubMenuLabelText))
+                    {
+                        TranslateComment(CommentNode, *EditorLanguage.Key);
+                    }
+                }
+            }
+        }
     };
     
-    InMenuBuilder.AddSubMenu(LabelText, ToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None);
-
-    InMenuBuilder.EndSection();
-}
-
-void FCommentTranslator::AddLanguageSubMenus(FMenuBuilder& InMenuBuilder, const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode)
-{
-    const TArray<FString> EditorLanguages = GetEditorLanguages();
-
-    for (const FString& EditorLanguage : EditorLanguages)
+    for (const TPair<FString, FText>& EditorLanguage : EditorLanguages)
     {
-        if (EditorLanguage.IsEmpty() || EditorLanguage == TEXT("es-419"))
+        if (!EditorLanguage.Key.IsEmpty() && EditorLanguage.Key != TEXT("es-419"))
         {
-            continue;
+            const FText ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), EditorLanguage.Value);
+            
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+            FSelectedNodeSubMenuContext SubMenuContext
+            {
+                .OnClicked = OnSubMenuClicked,
+                .LabelText = EditorLanguage.Value,
+                .ToolTipText = ToolTipText,
+            };
+#else
+            FSelectedNodeSubMenuContext SubMenuContext;
+            
+            SubMenuContext.OnClicked = OnSubMenuClicked;
+            SubMenuContext.LabelText = EditorLanguage.Value;
+            SubMenuContext.ToolTipText = ToolTipText;
+#endif
+            
+            SubMenuContexts.Add(SubMenuContext);
         }
-        
-        FInternationalization& Internationalization = FInternationalization::Get();
-        FCulturePtr Culture = Internationalization.GetCulture(EditorLanguage);
-        
-        if (!Culture.IsValid())
-        {
-            continue;
-        }
-
-        const TAttribute<FText> LabelText = FText::FromString(Culture->GetEnglishName());
-        const TAttribute<FText> ToolTipText = FText::Format(LOCTEXT("LanguageSubMenuToolTip", "Translate comment of selected comment node to {0}."), FText::FromString(Culture->GetEnglishName()));
-        
-        const TSharedPtr<const FString> TranslationTargetLanguage = MakeShared<FString>(EditorLanguage);
-        
-        InMenuBuilder.AddMenuEntry(LabelText, ToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InCommentNode, TranslationTargetLanguage]()
-        {
-            TranslateComment(InCommentNode, TranslationTargetLanguage);
-        })));
     }
+    
+    return SubMenuContexts;
 }
 
-TArray<FString> FCommentTranslator::GetEditorLanguages()
+TMap<FString, FText> FCommentTranslator::GetEditorLanguages()
 {
-    const FTextLocalizationManager& TextLocalizationManager = FTextLocalizationManager::Get();
-    const TArray<FString> LocalizedCultureNames = TextLocalizationManager.GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
-
+    TMap<FString, FText> EditorLanguages;
+    
     FInternationalization& Internationalization = FInternationalization::Get();
+    const TArray<FString> LocalizedCultureNames = FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Editor);
     TArray<FCultureRef> AvailableCultures = Internationalization.GetAvailableCultures(LocalizedCultureNames, false);
 
-    TArray<FString> EditorLanguages;
-    
     for (const FCultureRef& AvailableCulture : AvailableCultures)
     {
-        EditorLanguages.Add(AvailableCulture->GetName());
+        const FString LanguageString = AvailableCulture->GetName();
+        const FCulturePtr Culture = Internationalization.GetCulture(LanguageString);
+        
+        if (Culture.IsValid())
+        {
+            const FText LanguageText = FText::FromString(Culture->GetEnglishName());
+            EditorLanguages.Add(LanguageString, LanguageText);
+        }
     }
     
     return EditorLanguages;
 }
 
-void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const TSharedPtr<const FString> InTranslationTargetLanguage)
+void FCommentTranslator::TranslateComment(const TWeakObjectPtr<UEdGraphNode_Comment> InCommentNode, const FString& InTranslationTargetLanguage)
 {
-    if (!InCommentNode.IsValid() || !InTranslationTargetLanguage.IsValid())
+    if (InCommentNode.IsValid() && !InTranslationTargetLanguage.IsEmpty())
     {
-        return;
-    }
+        const TSharedPtr<FString> SourceComment = MakeShared<FString>(InCommentNode->NodeComment);
+        const TSharedPtr<FJsonObject> RequestJsonObject = MakeShared<FJsonObject>();
+        const TArray<TSharedPtr<FJsonValue>> SourceTextJsonValues = { MakeShared<FJsonValueString>(*SourceComment) };
 
-    const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-    const FString ApiKey = TsubasamusuUnrealAssistSettings->DeeplApiKey;
+        FString TranslationTargetLanguage = InTranslationTargetLanguage;
+        FixLanguage(TranslationTargetLanguage);
     
-    const FString DeeplJsonRequest = GetDeeplJsonRequest(InCommentNode->NodeComment, *InTranslationTargetLanguage);
+        RequestJsonObject->SetArrayField(TEXT("text"), SourceTextJsonValues);
+        RequestJsonObject->SetStringField(TEXT("target_lang"), TranslationTargetLanguage);
+
+        FString RequestContent;
+        const TSharedRef<TJsonWriter<>> RequestJsonWriter = TJsonWriterFactory<>::Create(&RequestContent);
+        FJsonSerializer::Serialize(RequestJsonObject.ToSharedRef(), RequestJsonWriter);
     
-    const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
+        const TSharedRef<IHttpRequest> HttpRequest = FHttpModule::Get().CreateRequest();
     
-    HttpRequest->SetURL(TEXT("https://api-free.deepl.com/v2/translate"));
-    HttpRequest->SetVerb(TEXT("POST"));
-    HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
-    HttpRequest->SetHeader(TEXT("Authorization"), TEXT("DeepL-Auth-Key ") + ApiKey);
-    HttpRequest->SetContentAsString(DeeplJsonRequest);
-
-    HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode](FHttpRequestPtr, FHttpResponsePtr InHttpResponse, const bool bInSucceeded)
-    {
-        if (!bInSucceeded)
+        const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
+        const FString Authorization = FString::Printf(TEXT("DeepL-Auth-Key %s"), *TsubasamusuUnrealAssistSettings->DeeplApiKey);
+    
+        HttpRequest->SetURL(TEXT("https://api-free.deepl.com/v2/translate"));
+        HttpRequest->SetVerb(TEXT("POST"));
+        HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json"));
+        HttpRequest->SetHeader(TEXT("Authorization"), Authorization);
+        HttpRequest->SetContentAsString(RequestContent);
+        
+        auto AnimationTextChangedFunction = [InCommentNode](const FString& InAnimationText)
         {
-            TUA_ERROR(TEXT("Failed to send a HTTP request."));
-
-            return;
-        }
-
-        if (!InHttpResponse.IsValid())
-        {
-            TUA_ERROR(TEXT("Failed to get a HTTP response."));
-
-            return;
-        }
-        
-        const FString JsonResponse = InHttpResponse->GetContentAsString();
-        
-        TSharedPtr<FJsonObject> JsonObject;
-        const TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonResponse);
-        
-        if (!FJsonSerializer::Deserialize(JsonReader, JsonObject) || !JsonObject.IsValid())
-        {
-            TUA_ERROR(TEXT("Failed to deserialize the HTTP response \"%s.\""), *JsonResponse);
-
-            return;
-        }
-        
-        const TArray<TSharedPtr<FJsonValue>>* Translations;
-        
-        if (!JsonObject->TryGetArrayField(TEXT("translations"), Translations) || Translations->Num() == 0)
-        {
-            TUA_ERROR(TEXT("Failed to get translations from the HTTP response \"%s.\""), *JsonResponse);
-
-            return;
-        }
-        
-        const TSharedPtr<FJsonObject> TranslationJsonObject = (*Translations)[0]->AsObject();
-        
-        FString TranslatedText;
-        
-        if (!TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText))
-        {
-            TUA_ERROR(TEXT("Failed to get a translated text from the HTTP response \"%s.\""), *JsonResponse);
-
-            return;
-        }
-        
-        if (InCommentNode.IsValid())
-        {
-            const FScopedTransaction Transaction(LOCTEXT("CommentTranslationTransaction", "Translate Comment"));
-
-            InCommentNode->Modify();
-            InCommentNode->NodeComment = TranslatedText;
-            InCommentNode->ReconstructNode();
-
-            UEdGraph* Graph = InCommentNode->GetGraph();
-            
-            if (IsValid(Graph))
+            if (InCommentNode.IsValid())
             {
-                Graph->NotifyGraphChanged();
+                InCommentNode->OnUpdateCommentText(InAnimationText);
             }
-        }
-    });
+        };
+		
+        const TSharedRef<FTSTicker::FDelegateHandle> TickerHandle = FTsubasamusuStringUtility::PlayTextAnimation(TEXT("Translating"), AnimationTextChangedFunction);
+
+        HttpRequest->OnProcessRequestComplete().BindLambda([InCommentNode, TickerHandle, SourceComment](FHttpRequestPtr, FHttpResponsePtr InHttpResponsePtr, const bool bInProcessedSuccessfully)
+        {
+            if (TickerHandle->IsValid())
+            {
+                FTSTicker::GetCoreTicker().RemoveTicker(*TickerHandle);
+                TickerHandle->Reset();
+            }
+            
+            if(InCommentNode.IsValid())
+            {
+                if (bInProcessedSuccessfully && InHttpResponsePtr.IsValid())
+                {
+                    const FString ResponseContent = InHttpResponsePtr->GetContentAsString();
+                    TSharedPtr<FJsonObject> ResponseJsonObject;
+                    const TSharedRef<TJsonReader<>> ResponseJsonReader = TJsonReaderFactory<>::Create(ResponseContent);
+        
+                    if (FJsonSerializer::Deserialize(ResponseJsonReader, ResponseJsonObject))
+                    {
+                        const TArray<TSharedPtr<FJsonValue>>* TranslationJsonValues;
+        
+                        if (ResponseJsonObject->TryGetArrayField(TEXT("translations"), TranslationJsonValues) && TranslationJsonValues && !TranslationJsonValues->IsEmpty())
+                        {
+                            const TSharedPtr<FJsonObject> TranslationJsonObject = (*TranslationJsonValues)[0]->AsObject();
+                            FString TranslatedText;
+        
+                            if (TranslationJsonObject->TryGetStringField(TEXT("text"), TranslatedText) && !TranslatedText.IsEmpty())
+                            {
+                                InCommentNode->OnUpdateCommentText(*TranslatedText);
+                                return;
+                            }
+                        }
+                    }
+                }
+                
+                InCommentNode->OnUpdateCommentText(*SourceComment);
+            }
+        });
     
-    if (!HttpRequest->ProcessRequest())
-    {
-        TUA_ERROR(TEXT("Failed to process a HTTP request."));
+        HttpRequest->ProcessRequest();
     }
-}
-
-FString FCommentTranslator::GetDeeplJsonRequest(const FString& InSourceText, const FString& InTargetLanguage)
-{
-    const TSharedPtr<FJsonObject> JsonObject = MakeShared<FJsonObject>();
-    const TArray<TSharedPtr<FJsonValue>> SourceTexts = { MakeShared<FJsonValueString>(InSourceText) };
-
-    FString FixedLanguage = InTargetLanguage;
-    FixLanguage(FixedLanguage);
-    
-    JsonObject->SetArrayField(TEXT("text"), SourceTexts);
-    JsonObject->SetStringField(TEXT("target_lang"), FixedLanguage);
-
-    FString DeeplJsonRequest;
-    
-    const TSharedRef<TJsonWriter<>> JsonWriter = TJsonWriterFactory<>::Create(&DeeplJsonRequest);
-    FJsonSerializer::Serialize(JsonObject.ToSharedRef(), JsonWriter);
-    
-    return DeeplJsonRequest;
 }
 
 void FCommentTranslator::FixLanguage(FString& OutLanguage)

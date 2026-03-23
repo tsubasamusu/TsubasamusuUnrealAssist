@@ -32,8 +32,8 @@ void SLanguageComboButton::Construct(const FArguments& InArgs, const TSharedRef<
 FText SLanguageComboButton::GetDesiredComboButtonText()
 {
     const UTsubasamusuUnrealAssistSettings* TsubasamusuUnrealAssistSettings = FEditorSettingsUtility::GetSettingsChecked<UTsubasamusuUnrealAssistSettings>();
-    const FString GptLanguageName = TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetNativeName();
-    return FText::FromString(GptLanguageName);
+    const FString CommentGenerationLanguageName = TsubasamusuUnrealAssistSettings->GetCommentGenerationLanguageCulture()->GetNativeName();
+    return FText::FromString(CommentGenerationLanguageName);
 }
 
 TSharedRef<SWidget> SLanguageComboButton::OnGetComboButtonMenuContent()

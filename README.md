@@ -5,9 +5,9 @@
 [![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
 
 ## 概要
-個人的に Unreal Editor に欲しいと思っている機能や、「こういう機能が欲しい！」とSNSで見かけた機能をひたすら追加していくエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると、「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
+個人的に Unreal Editor に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Engine 用のエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
 
-※このプラグインは実験的機能（Experimental）かつ[MITライセンス](https://opensource.org/license/mit)で公開しており、このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
+※このプラグインは実験的機能（Experimental）であり、[MITライセンス](https://opensource.org/license/mit)で公開しています。このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
 
 ## エンジンバージョン
 サポート対象のエンジンバージョンは以下の通りです。
@@ -21,40 +21,58 @@
 - 5.6
 - 5.7
 
-# 機能一覧
-## ブループリントエディタ関連
+## 導入手順
+### プラグインのインストール
+1. [最新版のリリース](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/releases/latest)の「Source code (zip)」をダウンロードします。
+2. ダウンロードしたZIPファイルをエンジンまたはUEプロジェクトの Plugins フォルダに展開します。
+3. UEプロジェクトを開いて「Edit ＞ Plugins」の「Editor」カテゴリにある「Tsubasamusu Unreal Assist」にチェックを付けてエディタを再起動します。
+4. 必要に応じてIDEからビルドします。
+5. 「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加されていればOKです。
+
+### ローカルLLMの使用
+現在、このプラグインではコメント生成機能（Comment Generator）でローカルLLMを使用しています。ローカルLLMの使用にあたっては、ローカル環境でLLMを動作させるための軽量な実行エンジンである [llama.cpp](https://github.com/ggml-org/llama.cpp) で提供されている「LLaMA.cpp HTTP Server」を利用しています。
+
+このプラグインでのセットアップ手順は以下の通りです。（このプラグインのサポート対象のプラットフォームは Win64 のみなので、以下の手順は Win64 環境でのものです。）
+
+1. [llama.cpp の最新版のリリース](https://github.com/ggml-org/llama.cpp/releases/latest) の「llama-{ビルド番号}-bin-win-{種類}-x64.zip」をダウンロードします。推奨は「llama-b8475-bin-win-**cpu**-x64.zip」と「llama-b8475-bin-win-**vulkan**-x64.zip」ですが、ご自身の環境に合わせたものをダウンロードしてください。
+2. ダウンロードしたZIPファイルを展開します。
+3. Unreal Editor を開き、展開したファイルの中に含まれている「llama-server.exe」のパスを「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ LLM ＞ Llama Server File Path」に設定します。
+4. 使用したいモデルのGGUFファイルを [Hugging Face](https://huggingface.co) からダウンロードします。
+5. 「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ LLM ＞ Llama Server Options」に「Model」オプションを追加して、ダウンロードしたGGUFファイルのパスを「LLM File Path」に設定します。ここで他のオプションもいくつか設定することができますが、最低限「Model」オプションのみ設定されていればローカルLLMを使用することができます。
+6. 警告メッセージとともに「Start Llama Server」というボタンが表示されるのでそれを押します。「Llama Server File Path」や「LLM File Path」が正しく設定されているとサーバーの起動に成功し、この警告メッセージが表示されなくなります。これでローカルLLMを使用できる状態になりました。
+
+<img width="700" src="https://github.com/user-attachments/assets/8d1940d9-c609-4ebb-bbe3-4949ee3d4010">
+
+## 機能一覧
 ### Comment Generator
-OpenAI のAPIキーを使用してコメントを生成します。
+その中に他のノードを1つ以上含んでいるコメントノードを右クリックすると「Generate Comment」というメニューが表示されます。このメニューをクリックするとローカルLLMを使用してコメントを生成することができます。
 
-<img width="500" src="https://github.com/user-attachments/assets/7fc80cb9-6c61-4002-8aea-bd5e06a00488">
-
-※APIの使用料については十分注意してください。
+<img width="700" src="https://github.com/user-attachments/assets/fd577e3e-6ea9-4047-811e-67e29e412071">
 
 この機能に関連したエディタ設定の項目は以下の通りです。
 
 | プロパティ名 | 概要 |
 ----|----
-| OpenAI API Key | 「[API keys - OpenAI API](https://platform.openai.com/api-keys)」で作成したAPIキー。コメントを生成するときに使用されます。 |
 | Use Editor Language | 生成するコメントの言語をエディタ言語と同じにするかどうか。 |
-| Language | 生成するコメントの言語。このプロパティは「Use Editor Language」のチェックを外すと編集できるようになります。 |
-| GPT Model Name | コメントを生成するときに使用するGPTのモデル名。初期値は「gpt-4o-mini」になっています。利用可能なGPTのモデル名の一覧は「[Models - OpenAI API](https://platform.openai.com/docs/models)」で確認できます。 |
-| Ignore Nodes Do Not Have Connected Pins | コメントを生成するときに、インプットピンやアウトプットピン、実行ピンが他のピンと1つも接続されていないノードを無視するかどうか。 |
-| Use TOON Format | コメントを生成するためにノードの情報をLLMに渡す際、それを[TOON](https://toonformat.dev)形式の文字列として渡すかどうか。このプロパティのチェックを外すとTOONではなく、JSONが使用されます。JSONよりもTOONの方がトークン数を抑えることができます。 |
-| Ignore Comment Nodes | コメントを生成するときにそのコメントノード内のコメントノードを無視するかどうか。 |
+| Language | 生成するコメントの言語。このプロパティは「Use Editor Language」のチェックを外すと編集できるようになります。逆に「Use Editor Language」にチェックを付けるとこのプロパティの値はエディタ言語と同じになります。※使用するLLMによってはこのプロパティで設定した言語通りのコメントを生成してくれないこともあります。 |
+| Enable Streaming Generation | コメントのストリーミング生成を有効にするかどうか。このプロパティにチェックを付けると ChatGPT や Claude、Gemini などのチャット画面のようにコメントがトークンごとに生成されて反映されます。このプロパティのチェックを外すとコメントの生成完了後に1度だけコメントを更新します。 |
+| Ignore Nodes Do Not Have Connected Pins | コメントを生成するときにインプットピンやアウトプットピン、実行ピンなどが他のピンと1つも接続されていないノードを無視するかどうか。 |
+| Ignore Comment Nodes | コメントを生成するときにそのコメントノードの中にある別のコメントノードを無視するかどうか。 |
+| Use TOON Format | コメントノードの中にあるノードの情報をLLMに渡す際、それを[TOON](https://toonformat.dev)形式の文字列として渡すかどうか。このプロパティのチェックを外すとTOONではなく、JSONが使用されます。TOONの方がJSONよりもトークン数を抑えることができます。 |
 | Conditions | LLMがコメントを生成するときに従う条件。例えば「そのブループリントで行っていることを簡潔にまとめること」や「だ・である口調で生成すること」などです。 |
 
-### Array Node Creator
-同じ型のアウトプットピンを持つ複数のノードを選択している状態で右クリックすると、「Make Array」というメニューが表示されます。このメニューを選択すると、それらのアウトプットピンが接続された Make Array ノードを一瞬で作成することができます。
-
-<img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
-
 ### Comment Translator
-コメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューでマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この翻訳機能には DeepL のAPIキーを使用しています。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
+コメントが設定されているコメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューをマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
 
 <img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
+### Array Node Creator
+同じ型のアウトプットピンを持つ複数のノードを選択している状態で右クリックすると「Make Array」というメニューが表示されます。このメニューを選択すると、それらのアウトプットピンが接続された Make Array ノードを一瞬で作成し、グラフに追加することができます。
+
+<img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
+
 ### Node Information Copier
-選択しているノードの情報をJSONまたは[TOON](https://toonformat.dev)形式の文字列としてクリップボードにコピーできます。この文字列にはノード名やピン名、ノードコメント、ピンの方向（インプットかアウトプット）、ピンの型名、ピンのGUID、そのピンに接続されているピンのGUIDなどが含まれます。「JSON」を選択すると、Unreal Engine の標準のコピー機能でクリップボードにコピーされる文字数のおよそ3分の1ほどの文字数でコピーすることができます。さらに「TOON」を選択すると、JSONのときの半分ほどの文字数でコピーできます。
+ノードを1つ以上選択している状態で右クリックすると「Copy as...」というメニューが表示されます。さらにそのメニューをマウスホバーすると「JSON」と「TOON」という2つの項目が表示されます。どちらかを選択すると、それらのノードの情報をJSONまたは[TOON](https://toonformat.dev)形式の文字列としてクリップボードにコピーすることができます。この文字列にはノード名やピン名、ノードコメント、ピンの方向（インプットかアウトプット）、ピンの型名、ピンのGUID、そのピンに接続されているピンのGUIDなどが含まれます。「JSON」を選択すると、Unreal Engine の標準のコピー機能でクリップボードにコピーされる文字数のおよそ3分の1ほどの文字数でコピーすることができます。さらに「TOON」を選択すると、JSONのときの半分ほどの文字数でコピーすることができます。
 
 <img width="700" src="https://github.com/user-attachments/assets/7a4b25c9-46c1-4b39-a6b6-09251ca1801b">
 
@@ -431,24 +449,24 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 <img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
 
-「Enable Node Preview」にチェックを付けると、以下の項目が編集できるようになります。
+「Enable Node Preview」にチェックを付けると、以下のプロパティが編集できるようになります。
 
 | プロパティ名 | 概要 |
 ----|----
-| Preview Scale  | ノードプレビューのスケール。初期値は1.0です。 |
 | Also Preview Advanced View  | デフォルトで折り畳まれているピンをプレビューに表示するかどうか。例えば PrintString ノードの TextColor や Duration、Key などがそれにあたります。 |
+| Preview Scale  | ノードプレビューのスケール。初期値は1.0です。 |
 
 ### Access Specifier Optimizer
 このプラグインを有効化してブループリントエディタを開くと、「Optimize Access Specifiers」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されているメンバの中でアクセス修飾子を変更した方がいいものが一覧で表示されます。例えば、そのクラス内でしか参照されていないにも関わらず、アクセス修飾子が Private になっていないものや、他のクラスから参照されていてもそれらのクラスが基のクラスの派生クラスしかないにも関わらず、アクセス修飾子が Public になっているものなどです。アクセス修飾子を変更したいメンバにチェックを付けて「Apply Optimal Access Specifiers」というボタンを押すと、それらのメンバに最適なアクセス修飾子を一括で適用することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
 
-※カスタムイベントのアクセス修飾子は UE 5.3 以降のエンジンバージョンでのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
+※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
 
 ※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
 
 ### Access Specifier Initializer
-ブループリントに新しい変数や関数、カスタムイベントを追加した際に、そのメンバのアクセス修飾子を自動的に設定します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になりますが、この機能を有効にすることでメンバの作成時に自動的に Protected や Private などに変更することができます。
+ブループリントに新しい変数や関数、カスタムイベントを追加した際にそのメンバのアクセス修飾子を自動的に変更します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になっていますが、この機能を有効化することでメンバの追加時に自動的に Protected や Private などに変更することができます。
 
 この機能に関連したエディタ設定の項目は以下の通りです。
 
@@ -461,37 +479,25 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 | Override Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子を上書きするかどうか。 |
 | Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子。（Private・Protected・Public） |
 
-※カスタムイベントのアクセス修飾子は UE 5.3 以降のエンジンバージョンでのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
+※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
 
 ### Unused Function Deleter
-このプラグインを有効化してブループリントエディタを開くと、「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
+このプラグインを有効化してブループリントエディタを開くと「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/2c0f2ce5-8998-483f-b74d-1be53de84aca">
 
 ※オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
 
-### Unused Local Variables Deleter
-このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると、「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
+### Unused Local Variable Deleter
+このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
 
 <img width="500" src="https://github.com/user-attachments/assets/fa565e80-c798-4900-bcc7-fbb98d4686f0">
 
-## Editor Utility 用のノード
-### Async Replace References
-`From` に渡したアセットの参照を、`To` に渡したアセットの参照に置換します。
-
-<img width="300" src="https://github.com/user-attachments/assets/1435b874-ef23-45e7-8ee6-03ce2aeaf54a">
-
-### Create Material Instance Asset
-`InMaterialInstanceDynamic` に渡した Material Instance Dynamic を基にしたマテリアルインスタンスを、`InAssetDirectory` で指定したディレクトリに作成します。`InAssetDirectory` は「/Game/FolderName1/FolderName2/」のような形式の文字列である必要があります。
-
-<img width="300" src="https://github.com/user-attachments/assets/dbfd43c9-612e-4861-b161-4d05109fddf1">
-
-## その他の機能
 ### Recommended Editor Settings Applier
-このプラグインを有効化すると、「Apply Recommended Editor Settings」という名前のプロパティと、「Apply」と書かれたボタンが「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ General」に表示されます。このボタンをクリックすると、[このプラグインの開発者](https://x.com/tsubasamusu)が個人的に推奨しているエディタ設定を一括で適用することができます。具体的な設定内容は以下の通りです。
+このプラグインを有効化すると「Apply Recommended Editor Settings」という名前のプロパティと、「Apply」と書かれたボタンが「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ Recommended Editor Settings Applier」に表示されます。このボタンをクリックすると、[このプラグインの開発者](https://x.com/tsubasamusu)が個人的に推奨しているエディタ設定を一括で適用することができます。具体的な設定内容は以下の通りです。
 
 - 自動保存を無効化します。
-- 前回開いていたアセットエディタが復元しないようにします。
+- 前回開いていたアセットエディタが復元されないようにします。
 - アセットエディタがメインウィンドウで開くようにします。
 - ブループリントグラフでズームアウトしたときに Comment Bubble が表示されるようにします。
 - コメントノードのデフォルトカラーを黒色に変更します。

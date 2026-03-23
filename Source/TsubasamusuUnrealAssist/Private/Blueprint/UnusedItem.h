@@ -4,18 +4,11 @@
 
 #include "CoreMinimal.h"
 
-class FUnusedItem : public FGCObject
+class FUnusedItem
 {
 public:
 	FUnusedItem(){}
-	
-	//~ Begin FGCObject Interface
-	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
-	virtual FString GetReferencerName() const override
-	{
-		return TEXT("FUnusedItem");
-	}
-	//~ End FGCObject Interface
+	virtual ~FUnusedItem() = default;
 	
 	virtual FText GetItemNameText() const = 0;
 };
@@ -23,18 +16,14 @@ public:
 class FUnusedItem_Function final : public FUnusedItem
 {
 public:
-	explicit FUnusedItem_Function(const TObjectPtr<UEdGraph> InFunctionGraph)
+	explicit FUnusedItem_Function(const TWeakObjectPtr<UEdGraph> InFunctionGraph)
 		: FunctionGraph(InFunctionGraph){}
-	
-	//~ Begin FGCObject Interface
-	virtual void AddReferencedObjects(FReferenceCollector& InReferenceCollector) override;
-	//~ End FGCObject Interface
 	
 	//~ Begin FUnusedItem Interface
 	virtual FText GetItemNameText() const override;
 	//~ End FUnusedItem Interface
 	
-	TObjectPtr<UEdGraph> FunctionGraph;
+	TWeakObjectPtr<UEdGraph> FunctionGraph;
 };
 
 class FUnusedItem_LocalVariable final : public FUnusedItem

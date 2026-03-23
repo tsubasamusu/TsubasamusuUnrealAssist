@@ -1,71 +1,80 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Blueprint/NodeInformationCopier.h"
-#include "Blueprint/NodeUtility.h"
 #include "Blueprint/NodeInformationUtility.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "Windows/WindowsPlatformApplicationMisc.h"
 
 #define LOCTEXT_NAMESPACE "FNodeInformationCopier"
 
-void FNodeInformationCopier::AddCopyNodeInformationMenu(const TWeakObjectPtr<UEdGraph> InGraph, FMenuBuilder& InMenuBuilder)
+FSelectedNodeMenuContext FNodeInformationCopier::CreateSelectedNodeMenuContext()
 {
-	if (!InGraph.IsValid())
-	{
-		return;
-	}
+	const FText JsonMenuLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabel", "JSON");
 	
-	const FName ExtensionHookName = TEXT("TsubasamusuUnrealAssistSection");
-	const TAttribute<FText> HeadingText = LOCTEXT("CopyNodeInformationHeading", "Tsubasamusu Unreal Assist");
-    
-	InMenuBuilder.BeginSection(ExtensionHookName, HeadingText);
-
-	const FText MainMenuLabelText = LOCTEXT("CopyNodeInformationLabel", "Copy as...");
-	const FText MainMenuToolTipText = LOCTEXT("CopyNodeInformationToolTip", "Copy selected nodes as string.");
-
-	const FSlateIcon MainMenuIcon = FSlateIcon(FAppStyle::GetAppStyleSetName(), "GenericCommands.Copy");
-
-	const TArray<TWeakObjectPtr<UEdGraphNode>> SelectedWeakNodes = FNodeUtility::GetSelectedWeakNodes(InGraph.Get());
-	const auto MenuAction = [SelectedWeakNodes](FMenuBuilder& InSubMenuBuilder)
+	const FOnSelectedNodeSubMenuClicked OnSubMenuClicked = [JsonMenuLabelText](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes, const TWeakObjectPtr<UEdGraph>, const FText& InSubMenuLabelText)
 	{
-		AddCopyNodeInformationSubMenus(InSubMenuBuilder, SelectedWeakNodes);
+		FString NodeDataListString;
+		
+		const bool bSuccessfullyGotNodeDataListString = InSubMenuLabelText.EqualTo(JsonMenuLabelText) ?
+			FNodeInformationUtility::TryGetNodeDataListString(NodeDataListString, InSelectedNodes) :
+			FNodeInformationUtility::TryGetNodeDataListToonString(NodeDataListString, InSelectedNodes);
+
+		if (bSuccessfullyGotNodeDataListString)
+		{
+			FPlatformApplicationMisc::ClipboardCopy(*NodeDataListString);
+		}
 	};
-    
-	InMenuBuilder.AddSubMenu(MainMenuLabelText, MainMenuToolTipText, FNewMenuDelegate::CreateLambda(MenuAction), FUIAction(), NAME_None, EUserInterfaceActionType::None, false, MainMenuIcon);
-
-	InMenuBuilder.EndSection();
-}
-
-void FNodeInformationCopier::AddCopyNodeInformationSubMenus(FMenuBuilder& InMenuBuilder, const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
-{
-	// JSON
-	{
-		const TAttribute<FText> CopyNodeInformationInJsonFormatLabelText = LOCTEXT("CopyNodeInformationInJsonFormatLabel", "JSON");
-		const TAttribute<FText> CopyNodeInformationInJsonFormatToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTip", "Copy selected nodes in JSON Format.");
-
-		InMenuBuilder.AddMenuEntry(CopyNodeInformationInJsonFormatLabelText, CopyNodeInformationInJsonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()
-		{
-			FString NodeDataListString;
-			if (FNodeInformationUtility::TryGetNodeDataListString(NodeDataListString, InSelectedNodes))
-			{
-				FPlatformApplicationMisc::ClipboardCopy(*NodeDataListString);
-			}
-		})));
-	}
 	
-	// TOON
+	const FShouldAddMenu ShouldAddMenu = [](const TArray<TWeakObjectPtr<UEdGraphNode>>& InSelectedNodes)
 	{
-		const TAttribute<FText> CopyNodeInformationInToonFormatLabelText = LOCTEXT("CopyNodeInformationInToonFormatLabel", "TOON");
-		const TAttribute<FText> CopyNodeInformationInToonFormatToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTip", "Copy selected nodes in TOON Format.");
-
-		InMenuBuilder.AddMenuEntry(CopyNodeInformationInToonFormatLabelText, CopyNodeInformationInToonFormatToolTipText, FSlateIcon(), FUIAction(FExecuteAction::CreateLambda([InSelectedNodes]()
-		{
-			FString NodeDataListToonString;
-			if (FNodeInformationUtility::TryGetNodeDataListToonString(NodeDataListToonString, InSelectedNodes))
-			{
-				FPlatformApplicationMisc::ClipboardCopy(*NodeDataListToonString);
-			}
-		})));
-	}
+		return !InSelectedNodes.IsEmpty();
+	};
+	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+	FSelectedNodeSubMenuContext JsonSubMenuContext
+	{
+		.OnClicked = OnSubMenuClicked,
+		.LabelText = JsonMenuLabelText,
+		.ToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTip", "Copy selected nodes in JSON Format.")
+	};
+	
+	FSelectedNodeSubMenuContext ToonSubMenuContext
+	{
+		.OnClicked = OnSubMenuClicked,
+		.LabelText = LOCTEXT("CopyNodeInformationInToonFormatLabel", "TOON"),
+		.ToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTip", "Copy selected nodes in TOON Format.")
+	};
+	
+	return FSelectedNodeMenuContext
+	{
+		.ShouldAddMenu = ShouldAddMenu,
+		.LabelText = LOCTEXT("CopyNodeInformationLabel", "Copy as..."),
+		.ToolTipText = LOCTEXT("CopyNodeInformationToolTip", "Copy selected nodes as string."),
+		.SubMenuContexts = { JsonSubMenuContext, ToonSubMenuContext }
+	};
+#else
+	FSelectedNodeSubMenuContext JsonSubMenuContext;
+	
+	JsonSubMenuContext.OnClicked = OnSubMenuClicked;
+	JsonSubMenuContext.LabelText = JsonMenuLabelText;
+	JsonSubMenuContext.ToolTipText = LOCTEXT("CopyNodeInformationInJsonFormatToolTip", "Copy selected nodes in JSON Format.");
+	
+	FSelectedNodeSubMenuContext ToonSubMenuContext;
+	
+	ToonSubMenuContext.OnClicked = OnSubMenuClicked;
+	ToonSubMenuContext.LabelText = LOCTEXT("CopyNodeInformationInToonFormatLabel", "TOON");
+	ToonSubMenuContext.ToolTipText = LOCTEXT("CopyNodeInformationInToonFormatToolTip", "Copy selected nodes in TOON Format.");
+	
+	FSelectedNodeMenuContext SelectedNodeMenuContext;
+	
+	SelectedNodeMenuContext.ShouldAddMenu = ShouldAddMenu;
+	SelectedNodeMenuContext.LabelText = LOCTEXT("CopyNodeInformationLabel", "Copy as...");
+	SelectedNodeMenuContext.ToolTipText = LOCTEXT("CopyNodeInformationToolTip", "Copy selected nodes as string.");
+	SelectedNodeMenuContext.SubMenuContexts = { JsonSubMenuContext, ToonSubMenuContext };
+	
+	return SelectedNodeMenuContext;
+#endif
 }
 
 #undef LOCTEXT_NAMESPACE

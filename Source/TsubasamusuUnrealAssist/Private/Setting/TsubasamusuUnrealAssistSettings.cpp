@@ -1,28 +1,148 @@
 // Copyright (c) 2026, tsubasamusu All rights reserved.
 
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
-#include "TsubasamusuUnrealAssistModule.h"
+#include "Algo/AnyOf.h"
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
+#include "LlamaServerOption/LlamaServerOption.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
+{
+	InitializeProperties();
+	PostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddUObject(this, &UTsubasamusuUnrealAssistSettings::RegisterEditorLanguageChangedEvent);
+}
+
+UTsubasamusuUnrealAssistSettings::~UTsubasamusuUnrealAssistSettings()
+{
+	UnregisterEditorLanguageChangedEvent();
+	
+	if (PostEngineInitHandle.IsValid())
+	{
+		FCoreDelegates::OnPostEngineInit.Remove(PostEngineInitHandle);
+	}
+}
+
+void UTsubasamusuUnrealAssistSettings::PostInitProperties()
+{
+	Super::PostInitProperties();
+	RestoreLlamaServerOptions();
+}
+
+void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(InPropertyChangedEvent);
+	
+	const FName ChangedPropertyName =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
+		InPropertyChangedEvent.GetMemberPropertyName();
+#else
+		InPropertyChangedEvent.MemberProperty ? InPropertyChangedEvent.MemberProperty->GetFName() : NAME_None;
+#endif
+	
+	if (!ChangedPropertyName.IsNone())
+	{
+		if (OnSettingsPropertyChanged.IsBound())
+		{
+			OnSettingsPropertyChanged.Broadcast(ChangedPropertyName);
+		}
+		
+		if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
+		{
+			MakeCommentGenerationLanguageSameAsEditorLanguage();
+		}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
+		{
+			VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+		}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideFunctionDefaultAccessSpecifier) && !bOverrideFunctionDefaultAccessSpecifier)
+		{
+			FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+		}
+#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideCustomEventDefaultAccessSpecifier) && !bOverrideCustomEventDefaultAccessSpecifier)
+		{
+			CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
+		}
+#endif
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, LlamaServerOptions))
+		{
+			SaveLlamaServerOptions();
+		}
+	}
+}
+
+FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const
+{
+	const FCulturePtr CommentGenerationLanguageCulture = FInternationalization::Get().GetCulture(LanguageCultureNameForCommentGeneration);
+	checkf(CommentGenerationLanguageCulture.IsValid(), TEXT("The comment generation language culture name \"%s\" is invalid."), *LanguageCultureNameForCommentGeneration);
+	return CommentGenerationLanguageCulture;
+}
+
+void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture)
+{
+	LanguageCultureNameForCommentGeneration = InCommentGenerationLanguageCulture->GetName();
+	SaveConfig();
+}
+
+bool UTsubasamusuUnrealAssistSettings::LlamaServerOptionsContainSameElements() const
+{
+	for (const ULlamaServerOption* LlamaServerOption : LlamaServerOptions)
+	{
+		if (IsValid(LlamaServerOption))
+		{
+			auto IsSameOptionClass = [LlamaServerOption](const ULlamaServerOption* InLlamaServerOption)
+			{
+				return IsValid(InLlamaServerOption)
+					&& LlamaServerOption != InLlamaServerOption
+					&& LlamaServerOption->GetClass() == InLlamaServerOption->GetClass();
+			};
+			
+			if (Algo::AnyOf(LlamaServerOptions, IsSameOptionClass))
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
+FLlamaServerSettings UTsubasamusuUnrealAssistSettings::GetCurrentLlamaServerSettings() const
+{
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+	return FLlamaServerSettings
+	{
+		.LlamaServerFilePath = LlamaServerFilePath,
+		.ConfigLlamaServerOptions = ConfigLlamaServerOptions
+	};
+#else
+	FLlamaServerSettings LlamaServerSettings;
+	
+	LlamaServerSettings.LlamaServerFilePath = LlamaServerFilePath;
+	LlamaServerSettings.ConfigLlamaServerOptions = ConfigLlamaServerOptions;
+	
+	return LlamaServerSettings;
+#endif
+}
+
+void UTsubasamusuUnrealAssistSettings::InitializeProperties()
 {
 	// General
 	TickInterval = 0.f;
 	
 	// Comment Translator
-	DeeplApiKey = TEXT("");
+	DeeplApiKey = FString();
 
 	// Comment Generator
-	OpenAiApiKey = TEXT("");
-	GptModelName = TEXT("gpt-4o-mini");
+	bEnableStreamingCommentGeneration = true;
 	bUseEditorLanguageForCommentGeneration = true;
 	LanguageCultureNameForCommentGeneration = GetEditorLanguageCulture()->GetName();
 	bIgnoreIsolatedNodesWhenGeneratingComments = true;
 	bIgnoreCommentNodesWhenGeneratingComments = false;
 	bUseToonFormatForCommentGeneration = true;
-	CommentGenerationConditions = { TEXT("answer briefly") };
+	CommentGenerationConditions = { TEXT("Length: Keep it brief but descriptive (one sentence or a short phrase).") };
 	
 	// Node Previewer
 	bEnableNodePreview = false;
@@ -41,61 +161,69 @@ UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObject
 #else
 	bCustomEventAccessSpecifierIsSupported = false;
 #endif
-}
-
-void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEvent& InPropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(InPropertyChangedEvent);
-
-	const FName PropertyName = InPropertyChangedEvent.Property ? InPropertyChangedEvent.Property->GetFName() : NAME_None;
-	FTsubasamusuUnrealAssistModule& TsubasamusuUnrealAssist = FModuleManager::LoadModuleChecked<FTsubasamusuUnrealAssistModule>(TEXT("TsubasamusuUnrealAssist"));
 	
-	if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bUseEditorLanguageForCommentGeneration) && bUseEditorLanguageForCommentGeneration)
+	// LLM
+	bStartLlamaServerOnEditorStartup = false;
+	LlamaServerFilePath = FFilePath();
+}
+
+void UTsubasamusuUnrealAssistSettings::RestoreLlamaServerOptions()
+{
+	for (const FConfigLlamaServerOption& ConfigLlamaServerOption : ConfigLlamaServerOptions)
 	{
-		MakeCommentGenerationLanguageSameAsEditorLanguage();
+		const UClass* LlamaServerOptionClass = ConfigLlamaServerOption.SoftClassPath.TryLoadClass<ULlamaServerOption>();
+		ULlamaServerOption* LlamaServerOption = NewObject<ULlamaServerOption>(GetTransientPackage(), LlamaServerOptionClass);
+    
+		LlamaServerOption->SetArgument(ConfigLlamaServerOption.Argument);
+		LlamaServerOptions.Add(LlamaServerOption);
 	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, TickInterval))
+}
+
+void UTsubasamusuUnrealAssistSettings::SaveLlamaServerOptions()
+{
+	ConfigLlamaServerOptions.Empty();
+			
+	for (const ULlamaServerOption* LlamaServerOption : LlamaServerOptions)
 	{
-		TsubasamusuUnrealAssist.ReregisterTicker();
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview))
-	{
-		if (bEnableNodePreview)
+		if (IsValid(LlamaServerOption))
 		{
-			TsubasamusuUnrealAssist.StartNodePreview();
-		}
-		else
-		{
-			TsubasamusuUnrealAssist.StopNodePreview();
-		}
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideVariableDefaultAccessSpecifier) && !bOverrideVariableDefaultAccessSpecifier)
-	{
-		VariableDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	}
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideFunctionDefaultAccessSpecifier) && !bOverrideFunctionDefaultAccessSpecifier)
-	{
-		FunctionDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	}
-#if CUSTOM_EVENT_ACCESS_SPECIFIER_IS_SUPPORTED
-	else if (PropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bOverrideCustomEventDefaultAccessSpecifier) && !bOverrideCustomEventDefaultAccessSpecifier)
-	{
-		CustomEventDefaultAccessSpecifier = ETsubasamusuAccessSpecifier::Public;
-	}
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 3, 0)
+			FConfigLlamaServerOption ConfigLlamaServerOption
+			{
+				.SoftClassPath = FSoftClassPath(LlamaServerOption->GetClass()),
+				.Argument = LlamaServerOption->GetArgument(true),
+			};
+#else
+			FConfigLlamaServerOption ConfigLlamaServerOption;
+			
+			ConfigLlamaServerOption.SoftClassPath = FSoftClassPath(LlamaServerOption->GetClass());
+			ConfigLlamaServerOption.Argument = LlamaServerOption->GetArgument(true);
 #endif
-}
-
-FCulturePtr UTsubasamusuUnrealAssistSettings::GetCommentGenerationLanguageCulture() const
-{
-	const FCulturePtr CommentGenerationLanguageCulture = FInternationalization::Get().GetCulture(LanguageCultureNameForCommentGeneration);
-	checkf(CommentGenerationLanguageCulture.IsValid(), TEXT("The comment generation language culture name \"%s\" is invalid."), *LanguageCultureNameForCommentGeneration);
-	return CommentGenerationLanguageCulture;
-}
-
-void UTsubasamusuUnrealAssistSettings::SetCommentGenerationLanguageCulture(const FCulturePtr InCommentGenerationLanguageCulture)
-{
-	LanguageCultureNameForCommentGeneration = InCommentGenerationLanguageCulture->GetName();
+			
+			ConfigLlamaServerOptions.Add(ConfigLlamaServerOption);
+		}
+	}
+			
 	SaveConfig();
+}
+
+void UTsubasamusuUnrealAssistSettings::RegisterEditorLanguageChangedEvent()
+{
+	EditorLanguageChangedHandle = FInternationalization::Get().OnCultureChanged().AddLambda([this]()
+	{
+		if (bUseEditorLanguageForCommentGeneration)
+		{
+			MakeCommentGenerationLanguageSameAsEditorLanguage();
+		}
+	});
+}
+
+void UTsubasamusuUnrealAssistSettings::UnregisterEditorLanguageChangedEvent() const
+{
+	if (EditorLanguageChangedHandle.IsValid())
+	{
+		FInternationalization::Get().OnCultureChanged().Remove(EditorLanguageChangedHandle);
+	}
 }
 
 void UTsubasamusuUnrealAssistSettings::MakeCommentGenerationLanguageSameAsEditorLanguage()

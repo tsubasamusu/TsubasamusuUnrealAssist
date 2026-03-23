@@ -2,7 +2,6 @@
 
 #include "Blueprint/NodeInformationUtility.h"
 #include "EdGraphNode_Comment.h"
-#include "NodeUtility.h"
 #include "JsonObjectConverter.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
@@ -15,7 +14,7 @@ bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListS
 
 bool FNodeInformationUtility::TryGetNodeDataListString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
 {
-	const TArray<UEdGraphNode*> HardNodes = FNodeUtility::ConvertToHardNodes(InWeakNodes);
+	const TArray<UEdGraphNode*> HardNodes = ConvertToHardNodes(InWeakNodes);
 	return TryGetNodeDataListString(OutNodeDataListString, HardNodes);
 }
 
@@ -70,7 +69,7 @@ bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataL
 					continue;
 				}
 
-				FString ConnectedPinIdsAsString = TEXT("");
+				FString ConnectedPinIdsAsString;
 				const TArray<TSharedPtr<FJsonValue>>* ConnectedPinIdsAsJsonValue;
 				
 				if (PinDataAsJsonObject->TryGetArrayField(TEXT("connectedPinIds"), ConnectedPinIdsAsJsonValue))
@@ -108,7 +107,7 @@ bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataL
 
 bool FNodeInformationUtility::TryGetNodeDataListToonString(FString& OutNodeDataListString, const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
 {
-	const TArray<UEdGraphNode*> HardNodes = FNodeUtility::ConvertToHardNodes(InWeakNodes);
+	const TArray<UEdGraphNode*> HardNodes = ConvertToHardNodes(InWeakNodes);
 	return TryGetNodeDataListToonString(OutNodeDataListString, HardNodes);
 }
 
@@ -231,4 +230,16 @@ bool FNodeInformationUtility::IsPinUsesDefaultValue(const UEdGraphPin* InPin)
 bool FNodeInformationUtility::IsCommentNode(const UEdGraphNode* InNode)
 {
 	return InNode->IsA<UEdGraphNode_Comment>();
+}
+
+TArray<UEdGraphNode*> FNodeInformationUtility::ConvertToHardNodes(const TArray<TWeakObjectPtr<UEdGraphNode>>& InWeakNodes)
+{
+	TArray<UEdGraphNode*> HardNodes;
+
+	for (const TWeakObjectPtr<UEdGraphNode>& WeakNode : InWeakNodes)
+	{
+		HardNodes.Add(WeakNode.Get());
+	}
+
+	return HardNodes;
 }
