@@ -29,6 +29,20 @@
 4. 必要に応じてIDEからビルドします。
 5. 「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加されていればOKです。
 
+### ローカルLLMの使用
+現在、このプラグインではコメント生成機能（Comment Generator）でローカルLLMを使用しています。ローカルLLMの使用にあたっては、ローカル環境でLLMを動作させるための軽量な実行エンジンである [llama.cpp](https://github.com/ggml-org/llama.cpp) で提供されている「LLaMA.cpp HTTP Server」を利用しています。
+
+このプラグインでのセットアップ手順は以下の通りです。（このプラグインのサポート対象のプラットフォームは Win64 のみなので、以下の手順は Win64 環境でのものです。）
+
+1. [llama.cpp の最新版のリリース](https://github.com/ggml-org/llama.cpp/releases/latest) の「llama-{ビルド番号}-bin-win-{種類}-x64.zip」をダウンロードします。推奨は「llama-b8475-bin-win-**cpu**-x64.zip」と「llama-b8475-bin-win-**vulkan**-x64.zip」ですが、ご自身の環境に合わせたものをダウンロードしてください。
+2. ダウンロードしたZIPファイルを展開します。
+3. Unreal Editor を開き、展開したファイルの中に含まれている「llama-server.exe」のパスを「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ LLM ＞ Llama Server File Path」に設定します。
+4. 使用したいモデルのGGUFファイルを [Hugging Face](https://huggingface.co) からダウンロードします。
+5. 「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ LLM ＞ Llama Server Options」に「Model」オプションを追加して、ダウンロードしたGGUFファイルのパスを「LLM File Path」に設定します。ここで他のオプションもいくつか設定することができますが、最低限「Model」オプションのみ設定されていればローカルLLMを使用することができます。
+6. 警告メッセージとともに「Start Llama Server」というボタンが表示されるのでそれを押します。「Llama Server File Path」や「LLM File Path」が正しく設定されているとサーバーの起動に成功し、この警告メッセージが表示されなくなります。これでローカルLLMを使用できる状態になりました。
+
+<img width="700" src="https://github.com/user-attachments/assets/8d1940d9-c609-4ebb-bbe3-4949ee3d4010">
+
 # 機能一覧
 ## Comment Generator
 その中に他のノードを1つ以上含んでいるコメントノードを右クリックすると「Generate Comment」というメニューが表示されます。このメニューをクリックするとローカルLLMを使用してコメントを生成することができます。
