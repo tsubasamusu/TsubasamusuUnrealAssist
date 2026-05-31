@@ -154,6 +154,58 @@ void UNodePreviewer::TryPreviewNode()
 		return;
 	}
 
+	FVector2f NodeWidgetSize = NodeWidget->GetDesiredSize();
+	TSharedRef<SWidget> FinalNodeWidget = NodeWidget.ToSharedRef();
+	
+	const UK2Node* K2Node = Cast<UK2Node>(LastCreatedNode);
+	
+	if (IsValid(K2Node))
+	{
+		const FName CornerIconName = K2Node->GetCornerIcon();
+		
+		if (!CornerIconName.IsNone())
+		{
+			const FSlateBrush* IconBrush = FAppStyle::GetBrush(CornerIconName);
+			
+			const FVector2f IconSize = IconBrush->GetImageSize();
+			const FVector2f HalfIconSize = IconSize / 2.f;
+			
+			NodeWidgetSize += HalfIconSize;
+ 
+			FinalNodeWidget = SNew(SBox)
+			.WidthOverride(NodeWidgetSize.X)
+			.HeightOverride(NodeWidgetSize.Y)
+			[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.HeightOverride(HalfIconSize.Y)
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SOverlay)
+					+ SOverlay::Slot()
+					[
+						NodeWidget.ToSharedRef()
+					]
+					+ SOverlay::Slot()
+					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Top)
+					.Padding(FMargin(0, -HalfIconSize.X, -HalfIconSize.Y, 0)) 
+					[
+						SNew(SImage)
+						.Image(IconBrush)
+					]
+				]
+			];
+		}
+	}
+	
 	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
 	[
 		SNew(SVerticalBox)
@@ -162,12 +214,12 @@ void UNodePreviewer::TryPreviewNode()
 		.HAlign(HAlign_Left)
 		[
 			SNew(SBox)
-			.HeightOverride(NodeWidget->GetDesiredSize().Y * TsubasamusuUnrealAssistSettings->NodePreviewScale)
+			.HeightOverride(NodeWidgetSize.Y * TsubasamusuUnrealAssistSettings->NodePreviewScale)
 			[
 				SNew(SScaleBox)
 				.Stretch(EStretch::ScaleToFitY)
 				[
-					NodeWidget.ToSharedRef()
+					FinalNodeWidget
 				]
 			]
 		]
