@@ -34,12 +34,44 @@ static TSharedPtr<WidgetClass> FindParentWidget(const TSharedPtr<SWidget> InWidg
 	return nullptr;
 }
 
+template<typename WidgetClass>
+static TSharedPtr<WidgetClass> FindChildWidget(const TSharedPtr<SWidget> InWidget, const FName& InWidgetTypeToFind)
+{
+	static_assert(TIsDerivedFrom<WidgetClass, SWidget>::Value, "WidgetClass must be derived from SWidget.");
+	
+	if (InWidget.IsValid())
+	{
+		if (InWidget->GetType() == InWidgetTypeToFind)
+		{
+			return StaticCastSharedPtr<WidgetClass>(InWidget);
+		}
+
+		const FChildren* Children = InWidget->GetChildren();
+
+		if (Children)
+		{
+			for (int32 i = 0; i < Children->Num(); ++i)
+			{
+				TSharedRef<SWidget> ChildWidget = ConstCastSharedRef<SWidget>(Children->GetChildAt(i));
+				TSharedPtr<WidgetClass> FoundWidget = FindChildWidget<WidgetClass>(ChildWidget, InWidgetTypeToFind);
+
+				if (FoundWidget.IsValid())
+				{
+					return FoundWidget;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 void UNodePreviewer::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
 {
 	Super::Initialize(InSubsystemCollectionBase);
 	
-	GhostBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
-	GhostGraph = FBlueprintEditorUtils::CreateNewGraph(GhostBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	GhostBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UAnimBlueprint::StaticClass(), UAnimBlueprintGeneratedClass::StaticClass());
+	GhostGraph = FBlueprintEditorUtils::CreateNewGraph(GhostBlueprint, TEXT("NodePreviewGraph"), UAnimationGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
 }
 
 void UNodePreviewer::Tick(const float InDeltaTime)

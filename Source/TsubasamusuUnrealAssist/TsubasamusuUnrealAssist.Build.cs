@@ -42,7 +42,8 @@ public class TsubasamusuUnrealAssist : ModuleRules
             "BlueprintEditorLibrary",
             "ToolWidgets",
             "EditorSubsystem",
-            "Sockets"
+            "Sockets",
+            "AnimGraph",
 		});
 	}
 }
