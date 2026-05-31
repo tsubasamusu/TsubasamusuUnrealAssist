@@ -262,7 +262,7 @@ void UNodePreviewer::RecreateGhost()
 			// Disable Compile
 			FBlueprintDuplicationScopeFlags Scope(FBlueprintDuplicationScopeFlags::NoExtraCompilation);
 			
-			const FString GhostName = FGuid::NewGuid().ToString();
+			const FString GhostName = FString::Printf(TEXT("%s_%s"), *FocusedBlueprint->GetName(), *FGuid::NewGuid().ToString());
 			GhostBlueprint = DuplicateObject<UBlueprint>(FocusedBlueprint, GetTransientPackage(), FName(*GhostName));
 
 			TArray<UEdGraph*> GhostBlueprintGraphs;
