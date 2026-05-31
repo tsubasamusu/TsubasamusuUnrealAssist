@@ -47,4 +47,6 @@ private:
 	
 	/* Previously edited tool tip widget. */
 	TWeakPtr<SToolTip> EditedToolTipWidget;
+	
+	TWeakObjectPtr<UEdGraphNode> LastCreatedNode;
 };

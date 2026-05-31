@@ -123,22 +123,26 @@ void UNodePreviewer::TryPreviewNode()
 	{
 		return;
 	}
+	if (LastCreatedNode.IsValid())
+	{
+		LastCreatedNode->DestroyNode();
+	}
+	
+	LastCreatedNode = CreateNode(GraphActionNode);
 
-	UEdGraphNode* Node = CreateNode(GraphActionNode);
-
-	if (!IsValid(Node))
+	if (!LastCreatedNode.IsValid())
 	{
 		return;
 	}
 
 	const TWeakObjectPtr<UTsubasamusuUnrealAssistSettings> TsubasamusuUnrealAssistSettings = GetCachedTsubasamusuUnrealAssistSettings();
 	
-	if (TsubasamusuUnrealAssistSettings.IsValid() && TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && Node->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
+	if (TsubasamusuUnrealAssistSettings.IsValid() && TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && LastCreatedNode->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
 	{
-		Node->AdvancedPinDisplay = ENodeAdvancedPins::Shown;
+		LastCreatedNode->AdvancedPinDisplay = ENodeAdvancedPins::Shown;
 	}
 
-	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
+	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(LastCreatedNode.Get());
 
 	if (!NodeWidget.IsValid())
 	{
