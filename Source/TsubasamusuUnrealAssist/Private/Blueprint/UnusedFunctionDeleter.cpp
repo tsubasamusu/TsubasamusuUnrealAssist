@@ -37,7 +37,7 @@ void FUnusedFunctionDeleter::OnDeleteUnusedFunctionsClicked(UBlueprint* InBluepr
 	{
 		if (InGraph->bAllowDeletion)
 		{
-			AllDeletableFunctionsCount++;
+			++AllDeletableFunctionsCount;
 		
 			if (!FBlueprintEditorUtils::IsFunctionUsed(InBlueprint, InFunction->GetFName()))
 			{

@@ -10,7 +10,7 @@ TSharedRef<FTSTicker::FDelegateHandle> FTsubasamusuStringUtility::PlayTextAnimat
 	{
 		FString DotsString = TEXT("");
 		
-		for (int32 i = 0; i < (*ElapsedFramesCount % (InMaxDotsNumber + 1)); i++)
+		for (int32 i = 0; i < (*ElapsedFramesCount % (InMaxDotsNumber + 1)); ++i)
 		{
 			DotsString += TEXT(".");
 		}
@@ -18,7 +18,7 @@ TSharedRef<FTSTicker::FDelegateHandle> FTsubasamusuStringUtility::PlayTextAnimat
 		const FString AnimationText = FString::Printf(TEXT("%s%s"), *InBaseText, *DotsString);
 		InAnimationTextChangedFunction(AnimationText);
 		
-		(*ElapsedFramesCount)++;
+		++(*ElapsedFramesCount);
 		
 		return true;
 	};

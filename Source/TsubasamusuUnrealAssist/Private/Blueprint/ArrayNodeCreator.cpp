@@ -90,7 +90,7 @@ UK2Node_MakeArray* FArrayNodeCreator::CreateArrayNode(const TArray<TWeakObjectPt
 				ArrayNode->NodePosX = DesiredArrayNodePosition.X;
 				ArrayNode->NodePosY = DesiredArrayNodePosition.Y;
 				
-				for (int32 i = 0; i < OutputPins.Num() - 1; i++)
+				for (int32 i = 0; i < OutputPins.Num() - 1; ++i)
 				{
 					ArrayNode->AddInputPin();
 				}
@@ -235,7 +235,7 @@ void FArrayNodeCreator::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
 	TArray<int32> OutPinsIndexes;
 	OutPinsIndexes.SetNum(OutPins.Num());
 
-	for (int32 i = 0; i < OutPinsIndexes.Num(); i++)
+	for (int32 i = 0; i < OutPinsIndexes.Num(); ++i)
 	{
 		OutPinsIndexes[i] = i;
 	}
@@ -251,7 +251,7 @@ void FArrayNodeCreator::SortPinsByPositionY(TArray<UEdGraphPin*>& OutPins)
 	TArray<UEdGraphPin*> SortedPins;
 	SortedPins.SetNum(OutPins.Num());
 	
-	for (int32 i = 0; i < SortedPins.Num(); i++)
+	for (int32 i = 0; i < SortedPins.Num(); ++i)
 	{
 		SortedPins[i] = OutPins[OutPinsIndexes[i]];
 	}
