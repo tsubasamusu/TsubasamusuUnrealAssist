@@ -34,6 +34,7 @@ private:
 	
 	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<SWidget> FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget);
+	static UEdGraph* GetFocusedGraph();
 	
 	UPROPERTY()
 	TObjectPtr<UBlueprint> GhostBlueprint;

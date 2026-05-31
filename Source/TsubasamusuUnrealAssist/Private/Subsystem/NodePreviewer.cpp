@@ -296,3 +296,21 @@ TSharedPtr<SWidget> UNodePreviewer::FindToolTipDisplayer(const TSharedPtr<SWidge
 	
 	return nullptr;
 }
+
+UEdGraph* UNodePreviewer::GetFocusedGraph()
+{
+	const TSharedPtr<SDockTab> ActiveTab = FGlobalTabmanager::Get()->GetActiveTab();
+
+	if (ActiveTab.IsValid())
+	{
+		const TSharedRef<SWidget> ContentWidget = ActiveTab->GetContent();
+		const TSharedPtr<SGraphEditor> GraphEditor = FindChildWidget<SGraphEditor>(ContentWidget, TEXT("SGraphEditor"));
+
+		if (GraphEditor.IsValid())
+		{
+			return GraphEditor->GetCurrentGraph();
+		}
+	}
+	
+	return nullptr;
+}
