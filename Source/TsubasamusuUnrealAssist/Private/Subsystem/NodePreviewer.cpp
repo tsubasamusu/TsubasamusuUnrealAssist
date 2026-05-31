@@ -6,7 +6,6 @@
 #include "NodeFactory.h"
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
-#include "Kismet2/KismetEditorUtilities.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
@@ -66,14 +65,6 @@ static TSharedPtr<WidgetClass> FindChildWidget(const TSharedPtr<SWidget> InWidge
 	return nullptr;
 }
 
-void UNodePreviewer::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
-{
-	Super::Initialize(InSubsystemCollectionBase);
-	
-	GhostBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UAnimBlueprint::StaticClass(), UAnimBlueprintGeneratedClass::StaticClass());
-	GhostGraph = FBlueprintEditorUtils::CreateNewGraph(GhostBlueprint, TEXT("NodePreviewGraph"), UAnimationGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
-}
-
 void UNodePreviewer::Tick(const float InDeltaTime)
 {
 	const TWeakObjectPtr<UTsubasamusuUnrealAssistSettings> TsubasamusuUnrealAssistSettings = GetCachedTsubasamusuUnrealAssistSettings();
@@ -95,14 +86,7 @@ void UNodePreviewer::TryPreviewNode()
 	
 	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNode(HoveredWidget);
 
-	if (!GraphActionNode.IsValid())
-	{
-		return;
-	}
-	
-	const UBlueprintNodeSpawner* BlueprintNodeSpawner = GetBlueprintNodeSpawner(GraphActionNode);
-	
-	if (!IsValid(BlueprintNodeSpawner))
+	if (!GraphActionNode.IsValid() || !IsNodeSpawnAction(GraphActionNode))
 	{
 		return;
 	}
@@ -131,14 +115,25 @@ void UNodePreviewer::TryPreviewNode()
 		EditedToolTipWidget.Reset();
 	}
 
-	{
-	}
 	if (LastCreatedNode.IsValid())
 	{
 		LastCreatedNode->DestroyNode();
 	}
 	
-	LastCreatedNode = BlueprintNodeSpawner->Invoke(GhostGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
+	const TSharedPtr<SWidget> CurrentNodeMenuWidget = FindParentWidget<SWidget>(HoveredWidget, TEXT("SBlueprintActionMenu"));
+	
+	if (!LastNodeMenuWidget.IsValid() || CurrentNodeMenuWidget != LastNodeMenuWidget.Pin())
+	{
+		RecreateGhost();
+		LastNodeMenuWidget = CurrentNodeMenuWidget;
+	}
+	
+	if (!IsValid(GhostBlueprint) || !IsValid(GhostGraph))
+	{
+		return;
+	}
+	
+	LastCreatedNode = GraphActionNode->GetPrimaryAction()->PerformAction(GhostGraph,  nullptr, FVector2f());
 
 	if (!LastCreatedNode.IsValid())
 	{
@@ -188,6 +183,47 @@ void UNodePreviewer::TryPreviewNode()
 
 	ToolTipEditedWidget = ToolTipDisplayer;
 	EditedToolTipWidget = CurrentToolTipWidget;
+}
+
+void UNodePreviewer::RecreateGhost()
+{
+	if (IsValid(GhostBlueprint))
+	{
+		GhostBlueprint->MarkAsGarbage();
+		GhostBlueprint = nullptr;
+	}
+	
+	if (IsValid(GhostGraph))
+	{
+		GhostGraph->MarkAsGarbage();
+		GhostGraph = nullptr;
+	}
+	
+	const UEdGraph* FocusedGraph = GetFocusedGraph();
+	
+	if (IsValid(FocusedGraph))
+	{
+		const UBlueprint* FocusedBlueprint = FBlueprintEditorUtils::FindBlueprintForGraph(FocusedGraph);
+		
+		if (IsValid(FocusedBlueprint))
+		{
+			const FString GhostName = FGuid::NewGuid().ToString();
+			GhostBlueprint = DuplicateObject<UBlueprint>(FocusedBlueprint, GetTransientPackage(), FName(*GhostName));
+
+			TArray<UEdGraph*> GhostBlueprintGraphs;
+			GhostBlueprint->GetAllGraphs(GhostBlueprintGraphs);
+
+			UEdGraph** FoundGraph = GhostBlueprintGraphs.FindByPredicate([FocusedGraph](const UEdGraph* InGhostBlueprintGraph)
+			{
+				return InGhostBlueprintGraph->GetFName() == FocusedGraph->GetFName();
+			});
+			
+			if (FoundGraph)
+			{
+				GhostGraph = *FoundGraph;
+			}
+		}
+	}
 }
 
 TSharedPtr<SWidget> UNodePreviewer::GetHoveredWidget()
@@ -264,7 +300,7 @@ TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 	return nullptr;
 }
 
-const UBlueprintNodeSpawner* UNodePreviewer::GetBlueprintNodeSpawner(const TSharedPtr<FGraphActionNode> InGraphActionNode)
+bool UNodePreviewer::IsNodeSpawnAction(const TSharedPtr<FGraphActionNode> InGraphActionNode)
 {
 	if (InGraphActionNode.IsValid() && InGraphActionNode->HasValidAction())
 	{
@@ -273,11 +309,13 @@ const UBlueprintNodeSpawner* UNodePreviewer::GetBlueprintNodeSpawner(const TShar
 		if (PrimaryAction.IsValid() && PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
 		{
 			const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
-			return BlueprintActionMenuItem->GetRawAction();
+			const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
+			
+			return IsValid(BlueprintNodeSpawner);
 		}
 	}
 	
-	return nullptr;
+	return false;
 }
 
 bool UNodePreviewer::IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget)

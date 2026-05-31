@@ -13,11 +13,6 @@ class UNodePreviewer final : public UTickableEditorSubsystem
 {
 	GENERATED_BODY()
 	
-public:
-	//~ Begin USubsystem Interface
-	virtual void Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase) override;
-	//~ End USubsystem Interface
-	
 protected:
 	//~ Begin UTickableEditorSubsystem Interface
 	virtual void Tick(const float InDeltaTime) override;
@@ -25,12 +20,13 @@ protected:
 	
 private:
 	void TryPreviewNode();
+	void RecreateGhost();
 	
 	static TSharedPtr<SWidget> GetHoveredWidget();
 	static TSharedPtr<FGraphActionNode> GetGraphActionNode(const TSharedPtr<SWidget> InWidget);
 	
 	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
-	static const UBlueprintNodeSpawner* GetBlueprintNodeSpawner(const TSharedPtr<FGraphActionNode> InGraphActionNode);
+	static bool IsNodeSpawnAction(const TSharedPtr<FGraphActionNode> InGraphActionNode);
 	
 	static bool IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<SWidget> FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget);
@@ -48,5 +44,6 @@ private:
 	/* Previously edited tool tip widget. */
 	TWeakPtr<SToolTip> EditedToolTipWidget;
 	
+	TWeakPtr<SWidget> LastNodeMenuWidget;
 	TWeakObjectPtr<UEdGraphNode> LastCreatedNode;
 };
