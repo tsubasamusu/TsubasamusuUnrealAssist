@@ -30,9 +30,9 @@ private:
 	static TSharedPtr<FGraphActionNode> GetGraphActionNode(const TSharedPtr<SWidget> InWidget);
 	
 	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
-	UEdGraphNode* CreateNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const;
+	static const UBlueprintNodeSpawner* GetBlueprintNodeSpawner(const TSharedPtr<FGraphActionNode> InGraphActionNode);
 	
-	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
+	static bool IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget);
 	static TSharedPtr<SWidget> FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget);
 	static UEdGraph* GetFocusedGraph();
 	

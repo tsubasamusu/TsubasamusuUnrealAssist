@@ -88,7 +88,21 @@ void UNodePreviewer::TryPreviewNode()
 {
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
 	
-	if (!HoveredWidget.IsValid() || !IsNodeSelectionWidget(HoveredWidget))
+	if (!HoveredWidget.IsValid() || !IsDescendantOfBlueprintPaletteItem(HoveredWidget))
+	{
+		return;
+	}
+	
+	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNode(HoveredWidget);
+
+	if (!GraphActionNode.IsValid())
+	{
+		return;
+	}
+	
+	const UBlueprintNodeSpawner* BlueprintNodeSpawner = GetBlueprintNodeSpawner(GraphActionNode);
+	
+	if (!IsValid(BlueprintNodeSpawner))
 	{
 		return;
 	}
@@ -117,18 +131,14 @@ void UNodePreviewer::TryPreviewNode()
 		EditedToolTipWidget.Reset();
 	}
 
-	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNode(HoveredWidget);
-
-	if (!GraphActionNode.IsValid())
 	{
-		return;
 	}
 	if (LastCreatedNode.IsValid())
 	{
 		LastCreatedNode->DestroyNode();
 	}
 	
-	LastCreatedNode = CreateNode(GraphActionNode);
+	LastCreatedNode = BlueprintNodeSpawner->Invoke(GhostGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
 
 	if (!LastCreatedNode.IsValid())
 	{
@@ -254,28 +264,23 @@ TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 	return nullptr;
 }
 
-UEdGraphNode* UNodePreviewer::CreateNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const
+const UBlueprintNodeSpawner* UNodePreviewer::GetBlueprintNodeSpawner(const TSharedPtr<FGraphActionNode> InGraphActionNode)
 {
-	if (InGraphActionNode.IsValid() && IsValid(GhostBlueprint) && IsValid(GhostGraph))
+	if (InGraphActionNode.IsValid() && InGraphActionNode->HasValidAction())
 	{
 		const TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
 	
 		if (PrimaryAction.IsValid() && PrimaryAction->IsA(FBlueprintActionMenuItem::StaticGetTypeId()))
 		{
 			const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
-			const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
-			
-			if (IsValid(BlueprintNodeSpawner))
-			{
-				return BlueprintNodeSpawner->Invoke(GhostGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
-			}
+			return BlueprintActionMenuItem->GetRawAction();
 		}
 	}
 	
 	return nullptr;
 }
 
-bool UNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+bool UNodePreviewer::IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget)
 {
 	const TSharedPtr<SWidget> BlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
 	return BlueprintPaletteItem.IsValid();
