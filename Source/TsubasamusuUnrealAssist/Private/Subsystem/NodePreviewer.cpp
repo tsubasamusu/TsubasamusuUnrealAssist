@@ -77,6 +77,20 @@ void UNodePreviewer::Tick(const float InDeltaTime)
 
 void UNodePreviewer::TryPreviewNode()
 {
+	if (!LastNodeMenuWidget.IsValid())
+	{
+		if (IsValid(GhostBlueprint))
+		{
+			GhostBlueprint->MarkAsGarbage();
+			GhostBlueprint = nullptr;
+		}
+		
+		if (LastCreatedNode.IsValid())
+		{
+			LastCreatedNode->DestroyNode();
+		}
+	}
+	
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
 	
 	if (!HoveredWidget.IsValid() || !IsDescendantOfBlueprintPaletteItem(HoveredWidget))
@@ -115,11 +129,6 @@ void UNodePreviewer::TryPreviewNode()
 		EditedToolTipWidget.Reset();
 	}
 
-	if (LastCreatedNode.IsValid())
-	{
-		LastCreatedNode->DestroyNode();
-	}
-	
 	const TSharedPtr<SWidget> CurrentNodeMenuWidget = FindParentWidget<SWidget>(HoveredWidget, TEXT("SBlueprintActionMenu"));
 	
 	if (!LastNodeMenuWidget.IsValid() || CurrentNodeMenuWidget != LastNodeMenuWidget.Pin())
@@ -128,12 +137,12 @@ void UNodePreviewer::TryPreviewNode()
 		LastNodeMenuWidget = CurrentNodeMenuWidget;
 	}
 	
-	if (!IsValid(GhostBlueprint) || !IsValid(GhostGraph))
+	if (!IsValid(GhostBlueprint) || !GhostGraph.IsValid())
 	{
 		return;
 	}
 	
-	LastCreatedNode = GraphActionNode->GetPrimaryAction()->PerformAction(GhostGraph,  nullptr, FVector2f());
+	LastCreatedNode = GraphActionNode->GetPrimaryAction()->PerformAction(GhostGraph.Get(),  nullptr, FVector2f());
 
 	if (!LastCreatedNode.IsValid())
 	{
@@ -243,12 +252,6 @@ void UNodePreviewer::RecreateGhost()
 	{
 		GhostBlueprint->MarkAsGarbage();
 		GhostBlueprint = nullptr;
-	}
-	
-	if (IsValid(GhostGraph))
-	{
-		GhostGraph->MarkAsGarbage();
-		GhostGraph = nullptr;
 	}
 	
 	const UEdGraph* FocusedGraph = GetFocusedGraph();

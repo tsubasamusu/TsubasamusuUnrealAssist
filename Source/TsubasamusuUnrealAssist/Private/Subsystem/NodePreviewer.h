@@ -35,9 +35,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UBlueprint> GhostBlueprint;
 	
-	UPROPERTY()
-	TObjectPtr<UEdGraph> GhostGraph;
-	
 	/* A widget whose tool tip was previously edited. */
 	TWeakPtr<SWidget> ToolTipEditedWidget;
 	
@@ -46,4 +43,5 @@ private:
 	
 	TWeakPtr<SWidget> LastNodeMenuWidget;
 	TWeakObjectPtr<UEdGraphNode> LastCreatedNode;
+	TWeakObjectPtr<UEdGraph> GhostGraph;
 };
