@@ -259,6 +259,9 @@ void UNodePreviewer::RecreateGhost()
 		
 		if (IsValid(FocusedBlueprint))
 		{
+			// Disable Compile
+			FBlueprintDuplicationScopeFlags Scope(FBlueprintDuplicationScopeFlags::NoExtraCompilation);
+			
 			const FString GhostName = FGuid::NewGuid().ToString();
 			GhostBlueprint = DuplicateObject<UBlueprint>(FocusedBlueprint, GetTransientPackage(), FName(*GhostName));
 
