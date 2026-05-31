@@ -84,11 +84,6 @@ void UNodePreviewer::TryPreviewNode()
 			GhostBlueprint->MarkAsGarbage();
 			GhostBlueprint = nullptr;
 		}
-		
-		if (LastCreatedNode.IsValid())
-		{
-			LastCreatedNode->DestroyNode();
-		}
 	}
 	
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
@@ -129,6 +124,11 @@ void UNodePreviewer::TryPreviewNode()
 		EditedToolTipWidget.Reset();
 	}
 
+	if (LastCreatedNode.IsValid())
+	{
+		LastCreatedNode->DestroyNode();
+	}
+	
 	const TSharedPtr<SWidget> CurrentNodeMenuWidget = FindParentWidget<SWidget>(HoveredWidget, TEXT("SBlueprintActionMenu"));
 	
 	if (!LastNodeMenuWidget.IsValid() || CurrentNodeMenuWidget != LastNodeMenuWidget.Pin())
