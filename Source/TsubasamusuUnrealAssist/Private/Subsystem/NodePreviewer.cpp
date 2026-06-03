@@ -340,6 +340,26 @@ TSharedPtr<FGraphActionNode> UNodePreviewer::GetGraphActionNode(const TSharedPtr
 	return nullptr;
 }
 
+UEdGraph* UNodePreviewer::GetGraphOfType(const EGraphType InGraphType, const UBlueprint* InBlueprint)
+{
+	check(IsValid(InBlueprint));
+	
+	TArray<UEdGraph*> AllGraphs;
+	InBlueprint->GetAllGraphs(AllGraphs);
+	
+	UEdGraph** FoundGraph = AllGraphs.FindByPredicate([InGraphType](const UEdGraph* InGraph)
+	{
+		return IsValid(InGraph) && GetGraphType(InGraph) == InGraphType;
+	});
+	
+	if (FoundGraph)
+	{
+		return *FoundGraph;
+	}
+	
+	return nullptr;
+}
+
 EGraphType UNodePreviewer::GetGraphType(const UEdGraph* InGraph)
 {
 	check(IsValid(InGraph));

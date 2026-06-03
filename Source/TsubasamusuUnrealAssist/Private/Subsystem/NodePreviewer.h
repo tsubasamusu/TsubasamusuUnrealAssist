@@ -24,6 +24,8 @@ private:
 	
 	static TSharedPtr<SWidget> GetHoveredWidget();
 	static TSharedPtr<FGraphActionNode> GetGraphActionNode(const TSharedPtr<SWidget> InWidget);
+	
+	static UEdGraph* GetGraphOfType(const EGraphType InGraphType, const UBlueprint* InBlueprint);
 	static EGraphType GetGraphType(const UEdGraph* InGraph);
 	
 	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
