@@ -340,6 +340,41 @@ TSharedPtr<FGraphActionNode> UNodePreviewer::GetGraphActionNode(const TSharedPtr
 	return nullptr;
 }
 
+EGraphType UNodePreviewer::GetGraphType(const UEdGraph* InGraph)
+{
+	check(IsValid(InGraph));
+	UEdGraph* Graph = const_cast<UEdGraph*>(InGraph);
+	
+	for (UObject* Outer = Graph; Outer; Outer = Outer->GetOuter())
+	{
+		const UBlueprint* Blueprint = Cast<UBlueprint>(Outer);
+		
+		if (IsValid(Blueprint))
+		{
+			if (Blueprint->BlueprintType == BPTYPE_MacroLibrary || Blueprint->MacroGraphs.Contains(Graph))
+			{
+				return GT_Macro;
+			}
+			
+			if (Blueprint->UbergraphPages.Contains(Graph))
+			{
+				return GT_Ubergraph;
+			}
+			
+			if (Blueprint->BlueprintType == BPTYPE_FunctionLibrary || Blueprint->FunctionGraphs.Contains(Graph))
+			{
+				return GT_Function; 
+			}
+		}
+		else
+		{
+			Graph = Cast<UEdGraph>(Outer);
+		}
+	}
+	
+	return GT_Function;
+}
+
 TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 {
 	if (IsValid(InNode))
