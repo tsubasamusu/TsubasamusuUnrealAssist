@@ -25,15 +25,17 @@ private:
 	static TSharedPtr<SWidget> GetHoveredWidget();
 	static TSharedPtr<FGraphActionNode> GetGraphActionNode(const TSharedPtr<SWidget> InWidget);
 	
+	static UEdGraph* GetFocusedGraph();
 	static UEdGraph* GetGraphOfType(const EGraphType InGraphType, const UBlueprint* InBlueprint);
 	static EGraphType GetGraphType(const UEdGraph* InGraph);
 	
 	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
-	static bool IsNodeSpawnAction(const TSharedPtr<FGraphActionNode> InGraphActionNode);
+	UEdGraphNode* CreateOrFindNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const;
 	
+	static bool IsNodeSpawnAction(const TSharedPtr<FGraphActionNode> InGraphActionNode);
 	static bool IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget);
+	
 	static TSharedPtr<SWidget> FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget);
-	static UEdGraph* GetFocusedGraph();
 	
 	UPROPERTY()
 	TObjectPtr<UBlueprint> GhostBlueprint;
