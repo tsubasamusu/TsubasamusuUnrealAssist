@@ -183,7 +183,12 @@ void UNodePreviewer::TryPreviewNode()
 		
 		if (!CornerIconName.IsNone())
 		{
-			const FSlateBrush* IconBrush = FAppStyle::GetBrush(CornerIconName);
+			const FSlateBrush* IconBrush = 
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
+				FAppStyle::GetBrush(CornerIconName);
+#else
+				FEditorStyle::GetBrush(CornerIconName);
+#endif
 			
 			// Normally, setting "NodeWidgetSize.X" to "NodeWidgetSize.X + HalfIconSize.X" should be fine,
 			// but for some reason, this sometimes causes the corner icon to be cut off,
