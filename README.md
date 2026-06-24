@@ -7,7 +7,8 @@
 ## 概要
 個人的に Unreal Editor に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Engine 用のエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
 
-※このプラグインは実験的機能（Experimental）であり、[MITライセンス](https://opensource.org/license/mit)で公開しています。このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
+> [!CAUTION]
+> このプラグインは実験的機能（Experimental）であり、[MITライセンス](https://opensource.org/license/mit)で公開しています。このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
 
 ## エンジンバージョン
 サポート対象のエンジンバージョンは以下の通りです。
@@ -32,7 +33,10 @@
 ### ローカルLLMの使用
 現在、このプラグインではコメント生成機能（Comment Generator）でローカルLLMを使用しています。ローカルLLMの使用にあたっては、ローカル環境でLLMを動作させるための軽量な実行エンジンである [llama.cpp](https://github.com/ggml-org/llama.cpp) で提供されている「LLaMA.cpp HTTP Server」を利用しています。
 
-このプラグインでのセットアップ手順は以下の通りです。（このプラグインのサポート対象のプラットフォームは Win64 のみなので、以下の手順は Win64 環境でのものです。）
+このプラグインでのセットアップ手順は以下の通りです。
+
+> [!WARNING]
+> このプラグインのサポート対象のプラットフォームは Win64 のみなので、以下の手順は Win64 環境でのものです。
 
 1. [llama.cpp の最新版のリリース](https://github.com/ggml-org/llama.cpp/releases/latest) の「llama-{ビルド番号}-bin-win-{種類}-x64.zip」をダウンロードします。推奨は「llama-b8475-bin-win-**cpu**-x64.zip」と「llama-b8475-bin-win-**vulkan**-x64.zip」ですが、ご自身の環境に合わせたものをダウンロードしてください。
 2. ダウンロードしたZIPファイルを展開します。
@@ -62,7 +66,10 @@
 | Conditions | LLMがコメントを生成するときに従う条件。例えば「そのブループリントで行っていることを簡潔にまとめること」や「だ・である口調で生成すること」などです。 |
 
 ### Comment Translator
-コメントが設定されているコメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューをマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
+コメントが設定されているコメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューをマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。
+
+> [!NOTE]
+> この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
 
 <img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
@@ -459,11 +466,11 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 ### Access Specifier Optimizer
 このプラグインを有効化してブループリントエディタを開くと、「Optimize Access Specifiers」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されているメンバの中でアクセス修飾子を変更した方がいいものが一覧で表示されます。例えば、そのクラス内でしか参照されていないにも関わらず、アクセス修飾子が Private になっていないものや、他のクラスから参照されていてもそれらのクラスが基のクラスの派生クラスしかないにも関わらず、アクセス修飾子が Public になっているものなどです。アクセス修飾子を変更したいメンバにチェックを付けて「Apply Optimal Access Specifiers」というボタンを押すと、それらのメンバに最適なアクセス修飾子を一括で適用することができます。
 
+> [!WARNING]
+> - カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
+> - 保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
+
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
-
-※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
-
-※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
 
 ### Access Specifier Initializer
 ブループリントに新しい変数や関数、カスタムイベントを追加した際にそのメンバのアクセス修飾子を自動的に変更します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になっていますが、この機能を有効化することでメンバの追加時に自動的に Protected や Private などに変更することができます。
@@ -479,14 +486,16 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 | Override Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子を上書きするかどうか。 |
 | Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子。（Private・Protected・Public） |
 
-※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
+> [!WARNING]
+> カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
 
 ### Unused Function Deleter
 このプラグインを有効化してブループリントエディタを開くと「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
 
-<img width="500" src="https://github.com/user-attachments/assets/2c0f2ce5-8998-483f-b74d-1be53de84aca">
+> [!WARNING]
+> オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
 
-※オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
+<img width="500" src="https://github.com/user-attachments/assets/2c0f2ce5-8998-483f-b74d-1be53de84aca">
 
 ### Unused Local Variable Deleter
 このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
