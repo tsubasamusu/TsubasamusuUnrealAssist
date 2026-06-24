@@ -454,6 +454,9 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 ### Node Previewer
 ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview」にチェックを付ける必要があります。
 
+> [!CAUTION]
+> Documentation Node などの一部の特殊なノードや、通常のブループリントやアニメーションブループリント以外のアセットでノードをプレビューしようとするとクラッシュしてしまうことがあるため、Node Previewer の使用は慎重にお願いします。
+
 <img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
 
 「Enable Node Preview」にチェックを付けると、以下のプロパティが編集できるようになります。
