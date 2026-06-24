@@ -6,6 +6,7 @@
 #include "Interfaces/IHttpRequest.h"
 #include "Interfaces/IHttpResponse.h"
 #include "LlamaServerOption/LlamaServerOption_Port.h"
+#include "Serialization/JsonSerializer.h"
 #include "Setting/EditorSettingsUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
