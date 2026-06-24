@@ -476,7 +476,12 @@ UEdGraphNode* UNodePreviewer::CreateOrFindNode(const TSharedPtr<FGraphActionNode
 				}
 				else
 				{
-					const UFunction* EventSignatureFunction = TemplateEventNode->FindEventSignatureFunction();
+					const UFunction* EventSignatureFunction =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
+						TemplateEventNode->FindEventSignatureFunction();
+#else
+						const_cast<UK2Node_Event*>(TemplateEventNode)->FindEventSignatureFunction();
+#endif
 					
 					if (IsValid(EventSignatureFunction))
 					{
