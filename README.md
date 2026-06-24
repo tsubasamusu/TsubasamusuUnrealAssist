@@ -14,7 +14,8 @@ An Unreal Editor extension plugin that adds features I personally want in UE5, a
 > This plugin is an experimental feature and is released under the [MIT License](https://opensource.org/license/mit). We are not responsible for any issues that arise from using this plugin.
 
 > [!WARNING]
-> Currently, only the Win64 platform is supported.
+> - Currently, only the Win64 platform is supported.
+> - Most of the features provided by this plugin are related to Blueprint, but since Blueprint themself may be deprecated in UE6 and later, I plan to continue development using a separate plugin called “[Tsubasamusu Unreal Assist for UE6](https://github.com/tsubasamusu/tua4ue6)” for UE6 and later versions.
 
 ## Engine Version
 Supported engine versions are as follows:
