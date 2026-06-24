@@ -1,14 +1,18 @@
 # Tsubasamusu Unreal Assist（Experimental）
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tsubasamusu/TsubasamusuUnrealAssist)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.7-0e1128?logo=unrealengine&logoColor=white)
+![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.8-0e1128?logo=unrealengine&logoColor=white)
 [![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
 
 ## 概要
-個人的に Unreal Editor に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Engine 用のエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
+UE5 に個人的に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Editor の拡張プラグインです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
 
 > [!CAUTION]
 > このプラグインは実験的機能（Experimental）であり、[MITライセンス](https://opensource.org/license/mit)で公開しています。このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
+
+> [!WARNING]
+> - 現在サポートしているプラットフォームは Win64 のみです。
+> - このプラグインで提供している機能のほとんどはブループリント関連のものですが、UE6 以降ではブループリント自体が非推奨になる可能性があるため、UE6 以降は「[Tsubasamusu Unreal Assist for UE6](https://github.com/tsubasamusu/tua4ue6)」という別のプラグインで開発を行う予定です。
 
 ## エンジンバージョン
 サポート対象のエンジンバージョンは以下の通りです。
@@ -21,6 +25,7 @@
 - 5.5
 - 5.6
 - 5.7
+- 5.8
 
 ## 導入手順
 ### プラグインのインストール
@@ -457,7 +462,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 > [!CAUTION]
 > Documentation Node などの一部の特殊なノードや、通常のブループリントやアニメーションブループリント以外のアセットでノードをプレビューしようとするとクラッシュしてしまうことがあるため、Node Previewer の使用は慎重にお願いします。
 
-<img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
+<img width="700" src="https://github.com/user-attachments/assets/4ec73004-1a6c-494d-b81e-05b36e1c5a31">
 
 「Enable Node Preview」にチェックを付けると、以下のプロパティが編集できるようになります。
 

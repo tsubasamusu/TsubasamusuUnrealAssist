@@ -1,17 +1,21 @@
 # Tsubasamusu Unreal Assist (Experimental)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tsubasamusu/TsubasamusuUnrealAssist)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.7-0e1128?logo=unrealengine&logoColor=white)
+![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.8-0e1128?logo=unrealengine&logoColor=white)
 [![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
 
 > [!WARNING]
 > The content of this file is an automatic translation of [README_ja.md](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/blob/main/README_ja.md) generated using AI.
 
 ## Overview
-An editor extension plugin for Unreal Engine that continuously adds features I personally want in the Unreal Editor or features I see mentioned on social media like "I wish this feature existed...". Currently, only the Win64 platform is supported. When this plugin is enabled, a "Tsubasamusu Unreal Assist" category is added to "Editor Preferences > Plugins", where you can change settings related to this plugin.
+An Unreal Editor extension plugin that adds features I personally want in UE5, as well as features I've seen on social media that people want. When this plugin is enabled, a "Tsubasamusu Unreal Assist" category is added to "Editor Preferences > Plugins", where you can change settings related to this plugin.
 
 > [!CAUTION]
 > This plugin is an experimental feature and is released under the [MIT License](https://opensource.org/license/mit). We are not responsible for any issues that arise from using this plugin.
+
+> [!WARNING]
+> - Currently, only the Win64 platform is supported.
+> - Most of the features provided by this plugin are related to Blueprint, but since Blueprint themself may be deprecated in UE6 and later, I plan to continue development using a separate plugin called “[Tsubasamusu Unreal Assist for UE6](https://github.com/tsubasamusu/tua4ue6)” for UE6 and later versions.
 
 ## Engine Version
 Supported engine versions are as follows:
@@ -24,6 +28,7 @@ Supported engine versions are as follows:
 - 5.5
 - 5.6
 - 5.7
+- 5.8
 
 ## Installation Instructions
 ### Installing the Plugin
@@ -50,7 +55,7 @@ The setup instructions for this plugin are as follows:
 
 <img width="700" src="https://github.com/user-attachments/assets/8d1940d9-c609-4ebb-bbe3-4949ee3d4010">
 
-## Feature List
+## Features
 ### Comment Generator
 When you right-click on a comment node containing one or more other nodes inside it, a "Generate Comment" menu appears. By clicking this menu, you can generate comments using a local LLM.
 
@@ -452,7 +457,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 </details>
 
-この例ではJSONのときの文字数が7,986文字、TOONのときは3,316文字になっています。（Unreal Engine の標準のコピー機能では23,278文字になります。）
+In this example, the character count is 7,986 characters for JSON and 3,316 characters for TOON. (Using Unreal Engine’s standard copy function results in 23,278 characters.)
 
 ### Node Previewer
 Displays a preview of the node you're hovering over in the node search window as a tooltip. Not only those defined within the engine, but also variables, functions, macros, custom events, and other user-defined items in blueprints and C++ can be displayed in the preview. To enable this feature, you need to check "Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview".
@@ -460,7 +465,7 @@ Displays a preview of the node you're hovering over in the node search window as
 > [!CAUTION]
 > Some special nodes such as Documentation Node and attempting to preview nodes in assets other than normal blueprints and animation blueprints can cause crashes, so please use Node Previewer with caution.
 
-<img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
+<img width="700" src="https://github.com/user-attachments/assets/4ec73004-1a6c-494d-b81e-05b36e1c5a31">
 
 When you check "Enable Node Preview", the following properties can be edited:
 
