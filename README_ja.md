@@ -462,7 +462,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 > [!CAUTION]
 > Documentation Node などの一部の特殊なノードや、通常のブループリントやアニメーションブループリント以外のアセットでノードをプレビューしようとするとクラッシュしてしまうことがあるため、Node Previewer の使用は慎重にお願いします。
 
-<img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
+<img width="700" src="https://github.com/user-attachments/assets/4ec73004-1a6c-494d-b81e-05b36e1c5a31">
 
 「Enable Node Preview」にチェックを付けると、以下のプロパティが編集できるようになります。
 

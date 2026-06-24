@@ -465,7 +465,7 @@ Displays a preview of the node you're hovering over in the node search window as
 > [!CAUTION]
 > Some special nodes such as Documentation Node and attempting to preview nodes in assets other than normal blueprints and animation blueprints can cause crashes, so please use Node Previewer with caution.
 
-<img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
+<img width="700" src="https://github.com/user-attachments/assets/4ec73004-1a6c-494d-b81e-05b36e1c5a31">
 
 When you check "Enable Node Preview", the following properties can be edited:
 
