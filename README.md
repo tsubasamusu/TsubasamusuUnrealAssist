@@ -55,7 +55,7 @@ The setup instructions for this plugin are as follows:
 
 <img width="700" src="https://github.com/user-attachments/assets/8d1940d9-c609-4ebb-bbe3-4949ee3d4010">
 
-## Feature List
+## Features
 ### Comment Generator
 When you right-click on a comment node containing one or more other nodes inside it, a "Generate Comment" menu appears. By clicking this menu, you can generate comments using a local LLM.
 
@@ -457,7 +457,7 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 
 </details>
 
-この例ではJSONのときの文字数が7,986文字、TOONのときは3,316文字になっています。（Unreal Engine の標準のコピー機能では23,278文字になります。）
+In this example, the character count is 7,986 characters for JSON and 3,316 characters for TOON. (Using Unreal Engine’s standard copy function results in 23,278 characters.)
 
 ### Node Previewer
 Displays a preview of the node you're hovering over in the node search window as a tooltip. Not only those defined within the engine, but also variables, functions, macros, custom events, and other user-defined items in blueprints and C++ can be displayed in the preview. To enable this feature, you need to check "Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview".
