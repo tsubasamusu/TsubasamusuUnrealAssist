@@ -14,7 +14,15 @@
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
 	InitializeProperties();
-	PostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddUObject(this, &UTsubasamusuUnrealAssistSettings::RegisterEditorLanguageChangedEvent);
+	
+	FSimpleMulticastDelegate& PostEngineInitDelegate =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 8, 0)
+		FCoreDelegates::GetOnPostEngineInit();
+#else
+		FCoreDelegates::OnPostEngineInit;
+#endif
+	
+	PostEngineInitHandle = PostEngineInitDelegate.AddUObject(this, &UTsubasamusuUnrealAssistSettings::RegisterEditorLanguageChangedEvent);
 }
 
 UTsubasamusuUnrealAssistSettings::~UTsubasamusuUnrealAssistSettings()
@@ -23,7 +31,14 @@ UTsubasamusuUnrealAssistSettings::~UTsubasamusuUnrealAssistSettings()
 	
 	if (PostEngineInitHandle.IsValid())
 	{
-		FCoreDelegates::OnPostEngineInit.Remove(PostEngineInitHandle);
+		FSimpleMulticastDelegate& PostEngineInitDelegate =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 8, 0)
+			FCoreDelegates::GetOnPostEngineInit();
+#else
+			FCoreDelegates::OnPostEngineInit;
+#endif
+		
+		PostEngineInitDelegate.Remove(PostEngineInitHandle);
 	}
 }
 
