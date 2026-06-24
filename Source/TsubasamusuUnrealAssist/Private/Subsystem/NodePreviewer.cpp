@@ -11,6 +11,7 @@
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
+#include "Message/TsubasamusuLogUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
@@ -184,7 +185,11 @@ void UNodePreviewer::TryPreviewNode()
 			const FVector2f IconSize = IconBrush->GetImageSize();
 			const FVector2f HalfIconSize = IconSize / 2.f;
 			
-			NodeWidgetSize += HalfIconSize;
+			// Normally, setting "NodeWidgetSize.X" to "NodeWidgetSize.X + HalfIconSize.X" should be fine,
+			// but for some reason, this sometimes causes the corner icon to be cut off,
+			// so we increase "NodeWidgetSize.X" slightly.
+			// Example: UWidgetAnimationPlayCallbackProxy::NewPlayAnimationTimeRangeProxyObject() (Play Animation Time Range with Finished event)
+			NodeWidgetSize = FVector2f(NodeWidgetSize.X + IconSize.X, NodeWidgetSize.Y + HalfIconSize.Y);
  
 			FinalNodeWidget = SNew(SBox)
 			.WidthOverride(NodeWidgetSize.X)
