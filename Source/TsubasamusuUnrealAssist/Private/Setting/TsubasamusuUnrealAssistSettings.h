@@ -4,10 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Type/TsubasamusuUnrealAssistEnums.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "TsubasamusuUnrealAssistSettings.generated.h"
 
-struct FLlamaServerSettings;
-struct FConfigLlamaServerOption;
 class ULlamaServerOption;
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnSettingsPropertyChanged, const FName& /*InChangedPropertyName*/);
