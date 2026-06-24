@@ -8,10 +8,13 @@
 > The content of this file is an automatic translation of [README_ja.md](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/blob/main/README_ja.md) generated using AI.
 
 ## Overview
-An editor extension plugin for Unreal Engine that continuously adds features I personally want in the Unreal Editor or features I see mentioned on social media like "I wish this feature existed...". Currently, only the Win64 platform is supported. When this plugin is enabled, a "Tsubasamusu Unreal Assist" category is added to "Editor Preferences > Plugins", where you can change settings related to this plugin.
+An Unreal Editor extension plugin that adds features I personally want in UE5, as well as features I've seen on social media that people want. When this plugin is enabled, a "Tsubasamusu Unreal Assist" category is added to "Editor Preferences > Plugins", where you can change settings related to this plugin.
 
 > [!CAUTION]
 > This plugin is an experimental feature and is released under the [MIT License](https://opensource.org/license/mit). We are not responsible for any issues that arise from using this plugin.
+
+> [!WARNING]
+> Currently, only the Win64 platform is supported.
 
 ## Engine Version
 Supported engine versions are as follows:

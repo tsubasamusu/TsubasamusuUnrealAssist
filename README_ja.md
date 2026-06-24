@@ -5,10 +5,13 @@
 [![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
 
 ## 概要
-個人的に Unreal Editor に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Engine 用のエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
+UE5 に個人的に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Editor の拡張プラグインです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
 
 > [!CAUTION]
 > このプラグインは実験的機能（Experimental）であり、[MITライセンス](https://opensource.org/license/mit)で公開しています。このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
+
+> [!WARNING]
+> 現在サポートしているプラットフォームは Win64 のみです。
 
 ## エンジンバージョン
 サポート対象のエンジンバージョンは以下の通りです。
