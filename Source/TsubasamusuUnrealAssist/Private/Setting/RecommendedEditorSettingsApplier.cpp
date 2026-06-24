@@ -48,8 +48,6 @@ void FRecommendedEditorSettingsApplier::ApplyRecommendedStyleSettings()
     UEditorStyleSettings* EditorStyleSettings = FEditorSettingsUtility::GetSettingsChecked<UEditorStyleSettings>();
 
     EditorStyleSettings->AssetEditorOpenLocation = EAssetEditorOpenLocation::MainWindow;
-    EditorStyleSettings->bUseSmallToolBarIcons = true;
-
 #if UE_VERSION_OLDER_THAN(5, 1, 0)
     EditorStyleSettings->CategoryColorizationMode = ELogCategoryColorizationMode::ColorizeWholeLine;
 #endif
