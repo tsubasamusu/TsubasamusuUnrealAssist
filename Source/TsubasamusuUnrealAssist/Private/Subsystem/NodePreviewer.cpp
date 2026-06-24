@@ -3,6 +3,10 @@
 #include "NodePreviewer.h"
 #include "BlueprintActionMenuItem.h"
 #include "BlueprintNodeSpawner.h"
+#include "K2Node_ActorBoundEvent.h"
+#include "K2Node_ComponentBoundEvent.h"
+#include "K2Node_CustomEvent.h"
+#include "K2Node_Event.h"
 #include "NodeFactory.h"
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
@@ -34,12 +38,36 @@ static TSharedPtr<WidgetClass> FindParentWidget(const TSharedPtr<SWidget> InWidg
 	return nullptr;
 }
 
-void UNodePreviewer::Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase)
+template<typename WidgetClass>
+static TSharedPtr<WidgetClass> FindChildWidget(const TSharedPtr<SWidget> InWidget, const FName& InWidgetTypeToFind)
 {
-	Super::Initialize(InSubsystemCollectionBase);
+	static_assert(TIsDerivedFrom<WidgetClass, SWidget>::Value, "WidgetClass must be derived from SWidget.");
 	
-	GhostBlueprint = FKismetEditorUtilities::CreateBlueprint(UObject::StaticClass(), GetTransientPackage(), NAME_None, BPTYPE_Normal,UBlueprint::StaticClass(), UBlueprintGeneratedClass::StaticClass());
-	GhostGraph = FBlueprintEditorUtils::CreateNewGraph(GhostBlueprint, TEXT("NodePreviewGraph"), UEdGraph::StaticClass(), UEdGraphSchema_K2::StaticClass());
+	if (InWidget.IsValid())
+	{
+		if (InWidget->GetType() == InWidgetTypeToFind)
+		{
+			return StaticCastSharedPtr<WidgetClass>(InWidget);
+		}
+
+		const FChildren* Children = InWidget->GetChildren();
+
+		if (Children)
+		{
+			for (int32 i = 0; i < Children->Num(); ++i)
+			{
+				TSharedRef<SWidget> ChildWidget = ConstCastSharedRef<SWidget>(Children->GetChildAt(i));
+				TSharedPtr<WidgetClass> FoundWidget = FindChildWidget<WidgetClass>(ChildWidget, InWidgetTypeToFind);
+
+				if (FoundWidget.IsValid())
+				{
+					return FoundWidget;
+				}
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 void UNodePreviewer::Tick(const float InDeltaTime)
@@ -54,9 +82,25 @@ void UNodePreviewer::Tick(const float InDeltaTime)
 
 void UNodePreviewer::TryPreviewNode()
 {
+	if (!LastNodeMenuWidget.IsValid())
+	{
+		if (IsValid(GhostBlueprint))
+		{
+			GhostBlueprint->MarkAsGarbage();
+			GhostBlueprint = nullptr;
+		}
+	}
+	
 	const TSharedPtr<SWidget> HoveredWidget = GetHoveredWidget();
 	
-	if (!HoveredWidget.IsValid() || !IsNodeSelectionWidget(HoveredWidget))
+	if (!HoveredWidget.IsValid() || !IsDescendantOfBlueprintPaletteItem(HoveredWidget))
+	{
+		return;
+	}
+	
+	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNode(HoveredWidget);
+
+	if (!GraphActionNode.IsValid() || !IsNodeSpawnAction(GraphActionNode))
 	{
 		return;
 	}
@@ -85,34 +129,115 @@ void UNodePreviewer::TryPreviewNode()
 		EditedToolTipWidget.Reset();
 	}
 
-	const TSharedPtr<FGraphActionNode> GraphActionNode = GetGraphActionNode(HoveredWidget);
-
-	if (!GraphActionNode.IsValid())
+	if (LastCreatedNode.IsValid())
+	{
+		LastCreatedNode->DestroyNode();
+	}
+	
+	const TSharedPtr<SWidget> CurrentNodeMenuWidget = FindParentWidget<SWidget>(HoveredWidget, TEXT("SBlueprintActionMenu"));
+	
+	if (!LastNodeMenuWidget.IsValid() || CurrentNodeMenuWidget != LastNodeMenuWidget.Pin())
+	{
+		RecreateGhost();
+		LastNodeMenuWidget = CurrentNodeMenuWidget;
+	}
+	
+	if (!IsValid(GhostBlueprint) || !GhostGraph.IsValid())
 	{
 		return;
 	}
+	
+	LastCreatedNode = CreateOrFindNode(GraphActionNode);
 
-	UEdGraphNode* Node = CreateNode(GraphActionNode);
-
-	if (!IsValid(Node))
+	if (!LastCreatedNode.IsValid())
 	{
 		return;
 	}
 
 	const TWeakObjectPtr<UTsubasamusuUnrealAssistSettings> TsubasamusuUnrealAssistSettings = GetCachedTsubasamusuUnrealAssistSettings();
 	
-	if (TsubasamusuUnrealAssistSettings.IsValid() && TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && Node->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
+	if (TsubasamusuUnrealAssistSettings.IsValid() && TsubasamusuUnrealAssistSettings->bAlsoPreviewAdvancedView && LastCreatedNode->AdvancedPinDisplay != ENodeAdvancedPins::NoPins)
 	{
-		Node->AdvancedPinDisplay = ENodeAdvancedPins::Shown;
+		LastCreatedNode->AdvancedPinDisplay = ENodeAdvancedPins::Shown;
 	}
 
-	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(Node);
+	const TSharedPtr<SGraphNode> NodeWidget = CreateNodeWidget(LastCreatedNode.Get());
 
 	if (!NodeWidget.IsValid())
 	{
 		return;
 	}
 
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 2, 0)
+	FVector2f NodeWidgetSize = NodeWidget->GetDesiredSize();
+#else
+	FVector2D NodeWidgetSize = NodeWidget->GetDesiredSize();
+#endif
+	TSharedRef<SWidget> FinalNodeWidget = NodeWidget.ToSharedRef();
+	
+	const UK2Node* K2Node = Cast<UK2Node>(LastCreatedNode);
+	
+	if (IsValid(K2Node))
+	{
+		const FName CornerIconName = K2Node->GetCornerIcon();
+		
+		if (!CornerIconName.IsNone())
+		{
+			const FSlateBrush* IconBrush = 
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 1, 0)
+				FAppStyle::GetBrush(CornerIconName);
+#else
+				FEditorStyle::GetBrush(CornerIconName);
+#endif
+			
+			// Normally, setting "NodeWidgetSize.X" to "NodeWidgetSize.X + HalfIconSize.X" should be fine,
+			// but for some reason, this sometimes causes the corner icon to be cut off,
+			// so we increase "NodeWidgetSize.X" slightly.
+			// Example: UWidgetAnimationPlayCallbackProxy::NewPlayAnimationTimeRangeProxyObject() (Play Animation Time Range with Finished event)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 2, 0)
+			const FVector2f IconSize = IconBrush->GetImageSize();
+			const FVector2f HalfIconSize = IconSize / 2.f;
+			NodeWidgetSize = FVector2f(NodeWidgetSize.X + IconSize.X, NodeWidgetSize.Y + HalfIconSize.Y);
+#else
+			const FVector2D IconSize = IconBrush->GetImageSize();
+			const FVector2D HalfIconSize = IconSize / 2.f;
+			NodeWidgetSize = FVector2D(NodeWidgetSize.X + IconSize.X, NodeWidgetSize.Y + HalfIconSize.Y);
+#endif
+			
+			FinalNodeWidget = SNew(SBox)
+			.WidthOverride(NodeWidgetSize.X)
+			.HeightOverride(NodeWidgetSize.Y)
+			[
+				SNew(SVerticalBox)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.HeightOverride(HalfIconSize.Y)
+				]
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SOverlay)
+					+ SOverlay::Slot()
+					[
+						NodeWidget.ToSharedRef()
+					]
+					+ SOverlay::Slot()
+					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Top)
+					.Padding(FMargin(0, -HalfIconSize.X, -HalfIconSize.Y, 0)) 
+					[
+						SNew(SImage)
+						.Image(IconBrush)
+					]
+				]
+			];
+		}
+	}
+	
 	const TSharedRef<SToolTip> NewToolTip = SNew(SToolTip)
 	[
 		SNew(SVerticalBox)
@@ -121,12 +246,12 @@ void UNodePreviewer::TryPreviewNode()
 		.HAlign(HAlign_Left)
 		[
 			SNew(SBox)
-			.HeightOverride(NodeWidget->GetDesiredSize().Y * TsubasamusuUnrealAssistSettings->NodePreviewScale)
+			.HeightOverride(NodeWidgetSize.Y * TsubasamusuUnrealAssistSettings->NodePreviewScale)
 			[
 				SNew(SScaleBox)
 				.Stretch(EStretch::ScaleToFitY)
 				[
-					NodeWidget.ToSharedRef()
+					FinalNodeWidget
 				]
 			]
 		]
@@ -142,6 +267,44 @@ void UNodePreviewer::TryPreviewNode()
 
 	ToolTipEditedWidget = ToolTipDisplayer;
 	EditedToolTipWidget = CurrentToolTipWidget;
+}
+
+void UNodePreviewer::RecreateGhost()
+{
+	if (IsValid(GhostBlueprint))
+	{
+		GhostBlueprint->MarkAsGarbage();
+		GhostBlueprint = nullptr;
+	}
+	
+	const UEdGraph* FocusedGraph = GetFocusedGraph();
+	
+	if (IsValid(FocusedGraph))
+	{
+		const UBlueprint* FocusedBlueprint = FBlueprintEditorUtils::FindBlueprintForGraph(FocusedGraph);
+		
+		if (IsValid(FocusedBlueprint))
+		{
+			// Disable Compile
+			FBlueprintDuplicationScopeFlags Scope(FBlueprintDuplicationScopeFlags::NoExtraCompilation);
+			
+			const FString GhostName = FString::Printf(TEXT("%s_%s"), *FocusedBlueprint->GetName(), *FGuid::NewGuid().ToString());
+			GhostBlueprint = DuplicateObject<UBlueprint>(FocusedBlueprint, GetTransientPackage(), FName(*GhostName));
+
+			TArray<UEdGraph*> GhostBlueprintGraphs;
+			GhostBlueprint->GetAllGraphs(GhostBlueprintGraphs);
+
+			UEdGraph** FoundGraph = GhostBlueprintGraphs.FindByPredicate([FocusedGraph](const UEdGraph* InGhostBlueprintGraph)
+			{
+				return InGhostBlueprintGraph->GetFName() == FocusedGraph->GetFName();
+			});
+			
+			if (FoundGraph)
+			{
+				GhostGraph = *FoundGraph;
+			}
+		}
+	}
 }
 
 TSharedPtr<SWidget> UNodePreviewer::GetHoveredWidget()
@@ -200,6 +363,79 @@ TSharedPtr<FGraphActionNode> UNodePreviewer::GetGraphActionNode(const TSharedPtr
 	return nullptr;
 }
 
+UEdGraph* UNodePreviewer::GetFocusedGraph()
+{
+	const TSharedPtr<SDockTab> ActiveTab = FGlobalTabmanager::Get()->GetActiveTab();
+
+	if (ActiveTab.IsValid())
+	{
+		const TSharedRef<SWidget> ContentWidget = ActiveTab->GetContent();
+		const TSharedPtr<SGraphEditor> GraphEditor = FindChildWidget<SGraphEditor>(ContentWidget, TEXT("SGraphEditor"));
+
+		if (GraphEditor.IsValid())
+		{
+			return GraphEditor->GetCurrentGraph();
+		}
+	}
+	
+	return nullptr;
+}
+
+UEdGraph* UNodePreviewer::GetGraphOfType(const EGraphType InGraphType, const UBlueprint* InBlueprint)
+{
+	check(IsValid(InBlueprint));
+	
+	TArray<UEdGraph*> AllGraphs;
+	InBlueprint->GetAllGraphs(AllGraphs);
+	
+	UEdGraph** FoundGraph = AllGraphs.FindByPredicate([InGraphType](const UEdGraph* InGraph)
+	{
+		return IsValid(InGraph) && GetGraphType(InGraph) == InGraphType;
+	});
+	
+	if (FoundGraph)
+	{
+		return *FoundGraph;
+	}
+	
+	return nullptr;
+}
+
+EGraphType UNodePreviewer::GetGraphType(const UEdGraph* InGraph)
+{
+	check(IsValid(InGraph));
+	UEdGraph* Graph = const_cast<UEdGraph*>(InGraph);
+	
+	for (UObject* Outer = Graph; Outer; Outer = Outer->GetOuter())
+	{
+		const UBlueprint* Blueprint = Cast<UBlueprint>(Outer);
+		
+		if (IsValid(Blueprint))
+		{
+			if (Blueprint->BlueprintType == BPTYPE_MacroLibrary || Blueprint->MacroGraphs.Contains(Graph))
+			{
+				return GT_Macro;
+			}
+			
+			if (Blueprint->UbergraphPages.Contains(Graph))
+			{
+				return GT_Ubergraph;
+			}
+			
+			if (Blueprint->BlueprintType == BPTYPE_FunctionLibrary || Blueprint->FunctionGraphs.Contains(Graph))
+			{
+				return GT_Function; 
+			}
+		}
+		else
+		{
+			Graph = Cast<UEdGraph>(Outer);
+		}
+	}
+	
+	return GT_Function;
+}
+
 TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 {
 	if (IsValid(InNode))
@@ -218,9 +454,90 @@ TSharedPtr<SGraphNode> UNodePreviewer::CreateNodeWidget(UEdGraphNode* InNode)
 	return nullptr;
 }
 
-UEdGraphNode* UNodePreviewer::CreateNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const
+UEdGraphNode* UNodePreviewer::CreateOrFindNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const
 {
-	if (InGraphActionNode.IsValid() && IsValid(GhostBlueprint) && IsValid(GhostGraph))
+	if (InGraphActionNode.IsValid() && InGraphActionNode->HasValidAction() && IsValid(GhostBlueprint) && GhostGraph.IsValid())
+	{
+		const TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
+		
+		const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
+		const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
+		
+		const UEdGraphNode* TemplateNode = BlueprintNodeSpawner->GetTemplateNode();
+		const UK2Node_Event* TemplateEventNode = Cast<UK2Node_Event>(TemplateNode);
+	
+		if(IsValid(TemplateEventNode))
+		{
+			if(IsValid(GhostBlueprint->SkeletonGeneratedClass))
+			{
+				const UK2Node_ActorBoundEvent* TemplateActorBoundEventNode = Cast<UK2Node_ActorBoundEvent>(TemplateEventNode);
+				const UK2Node_ComponentBoundEvent* TemplateComponentBoundEvent = Cast<UK2Node_ComponentBoundEvent>(TemplateEventNode);
+				
+				const bool bIsCustomEventNode = TemplateEventNode->IsA(UK2Node_CustomEvent::StaticClass());
+				const UEdGraphNode* ExistingNode = nullptr;
+				
+				if (IsValid(TemplateActorBoundEventNode))
+				{
+					ExistingNode = FKismetEditorUtilities::FindBoundEventForActor(TemplateActorBoundEventNode->GetReferencedLevelActor(), TemplateActorBoundEventNode->DelegatePropertyName);
+				}
+				else if (IsValid(TemplateComponentBoundEvent))
+				{
+					ExistingNode = FKismetEditorUtilities::FindBoundEventForComponent(GhostBlueprint, TemplateComponentBoundEvent->DelegatePropertyName, TemplateComponentBoundEvent->ComponentPropertyName);
+				}
+				else if (bIsCustomEventNode)
+				{
+					ExistingNode = FBlueprintEditorUtils::FindCustomEventNode(GhostBlueprint, TemplateEventNode->CustomFunctionName);
+				}
+				else
+				{
+					const UFunction* EventSignatureFunction =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 4, 0)
+						TemplateEventNode->FindEventSignatureFunction();
+#else
+						const_cast<UK2Node_Event*>(TemplateEventNode)->FindEventSignatureFunction();
+#endif
+					
+					if (IsValid(EventSignatureFunction))
+					{
+						UClass* OwnerClass = EventSignatureFunction->GetOwnerClass();
+						ExistingNode = FBlueprintEditorUtils::FindOverrideForFunction(GhostBlueprint, OwnerClass->GetAuthoritativeClass(), EventSignatureFunction->GetFName());
+					}
+				}
+	
+				if (IsValid(ExistingNode))
+				{
+					return const_cast<UEdGraphNode*>(ExistingNode);
+				}
+			}
+			
+			if (GetGraphType(GhostGraph.Get()) != GT_Ubergraph)
+			{
+				UEdGraph* Ubergraph = GetGraphOfType(GT_Ubergraph, GhostBlueprint);
+				
+				if (IsValid(Ubergraph))
+				{
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 6, 0)
+					return PrimaryAction->PerformAction(Ubergraph, nullptr, FVector2f());
+#else
+					return PrimaryAction->PerformAction(Ubergraph, nullptr, FVector2D());
+#endif
+				}
+			}
+		}
+		
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 6, 0)
+		return PrimaryAction->PerformAction(GhostGraph.Get(), nullptr, FVector2f());
+#else
+		return PrimaryAction->PerformAction(GhostGraph.Get(), nullptr, FVector2D());
+#endif
+	}
+	
+	return nullptr;
+}
+
+bool UNodePreviewer::IsNodeSpawnAction(const TSharedPtr<FGraphActionNode> InGraphActionNode)
+{
+	if (InGraphActionNode.IsValid() && InGraphActionNode->HasValidAction())
 	{
 		const TSharedPtr<FEdGraphSchemaAction> PrimaryAction = InGraphActionNode->GetPrimaryAction();
 	
@@ -229,17 +546,14 @@ UEdGraphNode* UNodePreviewer::CreateNode(const TSharedPtr<FGraphActionNode> InGr
 			const TSharedPtr<FBlueprintActionMenuItem> BlueprintActionMenuItem = StaticCastSharedPtr<FBlueprintActionMenuItem>(PrimaryAction);
 			const UBlueprintNodeSpawner* BlueprintNodeSpawner = BlueprintActionMenuItem->GetRawAction();
 			
-			if (IsValid(BlueprintNodeSpawner))
-			{
-				return BlueprintNodeSpawner->Invoke(GhostGraph, IBlueprintNodeBinder::FBindingSet(), FVector2D());
-			}
+			return IsValid(BlueprintNodeSpawner);
 		}
 	}
 	
-	return nullptr;
+	return false;
 }
 
-bool UNodePreviewer::IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget)
+bool UNodePreviewer::IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget)
 {
 	const TSharedPtr<SWidget> BlueprintPaletteItem = FindParentWidget<SWidget>(InWidget, TEXT("SBlueprintPaletteItem"));
 	return BlueprintPaletteItem.IsValid();

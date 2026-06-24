@@ -13,11 +13,6 @@ class UNodePreviewer final : public UTickableEditorSubsystem
 {
 	GENERATED_BODY()
 	
-public:
-	//~ Begin USubsystem Interface
-	virtual void Initialize(FSubsystemCollectionBase& InSubsystemCollectionBase) override;
-	//~ End USubsystem Interface
-	
 protected:
 	//~ Begin UTickableEditorSubsystem Interface
 	virtual void Tick(const float InDeltaTime) override;
@@ -25,25 +20,33 @@ protected:
 	
 private:
 	void TryPreviewNode();
+	void RecreateGhost();
 	
 	static TSharedPtr<SWidget> GetHoveredWidget();
 	static TSharedPtr<FGraphActionNode> GetGraphActionNode(const TSharedPtr<SWidget> InWidget);
 	
-	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
-	UEdGraphNode* CreateNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const;
+	static UEdGraph* GetFocusedGraph();
+	static UEdGraph* GetGraphOfType(const EGraphType InGraphType, const UBlueprint* InBlueprint);
+	static EGraphType GetGraphType(const UEdGraph* InGraph);
 	
-	static bool IsNodeSelectionWidget(const TSharedPtr<SWidget> InWidget);
+	static TSharedPtr<SGraphNode> CreateNodeWidget(UEdGraphNode* InNode);
+	UEdGraphNode* CreateOrFindNode(const TSharedPtr<FGraphActionNode> InGraphActionNode) const;
+	
+	static bool IsNodeSpawnAction(const TSharedPtr<FGraphActionNode> InGraphActionNode);
+	static bool IsDescendantOfBlueprintPaletteItem(const TSharedPtr<SWidget> InWidget);
+	
 	static TSharedPtr<SWidget> FindToolTipDisplayer(const TSharedPtr<SWidget> InNodeSelectionWidget);
 	
 	UPROPERTY()
 	TObjectPtr<UBlueprint> GhostBlueprint;
-	
-	UPROPERTY()
-	TObjectPtr<UEdGraph> GhostGraph;
 	
 	/* A widget whose tool tip was previously edited. */
 	TWeakPtr<SWidget> ToolTipEditedWidget;
 	
 	/* Previously edited tool tip widget. */
 	TWeakPtr<SToolTip> EditedToolTipWidget;
+	
+	TWeakPtr<SWidget> LastNodeMenuWidget;
+	TWeakObjectPtr<UEdGraphNode> LastCreatedNode;
+	TWeakObjectPtr<UEdGraph> GhostGraph;
 };

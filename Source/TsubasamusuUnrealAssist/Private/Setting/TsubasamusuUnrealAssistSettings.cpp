@@ -5,8 +5,11 @@
 #include "Internationalization/Culture.h"
 #include "Internationalization/Internationalization.h"
 #include "LlamaServerOption/LlamaServerOption.h"
+#include "Message/EditorMessageUtility.h"
 #include "Type/TsubasamusuUnrealAssistMacros.h"
 #include "Type/TsubasamusuUnrealAssistStructs.h"
+
+#define LOCTEXT_NAMESPACE "UTsubasamusuUnrealAssistSettings"
 
 UTsubasamusuUnrealAssistSettings::UTsubasamusuUnrealAssistSettings(const FObjectInitializer& InObjectInitializer) : Super(InObjectInitializer)
 {
@@ -69,6 +72,15 @@ void UTsubasamusuUnrealAssistSettings::PostEditChangeProperty(FPropertyChangedEv
 		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, LlamaServerOptions))
 		{
 			SaveLlamaServerOptions();
+		}
+		else if (ChangedPropertyName == GET_MEMBER_NAME_CHECKED(UTsubasamusuUnrealAssistSettings, bEnableNodePreview) && bEnableNodePreview)
+		{
+			const FText WarningMessage = LOCTEXT("EnableNodePreviewWarningMessage", "Are you sure you want to enable node preview? Attempting to use this feature on certain assets or nodes may cause the editor to crash.");
+            
+			if (!FEditorMessageUtility::OpenWarningMessageDialog(EAppMsgType::YesNo, WarningMessage))
+			{
+				bEnableNodePreview = false;
+			}
 		}
 	}
 }
@@ -236,3 +248,5 @@ FCultureRef UTsubasamusuUnrealAssistSettings::GetEditorLanguageCulture()
 {
 	return FInternationalization::Get().GetCurrentLanguage();
 }
+
+#undef LOCTEXT_NAMESPACE

@@ -1,16 +1,20 @@
-# Tsubasamusu Unreal Assist（Experimental）
+# Tsubasamusu Unreal Assist (Experimental)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tsubasamusu/TsubasamusuUnrealAssist)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.7-0e1128?logo=unrealengine&logoColor=white)
 [![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
 
-## 概要
-個人的に Unreal Editor に欲しいと思っている機能や、SNSで見かけた「こういう機能があったらいいのに…」といったものをひたすら追加していく Unreal Engine 用のエディタ拡張プラグインです。現在サポートしているプラットフォームは Win64 のみです。このプラグインを有効化すると「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加され、そこでこのプラグイン関連の設定を変更することができます。
+> [!WARNING]
+> The content of this file is an automatic translation of [README_ja.md](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/blob/main/README_ja.md) generated using AI.
 
-※このプラグインは実験的機能（Experimental）であり、[MITライセンス](https://opensource.org/license/mit)で公開しています。このプラグインを使用したことによって生じたいかなる問題に対しても責任を負いません。
+## Overview
+An editor extension plugin for Unreal Engine that continuously adds features I personally want in the Unreal Editor or features I see mentioned on social media like "I wish this feature existed...". Currently, only the Win64 platform is supported. When this plugin is enabled, a "Tsubasamusu Unreal Assist" category is added to "Editor Preferences > Plugins", where you can change settings related to this plugin.
 
-## エンジンバージョン
-サポート対象のエンジンバージョンは以下の通りです。
+> [!CAUTION]
+> This plugin is an experimental feature and is released under the [MIT License](https://opensource.org/license/mit). We are not responsible for any issues that arise from using this plugin.
+
+## Engine Version
+Supported engine versions are as follows:
 
 - 5.0
 - 5.1
@@ -21,62 +25,68 @@
 - 5.6
 - 5.7
 
-## 導入手順
-### プラグインのインストール
-1. [最新版のリリース](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/releases/latest)の「Source code (zip)」をダウンロードします。
-2. ダウンロードしたZIPファイルをエンジンまたはUEプロジェクトの Plugins フォルダに展開します。
-3. UEプロジェクトを開いて「Edit ＞ Plugins」の「Editor」カテゴリにある「Tsubasamusu Unreal Assist」にチェックを付けてエディタを再起動します。
-4. 必要に応じてIDEからビルドします。
-5. 「Editor Preferences ＞ Plugins」に「Tsubasamusu Unreal Assist」というカテゴリが追加されていればOKです。
+## Installation Instructions
+### Installing the Plugin
+1. Download the "Source code (zip)" from the [latest release](https://github.com/tsubasamusu/TsubasamusuUnrealAssist/releases/latest).
+2. Extract the downloaded ZIP file to the Plugins folder of the engine or UE project.
+3. Open the UE project and enable "Tsubasamusu Unreal Assist" in the "Editor" category under "Edit > Plugins" and restart the editor.
+4. Build from IDE if necessary.
+5. If "Tsubasamusu Unreal Assist" category has been added to "Editor Preferences > Plugins", you're all set.
 
-### ローカルLLMの使用
-現在、このプラグインではコメント生成機能（Comment Generator）でローカルLLMを使用しています。ローカルLLMの使用にあたっては、ローカル環境でLLMを動作させるための軽量な実行エンジンである [llama.cpp](https://github.com/ggml-org/llama.cpp) で提供されている「LLaMA.cpp HTTP Server」を利用しています。
+### Using Local LLM
+Currently, this plugin uses a local LLM in the Comment Generator feature. For local LLM usage, we use the "LLaMA.cpp HTTP Server" provided by [llama.cpp](https://github.com/ggml-org/llama.cpp), a lightweight execution engine for running LLMs in a local environment.
 
-このプラグインでのセットアップ手順は以下の通りです。（このプラグインのサポート対象のプラットフォームは Win64 のみなので、以下の手順は Win64 環境でのものです。）
+The setup instructions for this plugin are as follows:
 
-1. [llama.cpp の最新版のリリース](https://github.com/ggml-org/llama.cpp/releases/latest) の「llama-{ビルド番号}-bin-win-{種類}-x64.zip」をダウンロードします。推奨は「llama-b8475-bin-win-**cpu**-x64.zip」と「llama-b8475-bin-win-**vulkan**-x64.zip」ですが、ご自身の環境に合わせたものをダウンロードしてください。
-2. ダウンロードしたZIPファイルを展開します。
-3. Unreal Editor を開き、展開したファイルの中に含まれている「llama-server.exe」のパスを「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ LLM ＞ Llama Server File Path」に設定します。
-4. 使用したいモデルのGGUFファイルを [Hugging Face](https://huggingface.co) からダウンロードします。
-5. 「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ LLM ＞ Llama Server Options」に「Model」オプションを追加して、ダウンロードしたGGUFファイルのパスを「LLM File Path」に設定します。ここで他のオプションもいくつか設定することができますが、最低限「Model」オプションのみ設定されていればローカルLLMを使用することができます。
-6. 警告メッセージとともに「Start Llama Server」というボタンが表示されるのでそれを押します。「Llama Server File Path」や「LLM File Path」が正しく設定されているとサーバーの起動に成功し、この警告メッセージが表示されなくなります。これでローカルLLMを使用できる状態になりました。
+> [!WARNING]
+> Since the supported platform for this plugin is Win64 only, the following instructions are for a Win64 environment.
+
+1. Download "llama-{build-number}-bin-win-{type}-x64.zip" from the [latest llama.cpp release](https://github.com/ggml-org/llama.cpp/releases/latest). The recommended versions are "llama-b8475-bin-win-**cpu**-x64.zip" and "llama-b8475-bin-win-**vulkan**-x64.zip", but please download the one that matches your environment.
+2. Extract the downloaded ZIP file.
+3. Open the Unreal Editor and set the path to "llama-server.exe" in the extracted files to "Editor Preferences > Plugins > Tsubasamusu Unreal Assist > LLM > Llama Server File Path".
+4. Download a GGUF file of the model you want to use from [Hugging Face](https://huggingface.co).
+5. Add the "Model" option to "Editor Preferences > Plugins > Tsubasamusu Unreal Assist > LLM > Llama Server Options" and set the path of the downloaded GGUF file to "LLM File Path". You can also set several other options here, but you can use the local LLM with just the "Model" option configured at minimum.
+6. A button labeled "Start Llama Server" will be displayed along with a warning message. Click it. If "Llama Server File Path" and "LLM File Path" are configured correctly, the server will start successfully and the warning message will no longer be displayed. Now you're ready to use the local LLM.
 
 <img width="700" src="https://github.com/user-attachments/assets/8d1940d9-c609-4ebb-bbe3-4949ee3d4010">
 
-## 機能一覧
+## Feature List
 ### Comment Generator
-その中に他のノードを1つ以上含んでいるコメントノードを右クリックすると「Generate Comment」というメニューが表示されます。このメニューをクリックするとローカルLLMを使用してコメントを生成することができます。
+When you right-click on a comment node containing one or more other nodes inside it, a "Generate Comment" menu appears. By clicking this menu, you can generate comments using a local LLM.
 
 <img width="700" src="https://github.com/user-attachments/assets/fd577e3e-6ea9-4047-811e-67e29e412071">
 
-この機能に関連したエディタ設定の項目は以下の通りです。
+The editor settings related to this feature are as follows:
 
-| プロパティ名 | 概要 |
+| Property Name | Overview |
 ----|----
-| Use Editor Language | 生成するコメントの言語をエディタ言語と同じにするかどうか。 |
-| Language | 生成するコメントの言語。このプロパティは「Use Editor Language」のチェックを外すと編集できるようになります。逆に「Use Editor Language」にチェックを付けるとこのプロパティの値はエディタ言語と同じになります。※使用するLLMによってはこのプロパティで設定した言語通りのコメントを生成してくれないこともあります。 |
-| Enable Streaming Generation | コメントのストリーミング生成を有効にするかどうか。このプロパティにチェックを付けると ChatGPT や Claude、Gemini などのチャット画面のようにコメントがトークンごとに生成されて反映されます。このプロパティのチェックを外すとコメントの生成完了後に1度だけコメントを更新します。 |
-| Ignore Nodes Do Not Have Connected Pins | コメントを生成するときにインプットピンやアウトプットピン、実行ピンなどが他のピンと1つも接続されていないノードを無視するかどうか。 |
-| Ignore Comment Nodes | コメントを生成するときにそのコメントノードの中にある別のコメントノードを無視するかどうか。 |
-| Use TOON Format | コメントノードの中にあるノードの情報をLLMに渡す際、それを[TOON](https://toonformat.dev)形式の文字列として渡すかどうか。このプロパティのチェックを外すとTOONではなく、JSONが使用されます。TOONの方がJSONよりもトークン数を抑えることができます。 |
-| Conditions | LLMがコメントを生成するときに従う条件。例えば「そのブループリントで行っていることを簡潔にまとめること」や「だ・である口調で生成すること」などです。 |
+| Use Editor Language | Whether to set the language of generated comments to the same as the editor language. |
+| Language | The language for generating comments. This property can be edited when "Use Editor Language" is unchecked. Conversely, when "Use Editor Language" is checked, this property's value becomes the same as the editor language. ※Depending on the LLM used, it may not generate comments in the specified language. |
+| Enable Streaming Generation | Whether to enable streaming generation of comments. When this property is checked, comments are generated and reflected token-by-token like chat screens in ChatGPT, Claude, Gemini, etc. When unchecked, comments are updated once after generation is complete. |
+| Ignore Nodes Do Not Have Connected Pins | Whether to ignore nodes that have no input pins, output pins, execution pins, etc. connected to other pins when generating comments. |
+| Ignore Comment Nodes | Whether to ignore other comment nodes within the comment node when generating comments. |
+| Use TOON Format | When passing node information within a comment node to the LLM, whether to pass it as a [TOON](https://toonformat.dev) format string. When this property is unchecked, JSON is used instead of TOON. TOON can reduce the number of tokens compared to JSON. |
+| Conditions | Conditions that the LLM follows when generating comments. For example, "summarize what is being done in the blueprint concisely" or "generate in a da-aru tone". |
 
 ### Comment Translator
-コメントが設定されているコメントノードを右クリックすると「Translate to...」というメニューが表示されます。さらにそのメニューをマウスホバーすると翻訳先の言語の一覧が表示されます。その中のいずれかの言語を選択すると、コメントノードに書かれているコメントをその言語に翻訳することができます。この機能を使用するにはエディタ設定の「Comment Translator > DeepL API Key」で事前にAPIキーを設定しておく必要があります。
+When you right-click on a comment node with a comment set, a "Translate to..." menu appears. When you hover your mouse over this menu, a list of target languages appears. Selecting any of these languages allows you to translate the comment written in the comment node to that language.
+
+> [!NOTE]
+> To use this feature, you must pre-configure the API key in the editor settings' "Comment Translator > DeepL API Key".
 
 <img width="500" src="https://github.com/user-attachments/assets/1f25d9e4-5037-42c7-b561-46e56d176f39">
 
 ### Array Node Creator
-同じ型のアウトプットピンを持つ複数のノードを選択している状態で右クリックすると「Make Array」というメニューが表示されます。このメニューを選択すると、それらのアウトプットピンが接続された Make Array ノードを一瞬で作成し、グラフに追加することができます。
+When you select multiple nodes with output pins of the same type and right-click, a "Make Array" menu appears. Selecting this menu allows you to instantly create a Make Array node connected to those output pins and add it to the graph.
 
 <img width="500" src="https://github.com/user-attachments/assets/1b7cf903-4eba-44a6-b475-5e513eb4b4d5">
 
 ### Node Information Copier
-ノードを1つ以上選択している状態で右クリックすると「Copy as...」というメニューが表示されます。さらにそのメニューをマウスホバーすると「JSON」と「TOON」という2つの項目が表示されます。どちらかを選択すると、それらのノードの情報をJSONまたは[TOON](https://toonformat.dev)形式の文字列としてクリップボードにコピーすることができます。この文字列にはノード名やピン名、ノードコメント、ピンの方向（インプットかアウトプット）、ピンの型名、ピンのGUID、そのピンに接続されているピンのGUIDなどが含まれます。「JSON」を選択すると、Unreal Engine の標準のコピー機能でクリップボードにコピーされる文字数のおよそ3分の1ほどの文字数でコピーすることができます。さらに「TOON」を選択すると、JSONのときの半分ほどの文字数でコピーすることができます。
+When you have one or more nodes selected and right-click, a "Copy as..." menu appears. When you hover your mouse over this menu, two items appear: "JSON" and "TOON". Selecting either allows you to copy the information of those nodes to the clipboard as a JSON or [TOON](https://toonformat.dev) format string. This string includes the node name, pin name, node comment, pin direction (input or output), pin type name, pin GUID, and the GUIDs of pins connected to that pin, etc. When you select "JSON", you can copy approximately one-third of the number of characters that would be copied with Unreal Engine's standard copy function. Furthermore, when you select "TOON", you can copy about half the number of characters compared to JSON.
 
 <img width="700" src="https://github.com/user-attachments/assets/7a4b25c9-46c1-4b39-a6b6-09251ca1801b">
 
-例えば上の画像に写っているブループリントは「L_Sample」というレベルのレベルブループリントであり、「IsFirstPlay」という bool 型の変数の値に応じて「Nice to meet you!!」か「We meet again!」というテキストを画面に表示しています。このプラグインのコピー機能を使用してコピーした実際の文字列は以下の通りです。
+For example, the blueprint shown in the image above is a level blueprint of a level called "L_Sample", and it displays either "Nice to meet you!!" or "We meet again!" on the screen depending on the value of a bool type variable called "IsFirstPlay". The actual string copied using this plugin's copy function is as follows:
 
 <details>
 
@@ -445,65 +455,70 @@ nodeDataList[5]{nodeName,comment,bIsCommentNode,pinDataList}:
 この例ではJSONのときの文字数が7,986文字、TOONのときは3,316文字になっています。（Unreal Engine の標準のコピー機能では23,278文字になります。）
 
 ### Node Previewer
-ノード検索ウィンドウでマウスホバーしているノードのプレビューをツールチップに表示します。既にエンジン内部で定義されているものに限らず、ブループリントやC++でユーザーが独自に定義した変数や関数、マクロ、カスタムイベントなどもプレビューに表示できます。この機能を有効化するには「Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview」にチェックを付ける必要があります。
+Displays a preview of the node you're hovering over in the node search window as a tooltip. Not only those defined within the engine, but also variables, functions, macros, custom events, and other user-defined items in blueprints and C++ can be displayed in the preview. To enable this feature, you need to check "Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Node Previewer > Enable Node Preview".
+
+> [!CAUTION]
+> Some special nodes such as Documentation Node and attempting to preview nodes in assets other than normal blueprints and animation blueprints can cause crashes, so please use Node Previewer with caution.
 
 <img width="700" src="https://github.com/user-attachments/assets/8acba045-cc94-4f53-ba49-95639f0ba065">
 
-「Enable Node Preview」にチェックを付けると、以下のプロパティが編集できるようになります。
+When you check "Enable Node Preview", the following properties can be edited:
 
-| プロパティ名 | 概要 |
+| Property Name | Overview |
 ----|----
-| Also Preview Advanced View  | デフォルトで折り畳まれているピンをプレビューに表示するかどうか。例えば PrintString ノードの TextColor や Duration、Key などがそれにあたります。 |
-| Preview Scale  | ノードプレビューのスケール。初期値は1.0です。 |
+| Also Preview Advanced View | Whether to display pins that are collapsed by default in the preview. For example, properties like TextColor, Duration, and Key in the PrintString node. |
+| Preview Scale | The scale of the node preview. The default value is 1.0. |
 
 ### Access Specifier Optimizer
-このプラグインを有効化してブループリントエディタを開くと、「Optimize Access Specifiers」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されているメンバの中でアクセス修飾子を変更した方がいいものが一覧で表示されます。例えば、そのクラス内でしか参照されていないにも関わらず、アクセス修飾子が Private になっていないものや、他のクラスから参照されていてもそれらのクラスが基のクラスの派生クラスしかないにも関わらず、アクセス修飾子が Public になっているものなどです。アクセス修飾子を変更したいメンバにチェックを付けて「Apply Optimal Access Specifiers」というボタンを押すと、それらのメンバに最適なアクセス修飾子を一括で適用することができます。
+When you enable this plugin and open the blueprint editor, an "Optimize Access Specifiers" menu is added to the "Edit" menu at the top of the editor. When you select this menu, a list of members defined in the blueprint that should have their access specifier changed is displayed. For example, members that are not set to Private despite being referenced only within that class, or members set to Public despite being referenced by other classes that are only derived classes of the base class. You can check the members whose access specifier you want to change and click the "Apply Optimal Access Specifiers" button to batch apply the optimal access specifier to those members.
+
+> [!WARNING]
+> - Custom event access specifiers are supported only in UE 5.3 and later. In UE 5.2 and earlier, custom events are not recognized as members of that class.
+> - If there are unsaved or uncompiled blueprints, usage of those members cannot be correctly investigated, which may result in incorrect access specifier suggestions. It is recommended to save or compile all blueprints before using this feature.
 
 <img width="500" src="https://github.com/user-attachments/assets/2f04d68e-bbda-4ecf-a65c-8c85fdd524f6">
 
-※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前ではカスタムイベントがそのクラスのメンバとして認識されないようになっています。
-
-※保存またはコンパイルしていないブループリントがある状態ではそのメンバの使用箇所を正しく調査できず、誤ったアクセス修飾子を提案してしまうことがあります。この機能を使用する前に全てのブループリントを保存またはコンパイルしておくことを推奨します。
-
 ### Access Specifier Initializer
-ブループリントに新しい変数や関数、カスタムイベントを追加した際にそのメンバのアクセス修飾子を自動的に変更します。デフォルトでは、ブループリントで追加したメンバのアクセス修飾子は常に Public になっていますが、この機能を有効化することでメンバの追加時に自動的に Protected や Private などに変更することができます。
+Automatically changes the access specifier of a member when you add a new variable, function, or custom event to a blueprint. By default, the access specifier of members added in a blueprint is always Public, but by enabling this feature, you can automatically change it to Protected or Private when adding members.
 
-この機能に関連したエディタ設定の項目は以下の通りです。
+The editor settings related to this feature are as follows:
 
-| プロパティ名 | 概要 |
+| Property Name | Overview |
 ----|----
-| Override Variable Default Access Specifier | 新規変数のデフォルトアクセス修飾子を上書きするかどうか。 |
-| Variable Default Access Specifier | 新規変数のデフォルトアクセス修飾子。（Private・Public） |
-| Override Function Default Access Specifier | 新規関数のデフォルトアクセス修飾子を上書きするかどうか。 |
-| Function Default Access Specifier | 新規関数のデフォルトアクセス修飾子。（Private・Protected・Public） |
-| Override Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子を上書きするかどうか。 |
-| Custom Event Default Access Specifier | 新規カスタムイベントのデフォルトアクセス修飾子。（Private・Protected・Public） |
+| Override Variable Default Access Specifier | Whether to override the default access specifier for new variables. |
+| Variable Default Access Specifier | Default access specifier for new variables. (Private/Public) |
+| Override Function Default Access Specifier | Whether to override the default access specifier for new functions. |
+| Function Default Access Specifier | Default access specifier for new functions. (Private/Protected/Public) |
+| Override Custom Event Default Access Specifier | Whether to override the default access specifier for new custom events. |
+| Custom Event Default Access Specifier | Default access specifier for new custom events. (Private/Protected/Public) |
 
-※カスタムイベントのアクセス修飾子は UE 5.3 以降でのみ対応しています。UE 5.2 以前では「Override Custom Event Default Access Specifier」と「Custom Event Default Access Specifier」は編集できません。
+> [!WARNING]
+> Custom event access specifiers are supported only in UE 5.3 and later. In UE 5.2 and earlier, "Override Custom Event Default Access Specifier" and "Custom Event Default Access Specifier" cannot be edited.
 
 ### Unused Function Deleter
-このプラグインを有効化してブループリントエディタを開くと「Delete Unused Functions」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、そのブループリントで定義されている関数の中で未使用のものが一覧で表示されます。削除したい関数にチェックを付けて「Delete Selected Functions」というボタンを押すと、それらの関数を一括で削除することができます。
+When you enable this plugin and open the blueprint editor, a "Delete Unused Functions" menu is added to the "Edit" menu at the top of the editor. When you select this menu, a list of unused functions defined in the blueprint is displayed. You can check the functions you want to delete and click the "Delete Selected Functions" button to batch delete those functions.
+
+> [!WARNING]
+> Functions that are not newly declared in this blueprint, such as overridden functions or functions implemented in interfaces, may not correctly determine usage status and are therefore outside the scope of this feature.
 
 <img width="500" src="https://github.com/user-attachments/assets/2c0f2ce5-8998-483f-b74d-1be53de84aca">
 
-※オーバーライドした関数やインターフェースで実装した関数などの、そのブループリントで新たに宣言されたわけではない関数は使用状態を正しく判定できない可能性があるため、この機能の対象外です。
-
 ### Unused Local Variable Deleter
-このプラグインを有効化してブループリントエディタを開き、関数グラフにフォーカスすると「Delete Unused Local Variables」というメニューがエディタ上部の「Edit」に追加されます。このメニューを選択すると、その関数で定義されているローカル変数の中で未使用のものが一覧で表示されます。削除したいローカル変数にチェックを付けて「Delete Selected Local Variables」というボタンを押すと、それらのローカル変数を一括で削除することができます。
+When you enable this plugin, open the blueprint editor, and focus on a function graph, a "Delete Unused Local Variables" menu is added to the "Edit" menu at the top of the editor. When you select this menu, a list of unused local variables defined in that function is displayed. You can check the local variables you want to delete and click the "Delete Selected Local Variables" button to batch delete those local variables.
 
 <img width="500" src="https://github.com/user-attachments/assets/fa565e80-c798-4900-bcc7-fbb98d4686f0">
 
 ### Recommended Editor Settings Applier
-このプラグインを有効化すると「Apply Recommended Editor Settings」という名前のプロパティと、「Apply」と書かれたボタンが「Editor Preferences ＞ Plugins ＞ Tsubasamusu Unreal Assist ＞ Recommended Editor Settings Applier」に表示されます。このボタンをクリックすると、[このプラグインの開発者](https://x.com/tsubasamusu)が個人的に推奨しているエディタ設定を一括で適用することができます。具体的な設定内容は以下の通りです。
+When you enable this plugin, a property named "Apply Recommended Editor Settings" and a button labeled "Apply" appear in "Editor Preferences > Plugins > Tsubasamusu Unreal Assist > Recommended Editor Settings Applier". Clicking this button allows you to batch apply editor settings that [the developer of this plugin](https://x.com/tsubasamusu) personally recommends. The specific settings are as follows:
 
-- 自動保存を無効化します。
-- 前回開いていたアセットエディタが復元されないようにします。
-- アセットエディタがメインウィンドウで開くようにします。
-- ブループリントグラフでズームアウトしたときに Comment Bubble が表示されるようにします。
-- コメントノードのデフォルトカラーを黒色に変更します。
-- エディタ言語を英語に変更します。ノード名やピン名、プロパティ名などの言語も英語になります。
-- BeginPlay や Tick などの、ブループリントを作成したときにゴースト状態で初めから配置されているノードが配置されないようにします。
-- Cast ノードが実行ピンのない、ピュアな状態で出現するようにします。
-- アウトプットログがカラフルに色付けされるようにします。
-- ツールバーのアイコンがコンパクトに表示されるようにします。
-- PIE を開始したときにビューポートをクリックしなくても自動的にビューポートにフォーカスされるようにします。
+- Disable auto save.
+- Do not restore the tabs of assets that were open previously when the editor is restarted.
+- Set the location where asset editors open to “Main Window.”
+- Make comment bubble visible when zooming out in the Event Graph.
+- Set the default color of comment nodes to black.
+- Set the editor language to English.
+- Also use English for node names, pin names, and property names.
+- Prevent nodes that are placed in a “ghost” state by default, such as BeginPlay and Tick, from being placed by default. (So that no “ghost” nodes exist when creating a Blueprint.)
+- Make Cast nodes appear as Pure by default, with no execution pins.
+- Display the Output Log in color.  
+- When starting PIE, automatically focus the viewport even if it hasn’t been clicked."
