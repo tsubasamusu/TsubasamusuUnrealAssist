@@ -168,7 +168,11 @@ void UNodePreviewer::TryPreviewNode()
 		return;
 	}
 
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 2, 0)
 	FVector2f NodeWidgetSize = NodeWidget->GetDesiredSize();
+#else
+	FVector2D NodeWidgetSize = NodeWidget->GetDesiredSize();
+#endif
 	TSharedRef<SWidget> FinalNodeWidget = NodeWidget.ToSharedRef();
 	
 	const UK2Node* K2Node = Cast<UK2Node>(LastCreatedNode);
@@ -181,15 +185,20 @@ void UNodePreviewer::TryPreviewNode()
 		{
 			const FSlateBrush* IconBrush = FAppStyle::GetBrush(CornerIconName);
 			
-			const FVector2f IconSize = IconBrush->GetImageSize();
-			const FVector2f HalfIconSize = IconSize / 2.f;
-			
 			// Normally, setting "NodeWidgetSize.X" to "NodeWidgetSize.X + HalfIconSize.X" should be fine,
 			// but for some reason, this sometimes causes the corner icon to be cut off,
 			// so we increase "NodeWidgetSize.X" slightly.
 			// Example: UWidgetAnimationPlayCallbackProxy::NewPlayAnimationTimeRangeProxyObject() (Play Animation Time Range with Finished event)
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 2, 0)
+			const FVector2f IconSize = IconBrush->GetImageSize();
+			const FVector2f HalfIconSize = IconSize / 2.f;
 			NodeWidgetSize = FVector2f(NodeWidgetSize.X + IconSize.X, NodeWidgetSize.Y + HalfIconSize.Y);
- 
+#else
+			const FVector2D IconSize = IconBrush->GetImageSize();
+			const FVector2D HalfIconSize = IconSize / 2.f;
+			NodeWidgetSize = FVector2D(NodeWidgetSize.X + IconSize.X, NodeWidgetSize.Y + HalfIconSize.Y);
+#endif
+			
 			FinalNodeWidget = SNew(SBox)
 			.WidthOverride(NodeWidgetSize.X)
 			.HeightOverride(NodeWidgetSize.Y)
