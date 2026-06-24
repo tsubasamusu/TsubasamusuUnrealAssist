@@ -1,7 +1,7 @@
 # Tsubasamusu Unreal Assist (Experimental)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tsubasamusu/TsubasamusuUnrealAssist)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.7-0e1128?logo=unrealengine&logoColor=white)
+![UE Version](https://img.shields.io/badge/Unreal%20Engine-5.0--5.8-0e1128?logo=unrealengine&logoColor=white)
 [![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/tsubasamusu?style=social)](https://twitter.com/tsubasamusu)
 
 > [!WARNING]
@@ -24,6 +24,7 @@ Supported engine versions are as follows:
 - 5.5
 - 5.6
 - 5.7
+- 5.8
 
 ## Installation Instructions
 ### Installing the Plugin
