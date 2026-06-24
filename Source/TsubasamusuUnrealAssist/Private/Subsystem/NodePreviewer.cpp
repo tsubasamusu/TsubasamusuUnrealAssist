@@ -11,7 +11,6 @@
 #include "SGraphNode.h"
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "Kismet2/KismetEditorUtilities.h"
-#include "Message/TsubasamusuLogUtility.h"
 #include "Setting/TsubasamusuUnrealAssistSettings.h"
 #include "Widgets/Layout/SScaleBox.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
@@ -498,12 +497,20 @@ UEdGraphNode* UNodePreviewer::CreateOrFindNode(const TSharedPtr<FGraphActionNode
 				
 				if (IsValid(Ubergraph))
 				{
-					return PrimaryAction->PerformAction(Ubergraph, nullptr, FVector2f());	
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 6, 0)
+					return PrimaryAction->PerformAction(Ubergraph, nullptr, FVector2f());
+#else
+					return PrimaryAction->PerformAction(Ubergraph, nullptr, FVector2D());
+#endif
 				}
 			}
 		}
 		
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 6, 0)
 		return PrimaryAction->PerformAction(GhostGraph.Get(), nullptr, FVector2f());
+#else
+		return PrimaryAction->PerformAction(GhostGraph.Get(), nullptr, FVector2D());
+#endif
 	}
 	
 	return nullptr;
