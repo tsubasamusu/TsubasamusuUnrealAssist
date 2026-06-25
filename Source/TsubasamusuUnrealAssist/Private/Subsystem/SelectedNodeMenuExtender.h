@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "EditorSubsystemBase.h"
 #include "GraphEditorModule.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "SelectedNodeMenuExtender.generated.h"
 
-struct FSelectedNodeMenuContext;
 using FExtendSelectedNodeMenuDelegate = FGraphEditorModule::FGraphEditorMenuExtender_SelectedNode;
 
 UCLASS()

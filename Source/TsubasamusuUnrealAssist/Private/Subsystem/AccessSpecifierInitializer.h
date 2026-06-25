@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "EditorSubsystemBase.h"
+#include "Type/TsubasamusuUnrealAssistStructs.h"
 #include "AccessSpecifierInitializer.generated.h"
-
-struct FBlueprintMemberSet;
 
 UCLASS()
 class UAccessSpecifierInitializer final : public UEditorSubsystemBase

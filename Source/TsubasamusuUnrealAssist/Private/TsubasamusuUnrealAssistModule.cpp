@@ -9,6 +9,7 @@
 #include "Blueprint/UnusedFunctionDeleter.h"
 #include "Blueprint/UnusedLocalVariableDeleter.h"
 #include "Command/TsubasamusuBlueprintEditorCommands.h"
+#include "Type/TsubasamusuUnrealAssistMacros.h"
 
 #define LOCTEXT_NAMESPACE "FTsubasamusuUnrealAssistModule"
 
@@ -17,7 +18,14 @@ void FTsubasamusuUnrealAssistModule::StartupModule()
 	RegisterSettings();
 	RegisterSettingsCustomization();
 	
-	PostEngineInitHandle = FCoreDelegates::OnPostEngineInit.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterAssetEditorOpenedEvent);
+	FSimpleMulticastDelegate& PostEngineInitDelegate =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 8, 0)
+		FCoreDelegates::GetOnPostEngineInit();
+#else
+		FCoreDelegates::OnPostEngineInit;
+#endif
+	
+	PostEngineInitHandle = PostEngineInitDelegate.AddRaw(this, &FTsubasamusuUnrealAssistModule::RegisterAssetEditorOpenedEvent);
 }
 
 void FTsubasamusuUnrealAssistModule::ShutdownModule()
@@ -28,7 +36,15 @@ void FTsubasamusuUnrealAssistModule::ShutdownModule()
 	
 	if (PostEngineInitHandle.IsValid())
 	{
-		FCoreDelegates::OnPostEngineInit.Remove(PostEngineInitHandle);
+		
+		FSimpleMulticastDelegate& PostEngineInitDelegate =
+#if UE_VERSION_NEWER_THAN_OR_EQUAL(5, 8, 0)
+			FCoreDelegates::GetOnPostEngineInit();
+#else
+			FCoreDelegates::OnPostEngineInit;
+#endif
+		
+		PostEngineInitDelegate.Remove(PostEngineInitHandle);
 	}
 }
 
